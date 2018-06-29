@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SLA Mapper | CARTO</title>
+        <meta name="viewport" content="initial-scale=1.0">
+            <meta charset="utf-8">
+            <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
+            <!-- Include Leaflet -->
+            <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+            <link href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" rel="stylesheet">
+            <!-- Include CARTO.js -->
+            <script src="https://libs.cartocdn.com/carto.js/v4.0.8/carto.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+            <link href="https://carto.com/developers/carto-js/examples/maps/public/style.css" rel="stylesheet">
+			<style>
+				* { margin:0; padding:0; }
+				html { box-sizing:border-box; height:100%; }
+				body { background:#f2f6f9; height:100%; font-family:"lato"; font-weight:normal;}
+				h1, h2, h3, h5, h5, h6 {
+					font-family:"lato" !important;
+					font-weight:normal !important;
+					padding-bottom: 5px;
+					margin: 0px 0px !important;
+				}
+				label {
+					font-family:"lato" !important;
+				}
+				p {
+					font-family:"lato" !important;
+				}
+				.bold {font-weight:bold !important;}
+				.lighter {color:#444444;}
+				hr {margin-bottom: 10px; margin-top: 10px;}
+				#container { display:flex; width:100%; height:100%; }
+				#map { flex:1; margin:10px; }
+				.separator{
+					min-height: 1px;
+					background-color: rgba(46, 60, 67, 0.08);
+					margin: 16px 0;
+				}
+				.toolbox_left {
+    				position: absolute;
+    				bottom: 24px;
+    				left: 24px;
+    				min-width: 300px;
+    				max-width: 300px;
+    				z-index: 2;
+				}
+				#info-box, #canvas1, #canvas2 {
+					display:none;
+				}
+				.icon {
+					margin-left:5px;
+				}
+
+				
+
+			</style>
+    </head>
+    
+    <body>
+        <div id="map"></div>
+
+        <!-- Description -->
+		<aside class="toolbox_left">
+			<div class="box">
+                <header>
+                    <h1 class = "bold">SLA Mapper (SLAM)</h1>
+                </header>
+                <section>
+                    <h4 class="lighter">Click on a feature.</h4>
+					<div class="separator"></div>
+					<div id="controls">
+						<ul class="actions">
+							<li>
+								<input id="sla" type="checkbox" name="style" onchange="show_sla()" checked>
+								<label for="sla">Show SLA-Licensed Establishments</label>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg"/>
+							</li>
+							<li>
+								<input id="swc" type="checkbox" name="style" onchange="show_swc()" checked>
+								<label for="swc">Show DCA-Licensed Sidewalk Cafes</label>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg"/>
+							</li>
+							<li>
+								<input id="311" type="checkbox" name="style" onchange="show_311()" checked>
+								<label for="311">Show 311 Noise/Drinking Complaints</label>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/circle-18.svg"/>
+									
+							</li>
+							<li>
+								<input id="dohmh" type="checkbox" name="style" onchange="show_dohmh()" checked>
+								<label for="dohmh">Show Restaurant Health Inspections</label>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg"/>
+							</li>
+						</ul>
+					</div>
+				</div>
+		</aside>
+        <aside class="toolbox">
+			<div id="info-box" class="box">
+					<div id="info"></div>
+					<canvas id="canvas1"></canvas>
+					<canvas id="canvas2"></canvas>
+					<div id="source"></div>
+				</div>
+                </section>
+                <footer class="js-footer"></footer>
+            </div>
+        </aside>
+		
+        
+        <script>
+            const map = L.map('map').setView([40.73, -74], 18);
+            map.scrollWheelZoom.disable();
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                        maxZoom: 18
+            }).addTo(map);
+                        
+            const client = new carto.Client({
+                apiKey: '0cdd88f5e816766aec13f416ec14b633e6ecb4b6',
+                username: 'betanyc'
+            });
+
+            var api_key = '0cdd88f5e816766aec13f416ec14b633e6ecb4b6';
+            const source_sla = new carto.source.SQL(`
+                SELECT cartodb_id, the_geom, the_geom_webmercator, license_serial_number, premises_name, doing_business_as_dba, actual_address_of_premises_address1, license_certificate_number,   license_original_issue_date,  license_effective_date, license_expiration_date, EXTRACT(year from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_year FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND license_type_code = 'OP' `
+            );
+			const source_311 = new carto.source.SQL(`WITH
+				s AS (
+					SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
+					FROM club_bar_restaurant_complaints_since_jan_1_2017_1),
+				m AS (
+					SELECT array_agg(cartodb_id ORDER BY rownum) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
+					FROM s
+					GROUP BY the_geom_webmercator
+					ORDER BY y DESC),
+				f AS (
+					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
+					FROM m)
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.complaint_type, q.descriptor, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
+					FROM f, club_bar_restaurant_complaints_since_jan_1_2017_1 q
+					WHERE f.cartodb_id = q.cartodb_id
+			`);
+			const source_swc = new carto.source.SQL(`
+				 SELECT * FROM sidewalk_caf_licenses_and_applications
+			`);
+			const source_dohmh = new carto.source.SQL(`WITH
+				m AS (
+					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
+					FROM dohmh_inspections
+					GROUP BY the_geom_webmercator
+					ORDER BY y DESC),
+				f AS (
+					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
+					FROM m)
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*4) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
+					FROM f, dohmh_inspections q
+					WHERE f.cartodb_id = q.cartodb_id
+			`);
+
+            const style_sla = new carto.style.CartoCSS(`
+                #layer [expiration_year <= 2018]{
+                    marker-width: 20;
+                    marker-fill: #e10012;
+                    marker-fill-opacity: 0.9;
+                    marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
+					marker-allow-overlap: true;
+					marker-line-width: 1;
+					marker-line-color: #FFFFFF;
+					marker-line-opacity: 1;
+				}
+				#layer [expiration_year > 2018]{
+					marker-width: 20;
+					marker-fill: #e34dee;
+					marker-fill-opacity: 0.9;
+					marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
+					marker-allow-overlap: true;
+					marker-line-width: 1;
+					marker-line-color: #FFFFFF;
+					marker-line-opacity: 1;
+				}
+            `);
+            const style_311 = new carto.style.CartoCSS(`
+				#layer {
+					marker-width: 7;
+					marker-fill: #4d88ee;
+					marker-fill-opacity: 0.9;
+					marker-allow-overlap: true;
+					marker-line-width: 0.25;
+					marker-line-color: #FFFFFF;
+					marker-line-opacity: 1;
+				}
+				#layer[complaint_type="Drinking"] {
+					marker-fill: #3622b9;
+				}
+				#layer[complaint_type="Noise - Commercial"] {
+					marker-fill: #4d88ee;
+				}
+
+			`);
+			const style_swc = new carto.style.CartoCSS(`
+			   #layer [lic_status = 'Active']{
+				   marker-width: 18;
+				   marker-fill: #07d91c;
+				   marker-fill-opacity: 0.9;
+				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
+				   marker-allow-overlap: true;
+				   marker-line-width: 0.25;
+				   marker-line-color: #FFFFFF;
+				   marker-line-opacity: 1;
+			   }
+			   #layer [lic_status = 'Inactive']{
+				   marker-width: 18;
+				   marker-fill: #227527;
+				   marker-fill-opacity: 0.9;
+				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
+				   marker-allow-overlap: true;
+				   marker-line-width: 0.25;
+				   marker-line-color: #FFFFFF;
+				   marker-line-opacity: 1;
+			   }
+			   `);
+			   const style_dohmh = new carto.style.CartoCSS(`
+			   #layer {
+				  marker-width: 20;
+				  marker-fill: #ff8300;
+				  marker-fill-opacity: 0.9;
+				  marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg');
+				  marker-allow-overlap: true;
+				  marker-line-width: 1;
+				  marker-line-color: #FFFFFF;
+				  marker-line-opacity: 1;
+				}
+			   `);
+			
+            const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
+                featureClickColumns: ['premises_name', 'doing_business_as_dba', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1']
+            });
+			
+            const layer_311 = new carto.layer.Layer(source_311, style_311, {
+                featureOverColumns: ['geometry','incident_address','intersection_street_1','intersection_street_2','created_date','descriptor','complaint_type']
+            });
+			
+			const layer_swc = new carto.layer.Layer(source_swc, style_swc, {
+				featureOverColumns: ['license_nbr','lic_status','business_name','business_name2','building','street','swc_type', 'swc_sq_ft', 'swc_tables', 'swc_chairs', 'community_district','expiration_date', 'issuance','issuance_dd','cb','cb_dd', 'app_id', 'app_swc_type', 'app_sq_ft', 'app_tables', 'app_chairs','intake_dd' ]
+			});
+			const layer_dohmh = new carto.layer.Layer(source_dohmh, style_dohmh, {
+				featureOverColumns: ['camis','dba', 'building','street' ]
+			});
+			
+			var ctx;
+			var ctx2;
+			var descriptor_chart;
+			var year_chart;
+			
+			client.addLayer(layer_311);
+			
+			layer_311.on('featureOver', featureEvent =>{
+				let dateDescriptor = '';
+				
+				dateDescriptor += `<div class="widget">`;
+				if (featureEvent.data.incident_address!='')
+				dateDescriptor += `<p class = "bold">${featureEvent.data.incident_address}</p>`;
+				else
+					dateDescriptor += `<p>Intersection: ${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</p>`;
+				dateDescriptor += `<p>Complaint Type: ${featureEvent.data.complaint_type}</p><p>Descriptor: ${featureEvent.data.descriptor}</p><p>Date: ${featureEvent.data.created_date}</p>`;
+				popup.setContent(dateDescriptor);
+				popup.setLatLng(featureEvent.latLng);
+				if (!popup.isOpen()) {
+					popup.openOn(map);
+				}
+			});
+			
+			layer_311.on('featureClicked', featureEvent => {
+				let content = '';
+				let source = '';
+				let descriptor_arr = {};
+				let descriptor_labels = [];
+				let descriptor_data = [];
+				let descriptor_colors = [];
+				let year_arr = {};
+				let year_labels = [];
+				let year_data = [];
+				let year_colors = [];
+						 
+				if (typeof descriptor_chart !== 'undefined'){
+					descriptor_chart.clear();
+					descriptor_chart.destroy();
+				}
+						 
+				if (typeof year_chart !== 'undefined'){
+					year_chart.clear();
+					year_chart.destroy();
+				}
+						 
+				var url = "https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(year from to_date(created_date, 'MM/DD/YYYY')) AS created_year FROM club_bar_restaurant_complaints_since_jan_1_2017_1 WHERE location='"+featureEvent.data.geometry+"'&api_key="+api_key;
+				let complaints_count = 0;
+				fetch(url)
+				.then(function(response) {
+					return response.json();
+				})
+				.then(function(geom_data) {
+					complaints_count = geom_data.rows.length;
+					if (featureEvent.data.incident_address!=''){
+						content += `<h3 class = "bold">${featureEvent.data.incident_address}</h3>`;
+					}
+
+					else {
+						content += `<h3 class = "bold">${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</h3>`;
+					}
+
+					content += `<div class="separator"></div>
+					<h5 class = "lighter">Total Number of Complaints: ${complaints_count}</h5>`;
+
+					for (var i = 0; i < complaints_count; i++) {
+						descriptor_arr[geom_data.rows[i].descriptor] = 1 + (descriptor_arr[geom_data.rows[i].descriptor] || 0);
+					}
+					
+					descriptor_labels = Object.keys(descriptor_arr);
+					descriptor_data = Object.values(descriptor_arr);
+					
+					for (var i = 0; i < descriptor_labels.length; i++) {
+						descriptor_colors.push('#' + (Math.random().toString(16) + '0000000').slice(2,8));
+					}
+					
+					ctx = document.getElementById("canvas1").getContext('2d');
+					ctx2 = document.getElementById("canvas2").getContext('2d');
+					descriptor_chart = new Chart(ctx, {
+						type: 'pie',
+						data: {
+							labels: descriptor_labels,
+							datasets: [{
+										backgroundColor: descriptor_colors,
+										data: descriptor_data
+									 }]
+						},
+						options: {
+							title: {
+            					display: true,
+            					text: 'Complaints by Descriptor'
+        					}
+						}
+					});
+				   
+					for (var i = 0; i < complaints_count; i++) {
+						year_arr[geom_data.rows[i].created_year] = 1 + (year_arr[geom_data.rows[i].created_year] || 0);
+					}
+					
+					year_labels = Object.keys(year_arr);
+					year_data = Object.values(year_arr);
+					
+					for (var i = 0; i < year_labels.length; i++) {
+						year_colors.push('#' + (Math.random().toString(16) + '0000000').slice(2,8));
+					}
+					
+					year_chart = new Chart(ctx2,{
+						type: 'bar',
+						data: {
+							labels: year_labels,
+							datasets: [{
+								backgroundColor: year_colors,
+								data: year_data
+							}]
+						},
+						options: {
+							legend: {
+								display: false
+							},
+							scales: {
+            					yAxes: [{
+                					ticks: {
+                    					beginAtZero:true
+                					}
+            					}]
+							},
+							title: {
+            					display: true,
+            					text: 'Complaints by Year'
+        					}
+						}
+					});
+					source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered to complaints at a club/restaurant/bar made since January 1, 2017. Data is updated daily.</h6>`;
+					if (document.getElementById('info-box').style.display = 'none')
+						document.getElementById('info-box').style.display = 'block';
+					if (document.getElementById('canvas1').style.display = 'none')
+						document.getElementById('canvas1').style.display = 'block';
+					if (document.getElementById('canvas2').style.display = 'none')
+						document.getElementById('canvas2').style.display = 'block';
+				   	document.getElementById('info').innerHTML = content;
+					document.getElementById('source').innerHTML = source;
+				});
+			});
+						 
+			client.addLayer(layer_swc);
+			layer_swc.on('featureOver', featureEvent =>{
+				let address = '';
+				
+				address += `<div class="widget">`;
+
+				address += `<p class = "bold">${featureEvent.data.building} ${featureEvent.data.street}</p><p>${featureEvent.data.business_name2}</p><p>${featureEvent.data.business_name}</p>`;
+				popup.setContent(address);
+				popup.setLatLng(featureEvent.latLng);
+				if (!popup.isOpen()) {
+					popup.openOn(map);
+				}
+			});
+			
+			layer_swc.on('featureClicked', featureEvent => {
+				let content = '';
+				let source = '';
+				let under_review = false;
+				let expired = false;
+				
+				if (typeof descriptor_chart !== 'undefined'){
+					descriptor_chart.clear();
+					document.getElementById("canvas1").style.display = 'none';
+				}
+				
+				if (typeof year_chart !== 'undefined'){
+					year_chart.clear();
+					document.getElementById("canvas2").style.display = 'none';
+				}
+				
+
+				if ((featureEvent.data.issuance == 'Pending Review') && (featureEvent.data.lic_status == 'Inactive')){
+					 under_review = true;
+					 expired = false;
+					 console.log('under review');
+				}
+				
+				else if ((featureEvent.data.issuance == 'Issued') && (featureEvent.data.lic_status == 'Inactive')){
+					 under_review = false;
+					 expired = true;
+					 console.log('expired');
+				}
+				 
+				content += `<h3 class = "bold">${featureEvent.data.business_name2}</h3>
+				<h4 class = "bold">${featureEvent.data.business_name}</h4>
+				<h4>${featureEvent.data.building} ${featureEvent.data.street}</h4><div class="separator"></div>`;
+				 
+				if (under_review == true){
+					 content += `<h5 class = "lighter">${featureEvent.data.issuance}</h5>
+					 <h5 class = "lighter">Application ID: ${featureEvent.data.app_id}</h5>
+					 <h5 class = "lighter">Application Type: ${featureEvent.data.app_swc_type}</h5>
+					 <h5 class = "lighter">Application Square footage: ${featureEvent.data.app_sq_ft}</h5>
+					 <h5 class = "lighter">Application Tables: ${featureEvent.data.app_tables}</h5>
+					 <h5 class = "lighter">Application Chairs: ${featureEvent.data.app_chairs}</h5>
+					 <h5 class = "lighter">Application Intake Date: ${featureEvent.data.intake_dd}</h5>
+					 <h5><a href="https://www1.nyc.gov/assets/dca/SidewalkCafeMap/index.html#home" target="_blank">Click here for more information about this sidewalk cafe.</h5>`;
+				}
+				
+				else if (expired == true){
+					 content += `<h5 class = "lighter">Status: ${featureEvent.data.lic_status}</h5>
+					 <h5 class = "lighter">License Number: ${featureEvent.data.license_nbr}</h5>
+					 <h5 class = "lighter">Issuance Date: ${featureEvent.data.issuance_dd}</h5>
+					 <h5 class = "lighter">Expiration Date: ${featureEvent.data.expiration_date}</h5>`;
+				}
+				
+				else
+					 content += `<h5 class = "lighter">Status: ${featureEvent.data.lic_status}</h5>
+					 <h5 class = "lighter">License Number: ${featureEvent.data.license_nbr}</h5>
+					 <h5 class = "lighter">Type: ${featureEvent.data.swc_type}</h5>
+					 <h5 class = "lighter">Square footage: ${featureEvent.data.swc_sq_ft}</h5>
+					 <h5 class = "lighter">Tables: ${featureEvent.data.swc_tables}</h5>
+					 <h5 class = "lighter">Chairs: ${featureEvent.data.swc_chairs}</h5>
+					 <h5 class = "lighter">Issuance Date: ${featureEvent.data.issuance_dd}</h5>
+					 <h5 class = "lighter">Expiration Date: ${featureEvent.data.expiration_date}</h5>
+					 <div class="separator"></div>
+					 <h5 class = "lighter">Community Board: ${featureEvent.data.community_district}</h5>
+					 <h5 class = "lighter">Community Board Review Status: ${featureEvent.data.cb}</h5>
+					 <h5 class = "lighter">Community Board Review Status Date: ${featureEvent.data.cb_dd}</h5>
+					 <h5><a href="https://www1.nyc.gov/assets/dca/SidewalkCafeMap/index.html#home" target="_blank">Click here for more information about this sidewalk cafe.</h5>
+					 `;
+				source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data'>Sidewalk Cafe Licenses and Applications.</a></h6><h6>Data is updated weekly.</h6>`;
+				if (document.getElementById('info-box').style.display = 'none')
+					document.getElementById('info-box').style.display = 'block';
+				document.getElementById('info').innerHTML = content;
+				document.getElementById('source').innerHTML = source;
+			});
+			
+			client.addLayer(layer_sla);
+			layer_sla.on('featureOver', featureEvent =>{
+				let address = '';
+				
+				address += `<div class="widget">`;
+
+				address += `<p class = "bold">${featureEvent.data.actual_address_of_premises_address1}</p><p>${featureEvent.data.doing_business_as_dba}</p><p>${featureEvent.data.premises_name}</p>`;
+				popup.setContent(address);
+				popup.setLatLng(featureEvent.latLng);
+				if (!popup.isOpen()) {
+					popup.openOn(map);
+				}
+			});
+			
+			layer_sla.on('featureClicked', featureEvent => {
+				let content = '';
+				let source = '';
+				if (typeof descriptor_chart !== 'undefined'){
+					descriptor_chart.clear();
+					document.getElementById("canvas1").style.display = 'none';
+				}
+				
+				if (typeof year_chart !== 'undefined'){
+					year_chart.clear();
+					document.getElementById("canvas2").style.display = 'none';
+				}
+				
+
+				content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4><h4>${featureEvent.data.actual_address_of_premises_address1}</h4><div class="separator"></div>
+				<h5 class = "lighter">Serial number: ${featureEvent.data.license_serial_number}</h5>
+				<h5 class = "lighter">Original Issue Date: ${featureEvent.data.license_original_issue_date}</h5>
+				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_effective_date}</h5>
+				<h5 class = "lighter">Expiration Date: ${featureEvent.data.license_expiration_date}</h5>
+				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.license_serial_number}&licenseType=OP' target = '_blank'>Click here for more information about this license.</a></h5>`;
+				source += `<div class="separator"></div><h6>Source: <a href='https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2'>Liquor Authority Quarterly List of Active Licenses.</a></h6><h6>Data is filtered to On-Premise liquor licenses reviewed by the New York City Agency Office. Data is updated quarterly.</h6>`;
+				if (document.getElementById('info-box').style.display = 'none')
+					document.getElementById('info-box').style.display = 'block';
+				document.getElementById('info').innerHTML = content;
+				document.getElementById('source').innerHTML = source;
+			});
+			
+			client.addLayer(layer_dohmh);
+			layer_dohmh.on('featureOver', featureEvent =>{
+				let address = '';
+				
+				address += `<div class="widget">`;
+
+				address += `<p class = "bold">${featureEvent.data.building} ${featureEvent.data.street}</p><p>${featureEvent.data.dba}</p>`;
+				popup.setContent(address);
+				popup.setLatLng(featureEvent.latLng);
+				if (!popup.isOpen()) {
+					popup.openOn(map);
+				}
+			});
+			
+			layer_dohmh.on('featureClicked', featureEvent => {
+				let content = '';
+				let source = '';
+				
+				if (typeof descriptor_chart !== 'undefined'){
+					descriptor_chart.clear();
+					document.getElementById("canvas1").style.display = 'none';
+				}
+				
+				if (typeof year_chart !== 'undefined'){
+					year_chart.clear();
+					document.getElementById("canvas2").style.display = 'none';
+				}
+					
+				content += `<h3 class = "bold">${featureEvent.data.dba}</h3>
+				<h4>${featureEvent.data.building} ${featureEvent.data.street}</h4><div class="separator"></div>`;
+
+				var url = "https://betanyc.carto.com/api/v2/sql/?q=SELECT * FROM dohmh_new_york_city_restaurant_inspection_results WHERE camis='"+featureEvent.data.camis+"' ORDER BY to_timestamp(grade_date, 'MM/DD/YYYY') DESC&api_key="+api_key;
+				fetch(url)
+				.then(function(response) {
+					return response.json();
+				})
+				.then(function(camis_data) {
+					if (camis_data.rows.length != 0){
+						content += `
+						<h5 class = "lighter">Most Recent Grade: ${camis_data.rows[0].grade}</h5>
+						<h5 class = "lighter">Grade Date: ${camis_data.rows[0].grade_date}</h5>`;
+					}
+
+					Array.prototype.groupBy = function(prop) {
+					  return this.reduce(function(groups, item) {
+						const val = item[prop]
+						groups[val] = groups[val] || []
+						groups[val].push(item)
+						return groups
+					  }, {})
+					}
+					var grade_history = camis_data.rows.groupBy('grade_date');
+
+					content += `<div class="separator"></div><h5 class = "bold">Grade History</h5>`;
+					for (var i = 0; i < Object.keys(grade_history).length; i++) {
+						var key = Object.keys(grade_history)[i];
+						var values = Object.values(grade_history)[i];
+						if (key != '') {
+							content += `<h5 class = "lighter"> ${key}: ${values[0].grade}</h5>`;
+						}
+					}
+					content += `<h5><a href="http://a816-restaurantinspection.nyc.gov/RestaurantInspection/SearchBrowse.do" target="_blank">Click here for more information about this restaurant.</h5> `;
+					source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data'>DOHMH New York City Restaurant Inspection Results.</a></h6><h6>Data is geocoded with the Department of City Planning's GeoSupport application once a week. The map does not display restaurants with addresses rejected by the application. Data is updated weekly.</h6>`;
+				if (document.getElementById('info-box').style.display = 'none')
+					document.getElementById('info-box').style.display = 'block';
+				document.getElementById('info').innerHTML = content;
+				document.getElementById('source').innerHTML = source;
+				});
+
+			});
+
+			function show_311(){
+				if (document.getElementById("311").checked) {
+					layer_311.show();
+				}
+				else
+					layer_311.hide();
+			}
+		
+			function show_sla(){
+				if (document.getElementById("sla").checked) {
+					layer_sla.show();
+				}
+				else
+					layer_sla.hide();
+			}
+		
+			function show_swc(){
+				if (document.getElementById("swc").checked) {
+					layer_swc.show();
+				}
+				else
+					layer_swc.hide();
+			}
+			function show_dohmh(){
+				if (document.getElementById("dohmh").checked) {
+					layer_dohmh.show();
+				}
+				else
+					layer_dohmh.hide();
+			}
+
+            client.getLeafletLayer().addTo(map);
+            
+            const popup = L.popup({ closeButton: false });
+            
+
+
+								
+		</script>
+    </body>
+</html>
+
