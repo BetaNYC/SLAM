@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html>
     <head>
         <title>SLA Mapper | CARTO</title>
         <meta name="viewport" content="initial-scale=1.0">
             <meta charset="utf-8">
-            <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
             <!-- Include Leaflet -->
             <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
             <link href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" rel="stylesheet">
@@ -51,9 +50,15 @@
 					display:none;
 				}
 				.icon {
-					margin-left:5px;
+					margin-left: 5px;
+					margin-right:3px;
 				}
-
+				.legend-text {
+					font-size:11px;
+				}
+				label {
+					font-size:14px !important;
+				}
 				
 
 			</style>
@@ -75,24 +80,44 @@
 						<ul class="actions">
 							<li>
 								<input id="sla" type="checkbox" name="style" onchange="show_sla()" checked>
-								<label for="sla">Show SLA-Licensed Establishments</label>
-								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg"/>
+								<label for="sla">State Liquor Authority Licenses</label></li>
+							<li>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg"/><p class = "legend-text">Expiring before 2019</p>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg"/><p class = "legend-text">Expiring after 2019</p>
 							</li>
 							<li>
 								<input id="swc" type="checkbox" name="style" onchange="show_swc()" checked>
-								<label for="swc">Show DCA-Licensed Sidewalk Cafes</label>
-								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg"/>
+								<label for="swc">Sidewalk Cafe Licenses</label></li>
+							<li>
+								
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210223picnic-site-15.svg"/><p class = "legend-text">Active</p>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210143picnic-site-15.svg"/><p class = "legend-text">Inactive</p>
 							</li>
 							<li>
 								<input id="311" type="checkbox" name="style" onchange="show_311()" checked>
-								<label for="311">Show 311 Noise/Drinking Complaints</label>
-								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/circle-18.svg"/>
-									
+								<label for="311">311 Complaints About Bar/Club/Restaurant Since 2017</label>
+							</li>
+							<li>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210011circle-11.svg"/><p class = "legend-text">Noise</p>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210053circle-11.svg"/><p class = "legend-text">Drinking</p>
 							</li>
 							<li>
 								<input id="dohmh" type="checkbox" name="style" onchange="show_dohmh()" checked>
-								<label for="dohmh">Show Restaurant Health Inspections</label>
-								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg"/>
+								<label for="dohmh">Restaurant Health Grades</label>
+							</li>
+							<li>
+								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205921embassy-15.svg"/><p class = "legend-text">Restaurant</p>
+							</li>
+							<li>
+
+							</li>
+							<li>
+
+									
+							</li>
+							<li>
+
+								
 							</li>
 						</ul>
 					</div>
@@ -125,8 +150,18 @@
             });
 
             var api_key = '0cdd88f5e816766aec13f416ec14b633e6ecb4b6';
-            const source_sla = new carto.source.SQL(`
-                SELECT cartodb_id, the_geom, the_geom_webmercator, license_serial_number, premises_name, doing_business_as_dba, actual_address_of_premises_address1, license_certificate_number,   license_original_issue_date,  license_effective_date, license_expiration_date, EXTRACT(year from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_year FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND license_type_code = 'OP' `
+            const source_sla = new carto.source.SQL(`WITH
+				m AS (
+					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
+					FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND license_type_code = 'OP'
+					GROUP BY the_geom_webmercator
+					ORDER BY y DESC),
+				f AS (
+					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
+					FROM m)
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*4) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba, q.actual_address_of_premises_address1, q.license_certificate_number, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
+					FROM f, liquor_authority_quarterly_list_of_active_licenses q
+					WHERE f.cartodb_id = q.cartodb_id`
             );
 			const source_311 = new carto.source.SQL(`WITH
 				s AS (
@@ -162,9 +197,8 @@
 			`);
 
             const style_sla = new carto.style.CartoCSS(`
-                #layer [expiration_year <= 2018]{
+                #layer {
                     marker-width: 20;
-                    marker-fill: #e10012;
                     marker-fill-opacity: 0.9;
                     marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
 					marker-allow-overlap: true;
@@ -172,20 +206,27 @@
 					marker-line-color: #FFFFFF;
 					marker-line-opacity: 1;
 				}
+				#layer [expiration_year <= 2018]{
+                    marker-fill: #e10012;
+				}
 				#layer [expiration_year > 2018]{
-					marker-width: 20;
 					marker-fill: #e34dee;
-					marker-fill-opacity: 0.9;
-					marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
-					marker-allow-overlap: true;
-					marker-line-width: 1;
-					marker-line-color: #FFFFFF;
-					marker-line-opacity: 1;
+				}
+				#layer [zoom > 16]{
+					marker-width: 20;
+				}
+				#layer [zoom <= 16]{
+				  marker-width: 13;
+				}
+				#layer [zoom <= 14]{
+				  marker-width: 8;
+				}
+				#layer [zoom <= 12]{
+				  marker-width: 4;
 				}
             `);
             const style_311 = new carto.style.CartoCSS(`
 				#layer {
-					marker-width: 7;
 					marker-fill: #4d88ee;
 					marker-fill-opacity: 0.9;
 					marker-allow-overlap: true;
@@ -199,33 +240,51 @@
 				#layer[complaint_type="Noise - Commercial"] {
 					marker-fill: #4d88ee;
 				}
+				#layer [zoom > 16]{
+					marker-width: 7;
+				}
+				#layer [zoom <= 16]{
+				  marker-width: 5;
+				}
+				#layer [zoom <= 14]{
+				  marker-width: 3;
+				}
+				#layer [zoom <= 12]{
+				  marker-width: 2;
+				}
 
 			`);
 			const style_swc = new carto.style.CartoCSS(`
-			   #layer [lic_status = 'Active']{
+				#layer {
 				   marker-width: 18;
+				   marker-fill-opacity: 0.9;
+				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
+				   marker-allow-overlap: true;
+				   marker-line-width: 0.25;
+				   marker-line-color: #FFFFFF;
+				   marker-line-opacity: 1;
+				}
+				#layer [zoom > 16]{
+					marker-width: 20;
+				}
+				#layer [zoom <= 16]{
+				  marker-width: 13;
+				}
+				#layer [zoom <= 14]{
+				  marker-width: 8;
+				}
+				#layer [zoom <= 12]{
+				  marker-width: 4;
+				}
+			   	#layer [lic_status = 'Active']{
 				   marker-fill: #07d91c;
-				   marker-fill-opacity: 0.9;
-				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
-				   marker-allow-overlap: true;
-				   marker-line-width: 0.25;
-				   marker-line-color: #FFFFFF;
-				   marker-line-opacity: 1;
-			   }
-			   #layer [lic_status = 'Inactive']{
-				   marker-width: 18;
+			   	}
+			   	#layer [lic_status = 'Inactive']{
 				   marker-fill: #227527;
-				   marker-fill-opacity: 0.9;
-				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
-				   marker-allow-overlap: true;
-				   marker-line-width: 0.25;
-				   marker-line-color: #FFFFFF;
-				   marker-line-opacity: 1;
-			   }
+			   	}
 			   `);
 			   const style_dohmh = new carto.style.CartoCSS(`
-			   #layer {
-				  marker-width: 20;
+			   #layer{
 				  marker-fill: #ff8300;
 				  marker-fill-opacity: 0.9;
 				  marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg');
@@ -234,6 +293,19 @@
 				  marker-line-color: #FFFFFF;
 				  marker-line-opacity: 1;
 				}
+				#layer [zoom > 16]{
+					marker-width: 20;
+				}
+				#layer [zoom <= 16]{
+				  marker-width: 13;
+				}
+				#layer [zoom <= 14]{
+				  marker-width: 8;
+				}
+				#layer [zoom <= 12]{
+				  marker-width: 4;
+				}
+
 			   `);
 			
             const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
