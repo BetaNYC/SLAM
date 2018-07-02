@@ -59,6 +59,14 @@
 				label {
 					font-size:14px !important;
 				}
+				.close-button {
+					font-size:11px;
+					float:right;
+				}
+				.clearfix {
+    				overflow: auto;
+				}
+
 				
 
 			</style>
@@ -108,27 +116,17 @@
 							<li>
 								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205921embassy-15.svg"/><p class = "legend-text">Restaurant</p>
 							</li>
-							<li>
-
-							</li>
-							<li>
-
-									
-							</li>
-							<li>
-
-								
-							</li>
 						</ul>
 					</div>
 				</div>
 		</aside>
         <aside class="toolbox">
-			<div id="info-box" class="box">
+			<div id="info-box" class="box clearfix">
 					<div id="info"></div>
 					<canvas id="canvas1"></canvas>
 					<canvas id="canvas2"></canvas>
 					<div id="source"></div>
+					<a href="#" onclick="toggle_visibility('info-box');" class="close-button">Close Window</a>
 				</div>
                 </section>
                 <footer class="js-footer"></footer>
@@ -153,13 +151,13 @@
             const source_sla = new carto.source.SQL(`WITH
 				m AS (
 					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
-					FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND license_type_code = 'OP'
+					FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND (license_type_code = 'OP' OR license_type_code = 'SW' OR license_type_code = 'SB' OR license_type_code = 'SL' OR license_type_code = 'VL' OR license_type_code = 'RL' OR license_type_code = 'HL' OR license_type_code = 'CL' OR license_type_code = 'CT' OR license_type_code = 'EL' OR license_type_code = 'TL' OR license_type_code = 'CR' OR license_type_code = 'RW' OR license_type_code = 'HW' OR license_type_code = 'CW' OR license_type_code = 'TW' OR license_type_code = 'WC' OR license_type_code = 'EB' OR license_type_code = 'MR')
 					GROUP BY the_geom_webmercator
 					ORDER BY y DESC),
 				f AS (
 					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
 					FROM m)
-				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*4) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba, q.actual_address_of_premises_address1, q.license_certificate_number, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba, q.actual_address_of_premises_address1, q.license_certificate_number, q.license_type_name, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
 					FROM f, liquor_authority_quarterly_list_of_active_licenses q
 					WHERE f.cartodb_id = q.cartodb_id`
             );
@@ -191,7 +189,7 @@
 				f AS (
 					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
 					FROM m)
-				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*4) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
 					FROM f, dohmh_inspections q
 					WHERE f.cartodb_id = q.cartodb_id
 			`);
@@ -309,7 +307,7 @@
 			   `);
 			
             const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
-                featureClickColumns: ['premises_name', 'doing_business_as_dba', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1']
+                featureClickColumns: ['premises_name', 'doing_business_as_dba', 'license_type_name', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1']
             });
 			
             const layer_311 = new carto.layer.Layer(source_311, style_311, {
@@ -582,12 +580,13 @@
 				
 
 				content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4><h4>${featureEvent.data.actual_address_of_premises_address1}</h4><div class="separator"></div>
+				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_name}</h5>
 				<h5 class = "lighter">Serial number: ${featureEvent.data.license_serial_number}</h5>
 				<h5 class = "lighter">Original Issue Date: ${featureEvent.data.license_original_issue_date}</h5>
 				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_effective_date}</h5>
 				<h5 class = "lighter">Expiration Date: ${featureEvent.data.license_expiration_date}</h5>
 				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.license_serial_number}&licenseType=OP' target = '_blank'>Click here for more information about this license.</a></h5>`;
-				source += `<div class="separator"></div><h6>Source: <a href='https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2'>Liquor Authority Quarterly List of Active Licenses.</a></h6><h6>Data is filtered to On-Premise liquor licenses reviewed by the New York City Agency Office. Data is updated quarterly.</h6>`;
+				source += `<div class="separator"></div><h6>Source: <a href='https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2'>Liquor Authority Quarterly List of Active Licenses.</a></h6><h6>Data is filtered to liquor licenses reviewed by the New York City Agency Office. Data is updated quarterly.</h6>`;
 				if (document.getElementById('info-box').style.display = 'none')
 					document.getElementById('info-box').style.display = 'block';
 				document.getElementById('info').innerHTML = content;
@@ -695,6 +694,13 @@
 				else
 					layer_dohmh.hide();
 			}
+			function toggle_visibility(id) {
+       			var e = document.getElementById(id);
+       			if(e.style.display == 'block')
+          			e.style.display = 'none';
+       			else
+          			e.style.display = 'block';
+    		}
 
             client.getLeafletLayer().addTo(map);
             
