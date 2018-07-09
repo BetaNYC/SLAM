@@ -59,6 +59,9 @@
 				label {
 					font-size:14px !important;
 				}
+				#no_results {
+					display:none;
+				}
 				.close-button {
 					font-size:11px;
 					float:right;
@@ -83,6 +86,7 @@
                 </header>
                 <section>
                     <h4 class="lighter">Click on a feature.</h4>
+					
 					<div class="separator"></div>
 					<div id="controls">
 						<ul class="actions">
@@ -118,6 +122,18 @@
 							</li>
 						</ul>
 					</div>
+					<div class="separator"></div>
+						<h4 class="lighter">Search for a NYC address.</h4>
+						<label>Borough:</label> <select id="boro">
+  							<option value="Bronx">Bronx</option>
+  							<option value="Brooklyn">Brooklyn</option>
+  							<option value="Manhattan">Manhattan</option>
+  							<option value="Queens">Queens</option>
+							<option value="Staten Island">Staten Island</option>
+						</select><br/>
+						<label>Address:</label> <input id="address" onfocus="this.value=''" type="text" name="address" value="" size="20"><br/>
+						<input type="submit" value="Search" onclick="set_address()">
+						<div id="no_results"><p>No results found.</p></div>
 				</div>
 		</aside>
         <aside class="toolbox">
@@ -161,6 +177,7 @@
 					FROM f, liquor_authority_quarterly_list_of_active_licenses q
 					WHERE f.cartodb_id = q.cartodb_id`
             );
+			
 			const source_311 = new carto.source.SQL(`WITH
 				s AS (
 					SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
@@ -177,9 +194,11 @@
 					FROM f, club_bar_restaurant_complaints_since_jan_1_2017_1 q
 					WHERE f.cartodb_id = q.cartodb_id
 			`);
+			
 			const source_swc = new carto.source.SQL(`
 				 SELECT * FROM sidewalk_caf_licenses_and_applications
 			`);
+			
 			const source_dohmh = new carto.source.SQL(`WITH
 				m AS (
 					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
@@ -214,6 +233,9 @@
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
+				  marker-width: 15;
+				}
+				#layer [zoom <= 15]{
 				  marker-width: 13;
 				}
 				#layer [zoom <= 14]{
@@ -223,6 +245,7 @@
 				  marker-width: 4;
 				}
             `);
+			
             const style_311 = new carto.style.CartoCSS(`
 				#layer {
 					marker-fill: #4d88ee;
@@ -244,6 +267,9 @@
 				#layer [zoom <= 16]{
 				  marker-width: 5;
 				}
+				#layer [zoom <= 15]{
+				  marker-width: 4;
+				}
 				#layer [zoom <= 14]{
 				  marker-width: 3;
 				}
@@ -252,6 +278,7 @@
 				}
 
 			`);
+			
 			const style_swc = new carto.style.CartoCSS(`
 				#layer {
 				   marker-width: 18;
@@ -266,6 +293,9 @@
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
+				  marker-width: 15;
+				}
+				#layer [zoom <= 15]{
 				  marker-width: 13;
 				}
 				#layer [zoom <= 14]{
@@ -281,6 +311,7 @@
 				   marker-fill: #227527;
 			   	}
 			   `);
+			   
 			   const style_dohmh = new carto.style.CartoCSS(`
 			   #layer{
 				  marker-fill: #ff8300;
@@ -295,6 +326,9 @@
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
+				  marker-width: 15;
+				}
+				#layer [zoom <= 15]{
 				  marker-width: 13;
 				}
 				#layer [zoom <= 14]{
@@ -335,7 +369,7 @@
 				if (featureEvent.data.incident_address!='')
 				dateDescriptor += `<p class = "bold">${featureEvent.data.incident_address}</p>`;
 				else
-					dateDescriptor += `<p>Intersection: ${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</p>`;
+					dateDescriptor += `<p class = "bold">${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</p>`;
 				dateDescriptor += `<p>Complaint Type: ${featureEvent.data.complaint_type}</p><p>Descriptor: ${featureEvent.data.descriptor}</p><p>Date: ${featureEvent.data.created_date}</p>`;
 				popup.setContent(dateDescriptor);
 				popup.setLatLng(featureEvent.latLng);
@@ -411,7 +445,17 @@
 							title: {
             					display: true,
             					text: 'Complaints by Descriptor'
-        					}
+        					},
+							legend: {
+								display: true,
+								labels: {
+									fontSize: 10
+								},
+								position:'right',
+								onClick: null,
+								fullWidth: true
+
+							}
 						}
 					});
 				   
@@ -452,6 +496,7 @@
         					}
 						}
 					});
+					
 					source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered to complaints at a club/restaurant/bar made since January 1, 2017. Data is updated daily.</h6>`;
 					if (document.getElementById('info-box').style.display = 'none')
 						document.getElementById('info-box').style.display = 'block';
@@ -663,7 +708,34 @@
 				});
 
 			});
+			
+			function set_address() {
+				var select = document.getElementById("boro");
+				var boro = select.options[select.selectedIndex].value;
+				var adr = document.getElementById("address").value;
+				
+				const proxyurl = "https://cors-anywhere.herokuapp.com/";
+				var url = "https://api.cityofnewyork.us/geoclient/v1/search.json?input=" + " " + adr + " " + boro + "&app_id=dd37f663&app_key=c99663c5e8b11315279f8d28ef245dab";
+				
+				fetch(proxyurl + url, {mode: 'cors'})
+				.then(function(response) {
+					return response.json();
+				})
+				.then(function(address) {
+					document.getElementById('no_results').style.display = 'none';
+					results = address.results;
+					response = results[0].response;
+					latitude = response.latitude;
+					longitude = response.longitude;
+					map.setView([latitude, longitude], 18);
+				})
+				.catch(function(error) {
+					document.getElementById('no_results').style.display = 'block';
 
+				});
+			
+			}
+		
 			function show_311(){
 				if (document.getElementById("311").checked) {
 					layer_311.show();
@@ -694,6 +766,7 @@
 				else
 					layer_dohmh.hide();
 			}
+		
 			function toggle_visibility(id) {
        			var e = document.getElementById(id);
        			if(e.style.display == 'block')
