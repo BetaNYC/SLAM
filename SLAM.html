@@ -120,6 +120,10 @@
 							<li>
 								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205921embassy-15.svg"/><p class = "legend-text">Restaurant</p>
 							</li>
+							<li>
+								<input id="zoning" type="checkbox" name="style" onchange="show_zoning()" checked>
+								<label for="zoning">Show Residential Zoning Districts</label>
+							</li>
 						</ul>
 					</div>
 					<div class="separator"></div>
@@ -211,6 +215,9 @@
 				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
 					FROM f, dohmh_inspections q
 					WHERE f.cartodb_id = q.cartodb_id
+			`);
+			const source_zoning = new carto.source.SQL(`
+				SELECT * FROM edc_primaryzoningresidential_001_14aug2009
 			`);
 
             const style_sla = new carto.style.CartoCSS(`
@@ -304,15 +311,15 @@
 				#layer [zoom <= 12]{
 				  marker-width: 4;
 				}
-			   	#layer [lic_status = 'Active']{
+				#layer [lic_status = 'Active']{
 				   marker-fill: #07d91c;
-			   	}
-			   	#layer [lic_status = 'Inactive']{
+				}
+				#layer [lic_status = 'Inactive']{
 				   marker-fill: #227527;
-			   	}
-			   `);
+				}
+			`);
 			   
-			   const style_dohmh = new carto.style.CartoCSS(`
+			const style_dohmh = new carto.style.CartoCSS(`
 			   #layer{
 				  marker-fill: #ff8300;
 				  marker-fill-opacity: 0.9;
@@ -338,7 +345,19 @@
 				  marker-width: 4;
 				}
 
-			   `);
+			`);
+			const style_zoning = new carto.style.CartoCSS(`
+				#layer {
+				  polygon-fill: #826DBA;
+				  polygon-opacity: 0.4;
+				  ::outline {
+					line-color: #FFFFFF;
+					line-width: 1;
+					line-opacity: 0.5;
+				  }
+				}
+			`);
+			   
 			
             const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
                 featureClickColumns: ['premises_name', 'doing_business_as_dba', 'license_type_name', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1', 'zip']
@@ -354,12 +373,14 @@
 			const layer_dohmh = new carto.layer.Layer(source_dohmh, style_dohmh, {
 				featureOverColumns: ['camis','dba', 'building','street' ]
 			});
+			const layer_zoning = new carto.layer.Layer(source_zoning, style_zoning);
 			
 			var ctx;
 			var ctx2;
 			var descriptor_chart;
 			var year_chart;
 			
+			client.addLayer(layer_zoning);
 			client.addLayer(layer_311);
 			
 			layer_311.on('featureOver', featureEvent =>{
@@ -773,6 +794,14 @@
 				}
 				else
 					layer_dohmh.hide();
+			}
+		
+			function show_zoning(){
+				if (document.getElementById("zoning").checked) {
+					layer_zoning.show();
+				}
+				else
+					layer_zoning.hide();
 			}
 		
 			function toggle_visibility(id) {
