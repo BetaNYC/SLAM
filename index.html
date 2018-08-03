@@ -85,8 +85,9 @@
                     <h1 class = "bold">SLA Mapper (SLAM)</h1>
                 </header>
                 <section>
-                    <h4 class="lighter">Click on a feature.</h4>
-					
+				<div class="separator"></div>
+					<h4 class="lighter">Instructions</h4>
+                    <h5 class="lighter">Click on a map feature to learn more about an establishment's liquor license, sidewalk café license, restaurant health grades, or 311 complaints.</h5>
 					<div class="separator"></div>
 					<div id="controls">
 						<ul class="actions">
@@ -99,7 +100,7 @@
 							</li>
 							<li>
 								<input id="swc" type="checkbox" name="style" onchange="show_swc()" checked>
-								<label for="swc">Sidewalk Cafe Licenses</label></li>
+								<label for="swc">Sidewalk Café Licenses</label></li>
 							<li>
 								
 								<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210223picnic-site-15.svg"/><p class = "legend-text">Active</p>
@@ -154,7 +155,7 @@
             const map = L.map('map').setView([40.73, -74], 18);
             map.scrollWheelZoom.disable();
             
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png', {
                         maxZoom: 18
             }).addTo(map);
                         
