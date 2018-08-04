@@ -38,32 +38,47 @@
 				<div id="controls">
 					<ul class="actions">
 						<li>
-							<input id="sla" type="checkbox" name="style" onchange="show_sla()" checked>
-							<label for="sla">State Liquor Authority Licenses</label>
+							<label class="switch">
+								<input id="sla" type="checkbox" name="style" onchange="show_sla()" checked>
+								<span class="slider"></span>
+							</label>
+							<h5>State Liquor Authority Licenses</h5>
 						</li>
 						<li>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg"/><p class = "legend_text">Expiring before 2019</p>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg"/><p class = "legend_text">Expiring after 2019</p>
 						</li>
 						<li>
-							<input id="swc" type="checkbox" name="style" onchange="show_swc()" checked>
-							<label for="swc">Sidewalk Café Licenses</label></li>
+							<label class="switch">
+								<input id="swc" type="checkbox" name="style" onchange="show_swc()" checked>
+								<span class="slider"></span>
+							</label>
+							<h5>Sidewalk Café Licenses</h5>
+						</li>
 						<li>
-							
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210223picnic-site-15.svg"/><p class = "legend_text">Active</p>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210143picnic-site-15.svg"/><p class = "legend_text">Inactive</p>
 						</li>
 						<li>
-							<input id="311" type="checkbox" name="style" onchange="show_311()" checked>
-							<label for="311">311 Complaints About Bar/Club/Restaurant Since 2017</label>
+							<label class="switch">
+								<input id="311" type="checkbox" name="style" onchange="show_311()" checked>
+								<span class="slider"></span>
+							</label>
+							<h5>311 Complaints Since 2017</h5>
+						</li>
+						<li>
+							<p class="legend_text"><em>*Filtered to those made at club/bar/restaurant</em></p>
 						</li>
 						<li>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210011circle-11.svg"/><p class = "legend_text">Noise</p>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210053circle-11.svg"/><p class = "legend_text">Drinking</p>
 						</li>
 						<li>
-							<input id="dohmh" type="checkbox" name="style" onchange="show_dohmh()" checked>
-							<label for="dohmh">Restaurant Health Grades</label>
+							<label class="switch">
+								<input id="dohmh" type="checkbox" name="style" onchange="show_dohmh()" checked>
+								<span class="slider"></span>
+							</label>
+							<h5>Restaurant Health Grades</h5>
 						</li>
 						<li>
 							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205921embassy-15.svg"/><p class = "legend_text">Restaurant</p>
@@ -73,16 +88,20 @@
 					<div class="separator"></div>
 					
 					<!-- location search -->
-						<h4 class="lighter">Search for a NYC address.</h4>
-						<label class="search_label">Borough:</label>
-						<select id="boro">
+						<h4 class="lighter">Search</h4>
+						<div class="select_custom">
+						<select id="boro" >
+							<option value="Borough">Select a Borough</option>
   							<option value="Bronx">Bronx</option>
   							<option value="Brooklyn">Brooklyn</option>
   							<option value="Manhattan">Manhattan</option>
   							<option value="Queens">Queens</option>
 							<option value="Staten Island">Staten Island</option>
-						</select><br/>
-						<label class="search_label">Address:</label> <input id="address" onfocus="this.value=''" type="text" name="address" value="" size="20"><br/>
+						</select>
+						<div class="select_arrow"></div>
+						</div>
+						<input id="address" placeholder="Enter a NYC Address" onfocus="this.value=''" type="text" name="address" value="" class="search_bar"><br/>
+						
 						<input type="submit" value="Search" onclick="set_address()">
 						<div id="no_results">
 							<p>No results found.</p>
