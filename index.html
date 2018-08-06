@@ -5,6 +5,7 @@
         <meta name="viewport" content="initial-scale=1.0">
             <meta charset="utf-8">
             <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
+			<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Playfair+Display" />
             <!-- Include Leaflet -->
             <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
             <link href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" rel="stylesheet">
@@ -14,6 +15,7 @@
             <link href="https://carto.com/developers/carto-js/examples/maps/public/style.css" rel="stylesheet">
 			<link href="css/style.css" rel="stylesheet">
 			<script type="text/javascript" src="scripts/main.js"></script>
+			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     </head>
     
     <body>
@@ -25,7 +27,7 @@
 			
 				<!-- title -->
                 <header>
-                    <h1 class = "bold">SLA Mapper (SLAM)</h1>
+                    <h1>SLA Mapper (SLAM)</h1><h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
                 </header>
 				<div class="separator"></div>
 				
@@ -417,11 +419,11 @@
 					
 					//if there is an incident address listed in the dataset at that location list it; otherwise concatenate the strings in intersection1 and intersection2 of the dataset
 					if (featureEvent.data.incident_address!=''){
-						content += `<h3 class = "bold">${featureEvent.data.incident_address}</h3>`;
+						content += `<h4 class = "bold">${featureEvent.data.incident_address}</h4>`;
 					}
 
 					else {
-						content += `<h3 class = "bold">${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</h3>`;
+						content += `<h4 class = "bold">${featureEvent.data.intersection_street_1}, ${featureEvent.data.intersection_street_2}</h4>`;
 					}
 					
 					// list total number of complaints
@@ -650,7 +652,14 @@
 				//function to clear the previous 311 charts
 				clear_charts();
 				
-				content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4><h4>${featureEvent.data.actual_address_of_premises_address1}</h4><div class="separator"></div>
+				//check if dba is filled in; otherwise use premises name as the header
+				if (featureEvent.data.doing_business_as_dba != '') {
+					content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4>`;
+					}
+				else {
+					content += `<h3 class = "bold">${featureEvent.data.premises_name}</h3>`;
+				}
+				content+= `<h4>${featureEvent.data.actual_address_of_premises_address1}</h4><div class="separator"></div>
 				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_name}</h5>
 				<h5 class = "lighter">Serial number: ${featureEvent.data.license_serial_number}</h5>
 				<h5 class = "lighter">Original Issue Date: ${featureEvent.data.license_original_issue_date}</h5>
