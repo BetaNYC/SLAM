@@ -6,7 +6,7 @@ SLA Mapper (SLAM) – is a tool that aggregates data that community boards often
 
 
 ## SLAM v0.6e
-* Added Link to Certificate of Occupancy for each Liquor License
+* [8](../../../../BetaNYC/SLAM/issues/8) Added Link to Certificate of Occupancy for each Liquor License
 * Added Instructions to the Main Info-box
 * Restyled the Info-boxes
 * Changed the basemap 
