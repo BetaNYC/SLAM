@@ -14,6 +14,7 @@ body {
 	height:100%;
 	font-family:"lato";
 	font-weight:normal;
+	overflow: hidden;
 }
 
 h1, h2, h3 {
@@ -32,6 +33,7 @@ h1 {
 h4 {
 	text-align:center;
 }
+
 h5, h6 {
 	text-align:justify;
 }
@@ -78,6 +80,22 @@ p {
 	height:100%;
 	z-index: 2;
 	overflow-y:hidden;
+}
+
+.toolbox {
+	position:relative;
+	overflow-y:hidden;
+	top:24px;
+	bottom:24px;
+	right:24px;
+	
+}
+
+#info_box {
+	overflow-y:auto;
+	position:relative;
+	overflow-x:hidden;
+	height:100%px;
 }
 
 #info_box, #descriptor_chart, #year_chart {
