@@ -361,6 +361,41 @@
 			var descriptor_chart;
 			var year_chart;
 			
+			//plug-in so that data labels appear on each dot of the line charts (the rent-stabilized units by year chart and the 311 complaints over time chart)
+			//see: http://www.chartjs.org/samples/latest/advanced/data-labelling.html
+			var LabelsPlugin = {afterDatasetsDraw: function(chart) {
+					var ctx = chart.ctx;
+					chart.data.datasets.forEach(function(dataset, i) {
+						var meta = chart.getDatasetMeta(i);
+						if (!meta.hidden) {
+							meta.data.forEach(function(element, index) {
+								// Draw the text in black, with the specified font
+								ctx.fillStyle = 'rgb(100, 100, 100)';
+								var fontSize = 10;
+								var fontStyle = 'normal';
+								var fontFamily = 'Helvetica Neue';
+								ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+								
+								if (dataset.data[index] != null)
+									dataNum = dataset.data[index];
+								else
+									dataNum = 0;
+								// Just naively convert to string for now
+								var dataString = dataNum.toString();
+								// Make sure alignment settings are correct
+								ctx.textAlign = 'center';
+								ctx.textBaseline = 'middle';
+								var padding = -15;
+								var position = element.tooltipPosition();
+								
+								if (dataString != 0) {
+									ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+								}
+							});
+						}
+					});
+				}}
+			
 			//add layer to map
 			client.addLayer(layer_311);
 			
@@ -489,19 +524,15 @@
 					year_labels = Object.keys(year_arr);
 					year_data = Object.values(year_arr);
 					
-					//assign random colors to each year
-					for (var i = 0; i < year_labels.length; i++) {
-						year_colors.push('#' + (Math.random().toString(16) + '0000000').slice(2,8));
-					}
-					
 					//create bar chart of complaints per year
 					ctx2 = document.getElementById("year_chart").getContext('2d');
 					year_chart = new Chart(ctx2,{
-						type: 'bar',
+						type: 'line',
+						plugins: LabelsPlugin,
 						data: {
 							labels: year_labels,
 							datasets: [{
-								backgroundColor: year_colors,
+								borderColor: '#4d88ee',
 								data: year_data
 							}]
 						},
@@ -512,9 +543,15 @@
 							scales: {
             					yAxes: [{
                 					ticks: {
-                    					beginAtZero:true
+                    					beginAtZero:true,
+										fontSize: 10
                 					}
-            					}]
+            					}],
+								xAxes: [{
+									ticks: {
+										fontSize: 10
+											}
+										}],
 							},
 							title: {
             					display: true,
