@@ -36,7 +36,15 @@
 			
 				<!-- title -->
                 <header>
-                    <h1>SLA Mapper (SLAM)</h1><h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
+                    <h1>SLA Mapper (SLAM)</h1>
+					<div id="about">
+						<figure class="figure">
+							<img class="logo" src="images/BetaNYC_short_white_on_blue.png"/>
+							<figcaption class="logo_caption">A BetaNYC Tool</figcaption>
+						</figure>
+						<h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
+					</div>
+					
                 </header>
 				<div class="separator"></div>
 				
@@ -542,16 +550,28 @@
 							},
 							scales: {
             					yAxes: [{
-                					ticks: {
-                    					beginAtZero:true,
+									ticks: {
+										beginAtZero:true,
 										fontSize: 10
-                					}
-            					}],
+									},
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: '# of Complaints',
+										fontSize: 10
+									}
+								}],
 								xAxes: [{
 									ticks: {
 										fontSize: 10
-											}
-										}],
+									},
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: 'Year',
+										fontSize: 10
+									}
+								}],
 							},
 							title: {
             					display: true,

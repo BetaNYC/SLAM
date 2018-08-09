@@ -99,6 +99,27 @@ p {
 		width:200px
 	}
 }
+#about {
+	margin-top:20px;
+}
+.logo {
+	width:90px;
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.logo_caption {
+	font-size:10px;
+	text-align:center;
+}
+
+.figure {
+	float:right;
+}
+
+.about_text {
+ 	float:left;
+}
 
 .toolbox {
 	position:relative;
@@ -207,20 +228,22 @@ input:checked + .slider:before {
 
 @media all and (min-width: 1000px) {
     .leaflet-left{
-        left: 328px;
+        left: 335px;
     }
 }
 
 @media all and (max-width: 1000px) {
     .leaflet-left{
-        left: 278px;
+        left: 285px;
     }
 }
 
 @media all and (max-width: 800px) {
     .leaflet-left{
-        left: 178px;
- 
+        left: 185xpx;
+ 	}
+}
+
 .leaflet-control-zoom-out {
 	background-color:#fff !important;
 }
