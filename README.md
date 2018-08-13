@@ -1,6 +1,8 @@
 # SLAM
 SLA Mapper (SLAM) – is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk cafe applications. Displaying this information in a unified view saves community boards considerable time and resources.
 
+## File an Issue 
+We're tracking all issues via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
 
 # Change Log
 
@@ -19,3 +21,9 @@ SLA Mapper (SLAM) – is a tool that aggregates data that community boards often
 * [[5]](../../../../BetaNYC/SLAM/issues/5) Added a close link on the info window, making it easier to use the webpage on a mobile phone. 
 * [[6]](../../../../BetaNYC/SLAM/issues/6) The previous version only filtered to On-Premise liquor licenses. The current version filters to SW, SB, SL, VL, RL, HL, CL, CT, EL, TL, CR, RW, HW, CW, TW, WC, EB, and MR, which were identified to us as licence class codes, community boards often review. 
 * [[3]](../../../../BetaNYC/SLAM/issues/3) A location search bar was added. 
+
+## Copyrights 
+
+Please see [license] file for details.
+ * Non-code, Creative Commons Attribution 4.0
+ * Code, GNU General Public License
