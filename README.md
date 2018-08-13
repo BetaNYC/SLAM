@@ -6,6 +6,10 @@ We're tracking all issues via this [repo's issue cue](https://github.com/BetaNYC
 
 # Change Log
 
+## SLAM v0.7e
+* [[20]](../../../../BetaNYC/SLAM/issues/20) Set the scroll on both info-boxes to scroll on the div only. 
+* [[16]](../../../../BetaNYC/SLAM/issues/16) Added a BetaNYC logo and header information.
+* [[11]](../../../../BetaNYC/SLAM/issues/11) Changed the bar chart for complaints by year to a line chart. 
 
 ## SLAM v0.6e
 * [[8]](../../../../BetaNYC/SLAM/issues/8) Added Link to Certificate of Occupancy for each Liquor License
