@@ -1,8 +1,9 @@
 # SLAM
 SLA Mapper (SLAM) – is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk cafe applications. Displaying this information in a unified view saves community boards considerable time and resources.
 
-## File an Issue 
-We're tracking all issues via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
+## How to Contribute 
+* File an issue via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
+* Request a feature via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
 
 ## Architecture
 SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Searching for a NYC location queries the City's GeoClient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
@@ -17,10 +18,12 @@ SLAM is a landing page that displays a Carto basemap and markers for each row of
 * [Documentation](https://leafletjs.com/reference-1.3.2.html)
 
 ### Chart.js
+We use Chart.js to display the pie chart depicting the breakdown of complaint descriptors at a particular club/bar/restaurant and the line chart depicting the number of complaints per year at a particular club/bar/restaurant. 
 * [Source](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js)
 * [Documentation](http://www.chartjs.org/docs/latest/)
 
 ### NYC Geoclient API
+We use the City's Geoclient API for two tasks. First, when users enter a text address into the location search field, the system queries the Geoclient API for the lat/lon of that location. The map re-centers to this lat/lon.  Second, when a user clicks on a liquor license, the system queries the Geoclient API for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.  
 * [Source](https://developer.cityofnewyork.us/api/geoclient-api)
 * [Documentation](https://api.cityofnewyork.us/geoclient/v1/doc)
 
