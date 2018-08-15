@@ -44,11 +44,11 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
 * `club_bar_restaurant_complaints_since_jan_1_2017`
   * Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2017
   * [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal 
-  * Data is updated daily and synced wtih BetaNYC's Carto account daily. 
+  * Data is updated in the Open Data Portal daily and synced wtih BetaNYC's Carto account daily. 
 * `sidewalk_caf_licenses_and_applications`
   * Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
   * [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal 
-  * Data is updated weekly and synced wtih BetaNYC's Carto account weekly. 
+  * Data is updated in the Open Data Portal weekly and synced wtih BetaNYC's Carto account weekly. 
 * `dohmh_inspections`
   * Dataset of locations of NYC inspected restaurants
   * Health grades for a NYC restaurant can be found in the Department and Health and Mental Hygiene's [Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) dataset, published on the City's Open Data Portal. This dataset is organized so that each row represents one violation raised during a restaurant's health inspection. The row also reports the date of the inspection and the resulting grade. If restaurants had more than one violation during the inspection, there will be multiple rows representing that particular inspection, each reporting different violations but all reporting the same grade. If a restaurant has had more than one inspection, there will be multiple rows representing the restaurant's violations and grades given on different inspection dates. When the page loads, however, we do not need to display all of this information. In fact, the dataset is so large that we can't display all of that information on the page load. We only need to display the location of a restaurant that has been inspected. Later a user can click on the restaurant to trigger a query to gather more information about the restaurant's inspection history. 
@@ -57,24 +57,24 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
 * `dohmh_new_york_city_restaurant_inspection_results`
   * Dataset of NYC restaurant inspection results
   * [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal 
-  * Data is updated weekly and synced with BetaNYC's Carto account weekly
+  * Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
   * This dataset is only referenced once a user clicks on a resturant on the map. The query reads the unique identifier for the clicked on restaurant and then queries the restaurant inspection results dataset to get the inspection, violation, and grade history for the restaurant. 
 
-# Change Log
+## Change Log
 
-## SLAM v0.7e
+### SLAM v0.7e
 * [[20]](../../../../BetaNYC/SLAM/issues/20) Set the scroll on both info-boxes to scroll on the div only. 
 * [[16]](../../../../BetaNYC/SLAM/issues/16) Added a BetaNYC logo and header information.
 * [[11]](../../../../BetaNYC/SLAM/issues/11) Changed the bar chart for complaints by year to a line chart. 
 
-## SLAM v0.6e
+### SLAM v0.6e
 * [[8]](../../../../BetaNYC/SLAM/issues/8) Added Link to Certificate of Occupancy for each Liquor License
 * [[19]](../../../../BetaNYC/SLAM/issues/19) Added Instructions to the Main Info-box
 * [[12]](../../../../BetaNYC/SLAM/issues/12), [[13]](../../../../BetaNYC/SLAM/issues/13) Restyled the Info-boxes
 * [[18]](../../../../BetaNYC/SLAM/issues/18) Changed the basemap 
 * [[17]](../../../../BetaNYC/SLAM/issues/17) Style adjustments for mobile devices
 
-## SLAM v0.5e
+### SLAM v0.5e
 * [[4]](../../../../BetaNYC/SLAM/issues/4) Icon sizes now scale according to the zoom.
 * [[1]](../../../../BetaNYC/SLAM/issues/1) The Main Infobox now includes a color-coded legend. 
 * Restaurants and liquor licenses that were overlapping are now stacking on top of each other. 
@@ -87,3 +87,9 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
 Please see [license](https://github.com/BetaNYC/SLAM/blob/master/LICENSE) file for details.
  * Non-code, Creative Commons Attribution 4.0
  * Code, GNU General Public License
+ 
+## Have Questions?
+
+Contact [Lindsay Poirier](mailto:lindsay@beta.nyc) and [Noel Hidalgo](mailto:noel@beta.nyc).
+ 
+ 
