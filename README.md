@@ -23,17 +23,7 @@ We use Carto.js to create and style map layers from data stored in the BetaNYC C
 ### Leaflet.js 
 We use leaflet.js for additional JS-based mapping features such as re-centering the map to certain geographic coordinates on a location search.
 * [Source](https://unpkg.com/leaflet@1.3.1/dist/leaflet.js)
-* [Documentation](https://leafletjs.com/reference-1.3.2.html)
-
-### Chart.js
-We use Chart.js to display a pie chart depicting the breakdown of 311 complaints made about a particular club/bar/restaurant according to their descriptors and a line chart depicting the number of 311 complaints made per year at a particular club/bar/restaurant. 
-* [Source](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js)
-* [Documentation](http://www.chartjs.org/docs/latest/)
-
-### NYC Geoclient API
-We use the City's Geoclient API for two tasks. First, when users enter a text address into the location search field, the system queries the Geoclient API for the lat/lon of that location. The map re-centers to this lat/lon.  Second, when a user clicks on a liquor license, the system queries the Geoclient API for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.  
-* [Source](https://developer.cityofnewyork.us/api/geoclient-api)
-* [Documentation](https://api.cityofnewyork.us/geoclient/v1/doc)
+* [Documentation](https://leafletjs.com/reference-1.3.2.html
 
 ### carto
 Most of the data for SLAM is stored in BetaNYC's carto account.
@@ -59,6 +49,20 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
   * [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal 
   * Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
   * This dataset is only referenced once a user clicks on a resturant on the map. The query reads the unique identifier for the clicked on restaurant and then queries the restaurant inspection results dataset to get the inspection, violation, and grade history for the restaurant. 
+
+### Chart.js
+We use Chart.js to display a pie chart depicting the breakdown of 311 complaints made about a particular club/bar/restaurant according to their descriptors and a line chart depicting the number of 311 complaints made per year at a particular club/bar/restaurant. 
+* [Source](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js)
+* [Documentation](http://www.chartjs.org/docs/latest/)
+
+### NYC Geoclient API
+We use the City's Geoclient API for two tasks. First, when users enter a text address into the location search field, the system queries the Geoclient API for the lat/lon of that location. The map re-centers to this lat/lon.  Second, when a user clicks on a liquor license, the system queries the Geoclient API for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.  
+* [Source](https://developer.cityofnewyork.us/api/geoclient-api)
+* [Documentation](https://api.cityofnewyork.us/geoclient/v1/doc)
+
+### Fetch API
+We use the Fetch API for browser-based Web requests to the Carto SQL API and the NYC Geoclient API.
+* [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 
 ## Change Log
 
