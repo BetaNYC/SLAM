@@ -5,21 +5,23 @@ SLA Mapper ([SLAM](slam.beta.nyc)) – is a tool that aggregates data that commu
 * File an issue via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
 * Request a feature via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
 * Comment on issues. 
-* Write code to fix issues or to create new features. 
+* Write code to fix issues or to create new features. When contributing code, please be sure to: 
   * Fork this repository, modify the code (changing only one thing at a time), and then issue a pull request for each change.
-  * Be sure to follow the coding style (using K&R style indentation and bracketing, commenting above each feature, and using snake case (e.g. 'word1_word2') for variables) 
+  * Follow the project's coding style (using K&-style indentation and bracketing, commenting above each feature, and using snake case for variables).
   * Test your code locally before issuing a pull request. 
   * Clearly state the purpose of your change in the description field for each commit.
   
 ## Architecture
-SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Searching for a NYC location queries the City's GeoClient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
+SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries the City's Geoclient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
 
 ## Backend Services
 ### Carto.js v4
+We use Carto.js to create and style map layers from data stored in the BetaNYC Carto account.
 * [Source](https://libs.cartocdn.com/carto.js/v4.1.2/carto.min.js)
 * [Documentation](https://carto.com/developers/carto-js/reference/)
 
 ### Leaflet.js 
+We use leaflet.js for additional JS-based mapping features such as re-centering the map to certain geographic coordinates on a location search.
 * [Source](https://unpkg.com/leaflet@1.3.1/dist/leaflet.js)
 * [Documentation](https://leafletjs.com/reference-1.3.2.html)
 
