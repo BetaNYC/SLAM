@@ -15,15 +15,6 @@ SLA Mapper ([SLAM](slam.beta.nyc)) – is a tool that aggregates data that commu
 SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries the City's Geoclient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
 
 ## Backend Services
-### Carto.js v4
-We use Carto.js to create and style map layers from data stored in the BetaNYC Carto account.
-* [Source](https://libs.cartocdn.com/carto.js/v4.1.2/carto.min.js)
-* [Documentation](https://carto.com/developers/carto-js/reference/)
-
-### Leaflet.js 
-We use leaflet.js for additional JS-based mapping features such as re-centering the map to certain geographic coordinates on a location search.
-* [Source](https://unpkg.com/leaflet@1.3.1/dist/leaflet.js)
-* [Documentation](https://leafletjs.com/reference-1.3.2.html
 
 ### carto
 Most of the data for SLAM is stored in BetaNYC's carto account.
@@ -49,6 +40,16 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
   * [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal 
   * Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
   * This dataset is only referenced once a user clicks on a resturant on the map. The query reads the unique identifier for the clicked on restaurant and then queries the restaurant inspection results dataset to get the inspection, violation, and grade history for the restaurant. 
+
+### Carto.js v4
+We use Carto.js to create and style map layers from data stored in the BetaNYC Carto account.
+* [Source](https://libs.cartocdn.com/carto.js/v4.1.2/carto.min.js)
+* [Documentation](https://carto.com/developers/carto-js/reference/)
+
+### Leaflet.js 
+We use leaflet.js for additional JS-based mapping features such as re-centering the map to certain geographic coordinates on a location search.
+* [Source](https://unpkg.com/leaflet@1.3.1/dist/leaflet.js)
+* [Documentation](https://leafletjs.com/reference-1.3.2.html)
 
 ### Chart.js
 We use Chart.js to display a pie chart depicting the breakdown of 311 complaints made about a particular club/bar/restaurant according to their descriptors and a line chart depicting the number of 311 complaints made per year at a particular club/bar/restaurant. 
