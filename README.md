@@ -29,7 +29,7 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
 * `liquor_authority_quarterly_list_of_active_licenses`
   * Dataset of all NYS active liquor licenses
   * [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal 
- * Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account monthly.
+  * Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account monthly.
 * `club_bar_restaurant_complaints_since_jan_1_2017`
   * Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2017
   * [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal 
@@ -38,6 +38,11 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
   * Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
   * [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal 
   * Data is updated weekly and synced wtih BetaNYC's Carto account weekly. 
+* `dohmh_inspections`
+  * Dataset of locations of NYC inspected restaurants
+  * Health grades for a NYC restaurant can be found in the Department and Health and Mental Hygiene's Restaurant Inspection Results dataset, published on the City's Open Data Portal. This dataset is organized so that each row represents one violation raised during a restaurant's health inspection. The row also reports the date of the inspection and the resulting grade. If restaurants had more than one violation during the inspection, there will be multiple rows representing that particular inspection at that particular restaurant, all reporting the same grade (but different violations). If a restaurant has had more than one inspection, there will be multiple rows representing the restaurant's violations and grades given on different inspection dates. When the page loads, however, we do not need to display all of this information. We only need to display the location of a restaurant that has been inspected. 
+  * The DOHMH inspection restults dataset does not include geo-coordinates - only a building number, street name, and zip code. To get the locations in a format where they can be displayed on a map, we need to download the dataset and use the City's Batch GeoSupport software. Since the same restaurants are often listed many times in the DOHMH inspection results dataset, to reduce processing time, we first remove rows representing the same restaurant from the dataset using R or Excel. We configure the GeoSupport software to read the filtered dataset and return the restaurant's name, unique identifier, address, lat, and lon. 
+  * Data is downloaded from Socrata, geo-coded, and manually uplaoded to Carto weekly. 
 
 
 # Change Log
