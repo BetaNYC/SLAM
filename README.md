@@ -27,17 +27,17 @@ SLAM is a landing page that displays a Carto basemap and markers for each row of
 ### carto
 Most of the data for SLAM is stored in BetaNYC's carto account.
 * `liquor_authority_quarterly_list_of_active_licenses`
-** Dataset of all NYS active liquor licenses
-** [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal 
-** Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account monthly.
+  * Dataset of all NYS active liquor licenses
+  * [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal 
+ * Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account monthly.
 * `club_bar_restaurant_complaints_since_jan_1_2017`
-** Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2017
-** [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal 
-** Data is updated daily and synced wtih BetaNYC's Carto account daily. 
+  * Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2017
+  * [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal 
+  * Data is updated daily and synced wtih BetaNYC's Carto account daily. 
 * `sidewalk_caf_licenses_and_applications`
-** Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
-** [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal 
-** Data is updated weekly and synced wtih BetaNYC's Carto account weekly. 
+  * Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
+  * [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal 
+  * Data is updated weekly and synced wtih BetaNYC's Carto account weekly. 
 
 
 # Change Log
