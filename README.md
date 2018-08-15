@@ -7,7 +7,7 @@ SLA Mapper ([SLAM](slam.beta.nyc)) – is a tool that aggregates data that commu
 * Comment on issues. 
 * Write code to fix issues or to create new features. When contributing code, please be sure to: 
   * Fork this repository, modify the code (changing only one thing at a time), and then issue a pull request for each change.
-  * Follow the project's coding style (using K&-style indentation and bracketing, commenting above each feature, and using snake case for variables).
+  * Follow the project's coding style (using K&R-style indentation and bracketing, commenting above each feature, and using snake case for variables).
   * Test your code locally before issuing a pull request. 
   * Clearly state the purpose of your change in the description field for each commit.
   
