@@ -246,7 +246,7 @@ input:checked + .slider:before {
 
 @media all and (max-width: 800px) {
     .leaflet-left{
-        left: 185xpx;
+        left: 185px;
  	}
 }
 
