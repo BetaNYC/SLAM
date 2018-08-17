@@ -132,7 +132,7 @@ p {
 	height:600px;
 }
 
-#info_box, #descriptor_chart, #year_chart {
+#info_box, #descriptor_chart_element, #year_chart_element {
 	display:none;
 }
 

@@ -141,8 +141,8 @@
 					<div id="info"></div>
 					
 					<!-- 311 info -->
-					<canvas id="descriptor_chart"></canvas>
-					<canvas id="year_chart"></canvas>
+					<canvas id="descriptor_chart_element"></canvas>
+					<canvas id="year_chart_element"></canvas>
 					
 					<!-- source info -->
 					<div id="source"></div>
@@ -451,11 +451,11 @@
 				let year_data = [];
 				let year_colors = [];
 				
-				
 				//clear and destroy previous charts
 				if (typeof descriptor_chart !== 'undefined'){
 					descriptor_chart.clear();
 					descriptor_chart.destroy();
+					
 				}
 						 
 				if (typeof year_chart !== 'undefined'){
@@ -504,7 +504,7 @@
 					}
 					
 					//create pie chart of descriptors
-					ctx = document.getElementById("descriptor_chart").getContext('2d');
+					ctx = document.getElementById("descriptor_chart_element").getContext('2d');
 					descriptor_chart = new Chart(ctx, {
 						type: 'pie',
 						data: {
@@ -541,7 +541,7 @@
 					year_data = Object.values(year_arr);
 					
 					//create bar chart of complaints per year
-					ctx2 = document.getElementById("year_chart").getContext('2d');
+					ctx2 = document.getElementById("year_chart_element").getContext('2d');
 					year_chart = new Chart(ctx2,{
 						type: 'line',
 						plugins: LabelsPlugin,
@@ -595,14 +595,15 @@
 					show_info_box();
 					
 					//display the charts
-					if (document.getElementById('descriptor_chart').style.display = 'none')
-						document.getElementById('descriptor_chart').style.display = 'block';
-					if (document.getElementById('year_chart').style.display = 'none')
-						document.getElementById('year_chart').style.display = 'block';
+					if (document.getElementById('descriptor_chart_element').style.display = 'none')
+						document.getElementById('descriptor_chart_element').style.display = 'block';
+					if (document.getElementById('year_chart_element').style.display = 'none')
+						document.getElementById('year_chart_element').style.display = 'block';
 					  
 					//fill the innerHTML of each section
 					document.getElementById('info').innerHTML = content;
 					document.getElementById('source').innerHTML = source;
+					
 				});
 			});
 						 
