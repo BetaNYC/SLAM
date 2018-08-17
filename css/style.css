@@ -123,26 +123,24 @@ p {
 .toolbox {
 	position:relative;
 	overflow-y:hidden;
-	top:24px;
-	bottom:24px;
-	right:24px;
-	
 }
 
 #info_box {
 	overflow-y:auto;
 	position:relative;
 	overflow-x:hidden;
-	height:100%px;
+	height:600px;
 }
 
 #info_box, #descriptor_chart, #year_chart {
 	display:none;
 }
+
 .close-button {
 	font-size:11px;
 	float:right;
 }
+
 .box {
 	height:100%;
 	overflow-y:auto;
@@ -154,6 +152,7 @@ p {
 #footer {
 	text-align:center !important;
 }
+
 .footer_text {
 	font-size:11px;
 }

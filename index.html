@@ -431,6 +431,9 @@
 					popup.openOn(map);
 				}
 			});
+			layer_311.on('featureOut', featureEvent =>{
+					map.closePopup();
+			});
 			
 			layer_311.on('featureClicked', featureEvent => {
 				
@@ -621,6 +624,7 @@
 					popup.openOn(map);
 				}
 			});
+
 			
 			layer_swc.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
@@ -713,6 +717,7 @@
 					popup.openOn(map);
 				}
 			});
+
 			
 			layer_sla.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
@@ -801,6 +806,7 @@
 					popup.openOn(map);
 				}
 			});
+
 			
 			layer_dohmh.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
