@@ -4,13 +4,13 @@ function set_address() {
 	var select = document.getElementById("boro");
 	var boro = select.options[select.selectedIndex].value;
 	var adr = document.getElementById("address").value;
-	
+
 	//adds CORS header to proxy request getting around errors
 	const proxyurl = "https://cors-anywhere.herokuapp.com/";
-	
+
 	//query the City's geoclient API
 	var url = "https://api.cityofnewyork.us/geoclient/v1/search.json?input=" + " " + adr + " " + boro + "&app_id=dd37f663&app_key=c99663c5e8b11315279f8d28ef245dab";
-	
+
 	fetch(proxyurl + url, {mode: 'cors'})
 	.then(function(response) {
 		return response.json();
@@ -63,6 +63,14 @@ function show_dohmh(){
 		layer_dohmh.hide();
 }
 
+function show_church_school(){
+	if (document.getElementById("church_school").checked) {
+		layer_church_school.show();
+	}
+	else
+		layer_church_school.hide();
+}
+
 function toggle_visibility(id) {
 	//toggle the visibility of a selected element
 	var e = document.getElementById(id);
@@ -89,4 +97,3 @@ function clear_charts() {
 		document.getElementById("year_chart").style.display = 'none';
 	}
 }
-
