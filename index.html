@@ -441,9 +441,7 @@
 					});
 				}}
 
-=======
 
->>>>>>> master
 			//add layer to map
 			client.addLayer(layer_311);
 
@@ -465,10 +463,7 @@
 				}
 			});
 
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 			layer_311.on('featureClicked', featureEvent => {
 
 				//variables for the innerHTML content that will be filled into each div in the infobox
@@ -486,12 +481,7 @@
 				let year_labels = [];
 				let year_data = [];
 				let year_colors = [];
-<<<<<<< HEAD
 
-=======
-
-
->>>>>>> master
 				//clear and destroy previous charts
 				if (typeof descriptor_chart !== 'undefined'){
 					descriptor_chart.clear();
@@ -580,16 +570,12 @@
 
 					year_labels = Object.keys(year_arr);
 					year_data = Object.values(year_arr);
-<<<<<<< HEAD
-
-=======
 
 					//assign random colors to each year
 					for (var i = 0; i < year_labels.length; i++) {
 						year_colors.push('#' + (Math.random().toString(16) + '0000000').slice(2,8));
 					}
 
->>>>>>> master
 					//create bar chart of complaints per year
 					ctx2 = document.getElementById("year_chart_element").getContext('2d');
 					year_chart = new Chart(ctx2,{
@@ -645,19 +631,19 @@
 					show_info_box();
 
 					//display the charts
-<<<<<<< HEAD
+
 					if (document.getElementById('descriptor_chart_element').style.display = 'none')
 						document.getElementById('descriptor_chart_element').style.display = 'block';
 					if (document.getElementById('year_chart_element').style.display = 'none')
 						document.getElementById('year_chart_element').style.display = 'block';
 
-=======
+
 					if (document.getElementById('descriptor_chart').style.display = 'none')
 						document.getElementById('descriptor_chart').style.display = 'block';
 					if (document.getElementById('year_chart').style.display = 'none')
 						document.getElementById('year_chart').style.display = 'block';
 
->>>>>>> master
+
 					//fill the innerHTML of each section
 					document.getElementById('info').innerHTML = content;
 					document.getElementById('source').innerHTML = source;
@@ -682,10 +668,7 @@
 				}
 			});
 
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 			layer_swc.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
 				let content = '';
@@ -778,10 +761,6 @@
 				}
 			});
 
-<<<<<<< HEAD
-
-=======
->>>>>>> master
 			layer_sla.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
 				let content = '';
@@ -870,10 +849,7 @@
 				}
 			});
 
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 			layer_dohmh.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
 				let content = '';
