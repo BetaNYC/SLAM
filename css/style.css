@@ -136,7 +136,7 @@ p {
 	display:none;
 }
 
-.close-button {
+.close_button,.reset_map{
 	font-size:11px;
 	float:right;
 }

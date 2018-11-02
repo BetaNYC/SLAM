@@ -97,3 +97,8 @@ function clear_charts() {
 		document.getElementById("year_chart_element").style.display = 'none';
 	}
 }
+
+//Filters
+function reset_map() {
+	map.setView([40.73, -74], 18);
+}
