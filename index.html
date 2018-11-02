@@ -40,7 +40,7 @@
 					<div id="about">
 						<h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
 					</div>
-					
+
                 </header>
 				<div class="separator"></div>
 
@@ -129,7 +129,7 @@
 							<p>No results found.</p>
 						</div>
 						<div class="separator"></div>
-					
+
 					<!-- logo -->
 					<div id="footer">
 						<figure>
@@ -151,7 +151,7 @@
 <<<<<<< HEAD
 					<canvas id="descriptor_chart_element"></canvas>
 					<canvas id="year_chart_element"></canvas>
-					
+
 =======
 					<canvas id="descriptor_chart"></canvas>
 					<canvas id="year_chart"></canvas>
@@ -405,8 +405,7 @@
 			var ctx2;
 			var descriptor_chart;
 			var year_chart;
-<<<<<<< HEAD
-			
+
 			//plug-in so that data labels appear on each dot of the line charts (the rent-stabilized units by year chart and the 311 complaints over time chart)
 			//see: http://www.chartjs.org/samples/latest/advanced/data-labelling.html
 			var LabelsPlugin = {afterDatasetsDraw: function(chart) {
@@ -421,7 +420,7 @@
 								var fontStyle = 'normal';
 								var fontFamily = 'Helvetica Neue';
 								ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
-								
+
 								if (dataset.data[index] != null)
 									dataNum = dataset.data[index];
 								else
@@ -433,7 +432,7 @@
 								ctx.textBaseline = 'middle';
 								var padding = -15;
 								var position = element.tooltipPosition();
-								
+
 								if (dataString != 0) {
 									ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
 								}
@@ -441,7 +440,7 @@
 						}
 					});
 				}}
-			
+
 =======
 
 >>>>>>> master
@@ -467,7 +466,7 @@
 			});
 
 <<<<<<< HEAD
-			
+
 =======
 >>>>>>> master
 			layer_311.on('featureClicked', featureEvent => {
@@ -488,7 +487,7 @@
 				let year_data = [];
 				let year_colors = [];
 <<<<<<< HEAD
-				
+
 =======
 
 
@@ -497,7 +496,7 @@
 				if (typeof descriptor_chart !== 'undefined'){
 					descriptor_chart.clear();
 					descriptor_chart.destroy();
-					
+
 				}
 
 				if (typeof year_chart !== 'undefined'){
@@ -582,7 +581,7 @@
 					year_labels = Object.keys(year_arr);
 					year_data = Object.values(year_arr);
 <<<<<<< HEAD
-					
+
 =======
 
 					//assign random colors to each year
@@ -651,7 +650,7 @@
 						document.getElementById('descriptor_chart_element').style.display = 'block';
 					if (document.getElementById('year_chart_element').style.display = 'none')
 						document.getElementById('year_chart_element').style.display = 'block';
-					  
+
 =======
 					if (document.getElementById('descriptor_chart').style.display = 'none')
 						document.getElementById('descriptor_chart').style.display = 'block';
@@ -662,7 +661,7 @@
 					//fill the innerHTML of each section
 					document.getElementById('info').innerHTML = content;
 					document.getElementById('source').innerHTML = source;
-					
+
 				});
 			});
 
@@ -684,7 +683,7 @@
 			});
 
 <<<<<<< HEAD
-			
+
 =======
 >>>>>>> master
 			layer_swc.on('featureClicked', featureEvent => {
@@ -780,7 +779,7 @@
 			});
 
 <<<<<<< HEAD
-			
+
 =======
 >>>>>>> master
 			layer_sla.on('featureClicked', featureEvent => {
@@ -872,7 +871,7 @@
 			});
 
 <<<<<<< HEAD
-			
+
 =======
 >>>>>>> master
 			layer_dohmh.on('featureClicked', featureEvent => {
