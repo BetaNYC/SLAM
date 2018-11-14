@@ -12,7 +12,7 @@ SLA Mapper ([SLAM](slam.beta.nyc)) – is a tool that aggregates data that commu
   * Clearly state the purpose of your change in the description field for each commit.
   
 ## Architecture
-SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries the City's Geoclient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
+SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). It also displays polygons representing buildings DCP has classed as schools and churches. Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries the City's Geoclient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
 
 ## Backend Services
 
@@ -40,6 +40,10 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
   * [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal 
   * Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
   * This dataset is only referenced once a user clicks on a resturant on the map. The query reads the unique identifier for the clicked on restaurant and then queries the restaurant inspection results dataset to get the inspection, violation, and grade history for the restaurant. 
+* `bkmappluto`, `bxmappluto`, `mnmappluto`, `qnmappluto`, `simappluto`
+  * Shapefile of all lots in NYC
+  * [Published](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) by the Department of City Planning on City Planning's Website 
+  * DCP updates the data bi-annually and needs to be manually replaced in Carto when updated
 
 ### Carto.js v4
 We use Carto.js to create and style map layers from data stored in the BetaNYC Carto account.
@@ -66,6 +70,9 @@ We use the Fetch API for browser-based Web requests to the Carto SQL API and the
 * [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 
 ## Change Log
+
+### SLAM v0.8e
+* [[22]](../../../../BetaNYC/SLAM/issues/22) Display schools and churches as polygons on the map. 
 
 ### SLAM v0.7e
 * [[20]](../../../../BetaNYC/SLAM/issues/20) Set the scroll on both info-boxes to scroll on the div only. 
