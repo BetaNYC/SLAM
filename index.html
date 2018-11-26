@@ -154,13 +154,9 @@
 					<canvas id="year_chart_element"></canvas>
 
 
-					<canvas id="descriptor_chart"></canvas>
-					<canvas id="year_chart"></canvas>
-
-
 					<!-- source info -->
 					<div id="source"></div>
-					<a href="#" onclick="toggle_visibility('info_box');" class="close-button">Close Window</a>
+					<a href="#" onclick="toggle_visibility('info_box');" class="close_button">Close Window</a>
 			</div>
 			<footer class="js-footer"></footer>
         </aside>
@@ -637,13 +633,6 @@
 						document.getElementById('descriptor_chart_element').style.display = 'block';
 					if (document.getElementById('year_chart_element').style.display = 'none')
 						document.getElementById('year_chart_element').style.display = 'block';
-
-
-					if (document.getElementById('descriptor_chart').style.display = 'none')
-						document.getElementById('descriptor_chart').style.display = 'block';
-					if (document.getElementById('year_chart').style.display = 'none')
-						document.getElementById('year_chart').style.display = 'block';
-
 
 					//fill the innerHTML of each section
 					document.getElementById('info').innerHTML = content;
