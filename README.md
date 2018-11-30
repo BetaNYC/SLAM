@@ -1,5 +1,5 @@
 # SLAM
-SLA Mapper ([SLAM](slam.beta.nyc)) – is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk cafe applications. Displaying this information in a unified view saves community boards considerable time and resources.
+SLA Mapper ([SLAM](https://slam.beta.nyc)) – is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk cafe applications. Displaying this information in a unified view saves community boards considerable time and resources.
 
 ## How to Contribute 
 * File an issue via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
