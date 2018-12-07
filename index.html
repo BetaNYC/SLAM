@@ -7,8 +7,8 @@
             <link href="https://fonts.googleapis.com/css?family=Lato:400,600,700|Open+Sans:300,400,600" rel="stylesheet">
 			<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Playfair+Display" />
             <!-- Include Leaflet -->
-            <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
-            <link href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" rel="stylesheet">
+            <script src="https://unpkg.com/leaflet@1.3.2/dist/leaflet.js"></script>
+            <link href="https://unpkg.com/leaflet@1.3.2/dist/leaflet.css" rel="stylesheet">
             <!-- Include CARTO.js -->
             <script src="https://libs.cartocdn.com/carto.js/v4.1.2/carto.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
@@ -16,6 +16,15 @@
 			<link href="css/style.css" rel="stylesheet">
 			<script type="text/javascript" src="scripts/main.js"></script>
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
+			<!-- Global site tag (gtag.js) - Google Analytics -->
+			<script async src="https://www.googletagmanager.com/gtag/js?id=UA-58265408-4"></script>
+			<script>
+			  window.dataLayer = window.dataLayer || [];
+			  function gtag(){dataLayer.push(arguments);}
+			  gtag('js', new Date());
+
+			  gtag('config', 'UA-58265408-4');
+			</script>
     </head>
 
     <body>
@@ -27,12 +36,16 @@
 
 				<!-- title -->
                 <header>
-                    <h1>SLA Mapper (SLAM)</h1><h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
+                    <h1>SLA Mapper (SLAM)</h1>
+					<div id="about">
+						<h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
+					</div>
+
                 </header>
 				<div class="separator"></div>
 
 				<!-- instructions -->
-					<h4 class="lighter">Instructions</h4>
+					<h4>Instructions</h4>
                     <h5 class="lighter">Click on a map feature to learn more about an establishment's liquor license, sidewalk café license, restaurant health grades, or 311 complaints.</h5>
 				<div class="separator"></div>
 
@@ -97,7 +110,7 @@
 					<div class="separator"></div>
 
 					<!-- location search -->
-						<h4 class="lighter">Search</h4>
+					<h4>Search</h4>
 						<div class="select_custom">
 						<select id="boro" >
 							<option value="Borough">Select a Borough</option>
@@ -115,6 +128,18 @@
 						<div id="no_results">
 							<p>No results found.</p>
 						</div>
+            <a href="#" onclick="reset_map();" class="reset_map">Reset Map</a>
+						<div class="separator"></div>
+
+					<!-- logo -->
+					<div id="footer">
+						<figure>
+								<img class="logo" src="images/BetaNYC_short_white_on_blue.png"/>
+								<figcaption class="logo_caption">A BetaNYC Tool</figcaption>
+						</figure>
+						<a class="footer_text" href="https://github.com/BetaNYC/SLAM/blob/master/LICENSE">GNU General Public License</a> <span class="footer_text" > | </span>
+						<a class="footer_text" href="https://github.com/BetaNYC/SLAM/issues">File a GitHub issue</a>
+					</div>
 				</div>
 		</aside>
 
@@ -124,12 +149,14 @@
 					<div id="info"></div>
 
 					<!-- 311 info -->
-					<canvas id="descriptor_chart"></canvas>
-					<canvas id="year_chart"></canvas>
+
+					<canvas id="descriptor_chart_element"></canvas>
+					<canvas id="year_chart_element"></canvas>
+
 
 					<!-- source info -->
 					<div id="source"></div>
-					<a href="#" onclick="toggle_visibility('info_box');" class="close-button">Close Window</a>
+					<a href="#" onclick="toggle_visibility('info_box');" class="close_button">Close Window</a>
 			</div>
 			<footer class="js-footer"></footer>
         </aside>
@@ -376,6 +403,42 @@
 			var descriptor_chart;
 			var year_chart;
 
+			//plug-in so that data labels appear on each dot of the line charts (the rent-stabilized units by year chart and the 311 complaints over time chart)
+			//see: http://www.chartjs.org/samples/latest/advanced/data-labelling.html
+			var LabelsPlugin = {afterDatasetsDraw: function(chart) {
+					var ctx = chart.ctx;
+					chart.data.datasets.forEach(function(dataset, i) {
+						var meta = chart.getDatasetMeta(i);
+						if (!meta.hidden) {
+							meta.data.forEach(function(element, index) {
+								// Draw the text in black, with the specified font
+								ctx.fillStyle = 'rgb(100, 100, 100)';
+								var fontSize = 10;
+								var fontStyle = 'normal';
+								var fontFamily = 'Helvetica Neue';
+								ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+
+								if (dataset.data[index] != null)
+									dataNum = dataset.data[index];
+								else
+									dataNum = 0;
+								// Just naively convert to string for now
+								var dataString = dataNum.toString();
+								// Make sure alignment settings are correct
+								ctx.textAlign = 'center';
+								ctx.textBaseline = 'middle';
+								var padding = -15;
+								var position = element.tooltipPosition();
+
+								if (dataString != 0) {
+									ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+								}
+							});
+						}
+					});
+				}}
+
+
 			//add layer to map
 			client.addLayer(layer_311);
 
@@ -397,6 +460,7 @@
 				}
 			});
 
+
 			layer_311.on('featureClicked', featureEvent => {
 
 				//variables for the innerHTML content that will be filled into each div in the infobox
@@ -415,11 +479,11 @@
 				let year_data = [];
 				let year_colors = [];
 
-
 				//clear and destroy previous charts
 				if (typeof descriptor_chart !== 'undefined'){
 					descriptor_chart.clear();
 					descriptor_chart.destroy();
+
 				}
 
 				if (typeof year_chart !== 'undefined'){
@@ -468,7 +532,7 @@
 					}
 
 					//create pie chart of descriptors
-					ctx = document.getElementById("descriptor_chart").getContext('2d');
+					ctx = document.getElementById("descriptor_chart_element").getContext('2d');
 					descriptor_chart = new Chart(ctx, {
 						type: 'pie',
 						data: {
@@ -510,13 +574,14 @@
 					}
 
 					//create bar chart of complaints per year
-					ctx2 = document.getElementById("year_chart").getContext('2d');
+					ctx2 = document.getElementById("year_chart_element").getContext('2d');
 					year_chart = new Chart(ctx2,{
-						type: 'bar',
+						type: 'line',
+						plugins: LabelsPlugin,
 						data: {
 							labels: year_labels,
 							datasets: [{
-								backgroundColor: year_colors,
+								borderColor: '#4d88ee',
 								data: year_data
 							}]
 						},
@@ -526,10 +591,28 @@
 							},
 							scales: {
             					yAxes: [{
-                					ticks: {
-                    					beginAtZero:true
-                					}
-            					}]
+									ticks: {
+										beginAtZero:true,
+										fontSize: 10
+									},
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: '# of Complaints',
+										fontSize: 10
+									}
+								}],
+								xAxes: [{
+									ticks: {
+										fontSize: 10
+									},
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: 'Year',
+										fontSize: 10
+									}
+								}],
 							},
 							title: {
             					display: true,
@@ -545,14 +628,16 @@
 					show_info_box();
 
 					//display the charts
-					if (document.getElementById('descriptor_chart').style.display = 'none')
-						document.getElementById('descriptor_chart').style.display = 'block';
-					if (document.getElementById('year_chart').style.display = 'none')
-						document.getElementById('year_chart').style.display = 'block';
+
+					if (document.getElementById('descriptor_chart_element').style.display = 'none')
+						document.getElementById('descriptor_chart_element').style.display = 'block';
+					if (document.getElementById('year_chart_element').style.display = 'none')
+						document.getElementById('year_chart_element').style.display = 'block';
 
 					//fill the innerHTML of each section
 					document.getElementById('info').innerHTML = content;
 					document.getElementById('source').innerHTML = source;
+
 				});
 			});
 
@@ -572,6 +657,7 @@
 					popup.openOn(map);
 				}
 			});
+
 
 			layer_swc.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox
@@ -752,6 +838,7 @@
 					popup.openOn(map);
 				}
 			});
+
 
 			layer_dohmh.on('featureClicked', featureEvent => {
 				//variables for the innerHTML content that will be filled into each div in the infobox

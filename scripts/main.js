@@ -90,10 +90,15 @@ function clear_charts() {
 	//clear descriptor charts so that they don't appear as white boxes in the info-box
 	if (typeof descriptor_chart !== 'undefined'){
 		descriptor_chart.clear();
-		document.getElementById("descriptor_chart").style.display = 'none';
+		document.getElementById("descriptor_chart_element").style.display = 'none';
 	}
 	if (typeof year_chart !== 'undefined'){
 		year_chart.clear();
-		document.getElementById("year_chart").style.display = 'none';
+		document.getElementById("year_chart_element").style.display = 'none';
 	}
+}
+
+//Filters
+function reset_map() {
+	map.setView([40.73, -74], 18);
 }
