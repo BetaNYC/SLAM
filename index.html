@@ -191,7 +191,7 @@
 				f AS (
 					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
 					FROM m)
-				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba, q.actual_address_of_premises_address1, q.zip, q.license_certificate_number, q.license_type_name, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
+				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba_, q.actual_address_of_premises_address1_, q.zip, q.license_certificate_number, q.license_type_name, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
 					FROM f, liquor_authority_quarterly_list_of_active_licenses q
 					WHERE f.cartodb_id = q.cartodb_id`
             );
@@ -376,7 +376,7 @@
         `);
 
       const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
-        featureClickColumns: ['premises_name', 'doing_business_as_dba', 'license_type_name', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1', 'zip']
+        featureClickColumns: ['premises_name', 'doing_business_as_dba_', 'license_type_name', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1_', 'zip']
       });
 
       const layer_311 = new carto.layer.Layer(source_311, style_311, {
@@ -743,7 +743,7 @@
 
 				address += `<div class="widget">`;
 
-				address += `<p class = "bold">${featureEvent.data.actual_address_of_premises_address1}</p><p>${featureEvent.data.doing_business_as_dba}</p><p>${featureEvent.data.premises_name}</p>`;
+				address += `<p class = "bold">${featureEvent.data.actual_address_of_premises_address1_}</p><p>${featureEvent.data.doing_business_as_dba_}</p><p>${featureEvent.data.premises_name}</p>`;
 				popup.setContent(address);
 				popup.setLatLng(featureEvent.latLng);
 				if (!popup.isOpen()) {
@@ -764,12 +764,12 @@
 
 				//check if dba is filled in; otherwise use premises name as the header
 				if (featureEvent.data.doing_business_as_dba != '') {
-					content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4>`;
+					content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba_}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4>`;
 					}
 				else {
 					content += `<h3 class = "bold">${featureEvent.data.premises_name}</h3>`;
 				}
-				content+= `<h4>${featureEvent.data.actual_address_of_premises_address1}</h4><div class="separator"></div>
+				content+= `<h4>${featureEvent.data.actual_address_of_premises_address1_}</h4><div class="separator"></div>
 				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_name}</h5>
 				<h5 class = "lighter">Serial number: ${featureEvent.data.license_serial_number}</h5>
 				<h5 class = "lighter">Original Issue Date: ${featureEvent.data.license_original_issue_date}</h5>
@@ -782,7 +782,7 @@
 				const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
 				//Query the city's Geoclient API to get the BIN of the building at the address listed in the SLA data. we will use this to collect the Certificate of Occupancy
-				var url = "https://api.cityofnewyork.us/geoclient/v1/search.json?input=" + featureEvent.data.actual_address_of_premises_address1 + " " + featureEvent.data.zip + "&app_id=dd37f663&app_key=c99663c5e8b11315279f8d28ef245dab";
+				var url = "https://api.cityofnewyork.us/geoclient/v1/search.json?input=" + featureEvent.data.actual_address_of_premises_address1_ + " " + featureEvent.data.zip + "&app_id=dd37f663&app_key=c99663c5e8b11315279f8d28ef245dab";
 
 				var slaBIN = new Promise(function(resolve) {
 					fetch(proxyurl + url, {mode: 'cors'})
