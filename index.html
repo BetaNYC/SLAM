@@ -156,7 +156,7 @@
 
 					<!-- source info -->
 					<div id="source"></div>
-					<a href="#" onclick="toggle_visibility('info_box');" class="close_button">Close Window</a>
+					<a href="#" onclick="toggle_visibility('info_box');if(marker){marker.remove()};" class="close_button">Close Window</a>
 			</div>
 			<footer class="js-footer"></footer>
         </aside>
@@ -166,6 +166,7 @@
 			//set map view
             const map = L.map('map').setView([40.73, -74], 18);
             map.scrollWheelZoom.disable();
+			var marker;
 
 			//set basemap
             L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}{r}.png', {

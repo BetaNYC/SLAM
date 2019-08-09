@@ -73,6 +73,7 @@ We use the Fetch API for browser-based Web requests to the Carto SQL API and the
 
 ### SLAM v0.9e
 * [[24]](../../../../BetaNYC/SLAM/issues/24) Upated SQL queries to match column names in SLA dataset
+* [[28]](../../../../BetaNYC/SLAM/issues/28) Added point to map when searching for a specific address.
 
 ### SLAM v0.8e
 * [[22]](../../../../BetaNYC/SLAM/issues/22) Display schools and churches as polygons on the map. 

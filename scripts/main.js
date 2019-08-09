@@ -23,6 +23,10 @@ function set_address() {
 		longitude = response.longitude;
 		//set map view to the resulting lat, lon and zoom to 18
 		map.setView([latitude, longitude], 18);
+		if(marker) {
+			marker.remove();
+		}
+		marker = L.marker([latitude, longitude]).addTo(map);
 	})
 	.catch(function(error) {
 		//if nothing gets returned, display no results
@@ -101,4 +105,7 @@ function clear_charts() {
 //Filters
 function reset_map() {
 	map.setView([40.73, -74], 18);
+	if(marker) {
+		marker.remove();
+	}
 }
