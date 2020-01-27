@@ -39,6 +39,7 @@
                     <h1>SLA Mapper (SLAM)</h1>
 					<div id="about">
 						<h5 class="lighter">SLA Mapper (SLAM) is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk café applications. Displaying this information in a unified view saves community boards considerable time and resources.</h5>
+						<h5 style="background-color: red; padding: 1rem; color: white;">NOTICE : We are currently fixing issues with this tool as SLA has recently updated its data schema</h5>
 					</div>
 
                 </header>
@@ -60,8 +61,8 @@
 							<h5>State Liquor Authority Licenses</h5>
 						</li>
 						<li>
-							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg"/><p class = "legend_text">Expiring before 2019</p>
-							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg"/><p class = "legend_text">Expiring after 2019</p>
+							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg"/><p class = "legend_text">Expiring before 2020</p>
+							<img class="icon" src = "https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg"/><p class = "legend_text">Expiring after 2020</p>
 						</li>
 						<li>
 							<label class="switch">
@@ -163,42 +164,39 @@
 
 
         <script>
-			//set map view
-            const map = L.map('map').setView([40.73, -74], 18);
-            map.scrollWheelZoom.disable();
-			var marker;
+		//set map view
+		const map = L.map('map').setView([40.73, -74], 18)
+		map.scrollWheelZoom.disable()
+		var marker
 
-			//set basemap
-            L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                        maxZoom: 18
-            }).addTo(map);
+		//set basemap
+		L.tileLayer(
+		'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+		{
+			maxZoom: 18
+		}
+		).addTo(map)
 
-			//connect to Carto
-            const client = new carto.Client({
-                apiKey: '0cdd88f5e816766aec13f416ec14b633e6ecb4b6',
-                username: 'betanyc'
-            });
+		//connect to Carto
+		const client = new carto.Client({
+		apiKey: '0cdd88f5e816766aec13f416ec14b633e6ecb4b6',
+		username: 'betanyc'
+		})
 
-			//store API key for later SQL queries
-            var api_key = '0cdd88f5e816766aec13f416ec14b633e6ecb4b6';
+		//store API key for later SQL queries
+		var api_key = '0cdd88f5e816766aec13f416ec14b633e6ecb4b6'
 
-			//query SLA data source from Carto and stack multiple entries at the same location:
-			const source_sla = new carto.source.SQL(`WITH
-				m AS (
-					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
-					FROM liquor_authority_quarterly_list_of_active_licenses WHERE agency_zone_office_number = 1 AND (license_type_code = 'OP' OR license_type_code = 'SW' OR license_type_code = 'SB' OR license_type_code = 'SL' OR license_type_code = 'VL' OR license_type_code = 'RL' OR license_type_code = 'HL' OR license_type_code = 'CL' OR license_type_code = 'CT' OR license_type_code = 'EL' OR license_type_code = 'TL' OR license_type_code = 'CR' OR license_type_code = 'RW' OR license_type_code = 'HW' OR license_type_code = 'CW' OR license_type_code = 'TW' OR license_type_code = 'WC' OR license_type_code = 'EB' OR license_type_code = 'MR')
-					GROUP BY the_geom_webmercator
-					ORDER BY y DESC),
-				f AS (
-					SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
-					FROM m)
-				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.license_serial_number, q.premises_name, q.doing_business_as_dba_, q.actual_address_of_premises_address1_, q.zip, q.license_certificate_number, q.license_type_name, q.license_original_issue_date, q.license_effective_date, q.license_expiration_date, EXTRACT(year from to_date(q.license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
-					FROM f, liquor_authority_quarterly_list_of_active_licenses q
-					WHERE f.cartodb_id = q.cartodb_id`
-            );
+		//query SLA data source from Carto and stack multiple entries at the same location:
+		//TODO: restack
+		const source_sla = new carto.source.SQL(`
+		SELECT cartodb_id, premise_name, dba, license_type_code, license_issued_date, license_expiration_date, certificate_number, premise_address,
+			EXTRACT(year from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_year, 
+			ST_Transform(ST_GeomFromText(georeference, 4326),3857) AS the_geom_webmercator FROM liquor_authority_quarterly_list_of_active_licenses 
+		WHERE georeference != '' AND zone = 1 AND license_type_code in ('OP','SW','SB','SL','VL','RL','HL','CL','CT','EL','TL','CR','RW','HW','CW','TW','WC','EB','MR')
+		`)
 
-			//query 311 data source from Carto and stack multiple entries at the same location:
-			const source_311 = new carto.source.SQL(`WITH
+		//query 311 data source from Carto and stack multiple entries at the same location:
+		const source_311 = new carto.source.SQL(`WITH
 				s AS (
 					SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
 					FROM club_bar_restaurant_complaints_since_jan_1_2017),
@@ -213,15 +211,15 @@
 				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.complaint_type, q.descriptor, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
 					FROM f, club_bar_restaurant_complaints_since_jan_1_2017 q
 					WHERE f.cartodb_id = q.cartodb_id
-			`);
+			`)
 
-			//query sidewalk café data source from Carto and stack multiple entries at the same location:
-			const source_swc = new carto.source.SQL(`
-				 SELECT * FROM sidewalk_caf_licenses_and_applications
-			`);
+		//query sidewalk café data source from Carto and stack multiple entries at the same location:
+		const source_swc = new carto.source.SQL(`
+				SELECT * FROM sidewalk_caf_licenses_and_applications
+			`)
 
-			//query health inspection data source from Carto and stack multiple entries at the same location:
-			const source_dohmh = new carto.source.SQL(`WITH
+		//query health inspection data source from Carto and stack multiple entries at the same location:
+		const source_dohmh = new carto.source.SQL(`WITH
 				m AS (
 					SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
 					FROM dohmh_inspections
@@ -233,47 +231,47 @@
 				SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
 					FROM f, dohmh_inspections q
 					WHERE f.cartodb_id = q.cartodb_id
-			`);
+			`)
 
-      const source_church_school = new carto.source.SQL(`SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM bkmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM bxmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM mnmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM simappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM qnmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9'
-			`);
+		const source_church_school = new carto.source.SQL(`SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM bkmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM bxmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM mnmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM simappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9' UNION SELECT cartodb_id, the_geom_webmercator, address, bldgclass FROM qnmappluto WHERE bldgclass = 'W1' OR bldgclass = 'W2' OR bldgclass = 'W3' OR bldgclass = 'M1' OR bldgclass = 'M2' OR bldgclass = 'M3' OR bldgclass = 'M4' OR bldgclass = 'M9'
+			`)
 
-			//Style the SLA data and color differently if expiring this year
-        const style_sla = new carto.style.CartoCSS(`
-          #layer {
-          marker-width: 20;
-          marker-fill-opacity: 0.9;
-          marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
+		//Style the SLA data and color differently if expiring this year
+		const style_sla = new carto.style.CartoCSS(`
+					#layer {
+					marker-width: 20;
+					marker-fill-opacity: 0.9;
+					marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
 					marker-allow-overlap: true;
 					marker-line-width: 1;
 					marker-line-color: #FFFFFF;
 					marker-line-opacity: 1;
 				}
-				#layer [expiration_year <= 2018]{
-                    marker-fill: #e10012;
+				#layer [expiration_year <= 2020]{
+							marker-fill: #e10012;
 				}
-				#layer [expiration_year > 2018]{
+				#layer [expiration_year > 2020]{
 					marker-fill: #e34dee;
 				}
 				#layer [zoom > 16]{
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
-				  marker-width: 15;
+				marker-width: 15;
 				}
 				#layer [zoom <= 15]{
-				  marker-width: 13;
+				marker-width: 13;
 				}
 				#layer [zoom <= 14]{
-				  marker-width: 8;
+				marker-width: 8;
 				}
 				#layer [zoom <= 12]{
-				  marker-width: 4;
+				marker-width: 4;
 				}
-            `);
+					`)
 
-			//Style the 311 data and color different complaint tyles differently
-            const style_311 = new carto.style.CartoCSS(`
+		//Style the 311 data and color different complaint tyles differently
+		const style_311 = new carto.style.CartoCSS(`
 				#layer {
 					marker-fill: #4d88ee;
 					marker-fill-opacity: 0.9;
@@ -292,107 +290,151 @@
 					marker-width: 7;
 				}
 				#layer [zoom <= 16]{
-				  marker-width: 5;
+				marker-width: 5;
 				}
 				#layer [zoom <= 15]{
-				  marker-width: 4;
+				marker-width: 4;
 				}
 				#layer [zoom <= 14]{
-				  marker-width: 3;
+				marker-width: 3;
 				}
 				#layer [zoom <= 12]{
-				  marker-width: 2;
+				marker-width: 2;
 				}
 
-			`);
+			`)
 
-			//Style the sidewalk café data and color inactive licenses differently
-			const style_swc = new carto.style.CartoCSS(`
+		//Style the sidewalk café data and color inactive licenses differently
+		const style_swc = new carto.style.CartoCSS(`
 				#layer {
-				   marker-width: 18;
-				   marker-fill-opacity: 0.9;
-				   marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
-				   marker-allow-overlap: true;
-				   marker-line-width: 0.25;
-				   marker-line-color: #FFFFFF;
-				   marker-line-opacity: 1;
+				marker-width: 18;
+				marker-fill-opacity: 0.9;
+				marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
+				marker-allow-overlap: true;
+				marker-line-width: 0.25;
+				marker-line-color: #FFFFFF;
+				marker-line-opacity: 1;
 				}
 				#layer [zoom > 16]{
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
-				  marker-width: 15;
+				marker-width: 15;
 				}
 				#layer [zoom <= 15]{
-				  marker-width: 13;
+				marker-width: 13;
 				}
 				#layer [zoom <= 14]{
-				  marker-width: 8;
+				marker-width: 8;
 				}
 				#layer [zoom <= 12]{
-				  marker-width: 4;
+				marker-width: 4;
 				}
-			   	#layer [lic_status = 'Active']{
-				   marker-fill: #07d91c;
-			   	}
-			   	#layer [lic_status = 'Inactive']{
-				   marker-fill: #227527;
-			   	}
-			   `);
+					#layer [lic_status = 'Active']{
+				marker-fill: #07d91c;
+					}
+					#layer [lic_status = 'Inactive']{
+				marker-fill: #227527;
+					}
+				`)
 
-			   //Style the health inspection data
-			   const style_dohmh = new carto.style.CartoCSS(`
-			   #layer{
-				  marker-fill: #ff8300;
-				  marker-fill-opacity: 0.9;
-				  marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg');
-				  marker-allow-overlap: true;
-				  marker-line-width: 1;
-				  marker-line-color: #FFFFFF;
-				  marker-line-opacity: 1;
+		//Style the health inspection data
+		const style_dohmh = new carto.style.CartoCSS(`
+				#layer{
+				marker-fill: #ff8300;
+				marker-fill-opacity: 0.9;
+				marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/embassy-18.svg');
+				marker-allow-overlap: true;
+				marker-line-width: 1;
+				marker-line-color: #FFFFFF;
+				marker-line-opacity: 1;
 				}
 				#layer [zoom > 16]{
 					marker-width: 20;
 				}
 				#layer [zoom <= 16]{
-				  marker-width: 15;
+				marker-width: 15;
 				}
 				#layer [zoom <= 15]{
-				  marker-width: 13;
+				marker-width: 13;
 				}
 				#layer [zoom <= 14]{
-				  marker-width: 8;
+				marker-width: 8;
 				}
 				#layer [zoom <= 12]{
-				  marker-width: 4;
+				marker-width: 4;
 				}
 
-			   `);
+				`)
 
-         //Style the school and church shapes
-			   const style_church_school = new carto.style.CartoCSS(`
-           #layer{
-             polygon-fill: #12eda4;
-           }
-        `);
+		//Style the school and church shapes
+		const style_church_school = new carto.style.CartoCSS(`
+					#layer{
+						polygon-fill: #12eda4;
+					}
+				`)
 
-      const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
-        featureClickColumns: ['premises_name', 'doing_business_as_dba_', 'license_type_name', 'license_original_issue_date', 'license_effective_date', 'license_expiration_date', 'license_serial_number', 'actual_address_of_premises_address1_', 'zip']
-      });
+		const layer_sla = new carto.layer.Layer(source_sla, style_sla, {
+		featureClickColumns: [
+			'premise_name',
+			'dba', // doing_business_as_dba_
+			'license_type_code', // license_type_name, TODO - lookup
+			'license_issued_date', //license_original_issue_date does not exist, remove references; exist as license_effective_date
+			'license_expiration_date',
+			'certificate_number', // license_serial_number , replace references
+			'premise_address' //actual_address_of_premises_address1_, TODO - combine address part 2
+			//'zip' Does not exist
+		]
+		})
 
-      const layer_311 = new carto.layer.Layer(source_311, style_311, {
-        featureOverColumns: ['geometry','incident_address','intersection_street_1','intersection_street_2','created_date','descriptor','complaint_type']
-      });
+		const layer_311 = new carto.layer.Layer(source_311, style_311, {
+		featureOverColumns: [
+			'geometry',
+			'incident_address',
+			'intersection_street_1',
+			'intersection_street_2',
+			'created_date',
+			'descriptor',
+			'complaint_type'
+		]
+		})
 
-			const layer_swc = new carto.layer.Layer(source_swc, style_swc, {
-				featureOverColumns: ['license_nbr','lic_status','business_name','business_name2','building','street','swc_type', 'swc_sq_ft', 'swc_tables', 'swc_chairs', 'community_district','expiration_date', 'issuance','issuance_dd','cb','cb_dd', 'app_id', 'app_swc_type', 'app_sq_ft', 'app_tables', 'app_chairs','intake_dd' ]
-			});
-			const layer_dohmh = new carto.layer.Layer(source_dohmh, style_dohmh, {
-				featureOverColumns: ['camis','dba', 'building','street' ]
-			});
-      const layer_church_school = new carto.layer.Layer(source_church_school, style_church_school, {
-				featureOverColumns: ['address','bldgclass']
-			});
+		const layer_swc = new carto.layer.Layer(source_swc, style_swc, {
+		featureOverColumns: [
+			'license_nbr',
+			'lic_status',
+			'business_name',
+			'business_name2',
+			'building',
+			'street',
+			'swc_type',
+			'swc_sq_ft',
+			'swc_tables',
+			'swc_chairs',
+			'community_district',
+			'expiration_date',
+			'issuance',
+			'issuance_dd',
+			'cb',
+			'cb_dd',
+			'app_id',
+			'app_swc_type',
+			'app_sq_ft',
+			'app_tables',
+			'app_chairs',
+			'intake_dd'
+		]
+		})
+		const layer_dohmh = new carto.layer.Layer(source_dohmh, style_dohmh, {
+		featureOverColumns: ['camis', 'dba', 'building', 'street']
+		})
+		const layer_church_school = new carto.layer.Layer(
+		source_church_school,
+		style_church_school,
+		{
+			featureOverColumns: ['address', 'bldgclass']
+		}
+		)
 
       //add layer to map
       client.addLayer(layer_church_school);
@@ -744,7 +786,7 @@
 
 				address += `<div class="widget">`;
 
-				address += `<p class = "bold">${featureEvent.data.actual_address_of_premises_address1_}</p><p>${featureEvent.data.doing_business_as_dba_}</p><p>${featureEvent.data.premises_name}</p>`;
+				address += `<p class = "bold">${featureEvent.data.actual_address_of_premises_address1_}</p><p>${featureEvent.data.dba}</p><p>${featureEvent.data.premises_name}</p>`;
 				popup.setContent(address);
 				popup.setLatLng(featureEvent.latLng);
 				if (!popup.isOpen()) {
@@ -765,13 +807,13 @@
 
 				//check if dba is filled in; otherwise use premises name as the header
 				if (featureEvent.data.doing_business_as_dba != '') {
-					content += `<h3 class = "bold">${featureEvent.data.doing_business_as_dba_}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4>`;
+					content += `<h3 class = "bold">${featureEvent.data.dba}</h3><h4 class = "bold">${featureEvent.data.premises_name}</h4>`;
 					}
 				else {
 					content += `<h3 class = "bold">${featureEvent.data.premises_name}</h3>`;
 				}
 				content+= `<h4>${featureEvent.data.actual_address_of_premises_address1_}</h4><div class="separator"></div>
-				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_name}</h5>
+				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_code}</h5>
 				<h5 class = "lighter">Serial number: ${featureEvent.data.license_serial_number}</h5>
 				<h5 class = "lighter">Original Issue Date: ${featureEvent.data.license_original_issue_date}</h5>
 				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_effective_date}</h5>
