@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#node
+/node_modules/
+/public/build/
+
+.DS_Store
+.env

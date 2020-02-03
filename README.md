@@ -12,7 +12,23 @@ SLA Mapper ([SLAM](https://slam.beta.nyc)) – is a tool that aggregates data th
   * Clearly state the purpose of your change in the description field for each commit.
   
 ## Architecture
-SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). It also displays polygons representing buildings DCP has classed as schools and churches. Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries the City's Geoclient API for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
+SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). It also displays polygons representing buildings DCP has classed as schools and churches. Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries NYC Planning Labs' GeoSearch for the geo-coordinates that correspond to the entered address, and the map repositions to this location. 
+
+## Setup
+
+In order to set things up, you'll need to copy .env.example to .env and add your [Carto](https://betanyc.carto.com/your_apps) and [GeoClient](https://developer.cityofnewyork.us/api/geoclient-api) API keys.
+
+```bash
+cp .env.example .env
+```
+
+Then you run to install node.js packages
+
+```bash
+npm install
+```
+
+You can either build by running `npm run build` or run live development environment by running `npm run dev`, then opening [localhost:5000](http://localhost:5000/) in your browser.
 
 ## Backend Services
 
@@ -60,16 +76,35 @@ We use Chart.js to display a pie chart depicting the breakdown of 311 complaints
 * [Source](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js)
 * [Documentation](http://www.chartjs.org/docs/latest/)
 
+### NYC Planning Labs' GeoSearch API
+
+When users enter a text address into the location search field, the system queries GeoSearch for the lat/lon of that location. The map re-centers to this lat/lon.
+
+- [Source](https://github.com/NYCPlanning/labs-geosearch-api)
+- [Documentation](https://geosearch.planninglabs.nyc/docs)
+
 ### NYC Geoclient API
-We use the City's Geoclient API for two tasks. First, when users enter a text address into the location search field, the system queries the Geoclient API for the lat/lon of that location. The map re-centers to this lat/lon.  Second, when a user clicks on a liquor license, the system queries the Geoclient API for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.  
+We use the City's Geoclient API to query for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.  
 * [Source](https://developer.cityofnewyork.us/api/geoclient-api)
 * [Documentation](https://api.cityofnewyork.us/geoclient/v1/doc)
 
-### Fetch API
-We use the Fetch API for browser-based Web requests to the Carto SQL API and the NYC Geoclient API.
-* [Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+### Svelte
+We use Svelte, a component framework to help manage the reactivity of the various libraries and components of the tool.
+* [Source](https://svelte.dev/)
+* [Documentation](https://github.com/sveltejs/svelte)
+
 
 ## Change Log
+
+### SLAM v0.10e
+* Refactor to use Svelte for better component, layers, and state management
+* Added a github action to automate build to gh-pages branch
+* Updates address search to use NYC Planning Labs' GeoSearch API
+* Added days_hours_of_operation and method_of_operation to infobox
+* Changes to panels for a more responsive tool
+* [[21]](../../../../BetaNYC/SLAM/issues/21) Remove API Keys from Public Code using rollup.js
+* [[26]](../../../../BetaNYC/SLAM/issues/26) Update Liquor License data (format changed)
+* Fixes to DOHMN layer to use [ABCEatsRestaurants](https://a816-health.nyc.gov/ABCEatsRestaurants/#/Search/) that replaced [NYC Restaurant Inspection](http://a816-restaurantinspection.nyc.gov/)
 
 ### SLAM v0.9e
 * [[24]](../../../../BetaNYC/SLAM/issues/24) Upated SQL queries to match column names in SLA dataset
@@ -106,6 +141,6 @@ Please see [license](https://github.com/BetaNYC/SLAM/blob/master/LICENSE) file f
  
 ## Have Questions?
 
-Contact [Lindsay Poirier](mailto:lindsay@beta.nyc) and [Noel Hidalgo](mailto:noel@beta.nyc).
+Contact [Lindsay Poirier](mailto:lindsay@beta.nyc) , [Zhi Keng He](mainto:zhi@beta.nyc), and [Noel Hidalgo](mailto:noel@beta.nyc).
  
  
