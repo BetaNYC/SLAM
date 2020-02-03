@@ -7,6 +7,8 @@
   import Layer_311 from './layers/Layer_311.svelte'
   import Layer_DOHMN from './layers/Layer_DOHMN.svelte'
   import Layer_Church_School from './layers/Layer_Church_School.svelte'
+  import Layer_CD from './layers/Layer_CD.svelte'
+  import Layer_CC from './layers/Layer_CC.svelte'
 
   let container
   let client
@@ -49,6 +51,8 @@
   <Layer_311></Layer_311>
   <Layer_DOHMN></Layer_DOHMN>
   <Layer_Church_School></Layer_Church_School>
+  <Layer_CD></Layer_CD>
+  <Layer_CC></Layer_CC>
   {/if}
 </div>
 

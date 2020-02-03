@@ -3,6 +3,7 @@
 
   let { label, checked, notes, ref } = layer
   let legend = 'legend' in layer ? layer.legend : []
+  let legend_html = 'legend_html' in layer ? layer.legend_html : null
 
   $: {
     //toggle layer on and off
@@ -27,6 +28,10 @@
     <p>{text}</p>
     {/each}
   </div>
+  {/if} {#if legend_html}
+  <div class="legend">
+    {@html legend_html}
+  </div>
   {/if}
 </div>
 
@@ -41,6 +46,22 @@
   .legend {
     display: flex;
     font-size: 0.7em;
+  }
+
+  .legend :global(.colored_line) {
+    border: none;
+    border-top: 3px solid #fff;
+    background-color: #fff;
+    color: #fff;
+    height: 1px;
+    width: 15%;
+    margin-left: 7px;
+  }
+
+  .legend :global(.colored_square) {
+    height: 1em;
+    width: 2em;
+    margin: 5px 7px;
   }
   .icon {
     margin-left: 5px;

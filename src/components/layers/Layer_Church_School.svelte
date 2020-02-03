@@ -28,7 +28,8 @@
         order: 5,
         ref: layer,
         label: 'Show Schools and Churches',
-        checked: false
+        checked: false,
+        legend_html: `<div class="colored_square" style="background-color: #12eda4;"></div>`
       })
     })
     .catch(error => console.log(error.message))
