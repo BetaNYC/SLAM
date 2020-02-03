@@ -43,10 +43,10 @@
             marker-line-color: #ffffff;
             marker-line-opacity: 1;
         }
-        #layer [expiration_year <=2020] {
+        #layer [expiration_year <=2019] {
             marker-fill: #e10012;
         }
-        #layer [expiration_year > 2020] {
+        #layer [expiration_year > 2019] {
             marker-fill: #e34dee;
         }
         #layer [zoom > 16] {
@@ -94,12 +94,12 @@
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg',
-            text: 'Expiring before 2020'
+            text: 'Expired before January 1, 2020'
           },
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg',
-            text: 'Expiring after 2020'
+            text: 'Expiring after January 1, 2020'
           }
         ],
         checked: true
