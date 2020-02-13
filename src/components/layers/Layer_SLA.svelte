@@ -8,6 +8,15 @@
   const client = getCartoClient()
   const popup = getPopup()
 
+  //get current day, month, and year
+  const dateObj = new Date()
+  const current_day = dateObj.getUTCDate()
+  const current_month = dateObj.getUTCMonth()
+  const current_year = dateObj.getUTCFullYear()
+  const current_epoch =
+    Date.UTC(current_year, current_month, current_day).valueOf() / 1000 // calcuate the epoch seconds for the day at 12am
+  const current_string = `${current_month + 1}/${current_day}/${current_year}`
+
   //query SLA data source from Carto and stack multiple entries at the same location
   const source = new carto.source.SQL(`
 		WITH
@@ -27,7 +36,7 @@
 			)
       SELECT ST_Translate(f.the_geom_webmercator,0,f.p*5) AS the_geom_webmercator, q.cartodb_id, premise_name, dba, license_type_code, license_issued_date, license_expiration_date, serial_number, certificate_number, premise_address, premise_zip,
         method_of_operation, days_hours_of_operation,
-				EXTRACT(year from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_year
+        EXTRACT(epoch from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_epoch
 				FROM f, liquor_authority_quarterly_list_of_active_licenses q
 				WHERE f.cartodb_id = q.cartodb_id		
         `)
@@ -43,11 +52,13 @@
             marker-line-color: #ffffff;
             marker-line-opacity: 1;
         }
-        #layer [expiration_year <=2019] {
-            marker-fill: #e10012;
-        }
-        #layer [expiration_year > 2019] {
+        #layer {
+          [expiration_epoch <= ${current_epoch}] {
             marker-fill: #e34dee;
+          }
+          [expiration_epoch > ${current_epoch}]{
+            marker-fill: #e10012;
+          }
         }
         #layer [zoom > 16] {
             marker-width: 20;
@@ -94,12 +105,12 @@
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg',
-            text: 'Expired before January 1, 2020'
+            text: `Expired`
           },
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg',
-            text: 'Expiring after January 1, 2020'
+            text: `Expiring on or after ${current_string}`
           }
         ],
         checked: true
