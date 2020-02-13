@@ -54,10 +54,10 @@
         }
         #layer {
           [expiration_epoch <= ${current_epoch}] {
-            marker-fill: #e34dee;
+            marker-fill: #e10012;
           }
           [expiration_epoch > ${current_epoch}]{
-            marker-fill: #e10012;
+            marker-fill: #e34dee;
           }
         }
         #layer [zoom > 16] {
@@ -105,12 +105,12 @@
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg',
-            text: `Expired`
+            text: `Expiring after ${current_string}`
           },
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205836bar-15.svg',
-            text: `Expiring on or after ${current_string}`
+            text: 'Expired'
           }
         ],
         checked: true

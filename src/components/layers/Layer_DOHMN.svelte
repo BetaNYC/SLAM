@@ -71,7 +71,7 @@
             text: 'Restaurant'
           }
         ],
-        checked: true
+        checked: false
       })
     })
     .catch(error => console.log(error.message))

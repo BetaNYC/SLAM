@@ -39,12 +39,14 @@
   				#layer [zoom <= 12]{
   				marker-width: 4;
   				}
-  					#layer [lic_status = 'Active']{
-  				marker-fill: #07d91c;
+  				#layer {
+            [lic_status = 'Active']{
+  			    	marker-fill: #07d91c;
   					}
-  					#layer [lic_status = 'Inactive']{
-  				marker-fill: #227527;
+            [lic_status = 'Inactive']{
+  				    marker-fill: #227527;
   					}
+          }
   				`)
   const layer = new carto.layer.Layer(source, style, {
     featureOverColumns: [
@@ -90,7 +92,7 @@
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210143picnic-site-15.svg',
-            text: ' Inactive'
+            text: 'Inactive'
           }
         ],
         checked: true
