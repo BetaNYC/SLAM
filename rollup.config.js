@@ -50,26 +50,20 @@ export default {
       babel({
         extensions: ['.js', '.mjs', '.html', '.svelte'],
         runtimeHelpers: true,
-        exclude: ['node_modules/@babel/**', /\/core-js\//],
+        exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         presets: [
           [
             '@babel/preset-env',
             {
-              // adapter to ensure IE 11 support
               targets: '> 0.25%, not dead, IE 11',
               useBuiltIns: 'usage',
-              corejs: 3 // or 2,
+              corejs: 3
             }
           ]
         ],
         plugins: [
           '@babel/plugin-syntax-dynamic-import',
-          [
-            '@babel/plugin-transform-runtime',
-            {
-              useESModules: true
-            }
-          ]
+          '@babel/plugin-transform-runtime'
         ]
       }),
 
