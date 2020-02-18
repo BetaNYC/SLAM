@@ -22,7 +22,7 @@
 		WITH
 			g AS (
 				SELECT cartodb_id, ST_Transform(ST_GeomFromText(georeference, 4326),3857) AS the_geom_webmercator
-				FROM liquor_authority_quarterly_list_of_active_licenses WHERE georeference != '' AND zone = 1 AND license_type_code in ('OP','SW','SB','SL','VL','RL','HL','CL','CT','EL','TL','CR','RW','HW','CW','TW','WC','EB','MR')
+				FROM liquor_authority_quarterly_list_of_active_licenses WHERE georeference != '' AND county IN ('NEW YORK','BRONX','KINGS','QUEENS','RICHMOND') AND license_type_code in ('OP','SW','SB','SL','VL','RL','HL','CL','CT','EL','TL','CR','RW','HW','CW','TW','WC','EB','MR')
 			),
 			m AS (
 				SELECT array_agg(cartodb_id) AS id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) AS y
