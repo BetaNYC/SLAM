@@ -24,7 +24,7 @@
             FROM m)
         SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.complaint_type, q.descriptor, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
             FROM f, club_bar_restaurant_complaints_since_jan_1_2017 q
-            WHERE f.cartodb_id = q.cartodb_id
+            WHERE f.cartodb_id = q.cartodb_id AND (q.created_date LIKE '%2020%' OR q.created_date LIKE '%2019%')
     `)
 
   //Style the 311 data and color different complaint tyles differently
@@ -80,7 +80,7 @@
       layers.add({
         order: 3,
         ref: layer,
-        label: '311 Complaints Since 2017',
+        label: '311 Complaints Since 2019',
         notes: '*Filtered to those made at club/bar/restaurant',
         legend: [
           {
@@ -280,7 +280,7 @@
         })
 
         //add source information
-        source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered to complaints at a club/restaurant/bar made since January 1, 2017. Data is updated daily.</h6>`
+        source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered to complaints at a club/restaurant/bar made since January 1, 2019. Data is updated daily.</h6>`
 
         //fill the innerHTML of each section
         info.show({
