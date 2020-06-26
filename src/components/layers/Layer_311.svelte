@@ -24,7 +24,7 @@
             FROM m)
         SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.complaint_type, q.descriptor, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
             FROM f, club_bar_restaurant_complaints_since_jan_1_2017 q
-            WHERE f.cartodb_id = q.cartodb_id AND (q.created_date LIKE '%2020%')
+            WHERE f.cartodb_id = q.cartodb_id AND (q.created_date LIKE '%2020%' or q.created_date LIKE '%2019%')
     `)
 
   //Style the 311 data and color different complaint tyles differently
@@ -80,7 +80,7 @@
       layers.add({
         order: 4,
         ref: layer,
-        label: '311 Complaints Since January 1, 2020',
+        label: '311 Complaints Since January 1, 2019',
         notes: '*Filtered to those made at club/bar/restaurant',
         legend: [
           {
