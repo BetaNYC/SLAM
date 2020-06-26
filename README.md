@@ -43,9 +43,13 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
 - `liquor_authority_quarterly_list_of_active_licenses`
   - Dataset of all NYS active liquor licenses
   - [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal
-  - Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account monthly.
+  - Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account weekly.
+- `nyc_open_restaurants_application_v2_6`
+  - Dataset of self-certified responses for NYC [Open Restaurants](https://www1.nyc.gov/html/dot/html/pedestrians/openrestaurants.shtml)
+  - [Published](http://nycopenrestaurants.info) by NYCDOT on an ArcGIS Dashboard and Service API Layer
+  - Data is synced wtih BetaNYC's Carto account hourly.
 - `club_bar_restaurant_complaints_since_jan_1_2017`
-  - Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2017
+  - Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2019
   - [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal
   - Data is updated in the Open Data Portal daily and synced wtih BetaNYC's Carto account daily.
 - `sidewalk_caf_licenses_and_applications`
