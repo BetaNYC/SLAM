@@ -105,12 +105,22 @@
         const time = new Date(Number(submissiontime))
 
         let content =  `
-            <p class = "bold">${bizaddress}</p>
-            <p>${restaurantname}</p>
-            <p>Application Submission Date/Time ${time.toLocaleString()}<p/>
-            <p>Sidewalk: ${qualify_sidewalk.toUpperCase()}</p>
-            <p>Roadway: ${qualify_roadway.toUpperCase()}</p>
-            <p>Roadway: ${alcohol.toUpperCase()}</p>
+            <div class="widget">
+                <p class = "bold">${bizaddress}</p>
+                <p>${restaurantname}</p>
+                <p>Submission Date: ${time.toLocaleDateString()}<p/>
+                <div class="tags-group">
+                     <div class="tags has-addons">
+                        <p class="tag">Sidewalk</p><p class="tag ${qualify_sidewalk === 'yes'? 'success': ''}">${qualify_sidewalk}</p>
+                    </div>
+                    <div class="tags has-addons">
+                        <p class="tag">Roadway</p><p class="tag ${qualify_roadway === 'yes'? 'success': ''}">${qualify_roadway}</p>
+                    </div>
+                    <div class="tags has-addons">
+                        <p class="tag">Alcohol</p><p class="tag ${alcohol === 'yes'? 'success': ''}">${alcohol}</p>
+                    </div>
+                </div>
+            </div>
         `
         let source = `
             <div class="separator"></div>

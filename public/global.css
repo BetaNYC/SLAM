@@ -69,3 +69,53 @@ button:not(:disabled):active {
 button:focus {
   border-color: #666;
 }
+
+.tags-group{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.tags{
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+.tags.has-addons .tag{
+  margin: 0;
+}
+
+.tags.has-addons .tag:first-child{
+  font-weight: 800;
+}
+
+.tags.has-addons .tag:not(:first-child){
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  text-transform: capitalize;
+}
+
+.tag{
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  color: #4a4a4a;
+  display: inline-flex;
+  font-size: .75rem;
+  height: 2em;
+  justify-content: center;
+  line-height: 1.5;
+  padding-left: .75em;
+  padding-right: .75em;
+  white-space: nowrap;
+}
+
+.tag.success{
+  background-color: #48c774;
+  color: #fff;
+}
