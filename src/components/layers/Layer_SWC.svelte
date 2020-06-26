@@ -16,7 +16,7 @@
   //Style the sidewalk café data and color inactive licenses differently
   const style = new carto.style.CartoCSS(`
   				#layer {
-  				marker-width: 18;
+  				marker-width: 16;
   				marker-fill-opacity: 0.9;
   				marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180612173650picnic-site-15.svg');
   				marker-allow-overlap: true;
@@ -25,19 +25,19 @@
   				marker-line-opacity: 1;
   				}
   				#layer [zoom > 16]{
-  					marker-width: 20;
+  					marker-width: 16;
   				}
   				#layer [zoom <= 16]{
-  				marker-width: 15;
+  				marker-width: 12;
   				}
   				#layer [zoom <= 15]{
-  				marker-width: 13;
+  				marker-width: 10;
   				}
   				#layer [zoom <= 14]{
-  				marker-width: 8;
+  				marker-width: 7;
   				}
   				#layer [zoom <= 12]{
-  				marker-width: 4;
+  				marker-width: 2;
   				}
   				#layer {
             [lic_status = 'Active']{
@@ -80,7 +80,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 2,
+        order: 3,
         ref: layer,
         label: 'Sidewalk Café Licenses',
         legend: [
@@ -95,7 +95,7 @@
             text: 'Inactive'
           }
         ],
-        checked: true
+        checked: false
       })
     })
     .catch(error => console.log(error.message))

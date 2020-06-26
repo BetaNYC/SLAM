@@ -4,6 +4,7 @@
   import { mapStore } from '../stores'
   import Layer_SLA from './layers/Layer_SLA.svelte'
   import Layer_SWC from './layers/Layer_SWC.svelte'
+  import Layer_Open_Restaurants from './layers/Layer_Open_Restaurants.svelte'
   import Layer_311 from './layers/Layer_311.svelte'
   import Layer_DOHMN from './layers/Layer_DOHMN.svelte'
   import Layer_Church_School from './layers/Layer_Church_School.svelte'
@@ -47,6 +48,7 @@
 <div id="map" bind:this="{container}">
   {#if map}
   <Layer_SLA></Layer_SLA>
+  <Layer_Open_Restaurants></Layer_Open_Restaurants>
   <Layer_SWC></Layer_SWC>
   <Layer_311></Layer_311>
   <Layer_DOHMN></Layer_DOHMN>

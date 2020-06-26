@@ -25,7 +25,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 5,
+        order: 6,
         ref: layer,
         label: 'Show Schools and Churches',
         checked: false,

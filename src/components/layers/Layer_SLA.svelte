@@ -44,7 +44,7 @@
   //Style the SLA data and color differently if expiring this year
   const style = new carto.style.CartoCSS(`
         #layer {
-            marker-width: 20;
+            marker-width: 16;
             marker-fill-opacity: 0.9;
             marker-file: url('https://s3.amazonaws.com/com.cartodb.users-assets.production/maki-icons/bar-18.svg');
             marker-allow-overlap: true;
@@ -61,19 +61,19 @@
           }
         }
         #layer [zoom > 16] {
-            marker-width: 20;
+            marker-width: 16;
         }
         #layer [zoom <=16] {
-            marker-width: 15;
+            marker-width: 12;
         }
         #layer [zoom <=15] {
-            marker-width: 13;
+            marker-width: 10;
         }
         #layer [zoom <=14] {
-            marker-width: 8;
+            marker-width: 7;
         }
         #layer [zoom <=12] {
-            marker-width: 4;
+            marker-width: 2;
         }
     `)
 
@@ -113,7 +113,7 @@
             text: 'Expired'
           }
         ],
-        checked: true
+        checked: false
       })
     })
     .catch(error => console.log(error.message))

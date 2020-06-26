@@ -61,7 +61,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 4,
+        order: 5,
         ref: layer,
         label: 'Restaurant Health Grades',
         legend: [

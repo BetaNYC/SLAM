@@ -52,7 +52,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 6,
+        order: 7,
         ref: layer,
         label: 'Show Community Districts',
         checked: false,
