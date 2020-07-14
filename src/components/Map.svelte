@@ -34,6 +34,12 @@
     map = L.map(container, { maxZoom }).setView([40.73, -74], 18)
     map.scrollWheelZoom.disable()
 
+    //create control and add to map
+    const lc = L.control.locate({keepCurrentZoomLevel: true}).addTo(map);
+
+    // request location update and set location
+    lc.start();
+
     popup = L.popup({ closeButton: false })
 
     L.tileLayer(
