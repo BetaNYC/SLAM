@@ -98,7 +98,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 1,
+        order: 3,
         ref: layer,
         label: 'State Liquor Authority Licenses',
         legend: [

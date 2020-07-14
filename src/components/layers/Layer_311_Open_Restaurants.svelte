@@ -11,55 +11,62 @@
 
   //query 311 data source from Carto and stack multiple entries at the same location:
   const source = new carto.source.SQL(`WITH
-        s AS (
-            SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
-            FROM club_bar_restaurant_complaints_since_jan_1_2017),
-        m AS (
-            SELECT array_agg(cartodb_id ORDER BY rownum) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
-            FROM s
-            GROUP BY the_geom_webmercator
-            ORDER BY y DESC),
-        f AS (
-            SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
-            FROM m)
-        SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.complaint_type, q.descriptor, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
-            FROM f, club_bar_restaurant_complaints_since_jan_1_2017 q
-            WHERE f.cartodb_id = q.cartodb_id AND (q.created_date LIKE '%2020%' or q.created_date LIKE '%2019%')
-    `)
+          s AS (
+              SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
+              FROM open_restaurants_pre_filter_since_march),
+          m AS (
+              SELECT array_agg(cartodb_id ORDER BY rownum) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
+              FROM s
+              GROUP BY the_geom_webmercator
+              ORDER BY y DESC),
+          f AS (
+              SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
+              FROM m)
+          SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.agency, q.complaint_type, q.descriptor, q.location_type, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
+              FROM f, open_restaurants_pre_filter_since_march q
+              WHERE f.cartodb_id = q.cartodb_id AND (
+                (q.agency = 'NYPD' AND q.descriptor in ('Social Distancing', 'Face Covering Violation') AND q.location_type = 'Store/Commercial') OR
+                (q.agency = 'DCA' AND q.descriptor = 'Sidewalk Cafe') OR
+                (q.agency = 'DOT' AND q.complaint_type = 'Outdoor Dining')
+            )
+      `)
 
   //Style the 311 data and color different complaint tyles differently
   const style = new carto.style.CartoCSS(`
-  		#layer {
-  			marker-fill: #4d88ee;
-  			marker-fill-opacity: 0.9;
-  			marker-allow-overlap: true;
-  			marker-line-width: 0.25;
-  			marker-line-color: #FFFFFF;
-  			marker-line-opacity: 1;
-  		}
-  		#layer[complaint_type="Drinking"] {
-  			marker-fill: #3622b9;
-  		}
-  		#layer[complaint_type="Noise - Commercial"] {
-  			marker-fill: #4d88ee;
-  		}
-  		#layer [zoom > 16]{
-  			marker-width: 7;
-  		}
-  		#layer [zoom <= 16]{
-  		marker-width: 5;
-  		}
-  		#layer [zoom <= 15]{
-  		marker-width: 4;
-  		}
-  		#layer [zoom <= 14]{
-  		marker-width: 3;
-  		}
-  		#layer [zoom <= 12]{
-  		marker-width: 2;
-  		}
-
-            `)
+            #layer {
+                marker-fill: #4d88ee;
+                marker-fill-opacity: 0.9;
+                marker-allow-overlap: true;
+                marker-line-width: 0.4;
+                marker-line-color: #FFFFFF;
+                marker-line-opacity: 1;
+            }
+            #layer[agency="NYPD"] {
+                marker-fill: #7570b3;
+            }
+            #layer[agency="DCA"] {
+                marker-fill: #d95f02;
+            }
+            #layer[agency="DOT"] {
+                marker-fill: #1b9e77;
+            }
+            #layer [zoom > 16]{
+                marker-width: 7;
+            }
+            #layer [zoom <= 16]{
+            marker-width: 5;
+            }
+            #layer [zoom <= 15]{
+            marker-width: 4;
+            }
+            #layer [zoom <= 14]{
+            marker-width: 3;
+            }
+            #layer [zoom <= 12]{
+            marker-width: 2;
+            }
+  
+              `)
 
   const layer = new carto.layer.Layer(source, style, {
     featureOverColumns: [
@@ -68,6 +75,7 @@
       'intersection_street_1',
       'intersection_street_2',
       'created_date',
+      'agency',
       'descriptor',
       'complaint_type'
     ]
@@ -78,23 +86,25 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 2,
+        order: 1,
         ref: layer,
-        label: '311 Complaints - Noise/ Drinking',
-        notes: '*Filtered to those made at club/bar/restaurant (Since January 1, 2019)',
+        label: '311 Complaints- Open Restaurants',
+        notes: '*<a href="https://portal.311.nyc.gov/article/?kanumber=KA-03321" target="_blank">Filtered to social distancing and face coverings (NYPD), consumer complaints (DCA), and compliance (DOT)</a>',
         legend: [
           {
-            image:
-              'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210011circle-11.svg',
-            text: 'Noise'
+            image: './images/circle-11-nypd.svg',
+            text: 'NYPD'
           },
           {
-            image:
-              'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629210053circle-11.svg',
-            text: 'Drinking'
+            image: './images/circle-11-dca.svg',
+            text: 'DCA'
+          },
+          {
+            image: './images/circle-11-dot.svg',
+            text: 'DOT'
           }
         ],
-        checked: false
+        checked: true
       })
     })
     .catch(error => console.log(error.message))
@@ -138,16 +148,16 @@
     let year_colors = []
 
     //query 311 complaint data made about bar/club/restaurant since 2017 (stored in carto) at the selected location; select, complaint type, descriptor, and year
-    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(year from to_date(created_date, 'MM/DD/YYYY')) AS created_year FROM club_bar_restaurant_complaints_since_jan_1_2017 WHERE location='${featureEvent.data.geometry}'&api_key=${carto_apikey}`
+    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(month from to_date(created_date, 'MM/DD/YYYY')) AS created_month FROM open_restaurants_pre_filter_since_march WHERE location='${featureEvent.data.geometry}'&api_key=${carto_apikey}`
 
     //variable to count complaints
     let complaints_count = 0
 
     fetch(url)
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
-      .then(function(geom_data) {
+      .then(function (geom_data) {
         complaints_count = geom_data.rows.length
 
         //if there is an incident address listed in the dataset at that location list it; otherwise concatenate the strings in intersection1 and intersection2 of the dataset
@@ -210,8 +220,8 @@
 
         //store unique years in the resulting data in an array and count the number of complaints for each of those years
         for (var i = 0; i < complaints_count; i++) {
-          year_arr[geom_data.rows[i].created_year] =
-            1 + (year_arr[geom_data.rows[i].created_year] || 0)
+          year_arr[geom_data.rows[i].created_month] =
+            1 + (year_arr[geom_data.rows[i].created_month] || 0)
         }
 
         year_labels = Object.keys(year_arr)
@@ -266,7 +276,7 @@
                   display: true,
                   scaleLabel: {
                     display: true,
-                    labelString: 'Year',
+                    labelString: 'Month',
                     fontSize: 10
                   }
                 }
@@ -274,13 +284,13 @@
             },
             title: {
               display: true,
-              text: 'Complaints by Year'
+              text: 'Complaints by Month'
             }
           }
         })
 
         //add source information
-        source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered to complaints at a club/restaurant/bar made since January 1, 2019. Data is updated daily.</h6>`
+        source += `<div class="separator"></div><h6>Source: <a href='https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9/data'>311 Service Requests from 2010 to Present</a></h6><h6>Data was filtered <a href="https://portal.311.nyc.gov/article/?kanumber=KA-03321" target="_blank">to social distancing and face coverings (NYPD), consumer complaints (DCA), and compliance (DOT)</a> compaints. Data is updated daily.</h6>`
 
         //fill the innerHTML of each section
         info.show({

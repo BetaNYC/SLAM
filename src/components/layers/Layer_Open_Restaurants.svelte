@@ -64,7 +64,7 @@
             .then(() => {
                 //add layer to state
                 layers.add({
-                    order: 2,
+                    order: 0,
                     ref: layer,
                     label: 'Open Restaurants (self-certified)',
                     legend: [

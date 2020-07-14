@@ -20,7 +20,7 @@
     <span class="name">{label}</span>
   </div>
   {#if notes}
-  <em>{notes}</em>
+  <em>{@html notes}</em>
   {/if} {#if legend.length}
   <div class="legend">
     {#each legend as { image, text }}

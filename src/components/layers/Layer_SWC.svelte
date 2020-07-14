@@ -80,7 +80,7 @@
     .then(() => {
       //add layer to state
       layers.add({
-        order: 3,
+        order: 4,
         ref: layer,
         label: 'Sidewalk Café Licenses',
         legend: [

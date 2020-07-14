@@ -40,14 +40,19 @@ You can either build by running `npm run build` or run live development environm
 
 Most of the data for SLAM is stored in BetaNYC's carto account.
 
-- `liquor_authority_quarterly_list_of_active_licenses`
+- `liquor_authority_quarterly_list_of_active_licenses` / `sla_geo`
   - Dataset of all NYS active liquor licenses
   - [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal
-  - Data is updated in the Open Data Portal quarterly and synced with BetaNYC's Carto account weekly.
+  - Data is updated in the Open Data Portal quarterly, geocoded with GBAT, and synced with BetaNYC's Carto account weekly.
 - `nyc_open_restaurants_application_v2_6`
   - Dataset of self-certified responses for NYC [Open Restaurants](https://www1.nyc.gov/html/dot/html/pedestrians/openrestaurants.shtml)
   - [Published](http://nycopenrestaurants.info) by NYCDOT on an ArcGIS Dashboard and Service API Layer
   - Data is synced wtih BetaNYC's Carto account hourly.
+- `open_restaurants_pre_filter_since_march`
+  - Dataset of all NYC 311 complaints made about an Open Restaurants since March 2020
+  - [Published](https://data.cityofnewyork.us/Social-Services/open_restaurants_pre_filter_since_march/sujq-j9cg) 
+  - NYPD - Social Distancing' and 'Face Covering Violation', DCA - 'Sidewalk Cafe', and DOT - 'Outdoor Dining' Types and Descriptors.
+  - Read more about 311 Complaints for Open Restaurants [here](https://portal.311.nyc.gov/article/?kanumber=KA-03321)
 - `club_bar_restaurant_complaints_since_jan_1_2017`
   - Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2019
   - [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal
