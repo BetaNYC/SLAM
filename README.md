@@ -122,6 +122,13 @@ We use Svelte, a component framework to help manage the reactivity of the variou
 
 ## Change Log
 
+### SLAM v0.11e
+
+- Added Open Restaurants applicants and 311 complaint layers
+- Reorder layers to feature new layers
+- SLA dataset has to be manually geocoded due to georeference column not being filled out in the State ODP
+- Added Leaflet.Locate library to allow for geo-location of the user when first visiting the page
+
 ### SLAM v0.10e
 
 - Refactor to use Svelte for better component, layers, and state management
