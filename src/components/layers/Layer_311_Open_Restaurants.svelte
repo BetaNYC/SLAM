@@ -13,7 +13,11 @@
   const source = new carto.source.SQL(`WITH
           s AS (
               SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
-              FROM open_restaurants_pre_filter_since_march),
+              FROM open_restaurants_pre_filter_since_march q WHERE (
+                (q.agency = 'NYPD' AND q.descriptor in ('Social Distancing', 'Face Covering Violation') AND q.location_type = 'Store/Commercial') OR
+                (q.agency = 'DCA' AND q.descriptor = 'Sidewalk Cafe') OR
+                (q.agency = 'DOT' AND q.complaint_type = 'Outdoor Dining')
+            )),
           m AS (
               SELECT array_agg(cartodb_id ORDER BY rownum) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
               FROM s
@@ -22,7 +26,7 @@
           f AS (
               SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
               FROM m)
-          SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.agency, q.complaint_type, q.descriptor, q.location_type, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
+          SELECT ST_Translate(f.the_geom_webmercator,0,f.p*3) the_geom_webmercator, f.cartodb_id, q.agency, q.complaint_type, q.descriptor, q.location_type, q.created_date, q.incident_address, q.intersection_street_1, q.intersection_street_2, q.location geometry
               FROM f, open_restaurants_pre_filter_since_march q
               WHERE f.cartodb_id = q.cartodb_id AND (
                 (q.agency = 'NYPD' AND q.descriptor in ('Social Distancing', 'Face Covering Violation') AND q.location_type = 'Store/Commercial') OR
@@ -54,16 +58,16 @@
                 marker-width: 7;
             }
             #layer [zoom <= 16]{
-            marker-width: 5;
+                marker-width: 5;
             }
             #layer [zoom <= 15]{
-            marker-width: 4;
+                marker-width: 4;
             }
             #layer [zoom <= 14]{
-            marker-width: 3;
+                marker-width: 3;
             }
             #layer [zoom <= 12]{
-            marker-width: 2;
+                marker-width: 2;
             }
   
               `)
@@ -148,7 +152,11 @@
     let year_colors = []
 
     //query 311 complaint data made about bar/club/restaurant since 2017 (stored in carto) at the selected location; select, complaint type, descriptor, and year
-    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(month from to_date(created_date, 'MM/DD/YYYY')) AS created_month FROM open_restaurants_pre_filter_since_march WHERE location='${featureEvent.data.geometry}'&api_key=${carto_apikey}`
+    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(month from to_date(created_date, 'MM/DD/YYYY')) AS created_month FROM open_restaurants_pre_filter_since_march q WHERE location='${featureEvent.data.geometry}' AND (
+                (q.agency = 'NYPD' AND q.descriptor in ('Social Distancing', 'Face Covering Violation') AND q.location_type = 'Store/Commercial') OR
+                (q.agency = 'DCA' AND q.descriptor = 'Sidewalk Cafe') OR
+                (q.agency = 'DOT' AND q.complaint_type = 'Outdoor Dining')
+            )&api_key=${carto_apikey}`
 
     //variable to count complaints
     let complaints_count = 0

@@ -13,7 +13,7 @@
   const source = new carto.source.SQL(`WITH
         s AS (
             SELECT ROW_NUMBER() OVER(ORDER BY to_timestamp(created_date, 'MM/DD/YYYY') ASC) rownum, the_geom_webmercator, cartodb_id
-            FROM club_bar_restaurant_complaints_since_jan_1_2017),
+            FROM club_bar_restaurant_complaints_since_jan_1_2017 Q WHERE (q.created_date LIKE '%2020%' or q.created_date LIKE '%2019%')),
         m AS (
             SELECT array_agg(cartodb_id ORDER BY rownum) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
             FROM s
