@@ -16,10 +16,10 @@
             applications. Displaying this information in a unified view saves
             community boards considerable time and resources.
         </h5>
-        <h5 class="lighter" style="background-color: #f1ed60; padding: 0.5rem;">
+        <!-- <h5 class="lighter" style="background-color: #f1ed60; padding: 0.5rem;">
             <strong>Note:</strong> We are currently in the process of updating our data Layers. Some
             boroughs might not have data.
-        </h5>
+        </h5> -->
     </div>
     <div class="separator"></div>
     <h4>Instructions</h4>
