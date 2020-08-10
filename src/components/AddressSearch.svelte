@@ -18,7 +18,7 @@
           $mapStore.setView(coords)
 
           if (marker) marker.remove()
-          marker = L.marker(coords).addTo($mapStore)
+          marker = L.marker(coords).addTo($mapStore).on('click', () => marker.remove()).setOpacity(0.8);
         } else {
           //throw error
         }
