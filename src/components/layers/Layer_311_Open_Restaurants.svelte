@@ -151,8 +151,11 @@
     let year_data = []
     let year_colors = []
 
+    const [lat, lng] = featureEvent.data.geometry.match(/[-]?\d+(?:\.\d*)?/g)
+
     //query 311 complaint data made about bar/club/restaurant since 2017 (stored in carto) at the selected location; select, complaint type, descriptor, and year
-    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(month from to_date(created_date, 'MM/DD/YYYY')) AS created_month FROM open_restaurants_pre_filter_since_march q WHERE location='${featureEvent.data.geometry}' AND (
+    const url = `https://betanyc.carto.com/api/v2/sql/?q=SELECT cartodb_id, descriptor, created_date, EXTRACT(month from to_date(created_date, 'MM/DD/YYYY')) AS created_month FROM open_restaurants_pre_filter_since_march q
+            WHERE ST_Intersects(ST_Buffer(q.the_geom, 0.000005), ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)) AND (
                 (q.agency = 'NYPD' AND q.descriptor in ('Social Distancing', 'Face Covering Violation') AND q.location_type = 'Store/Commercial') OR
                 (q.agency = 'DCA' AND q.descriptor = 'Sidewalk Cafe') OR
                 (q.agency = 'DOT' AND q.complaint_type = 'Outdoor Dining')
@@ -176,7 +179,7 @@
         }
 
         // list total number of complaints
-        content += `<div class="separator"></div><h5 class = "lighter">Total Number of Complaints: ${complaints_count}</h5>`
+        content += `<div class="separator"></div><h5 class = "lighter">Total Number of Complaints around address point: ${complaints_count}</h5>`
 
         //store unique descriptors in the resulting data in an array and count the number of complaints for each of those descriptors
         for (var i = 0; i < complaints_count; i++) {
