@@ -10,7 +10,7 @@
 
     //query sidewalk café data source from Carto and stack multiple entries at the same location:
     const source = new carto.source.SQL(`
-          SELECT * FROM nyc_open_restaurants_application_v2_6
+          SELECT * FROM nyc_open_restaurants_application_xjsx
   `)
 
     //Style the sidewalk café data and color inactive licenses differently
@@ -124,7 +124,7 @@
         `
         let source = `
             <div class="separator"></div>
-            <h6>Source: <a target="_blank" ref='http://nycopenrestaurants.info'>Open Restaurant Map & Dashboard.</a></h6>
+            <h6>Source: <a target="_blank" href='http://nycopenrestaurants.info'>Open Restaurant Map & Dashboard.</a></h6>
             <h6>Data is updated hourly. Note: This data is <strong>self-certified responses</strong>.</h6>
         `
 
