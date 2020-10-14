@@ -52,8 +52,7 @@
         featureOverColumns: [
             'bizaddress',
             'restaurantname',
-            'qualify_sidewalk',
-            'qualify_roadway',
+            'extra1',
             'alcohol',
             'submissiontime'
         ]
@@ -101,7 +100,7 @@
 
     layer.on('featureClicked', featureEvent => {
         //variables for the innerHTML content that will be filled into each div in the infobox
-        const {bizaddress, restaurantname, qualify_sidewalk, qualify_roadway, alcohol, submissiontime} = featureEvent.data
+        const {bizaddress, restaurantname, extra1, alcohol, submissiontime} = featureEvent.data
         const time = new Date(Number(submissiontime))
 
         let content =  `
@@ -111,10 +110,7 @@
                 <p>Submission Date: ${time.toLocaleDateString()}<p/>
                 <div class="tags-group">
                      <div class="tags has-addons">
-                        <p class="tag">Sidewalk</p><p class="tag ${qualify_sidewalk === 'yes'? 'success': ''}">${qualify_sidewalk}</p>
-                    </div>
-                    <div class="tags has-addons">
-                        <p class="tag">Roadway</p><p class="tag ${qualify_roadway === 'yes'? 'success': ''}">${qualify_roadway}</p>
+                        <p class="tag">Sidewalk/ Roadway</p><p class="tag">${extra1}</p>
                     </div>
                     <div class="tags has-addons">
                         <p class="tag">Alcohol</p><p class="tag ${alcohol === 'yes'? 'success': ''}">${alcohol}</p>
