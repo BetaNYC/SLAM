@@ -15,6 +15,7 @@
   const current_year = dateObj.getUTCFullYear()
   const current_epoch =
     Date.UTC(current_year, current_month, current_day).valueOf() / 1000 // calcuate the epoch seconds for the day at 12am
+    //todo make a month afterwards
   const current_string = `${current_month + 1}/${current_day}/${current_year}`
 
   //query SLA data source from Carto and stack multiple entries at the same location
@@ -22,7 +23,7 @@
 		WITH
 			g AS (
 				SELECT cartodb_id, ST_Transform(the_geom,3857) AS the_geom_webmercator
-				FROM sla_geo WHERE the_geom IS NOT NULL AND county IN ('NEW YORK','BRONX','KINGS','QUEENS','RICHMOND') AND license_type_code in ('OP','SW','SB','SL','VL','RL','HL','CL','CT','EL','TL','CR','RW','HW','CW','TW','WC','EB','MR')
+				FROM activelicensesv2 WHERE the_geom IS NOT NULL AND countyname IN ('NEW YORK','BRONX','KINGS','QUEENS','RICHMOND') AND licensetyp in ('OP','SW','SB','SL','VL','RL','HL','CL','CT','EL','TL','CR','RW','HW','CW','TW','WC','EB','MR')
 			),
 			m AS (
 				SELECT array_agg(cartodb_id) AS id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) AS y
@@ -34,10 +35,14 @@
 				SELECT generate_series(1, array_length(id_list,1)) AS p, unnest(id_list) AS cartodb_id, the_geom_webmercator
 				FROM m
 			)
-      SELECT ST_Translate(f.the_geom_webmercator,0,f.p*5) AS the_geom_webmercator, q.cartodb_id, premise_name, dba, license_type_code, license_issued_date, license_expiration_date, serial_number, certificate_number, premise_address, premise_zip,
-        method_of_operation, days_hours_of_operation,
-        EXTRACT(epoch from to_date(license_expiration_date, 'MM/DD/YYYY')) AS expiration_epoch
-				FROM f, sla_geo q
+      SELECT ST_Translate(f.the_geom_webmercator,0,f.p*5) AS the_geom_webmercator, q.cartodb_id, premisename, premisedba, 
+        licensetyp, 
+        TO_CHAR(TO_TIMESTAMP(lic_issue_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_issued_date, 
+        TO_CHAR(TO_TIMESTAMP(lic_expiration_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_expiration_date, 
+        lic_expiration_date::BIGINT AS expiration_epoch, 
+        serialno, certnum, premiseaddress1, premisezip,
+        method_of_operation, days_hours_of_operation
+				FROM f, activelicensesv2 q
 				WHERE f.cartodb_id = q.cartodb_id
         `)
 
@@ -79,15 +84,15 @@
 
   const layer = new carto.layer.Layer(source, style, {
     featureClickColumns: [
-      'premise_name',
-      'dba', // doing_business_as_dba_
-      'serial_number',
-      'license_type_code', // license_type_name, TODO - lookup
+      'premisename',
+      'premisedba', // doing_business_as_premisedba_
+      'serialno',
+      'licensetyp', // license_type_name, TODO - lookup
       'license_issued_date', //license_original_issue_date does not exist, remove references; exist as license_effective_date
       'license_expiration_date',
-      'certificate_number',
-      'premise_address', //actual_address_of_premises_address1_, TODO - combine address part 2
-      'premise_zip', //'zip'
+      'certnum',
+      'premiseaddress1', //actual_address_of_premises_address1_, TODO - combine address part 2
+      'premisezip', //'zip'
       'method_of_operation',
       'days_hours_of_operation'
     ]
@@ -124,7 +129,7 @@
 
     address += `<div class="widget">`
 
-    address += `<p class = "bold">${featureEvent.data.premise_address}</p><p>${featureEvent.data.dba}</p><p>${featureEvent.data.premise_name}</p>`
+    address += `<p class = "bold">${featureEvent.data.premiseaddress1}</p><p>${featureEvent.data.premisedba}</p><p>${featureEvent.data.premisename}</p>`
     popup.setContent(address)
     popup.setLatLng(featureEvent.latLng)
     if (!popup.isOpen()) {
@@ -139,26 +144,26 @@
 
     //variable to store BIN from city geoclient
     var bin = 0
-    //check if dba is filled in; otherwise use premises name as the header
-    if (featureEvent.data.doing_business_as_dba !== '') {
-      content += `<h3 class = "bold">${featureEvent.data.dba}</h3><h4 class = "bold">${featureEvent.data.premise_name}</h4>`
+    //check if premisedba is filled in; otherwise use premises name as the header
+    if (featureEvent.data.doing_business_as_premisedba !== '') {
+      content += `<h3 class = "bold">${featureEvent.data.premisedba}</h3><h4 class = "bold">${featureEvent.data.premisename}</h4>`
     } else {
-      content += `<h3 class = "bold">${featureEvent.data.premise_name}</h3>`
+      content += `<h3 class = "bold">${featureEvent.data.premisename}</h3>`
     }
-    content += `<h4>${featureEvent.data.premise_address}</h4><div class="separator"></div>
-				<h5 class = "lighter">License Type: ${featureEvent.data.license_type_code}</h5>
-				<h5 class = "lighter">Serial number: ${featureEvent.data.serial_number}</h5>
+    content += `<h4>${featureEvent.data.premiseaddress1}</h4><div class="separator"></div>
+				<h5 class = "lighter">License Type: ${featureEvent.data.licensetyp}</h5>
+				<h5 class = "lighter">Serial number: ${featureEvent.data.serialno}</h5>
 				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_issued_date}</h5>
         <h5 class = "lighter">Expiration Date: ${featureEvent.data.license_expiration_date}</h5>
         <h5 class = "lighter">Method of Operation: ${featureEvent.data.method_of_operation}</h5>
         <h5 class = "lighter">Days/Hours of Operation: ${featureEvent.data.days_hours_of_operation}</h5>
-				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serial_number}&licenseType=${featureEvent.data.license_type_code}' target = '_blank'>Click here for more information about this license.</a></h5>`
+				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serialno}&licenseType=${featureEvent.data.licensetyp}' target = '_blank'>Click here for more information about this license.</a></h5>`
 
     //adds CORS header to proxy request getting around errors
     const proxyurl = 'https://cors-anywhere.herokuapp.com/'
 
     //Query the city's Geoclient API to get the BIN of the building at the address listed in the SLA data. we will use this to collect the Certificate of Occupancy
-    var url = `https://api.cityofnewyork.us/geoclient/v1/search.json?input=${featureEvent.data.premise_address} ${featureEvent.data.premise_zip}&app_id=${geoclient_id}&app_key=${geoclient_key}`
+    var url = `https://api.cityofnewyork.us/geoclient/v1/search.json?input=${featureEvent.data.premiseaddress1} ${featureEvent.data.premisezip}&app_id=${geoclient_id}&app_key=${geoclient_key}`
 
     var slaBIN = new Promise(function(resolve) {
       fetch(proxyurl + url)
@@ -186,7 +191,12 @@
       }
 
       //add source information
-      source += `<div class="separator"></div><h6>Source: <a href='https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2'>Liquor Authority Quarterly List of Active Licenses.</a></h6><h6>Data is filtered to liquor licenses reviewed by the New York City Agency Office. Data is updated quarterly.</h6>`
+      source += `<div class="separator"></div>
+          <h6>Source: 
+            <a href='https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2'>Liquor Authority Quarterly List of Active Licenses.</a>
+            <a href='https://lamp.sla.ny.gov/'>NYS Liquor Authority Mapping Project (LAMP)</a>
+            </h6>
+          <h6>Data is filtered to liquor licenses reviewed by the New York City Agency Office. Data is updated Daily.</h6>`
       //set the info_box to display as block
 
       info.show({
