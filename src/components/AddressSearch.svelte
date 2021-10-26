@@ -4,8 +4,7 @@
   let searchAddrs = []
   let marker
 
-  function _set(addr) {
-    value = addr
+  function _set() {
     //clear searchAddrs
     searchAddrs = []
 
@@ -25,6 +24,17 @@
       })
   }
 
+  function _setLocation(addr) {
+    const {name, coords} = addr
+    value = name
+    //clear searchAddrs
+    searchAddrs = []
+
+    $mapStore.setView(coords)
+    if (marker) marker.remove()
+    marker = L.marker(coords).addTo($mapStore).on('click', () => marker.remove()).setOpacity(0.8);
+  }
+
   function _search() {
     if (value.length > 1) {
       fetch(`https://geosearch.planninglabs.nyc/v1/search?text=${value}`)
@@ -32,9 +42,10 @@
         .then(
           response =>
             (searchAddrs = response.features
-              .map(feature =>
-                feature.properties.label.replace(', New York, NY, USA', '')
-              )
+              .map(feature =>({
+                name : feature.properties.label.replace(', New York, NY, USA', ''),
+                coords: feature.geometry.coordinates.reverse()
+              }))
               .slice(0, 5))
         )
     } else {
@@ -60,7 +71,7 @@
   />
   <ul>
     {#each searchAddrs as addr}
-    <li on:click="{() => _set(addr)}">{addr}</li>
+      <li on:click="{() => _setLocation(addr)}">{addr.name}</li>
     {/each}
   </ul>
   <input type="submit" value="Search" />
