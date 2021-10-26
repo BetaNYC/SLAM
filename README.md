@@ -39,17 +39,20 @@ You can either build by running `npm run build` or run live development environm
 ### carto
 
 Most of the data for SLAM is stored in BetaNYC's carto account.
-
-- `liquor_authority_quarterly_list_of_active_licenses` / `sla_geo`
+- `activelicensesv2`
+  - Dataset of all NYS active liquor licenses
+  - Data is updated directly from the [NYS Liquor Authority Mapping Project (LAMP)](https://lamp.sla.ny.gov/) daily.
+  - You may also get a data download from the data State Liquor Authority on [NYS's Open Data Portal](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2).
+<!-- - `liquor_authority_quarterly_list_of_active_licenses` / `sla_geo`
   - Dataset of all NYS active liquor licenses
   - [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal
-  - Data is updated in the Open Data Portal quarterly, geocoded with GBAT, and synced with BetaNYC's Carto account weekly.
+  - Data is updated in the Open Data Portal quarterly, geocoded with GBAT, and synced with BetaNYC's Carto account weekly. -->
 - `nyc_open_restaurants_application_v2_6`
   - Dataset of self-certified responses for NYC [Open Restaurants](https://www1.nyc.gov/html/dot/html/pedestrians/openrestaurants.shtml)
   - [Published](http://nycopenrestaurants.info) by NYCDOT on an ArcGIS Dashboard and Service API Layer
   - Data is synced wtih BetaNYC's Carto account hourly.
 - `open_restaurants_pre_filter_since_march`
-  - Dataset of all NYC 311 complaints made about an Open Restaurants since March 2020
+  - Dataset of all NYC 311 complaints made about an Open Restaurants since Dec 2020
   - [Published](https://data.cityofnewyork.us/Social-Services/open_restaurants_pre_filter_since_march/sujq-j9cg) 
   - NYPD - Social Distancing' and 'Face Covering Violation', DCA - 'Sidewalk Cafe', and DOT - 'Outdoor Dining' Types and Descriptors.
   - Read more about 311 Complaints for Open Restaurants [here](https://portal.311.nyc.gov/article/?kanumber=KA-03321)
@@ -61,12 +64,13 @@ Most of the data for SLAM is stored in BetaNYC's carto account.
   - Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
   - [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal
   - Data is updated in the Open Data Portal weekly and synced wtih BetaNYC's Carto account weekly.
-- `dohmh_inspections`
+- `dohmh_inspections` / `table_6w5r_a6nw`
   - Dataset of locations of NYC inspected restaurants
+  - [Published](https://data.cityofnewyork.us/Health/dohmh_new_york_city_restaurant_inspection_results_/6w5r-a6nw) by the Department of Health and Mental Hyegine on NYC's Open Data Portal and filtered for 2018 and after.
   - Health grades for a NYC restaurant can be found in the Department and Health and Mental Hygiene's [Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) dataset, published on the City's Open Data Portal. This dataset is organized so that each row represents one violation raised during a restaurant's health inspection. The row also reports the date of the inspection and the resulting grade. If restaurants had more than one violation during the inspection, there will be multiple rows representing that particular inspection, each reporting different violations but all reporting the same grade. If a restaurant has had more than one inspection, there will be multiple rows representing the restaurant's violations and grades given on different inspection dates. When the page loads, however, we do not need to display all of this information. In fact, the dataset is so large that we can't display all of that information on the page load. We only need to display the location of a restaurant that has been inspected. Later a user can click on the restaurant to trigger a query to gather more information about the restaurant's inspection history.
   - The DOHMH inspection restults dataset does not include geo-coordinates - only a building number, street name, and zip code. To get the locations in a format where they can be displayed on a map, we need to download the dataset and use the City's [Batch GeoSupport](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gde-home.page) software to get the geo-coordinates. Since the same restaurants are often listed many times in the DOHMH inspection results dataset, to reduce processing time, we first remove rows representing the same restaurant from the dataset using R or Excel. We configure the GeoSupport software to read the filtered dataset and return the restaurant's name, unique identifier, address, lat, and lon.
   - Data is downloaded from Socrata, geo-coded, and manually uplaoded to Carto weekly.
-- `dohmh_new_york_city_restaurant_inspection_results`
+- `dohmh_new_york_city_restaurant_inspection_results` / `camis_grade_not_null`
   - Dataset of NYC restaurant inspection results
   - [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal
   - Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
@@ -182,4 +186,4 @@ Please see [license](https://github.com/BetaNYC/SLAM/blob/master/LICENSE) file f
 
 ## Have Questions?
 
-Contact [Lindsay Poirier](mailto:lindsay@beta.nyc) , [Zhi Keng He](mainto:zhi@beta.nyc), and [Noel Hidalgo](mailto:noel@beta.nyc).
+[Zhi Keng He](mainto:zhi@beta.nyc), and [Noel Hidalgo](mailto:noel@beta.nyc).

@@ -12,14 +12,14 @@
   const source = new carto.source.SQL(`WITH
   		m AS (
   			SELECT array_agg(cartodb_id) id_list, the_geom_webmercator, ST_Y(the_geom_webmercator) y
-  			FROM dohmh_inspections
+  			FROM table_6w5r_a6nw
   			GROUP BY the_geom_webmercator
   			ORDER BY y DESC),
   		f AS (
   			SELECT  generate_series(1, array_length(id_list,1)) p, unnest(id_list) cartodb_id, the_geom_webmercator
   			FROM m)
   		SELECT  ST_Translate(f.the_geom_webmercator,0,f.p*5) the_geom_webmercator, f.cartodb_id, q.camis, q.dba, q.building, q.street
-  			FROM f, dohmh_inspections q
+  			FROM f, table_6w5r_a6nw q
   			WHERE f.cartodb_id = q.cartodb_id
             `)
 
