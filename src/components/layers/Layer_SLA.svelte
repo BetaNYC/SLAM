@@ -37,9 +37,10 @@
 			)
       SELECT ST_Translate(f.the_geom_webmercator,0,f.p*5) AS the_geom_webmercator, q.cartodb_id, premisename, premisedba, 
         licensetyp, 
-        TO_CHAR(TO_TIMESTAMP(lic_issue_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_issued_date, 
+        TO_CHAR(TO_TIMESTAMP(lic_original_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_original_date, 
+        TO_CHAR(TO_TIMESTAMP(lic_effective_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_effective_date, 
         TO_CHAR(TO_TIMESTAMP(lic_expiration_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_expiration_date, 
-        lic_expiration_date::BIGINT AS expiration_epoch, 
+        lic_expiration_date::BIGINT / 1000 AS expiration_epoch , 
         serialno, certnum, premiseaddress1, premisezip,
         method_of_operation, days_hours_of_operation
 				FROM f, activelicensesv2 q
@@ -88,8 +89,9 @@
       'premisedba', // doing_business_as_premisedba_
       'serialno',
       'licensetyp', // license_type_name, TODO - lookup
-      'license_issued_date', //license_original_issue_date does not exist, remove references; exist as license_effective_date
+      'license_effective_date', //license_original_issue_date does not exist, remove references; exist as license_effective_date
       'license_expiration_date',
+      'license_original_date',
       'certnum',
       'premiseaddress1', //actual_address_of_premises_address1_, TODO - combine address part 2
       'premisezip', //'zip'
@@ -110,7 +112,7 @@
           {
             image:
               'https://s3.amazonaws.com/com.cartodb.users-assets.production/production/betanyc/assets/20180629205705bar-15.svg',
-            text: `Expiring after ${current_string}`
+            text: `Active on ${current_string}`
           },
           {
             image:
@@ -153,10 +155,12 @@
     content += `<h4>${featureEvent.data.premiseaddress1}</h4><div class="separator"></div>
 				<h5 class = "lighter">License Type: ${featureEvent.data.licensetyp}</h5>
 				<h5 class = "lighter">Serial number: ${featureEvent.data.serialno}</h5>
-				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_issued_date}</h5>
+        <h5 class = "lighter">Original Date: ${featureEvent.data.license_original_date}</h5>
+				<h5 class = "lighter">Effective Date: ${featureEvent.data.license_effective_date}</h5>
         <h5 class = "lighter">Expiration Date: ${featureEvent.data.license_expiration_date}</h5>
         <h5 class = "lighter">Method of Operation: ${featureEvent.data.method_of_operation}</h5>
         <h5 class = "lighter">Days/Hours of Operation: ${featureEvent.data.days_hours_of_operation}</h5>
+        <h5 class = "lighter"><a href= 'https://lamp.sla.ny.gov/?center=${featureEvent.latLng.lng},${featureEvent.latLng.lat}&level=18' target = '_blank'>View infomation on LAMP</a></h5>
 				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serialno}&licenseType=${featureEvent.data.licensetyp}' target = '_blank'>Click here for more information about this license.</a></h5>`
 
     //adds CORS header to proxy request getting around errors
