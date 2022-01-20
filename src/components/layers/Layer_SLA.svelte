@@ -37,10 +37,10 @@
 			)
       SELECT ST_Translate(f.the_geom_webmercator,0,f.p*5) AS the_geom_webmercator, q.cartodb_id, premisename, premisedba, 
         licensetyp, 
-        TO_CHAR(TO_TIMESTAMP(lic_original_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_original_date, 
-        TO_CHAR(TO_TIMESTAMP(lic_effective_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_effective_date, 
-        TO_CHAR(TO_TIMESTAMP(lic_expiration_date::BIGINT / 1000), 'MM/DD/YYYY') AS license_expiration_date, 
-        lic_expiration_date::BIGINT / 1000 AS expiration_epoch , 
+        TO_CHAR(lic_original_date, 'MM/DD/YYYY') AS license_original_date, 
+        TO_CHAR(lic_effective_date, 'MM/DD/YYYY') AS license_effective_date, 
+        TO_CHAR(lic_expiration_date, 'MM/DD/YYYY') AS license_expiration_date, 
+        date_part('epoch', lic_expiration_date) AS expiration_epoch , 
         serialno, certnum, premiseaddress1, premisezip,
         method_of_operation, days_hours_of_operation
 				FROM f, activelicensesv2 q
@@ -163,14 +163,14 @@
         <h5 class = "lighter"><a href= 'https://lamp.sla.ny.gov/?center=${featureEvent.latLng.lng},${featureEvent.latLng.lat}&level=18' target = '_blank'>View infomation on LAMP</a></h5>
 				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serialno}&licenseType=${featureEvent.data.licensetyp}' target = '_blank'>Click here for more information about this license.</a></h5>`
 
-    //adds CORS header to proxy request getting around errors
-    const proxyurl = 'https://cors-anywhere.herokuapp.com/'
+      const headers = new Headers()
+      headers.append('Ocp-Apim-Subscription-Key','8ef9b00a1d6c4a97b17a6c4828cfc2eb')
 
     //Query the city's Geoclient API to get the BIN of the building at the address listed in the SLA data. we will use this to collect the Certificate of Occupancy
-    var url = `https://api.cityofnewyork.us/geoclient/v1/search.json?input=${featureEvent.data.premiseaddress1} ${featureEvent.data.premisezip}&app_id=${geoclient_id}&app_key=${geoclient_key}`
+    var url = `https://api.nyc.gov/geo/geoclient/v1/search.json?input=${featureEvent.data.premiseaddress1} ${featureEvent.data.premisezip}`
 
     var slaBIN = new Promise(function(resolve) {
-      fetch(proxyurl + url)
+      fetch(url, {headers})
         .then(function(response) {
           return response.json()
         })
