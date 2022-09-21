@@ -161,7 +161,12 @@
         <h5 class = "lighter">Method of Operation: ${featureEvent.data.method_of_operation}</h5>
         <h5 class = "lighter">Days/Hours of Operation: ${featureEvent.data.days_hours_of_operation}</h5>
         <h5 class = "lighter"><a href= 'https://lamp.sla.ny.gov/?center=${featureEvent.latLng.lng},${featureEvent.latLng.lat}&level=18' target = '_blank'>View infomation on LAMP</a></h5>
-				<h5 class = "lighter"><a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serialno}&licenseType=${featureEvent.data.licensetyp}' target = '_blank'>Click here for more information about this license.</a></h5>`
+	<h5 class = "lighter">
+		<p>Note: Currently the Public Query tool is decommissioned for security reasons. Please <a href="https://sla.ny.gov/public-query">FOIL SLA</a> for 
+		principal information or use <a href="https://beta.nyc/radar">BetaNYC's RADAR</a> system. 
+		</p>
+		<a href= 'https://www.tran.sla.ny.gov/servlet/ApplicationServlet?pageName=com.ibm.nysla.data.publicquery.PublicQuerySuccessfulResultsPage&validated=true&serialNumber=${featureEvent.data.serialno}&licenseType=${featureEvent.data.licensetyp}' target = '_blank'>Click here for more information about this license.</a>
+	</h5>`
 
       const headers = new Headers()
       headers.append('Ocp-Apim-Subscription-Key','8ef9b00a1d6c4a97b17a6c4828cfc2eb')
