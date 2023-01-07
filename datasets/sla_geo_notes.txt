@@ -1,5 +1,0 @@
-Data pulled from Liquor Authority Current List of Active Licenses for Sept 14, 2020.
-
-Geocoded by GBAT Desktop Edition 20B
-20441 records were processed
-Of these, 1409 records were rejected.
