@@ -16,13 +16,13 @@ jobs:
           npm run build
         env:
           # edit these here https://github.com/BetaNYC/SLAM/settings/secrets
-          CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
-          GEOCLIENT_ID: ${{ secrets.GEOCLIENT_ID }}
-          GEOCLIENT_KEY: ${{ secrets.GEOCLIENT_KEY }}
+          VITE_CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
+          VITE_GEOCLIENT_ID: ${{ secrets.GEOCLIENT_ID }}
+          VITE_GEOCLIENT_KEY: ${{ secrets.GEOCLIENT_KEY }}
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: public
+          FOLDER: dist

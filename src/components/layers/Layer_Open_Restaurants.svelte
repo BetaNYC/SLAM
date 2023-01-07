@@ -107,7 +107,6 @@
             <div class="widget">
                 <p class = "bold">${bizaddress}</p>
                 <p>${restaurantname}</p>
-                <p>Submission Date: ${time.toLocaleDateString()}<p/>
                 <div class="tags-group">
                      <div class="tags has-addons">
                         <p class="tag">Sidewalk/ Roadway</p><p class="tag">${extra1}</p>

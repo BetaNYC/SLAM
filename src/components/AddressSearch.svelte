@@ -8,7 +8,7 @@
     //clear searchAddrs
     searchAddrs = []
 
-    fetch(`https://geosearch.planninglabs.nyc/v1/search?text=${value}`)
+    fetch(`https://geosearch.planninglabs.nyc/v2/search?text=${value}`)
       .then(response => response.json())
       .then(response => {
         //use the first address
@@ -37,7 +37,7 @@
 
   function _search() {
     if (value.length > 1) {
-      fetch(`https://geosearch.planninglabs.nyc/v1/search?text=${value}`)
+      fetch(`https://geosearch.planninglabs.nyc/v2/search?text=${value}`)
         .then(response => response.json())
         .then(
           response =>

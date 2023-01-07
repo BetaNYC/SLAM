@@ -1,3 +1,3 @@
-export const carto_apikey = CARTO_API_KEY
-export const geoclient_id = GEOCLIENT_ID
-export const geoclient_key = GEOCLIENT_KEY
+export const carto_apikey = import.meta.env.VITE_CARTO_API_KEY
+export const geoclient_id = import.meta.env.VITE_GEOCLIENT_ID
+export const geoclient_key = import.meta.env.VITE_GEOCLIENT_KEY

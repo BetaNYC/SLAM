@@ -19,16 +19,16 @@
 </div>
 
 <style>
-  .infobox :global(h1, h2, h3) {
+  .infobox :global(:where(h1, h2, h3)) {
     font-family: 'Playfair Display', serif;
     line-height: 32px;
   }
 
-  .infobox :global(h1, h2, h3, h4) {
+  .infobox :global(:where(h1, h2, h3, h4)) {
     text-align: center;
   }
 
-  .infobox :global(h4, h5, h6) {
+  .infobox :global(:where(h4, h5, h6)) {
     margin: 0;
     padding-bottom: 5px;
     font-weight: normal;
