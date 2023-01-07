@@ -1,5 +1,13 @@
 <script>
   import { onMount, setContext } from 'svelte'
+
+  import L from 'leaflet';
+  import Locate from "leaflet.locatecontrol";
+  import carto from "@carto/carto.js";
+
+  import 'leaflet/dist/leaflet.css'
+  import 'leaflet.locatecontrol/dist/L.Control.Locate.css'
+
   import { carto_apikey } from '../utils/keys'
   import { mapStore } from '../stores'
   import Layer_SLA from './layers/Layer_SLA.svelte'
@@ -35,7 +43,7 @@
     map.scrollWheelZoom.disable()
 
     //create control and add to map
-    const lc = L.control.locate({keepCurrentZoomLevel: true}).addTo(map);
+    const lc = new Locate({keepCurrentZoomLevel: true}).addTo(map);
 
     // request location update and set location
     lc.start();

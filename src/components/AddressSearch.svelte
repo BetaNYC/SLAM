@@ -1,5 +1,6 @@
 <script>
   import { mapStore } from '../stores'
+  import L from 'leaflet';
   let value = ''
   let searchAddrs = []
   let marker

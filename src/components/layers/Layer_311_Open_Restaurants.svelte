@@ -1,8 +1,12 @@
 <script>
   import { getContext } from 'svelte'
+  import carto from "@carto/carto.js";
+  import { Chart, registerables } from 'chart.js';
   import { layers, info } from '../../stores'
   import { carto_apikey } from '../../utils/keys'
   import LabelsPlugin from '../../utils/labelsPlugin'
+
+  Chart.register(...registerables);
 
   const { getMap, getCartoClient, getPopup } = getContext(carto_apikey)
   const map = getMap()
@@ -248,9 +252,10 @@
         //create bar chart of complaints per year
         const canvas2 = document.createElement('canvas')
         const ctx2 = canvas2.getContext('2d')
+
+        const font = {size : 10}
         year_chart = new Chart(ctx2, {
           type: 'line',
-          plugins: LabelsPlugin,
           data: {
             labels: year_labels,
             datasets: [
@@ -261,41 +266,37 @@
             ]
           },
           options: {
-            legend: {
-              display: false
+            plugins: {
+                title: {
+                  display: true,
+                  text: 'Complaints by Month'
+                },
+                legend: {
+                  display: false
+              }
             },
             scales: {
-              yAxes: [
-                {
-                  ticks: {
-                    beginAtZero: true,
-                    fontSize: 10
-                  },
+              y: {
+                title: {
+                  text: '# of Complaints',
                   display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: '# of Complaints',
-                    fontSize: 10
-                  }
+                  font
+                },
+                beginAtZero: true,
+                ticks: {
+                  font
                 }
-              ],
-              xAxes: [
-                {
-                  ticks: {
-                    fontSize: 10
-                  },
+              },
+              x: {
+                title: {
+                  text: 'Month',
                   display: true,
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'Month',
-                    fontSize: 10
-                  }
+                  font
+                },
+                ticks: {
+                  font
                 }
-              ]
-            },
-            title: {
-              display: true,
-              text: 'Complaints by Month'
+              }
             }
           }
         })

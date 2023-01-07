@@ -1,5 +1,6 @@
 <script>
   import { getContext } from 'svelte'
+  import carto from "@carto/carto.js";
   import { layers } from '../../stores'
   import { carto_apikey } from '../../utils/keys'
 
