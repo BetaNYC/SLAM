@@ -342,3 +342,141 @@ def slim_311(r: dict) -> dict:
 def recent_311(recs: list[dict], n: int) -> list[dict]:
     """Most recent first (created timestamp, then unique_key as a tiebreak), slimmed."""
     return [slim_311(r) for r in sorted(recs, key=lambda r: (r["ts"], r["rid"]), reverse=True)[:n]]
+
+
+# ---------------------------------------------------------------- address pages keyed on BIN (#59)
+#
+# Each address page is geocoded once with GeoSearch v2 /v2/search and, when the hit is
+# good, keyed on the building's BIN (PAD `addendum.pad.bin`). Field names come from
+# recorded real responses in tests/fixtures/geosearch_search_*.json and from
+# https://github.com/NYCPlanning/labs-geosearch-docs (src/pages/docs.js: `text`, `size`,
+# `label`, `confidence`, GeoJSON [lon, lat]).
+
+GEOSEARCH_MIN_CONFIDENCE = 0.8
+GEOSEARCH_SIZE = 3  # look past the top hit: the right building is not always first
+
+
+def address_query(street: str | None, borough: str) -> str:
+    """GeoSearch text for an address page. Deliberately WITHOUT the ZIP: a wrong ZIP
+    pulls GeoSearch to another building ('44 WILSON AVE, Brooklyn, NY 11207' returns
+    514 Wilson Ave first; tests/fixtures/geosearch_search_44_wilson_11207.json)."""
+    s = building_street(street)
+    return f"{s}, {borough}, NY" if s else ""
+
+
+def real_bin(b) -> str | None:
+    """A BIN usable as a key: 7 digits, borough code 1-5, and not a 'million BIN'
+    (x000000), the placeholder PAD uses when a lot has no specific building
+    (tests/fixtures/geosearch_search_million_bin.json: Brooklyn Bridge Park -> 3000000)."""
+    s = str(b or "").strip()
+    if not re.fullmatch(r"[1-5]\d{6}", s) or s[1:] == "000000":
+        return None
+    return s
+
+
+def _street_part(street: str | None) -> str:
+    n = normalize_address(street)
+    return re.sub(r"^\d+(?:-\d+)?[A-Z]?\s+", "", n)
+
+
+def slim_geosearch(resp: dict) -> dict:
+    """What pick_address_hit reads, so the on-disk cache stays small."""
+    keep = ("label", "confidence", "accuracy", "match_type", "housenumber", "street",
+            "borough", "postalcode")
+    out = []
+    for f in (resp.get("features") or [])[:GEOSEARCH_SIZE]:
+        p = f.get("properties", {})
+        pad = (p.get("addendum") or {}).get("pad") or {}
+        out.append({"geometry": f.get("geometry"),
+                    "properties": {**{k: p.get(k) for k in keep},
+                                   "addendum": {"pad": {"bin": pad.get("bin"), "bbl": pad.get("bbl")}}}})
+    return {"features": out}
+
+
+def pick_address_hit(resp: dict | None, street: str | None, borough: str) -> dict:
+    """Judge a /v2/search response for one address page.
+
+    status:
+      matched        a hit with the same house number, street and borough, confidence
+                     >= 0.8 and accuracy 'point'
+      low_confidence GeoSearch answered, but no hit passes that rule (the top hit is
+                     recorded for the manifest, but not used)
+      unmatched      no features at all (or no query could be built)
+    bin is set only for a matched hit with a real (non-placeholder) BIN."""
+    feats = (resp or {}).get("features") or []
+    if not feats:
+        return {"status": "unmatched", "bin": None, "label": None, "confidence": None}
+    hn = (house_number(street) or "").upper()
+    sp = _street_part(street)
+    for f in feats:
+        p = f.get("properties", {})
+        if (hn and str(p.get("housenumber", "")).upper() == hn
+                and _street_part(f"0 {p.get('street', '')}") == sp
+                and str(p.get("borough", "")).lower() == borough.lower()):
+            ok = (p.get("confidence") or 0) >= GEOSEARCH_MIN_CONFIDENCE and p.get("accuracy") == "point"
+            if not ok:
+                break
+            lon, lat = f["geometry"]["coordinates"][:2]
+            pad = (p.get("addendum") or {}).get("pad") or {}
+            return {"status": "matched", "bin": real_bin(pad.get("bin")), "label": p.get("label"),
+                    "confidence": p.get("confidence"), "zip": p.get("postalcode"),
+                    "lon": float(lon), "lat": float(lat)}
+    p = feats[0].get("properties", {})
+    return {"status": "low_confidence", "bin": None, "label": p.get("label"),
+            "confidence": p.get("confidence")}
+
+
+def group_addresses(records: list[dict]) -> dict[str, dict]:
+    """Group records by their address key id (`aid`). One group per normalized street + ZIP."""
+    groups: dict[str, dict] = {}
+    for r in records:
+        if not r.get("aid"):
+            continue
+        g = groups.setdefault(r["aid"], {"id": r["aid"], "street": building_street(r["street"]),
+                                         "city": r["city"], "zip": (r["zip"] or "")[:5],
+                                         "district": r["district"], "records": [], "_pts": []})
+        g["records"].append(r)
+        if r.get("lon") is not None:
+            g["_pts"].append((r["lon"], r["lat"]))
+    for g in groups.values():
+        pts = g.pop("_pts")
+        g["lon"] = sum(p[0] for p in pts) / len(pts) if pts else None
+        g["lat"] = sum(p[1] for p in pts) / len(pts) if pts else None
+    return groups
+
+
+def key_pages(groups: dict[str, dict], geo: dict[str, dict]) -> tuple[dict[str, dict], dict[str, str]]:
+    """Merge address groups into address pages.
+
+    A group whose geocode is `matched` with a real BIN goes to the page whose id is that
+    BIN; every other group keeps its old id (sha1 of street|ZIP, 10 hex characters, so it
+    can never collide with a 7-digit BIN). Returns (pages by id, old group id -> page id).
+    This is what puts 44 Wilson Ave 11207 and 11237 on one page."""
+    by_page: dict[str, list[dict]] = {}
+    remap: dict[str, str] = {}
+    for gid, g in groups.items():
+        hit = geo.get(gid) or {"status": "unmatched", "bin": None}
+        pid = hit["bin"] or gid
+        remap[gid] = pid
+        by_page.setdefault(pid, []).append(g)
+    pages: dict[str, dict] = {}
+    for pid, gs in by_page.items():
+        gs = sorted(gs, key=lambda g: (-len(g["records"]), g["street"], g["zip"]))
+        main = gs[0]
+        hit = geo.get(main["id"]) or {"status": "unmatched", "bin": None}
+        recs = [r for g in gs for r in g["records"]]
+        pts = [(g["lon"], g["lat"], len(g["records"])) for g in gs if g["lon"] is not None]
+        w = sum(p[2] for p in pts)
+        page = {"id": pid, "bin": hit["bin"], "street": main["street"], "city": main["city"],
+                "zip": (hit.get("zip") if hit["bin"] else None) or main["zip"],
+                "district": main["district"], "records": recs,
+                "lon": sum(p[0] * p[2] for p in pts) / w if pts else None,
+                "lat": sum(p[1] * p[2] for p in pts) / w if pts else None,
+                "geocode": {k: hit.get(k) for k in ("status", "label", "confidence")},
+                "keys": [g["id"] for g in gs],
+                # Every street + ZIP the sources used for this page (more than one = merged).
+                "listed_as": sorted({f"{g['street']} {g['zip']}".strip() for g in gs})}
+        for r in recs:
+            r["aid"] = pid
+        pages[pid] = page
+    return pages, remap

@@ -2,6 +2,7 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import { resolve } from '$app/paths';
 	import { fmtStamp } from '#lib/format.js';
+	import AddressSearch from '#lib/AddressSearch.svelte';
 	import './app.css';
 
 	/** @type {{children: import('svelte').Snippet, data: any}} */
@@ -23,6 +24,7 @@
 			<a href="https://data.ny.gov/">data.ny.gov</a>, updated
 			<time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>.
 		</p>
+		<AddressSearch />
 	</div>
 </header>
 

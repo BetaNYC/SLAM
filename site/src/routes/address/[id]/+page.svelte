@@ -16,6 +16,15 @@
 		])
 	]);
 	const c311Start = $derived(m.complaints_311.start);
+	// Set by the search box when it fell back to the nearest page (#59). Read in the
+	// browser only: pages are prerendered, so the query string does not exist at build time.
+	/** @type {{q: string, m: string} | null} */
+	let nearNote = $state(null);
+	$effect(() => {
+		void a.id;
+		const p = new URLSearchParams(window.location.search);
+		nearNote = p.get('q') && p.get('m') ? { q: p.get('q') ?? '', m: p.get('m') ?? '' } : null;
+	});
 </script>
 
 <svelte:head><title>{a.street} — SLAM v2 prototype</title></svelte:head>
@@ -26,7 +35,14 @@
 </p>
 
 <h1>{a.street}</h1>
-<p class="muted">{a.city} {a.zip} · {data.district.label}</p>
+<p class="muted">{a.city} {a.zip} · {data.district.label}{#if a.bin}{' · '}Building (BIN) <code>{a.bin}</code>{/if}</p>
+{#if nearNote}
+	<p class="note" role="status">You searched for {nearNote.q}. There is no page for that building, so this is the
+		nearest address page on file, about {nearNote.m} m away.</p>
+{/if}
+{#if a.listed_as?.length > 1}
+	<p class="muted">The sources list this building as: {a.listed_as.join('; ')}.</p>
+{/if}
 
 <h2>At this address ({a.records.length})</h2>
 <div class="table-scroll">

@@ -32,25 +32,32 @@ from slam_pipeline.sources import (
     SOURCES_BY_KEY,
 )
 from slam_pipeline.transform import (
+    GEOSEARCH_MIN_CONFIDENCE,
+    GEOSEARCH_SIZE,
     accept_geosearch,
+    address_query,
     board_311_slug,
-    building_street,
     check_columns,
     check_rows,
     count_by_type,
     count_by_type_year,
     events_for_district,
+    group_addresses,
     house_number,
+    key_pages,
     normalize_311,
     normalize_event,
     normalize_record,
+    pick_address_hit,
     recent_311,
+    slim_geosearch,
 )
 
 HERE = Path(__file__).resolve().parent
 CACHE = HERE / ".cache"
 RAW = CACHE / "raw"
 GEOCODE_CACHE = CACHE / "geocode.json"
+ADDRESS_GEOCODE_CACHE = CACHE / "geocode-address.json"  # address pages, keyed by query text
 OUT = HERE.parent / "site" / "static" / "data"
 
 NEARBY_M = 150
@@ -59,6 +66,13 @@ C311_RECENT_ADDRESS = 10  # rows listed on an address page
 C311_COMPARE_M = 25  # reported only: how many complaints a 25 m radius would have matched
 GEOSEARCH = "https://geosearch.planninglabs.nyc/v2/search"  # https://geosearch.planninglabs.nyc/docs/
 GEOCODE_MIN_INTERVAL = 0.25  # seconds between requests -> at most 4 req/s
+ADDRESS_GEOCODE_INTERVAL = 0.35  # address pages: serial, a little gentler still
+# The site's search box falls back to the nearest address page within this many metres
+# when the BIN it picked has no page (site/src/lib/addressSearch.js reads it from
+# bin-index.json). Small on purpose: on a dense block 25 m reaches the next building, but
+# SLA points sit about 25 m from the PAD address point (44 Wilson Ave: 25 m), so 30 m it is;
+# the page then says it is the nearest page and how far away.
+NEAREST_PAGE_M = 30
 
 # Fields whose absence anywhere in the returned rows means the build is wrong.
 REQUIRED_IN_ROWS = {
@@ -138,6 +152,51 @@ def geocode_cannabis(records: list[dict], offline: bool) -> dict:
     write_json(GEOCODE_CACHE, cache)
     log("geocode_done", **stats)
     return stats
+
+
+def geocode_addresses(groups: dict[str, dict], offline: bool) -> tuple[dict, dict]:
+    """Geocode every address group once with /v2/search (serial, polite, cached on disk).
+    Returns (group id -> pick_address_hit result, stats)."""
+    cache = json.loads(ADDRESS_GEOCODE_CACHE.read_text()) if ADDRESS_GEOCODE_CACHE.exists() else {}
+    stats = {"addresses": len(groups), "requested": 0, "cached": 0, "errors": 0,
+             "not_in_cache_offline": 0, "matched": 0, "matched_with_bin": 0,
+             "low_confidence": 0, "unmatched": 0}
+    geo: dict[str, dict] = {}
+    last = 0.0
+    for gid, g in sorted(groups.items()):
+        borough = DISTRICTS[g["district"]]["borough"]
+        q = address_query(g["street"], borough)
+        resp = None
+        if not q:
+            pass
+        elif q in cache:
+            stats["cached"] += 1
+            resp = cache[q]
+        elif offline:
+            stats["not_in_cache_offline"] += 1
+        else:
+            wait = ADDRESS_GEOCODE_INTERVAL - (time.monotonic() - last)
+            if wait > 0:
+                time.sleep(wait)
+            last = time.monotonic()
+            url = GEOSEARCH + "?" + urllib.parse.urlencode({"text": q, "size": GEOSEARCH_SIZE})
+            try:
+                resp = slim_geosearch(net.get_json(url, retries=4))
+                cache[q] = resp
+                stats["requested"] += 1
+                if stats["requested"] % 100 == 0:
+                    write_json(ADDRESS_GEOCODE_CACHE, cache)  # keep progress if interrupted
+                    log("address_geocode_progress", requested=stats["requested"])
+            except RuntimeError as exc:
+                stats["errors"] += 1
+                log("address_geocode_error", query=q, error=str(exc))
+        hit = pick_address_hit(resp, g["street"], borough)
+        geo[gid] = hit
+        stats[hit["status"]] += 1
+        stats["matched_with_bin"] += bool(hit["bin"])
+    write_json(ADDRESS_GEOCODE_CACHE, cache)
+    log("address_geocode_done", **stats)
+    return geo, stats
 
 
 # ------------------------------------------------------------------ main
@@ -238,22 +297,14 @@ def main(argv=None) -> int:
 
     inside = [r for r in recs if r["district"]]
 
-    # ---- addresses
-    addrs: dict[str, dict] = {}
-    for r in inside:
-        if not r["aid"]:
-            continue
-        a = addrs.setdefault(r["aid"], {"id": r["aid"], "street": building_street(r["street"]),
-                                        "city": r["city"],
-                                        "zip": r["zip"][:5], "district": r["district"],
-                                        "records": [], "_pts": []})
-        a["records"].append(r)
-        if r["lon"] is not None:
-            a["_pts"].append((r["lon"], r["lat"]))
-    for a in addrs.values():
-        pts = a.pop("_pts")
-        a["lon"] = sum(p[0] for p in pts) / len(pts) if pts else None
-        a["lat"] = sum(p[1] for p in pts) / len(pts) if pts else None
+    # ---- addresses: group by street + ZIP, geocode each group once, key pages on BIN (#59)
+    groups = group_addresses(inside)
+    addr_geo, addr_geo_stats = geocode_addresses(groups, args.offline)
+    addrs, aid_remap = key_pages(groups, addr_geo)
+    addr_geo_stats["pages"] = len(addrs)
+    addr_geo_stats["pages_keyed_on_bin"] = sum(1 for a in addrs.values() if a["bin"])
+    addr_geo_stats["pages_merged_from_several_keys"] = sum(1 for a in addrs.values()
+                                                           if len(a["keys"]) > 1)
     for r in inside:
         r.pop("akey", None)
 
@@ -274,6 +325,8 @@ def main(argv=None) -> int:
 
     # ---- 311 complaints: district by point-in-polygon; 311's own board only for agreement
     c311 = [normalize_311(r) for r in raw["complaints_311"]]
+    for r in c311:  # street + ZIP key id -> address page id (a BIN where the page has one)
+        r["aid"] = aid_remap.get(r["aid"], "")
     con.execute("CREATE TABLE c311 (i INT, lon DOUBLE, lat DOUBLE)")
     con.executemany("INSERT INTO c311 VALUES (?, ?, ?)",
                     [[i, r["lon"], r["lat"]] for i, r in enumerate(c311) if r["lon"] is not None])
@@ -368,7 +421,7 @@ def main(argv=None) -> int:
 
     index = []
     for a in addrs.values():
-        out = dict(a)
+        out = {k: v for k, v in a.items() if k != "keys"}
         out["records"] = [slim(r) for r in a["records"]]
         out["nearby"] = [{"id": b, "m": m, "street": addrs[b]["street"],
                           "records": [{k: r[k] for k in ("source", "name", "type", "status")
@@ -381,10 +434,18 @@ def main(argv=None) -> int:
         nb = c_near.get(a["id"], [])
         out["c311_near"] = {"n": len(nb), "by_type": count_by_type(nb)}
         write_json(OUT / "address" / f"{a['id']}.json", out)
-        index.append({"id": a["id"], "street": a["street"], "zip": a["zip"],
+        index.append({"id": a["id"], "bin": a["bin"], "street": a["street"], "zip": a["zip"],
                       "district": a["district"], "n": len(a["records"]),
                       "n311": len(c_at.get(a["id"], []))})
     write_json(OUT / "address" / "index.json", index)
+    # The search box's lookup table (#59): BIN -> page id, plus every page point for the
+    # nearest-page fallback. Lives outside address/ so the orphan sweep below ignores it.
+    write_json(OUT / "bin-index.json", {
+        "radius_m": NEAREST_PAGE_M,
+        "bins": {a["bin"]: a["id"] for a in addrs.values() if a["bin"]},
+        "points": [[a["id"], round(a["lon"], 6), round(a["lat"], 6)]
+                   for a in addrs.values() if a["lon"] is not None],
+    })
     # Idempotency: address ids from an earlier run that no longer exist are moved
     # (not deleted) out of the site's static tree so they are not published.
     live = {f"{a['id']}.json" for a in index} | {"index.json"}
@@ -422,6 +483,11 @@ def main(argv=None) -> int:
             "address_match": "normalized incident_address + ZIP equals the address page key",
         },
         "addresses": len(index),
+        "address_geocode": {**addr_geo_stats, "endpoint": GEOSEARCH,
+                            "rule": "same house number, street and borough; confidence >= "
+                                    f"{GEOSEARCH_MIN_CONFIDENCE}; accuracy point; placeholder "
+                                    "BINs (x000000) not used as keys",
+                            "nearest_page_m": NEAREST_PAGE_M},
     }
     write_json(OUT / "manifest.json", manifest)
 
@@ -432,6 +498,7 @@ def main(argv=None) -> int:
     for s in SOURCES:
         print(f"{s.key:<20}{len(raw[s.key]):>9}" +
               "".join(f"{counts[slug][s.key]:>10}" for slug in DISTRICTS))
+    print(f"address geocode: {addr_geo_stats}")
     print(f"addresses: {len(index)}  nearby pairs (<= {NEARBY_M} m): {len(near)}")
     print(f"cannabis licenses deduped vs retail: {dup_dropped}; geocode: {geo_stats}")
     print(f"dining out: City board vs DuckDB point-in-polygon agree {do_agree}/{do_total}")

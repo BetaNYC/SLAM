@@ -40,7 +40,7 @@
 	onMount(() => {
 		let cancelled = false;
 		(async () => {
-			const [{ Map, NavigationControl, setWorkerUrl, Popup: P }, { default: workerUrl }] = await Promise.all([
+			const [{ Map, NavigationControl, setWorkerUrl, Popup: P, Marker }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
 				import('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url')
 			]);
@@ -85,8 +85,18 @@
 				const b = mine.features[0].geometry.coordinates.flat(2);
 				const xs = b.map((/** @type {number[]} */ c) => c[0]);
 				const ys = b.map((/** @type {number[]} */ c) => c[1]);
-				map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
-				status = 'Map loaded. Select a point to open its address page.';
+				// ?lon=&lat= (from the address search, #59): center on that spot and mark it.
+				const qs = new URLSearchParams(window.location.search);
+				const at = /** @type {[number, number]} */ ([Number(qs.get('lon')), Number(qs.get('lat'))]);
+				const valid = qs.has('lon') && qs.has('lat') && at.every(Number.isFinite) && Math.abs(at[0] + 74) < 1 && Math.abs(at[1] - 40.7) < 1;
+				if (valid) {
+					map.jumpTo({ center: at, zoom: 17 });
+					new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
+					status = 'Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page.';
+				} else {
+					map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
+					status = 'Map loaded. Select a point to open its address page.';
+				}
 				mapReady = true;
 				if (show311) toggle311();
 			});
