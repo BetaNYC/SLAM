@@ -1,0 +1,30 @@
+[
+ {
+  "bbl": "1000490001.00000000",
+  "address": "75 BROADWAY",
+  "borough": "MN",
+  "zipcode": "10006",
+  "bldgclass": "M1",
+  "latitude": "40.7081476",
+  "longitude": "-74.0120578",
+  "xcoord": "980907",
+  "ycoord": "197274",
+  "cd": "101",
+  "numbldgs": "1",
+  "version": "26v2"
+ },
+ {
+  "bbl": "3032770012.00000000",
+  "address": "1374 MYRTLE AVENUE",
+  "borough": "BK",
+  "zipcode": "11237",
+  "bldgclass": "M1",
+  "latitude": "40.6983743",
+  "longitude": "-73.9207213",
+  "xcoord": "1006233",
+  "ycoord": "193723",
+  "cd": "304",
+  "numbldgs": "1",
+  "version": "26v2"
+ }
+]

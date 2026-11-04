@@ -5,8 +5,9 @@
 	import { onMount } from 'svelte';
 	import { resolve, asset } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { SOURCE_SHORT, SOURCE_COLOR } from '#lib/format.js';
+	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR } from '#lib/format.js';
 	import { popup311 } from '#lib/popup311.js';
+	import { popupSW } from '#lib/popupSW.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
 	/** @type {{data: any}} */
@@ -29,6 +30,10 @@
 	let show311 = $state(false);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let state311 = 'idle';
+	// Schools and houses of worship (#60): OFF by default, fetched on first switch-on.
+	let showSW = $state(false);
+	/** @type {'idle' | 'loading' | 'ready'} */
+	let stateSW = 'idle';
 	let mapReady = false;
 	/** @type {any} */
 	let Popup;
@@ -99,6 +104,7 @@
 				}
 				mapReady = true;
 				if (show311) toggle311();
+				if (showSW) toggleSW();
 			});
 		})().catch((err) => (status = `Map could not load: ${err.message}. Use the list view.`));
 		return () => {
@@ -150,6 +156,52 @@
 		}
 	}
 
+	async function toggleSW() {
+		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
+		if (stateSW === 'ready') {
+			map.setLayoutProperty('schools_worship', 'visibility', showSW ? 'visible' : 'none');
+			return;
+		}
+		if (stateSW === 'loading' || !showSW) return;
+		stateSW = 'loading';
+		status = 'Loading schools and houses of worship…';
+		try {
+			const pts = await fetch(asset('data/schools-worship.geojson')).then((r) => r.json());
+			map.addSource('sw', { type: 'geojson', data: pts });
+			// Drawn under the license layers so license dots stay on top and clickable.
+			map.addLayer(
+				{
+					id: 'schools_worship',
+					type: 'circle',
+					source: 'sw',
+					layout: { visibility: showSW ? 'visible' : 'none' },
+					paint: {
+						'circle-radius': 6,
+						'circle-color': ['match', ['get', 'k'], 'school', SW_COLOR.school, SW_COLOR.worship],
+						'circle-stroke-color': '#fff',
+						'circle-stroke-width': 2
+					}
+				},
+				LAYERS[0]
+			);
+			map.on('click', 'schools_worship', (/** @type {any} */ e) => {
+				const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
+				if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
+				const f = e.features?.[0];
+				if (f) new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popupSW(f.properties)).addTo(map);
+			});
+			map.on('mouseenter', 'schools_worship', () => (map.getCanvas().style.cursor = 'pointer'));
+			map.on('mouseleave', 'schools_worship', () => (map.getCanvas().style.cursor = ''));
+			stateSW = 'ready';
+			const n = pts.features.length;
+			const ns = pts.features.filter((/** @type {any} */ f) => f.properties.k === 'school').length;
+			status = `Schools and houses of worship shown (${ns} schools, ${n - ns} houses of worship, including just outside the district).`;
+		} catch (err) {
+			stateSW = 'idle';
+			status = `Schools and houses of worship could not load: ${/** @type {Error} */ (err).message}`;
+		}
+	}
+
 	/** @param {string} k */
 	function toggle(k) {
 		if (map?.getLayer(k)) map.setLayoutProperty(k, 'visibility', visible[k] ? 'visible' : 'none');
@@ -176,12 +228,19 @@
 		<span class="swatch small" style="background:{SOURCE_COLOR.complaints_311}"></span>
 		{SOURCE_SHORT.complaints_311} <span class="muted">({data.district.counts.complaints_311}, since {data.manifest.complaints_311.start})</span>
 	</label>
+	<label>
+		<input type="checkbox" bind:checked={showSW} onchange={toggleSW} />
+		<span class="swatch" style="background:{SW_COLOR.school}"></span><span class="swatch" style="background:{SW_COLOR.worship}"></span>
+		Schools / houses of worship <span class="muted">({data.district.counts.schools} / {data.district.counts.worship} in the district)</span>
+	</label>
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
 <p class="note">311 complaints are off by default because they are dense. Selecting a 311 dot opens the
 	address page it is matched to, if there is one; otherwise it shows the date, type and address.
-	Street events have no coordinates in the source and are not on the map. Every point is also in the list view, which is the accessible equivalent of this map.</p>
+	Schools (teal) and houses of worship (dark pink) are off by default; selecting one shows its name,
+	type and address. Schools come from the City's Facilities Database; houses of worship are tax lots
+	with building class M1 to M4 or M9 in PLUTO, which has no names. Street events have no coordinates in the source and are not on the map. Every point is also in the list view, which is the accessible equivalent of this map.</p>
 
 <style>
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }

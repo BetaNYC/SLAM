@@ -57,6 +57,10 @@ def load(name):
     return json.loads((FX / name).read_text())
 
 
+def load_text(name):
+    return (FX / name).read_text()
+
+
 # ---------------------------------------------------------------- schema check
 
 @pytest.mark.parametrize("src", [*(s.key for s in SOURCES), "districts"])
@@ -479,3 +483,119 @@ def test_co_bin_prefers_the_page_bin_then_a_single_dohmh_bin():
     assert page_co_bin(None, ["3071959", "3071960"]) == (None, None)
     assert page_co_bin(None, []) == (None, None)
     assert real_bin("3000000") is None  # placeholder BINs never make a CO link
+
+
+# ---------------------------------------------------------------- schools and houses of worship (#60)
+
+from slam_pipeline import spatial  # noqa: E402
+from slam_pipeline.sources import SLA_RULES, WORSHIP_CLASSES  # noqa: E402
+from slam_pipeline.transform import (  # noqa: E402
+    bbox_with_margin,
+    is_on_premises_liquor,
+    normalize_school,
+    normalize_worship,
+    same_street,
+    street_name,
+)
+
+
+@pytest.fixture(scope="module")
+def sp():
+    return spatial.connect()
+
+
+@pytest.fixture(scope="module")
+def schools():
+    return {s["name"]: s for s in map(normalize_school, load("facdb_schools_sample.json"))}
+
+
+def test_state_plane_projection_matches_dcp_own_xy(sp, schools):
+    """FacDB publishes DCP's own State Plane feet (xcoord/ycoord) next to latitude/longitude.
+    Our EPSG:2263 projection of the lat/lon must land on them."""
+    for s in schools.values():
+        (x, y), = spatial.project(sp, [(s["lon"], s["lat"])])
+        assert abs(x - s["x"]) < 0.1 and abs(y - s["y"]) < 0.1, s["name"]
+
+
+def test_axis_order_guard(sp, schools):
+    pts = [(s["lon"], s["lat"], s["x"], s["y"]) for s in schools.values()]
+    assert spatial.check_axis_order(sp, pts, "schools") < 0.1
+    # The same points with latitude and longitude swapped, or with always_xy off, are off by
+    # millions of feet, and the guard fails the build.
+    with pytest.raises(spatial.AxisOrderError, match="axis order"):
+        spatial.check_axis_order(sp, [(la, lo, x, y) for lo, la, x, y in pts], "swapped")
+    s = schools["MILLENNIUM HIGH SCHOOL"]
+    (x, y), = spatial.project(sp, [(s["lon"], s["lat"])], always_xy=False)
+    assert abs(x - s["x"]) > 1_000_000
+
+
+def test_distance_known_pair_in_feet(sp, schools):
+    """Millennium HS (75 Broad St) to Richard R. Green HS (7 Beaver St), real FacDB points."""
+    a, b = schools["MILLENNIUM HIGH SCHOOL"], schools["RICHARD R. GREEN HIGH SCHOOL OF TEACHING"]
+    by_dcp_xy = ((a["x"] - b["x"]) ** 2 + (a["y"] - b["y"]) ** 2) ** 0.5
+    assert by_dcp_xy == pytest.approx(534.6, abs=0.1)
+    pairs = spatial.pairs_within(sp, [("a", a["lon"], a["lat"])], [("b", b["lon"], b["lat"])], 600)
+    assert len(pairs) == 1 and pairs[0][2] == pytest.approx(by_dcp_xy, abs=0.5)
+    # Independent check: great-circle metres (haversine) in US survey feet.
+    assert pairs[0][2] == pytest.approx(meters(a["lon"], a["lat"], b["lon"], b["lat"]) / 0.3048006096, abs=1)
+    assert spatial.pairs_within(sp, [("a", a["lon"], a["lat"])], [("b", b["lon"], b["lat"])], 500) == []
+
+
+def test_sla_class_mapping_against_sla_table_and_real_values():
+    table = {(r["type"], r["class"].zfill(4)): r for r in load("sla_license_classes.json")["rows"]}
+    # Spot checks, each read from SLA's own table.
+    assert table[("1", "0340")]["description"] == "Restaurant" and table[("1", "0340")]["product"] == "Liquor"
+    assert table[("1", "0240")]["product"] == "Wine" and not is_on_premises_liquor("1", "0240")
+    assert table[("1", "0100")]["description"] == "Liquor Store" and not is_on_premises_liquor("1", "0100")
+    assert table[("1", "0101")]["description"] == "Off Premises Caterer" and not is_on_premises_liquor("1", "0101")
+    for c, name in (("0415", "Bottle Club"), ("0416", "Restaurant Brewer"), ("0417", "Cabaret"),
+                    ("0370", "Food & Beverage Business")):
+        assert table[("1", c)]["description"] == name and is_on_premises_liquor("1", c), c
+    for c in ("0422", "0423", "0426"):  # Additional Bar classes: product blank in SLA's table
+        assert table[("1", c)]["product"] == "NULL" and not is_on_premises_liquor("1", c)
+    assert ("1", "0425") not in table and not is_on_premises_liquor("1", "0425")
+    assert not is_on_premises_liquor("2", "0524") and not is_on_premises_liquor("1", "CM")
+    # Every counted class in SLA's table is a Liquor-product class: 0340 to 0421 is 82 codes,
+    # and SLA's table has all of them but 0418.
+    counted = [k for k in table if is_on_premises_liquor(*k)]
+    assert all(table[k]["product"] == "Liquor" for k in counted)
+    assert len(counted) == 81
+    # Every class/description pair in the real active-license pull for the two counties that
+    # is counted is in SLA's table with the same description (case-insensitive).
+    real = load("sla_active_type_class_values.json")["rows"]
+    hits = [r for r in real if is_on_premises_liquor(r["type"], r["class"])]
+    assert {r["class"] for r in hits} >= {"0340", "0370", "0417"}
+    for r in hits:
+        assert table[(r["type"], r["class"])]["description"].lower() == r["description"].lower(), r
+
+
+def test_normalize_school_and_worship():
+    s = {x["name"]: x for x in map(normalize_school, load("facdb_schools_sample.json"))}
+    m = s["MILLENNIUM HIGH SCHOOL"]
+    assert m["kind"] == "school" and m["street"] == "75 BROAD STREET" and m["street_name"] == "BROAD ST"
+    w = {x["street"]: x for x in (normalize_worship(r, WORSHIP_CLASSES) for r in load("pluto_worship_sample.json"))}
+    t = w["75 BROADWAY"]
+    assert t["type"] == "Church, Synagogue, Chapel" and t["street_name"] == "BROADWAY"
+    assert t["bbl"] == "1000490001" and t["name"] == ""
+
+
+def test_same_street_flag():
+    assert street_name("111 BROADWAY") == "BROADWAY"
+    assert same_street({"BROADWAY", "CEDAR ST"}, "BROADWAY") is True
+    assert same_street({"WILSON AVE"}, street_name("1374 MYRTLE AVENUE")) is False
+    assert same_street(set(), "BROADWAY") is None and same_street({"BROADWAY"}, "") is None
+
+
+def test_bbox_margin_is_at_least_500_ft():
+    lo0, la0, lo1, la1 = bbox_with_margin([-74.0, -73.9], [40.70, 40.71], 600)
+    assert (40.70 - la0) * 364_000 == pytest.approx(600, rel=1e-6)
+    assert (-74.0 - lo0) * 364_000 * 0.7576 > 500  # cos(40.705 deg) is about 0.7576
+
+
+def test_rule_text_is_the_published_text():
+    """SLA_RULES quotes ABC Law §64(7) word for word, from the nysenate.gov page read in a
+    browser on 2026-11-04 (revision 2026-07-31)."""
+    page = " ".join(load_text("abc64_7_nysenate_2026-07-31.txt").split())
+    assert "MOST RECENT REVISION (FROM 2026-07-31)" in page and SLA_RULES["revision"] == "2026-07-31"
+    for k in ("lead", "a", "b", "c"):
+        assert SLA_RULES[k] in page, k

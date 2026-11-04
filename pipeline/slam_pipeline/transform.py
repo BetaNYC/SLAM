@@ -646,3 +646,99 @@ def page_co_bin(page_bin: str | None, restaurant_bins: list[str]) -> tuple[str |
     if len(uniq) == 1:
         return uniq[0], "dohmh"
     return None, None
+
+
+# ---------------------------------------------------------------- schools and houses of worship (#60)
+#
+# Distances follow the State Liquor Authority's rules only in KIND: ABC Law §64(7)(c) measures
+# "in straight lines" between "the center of the nearest entrance" of each premises. The data
+# has no entrances, only one point per building or lot, so every distance here is a straight
+# line between those points ("approximate, building point to building point"). Nothing here
+# decides whether a rule applies.
+
+SW_LIST_FT = 200  # §64(7)(a): "within two hundred feet"
+LIQUOR_COUNT_FT = 500  # §64(7)(b): "within five hundred feet"
+# Margin around the districts' bounding box for the facility and license pulls. More than
+# LIQUOR_COUNT_FT, so nothing within 500 ft of a page near the district line is cut off.
+SW_BUFFER_FT = 600
+
+# On-premises liquor classes counted for the 500-foot figure. §64(7)(b) counts premises
+# "licensed and operating pursuant to this section and sections sixty-four-a, sixty-four-b,
+# sixty-four-c, and/or sixty-four-d". SLA's own class table (https://sla.ny.gov/leap-license-
+# type-and-class-definitions, an .xlsx linked from the active-licenses dataset 9s3h-dpkz,
+# recorded in tests/fixtures/sla_license_classes.json) gives each class a product but no ABC
+# section. Counted: license type 1, classes 0340 to 0421, the run of retail classes whose product
+# is Liquor, from Restaurant (0340) through Winter Race Tracks (0421), including Bottle Club
+# (0415), Restaurant Brewer (0416) and Cabaret (0417). Not counted: wine- and beer-only classes,
+# off-premises classes (Liquor Store 0100, Off Premises Caterer 0101), manufacturers and
+# wholesalers, permits (type 2), Additional Bar classes (0422, 0423, 0426: extra bars, product
+# blank in SLA's table) and For-profit Club (0425: not in SLA's table; §64-f is not named in
+# §64(7)(b)).
+ON_PREMISES_LIQUOR_CLASSES = range(340, 422)
+
+
+def is_on_premises_liquor(lic_type, lic_class) -> bool:
+    """True for an SLA license row counted toward the 500-foot figure (see above)."""
+    if str(lic_type or "").strip() != "1":
+        return False
+    c = str(lic_class or "").strip()
+    return c.isdigit() and int(c) in ON_PREMISES_LIQUOR_CLASSES
+
+
+def street_name(street: str | None) -> str:
+    """Normalized street name with the house number removed: '75 Broad Street' -> 'BROAD ST'."""
+    return _street_part(street)
+
+
+def _float(v) -> float | None:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if f else None
+
+
+def normalize_school(row: dict) -> dict:
+    """One FacDB ji82-xba5 row -> a school facility."""
+    street = _clean(row.get("address"))
+    return {"id": f"s-{row.get('uid')}", "kind": "school", "name": _clean(row.get("facname")),
+            "type": _clean(row.get("factype")).capitalize(), "street": street,
+            "street_name": street_name(f"0 {row.get('streetname')}") if row.get("streetname")
+            else street_name(street),
+            "zip": zip5(row.get("zipcode")), "bin": real_bin(row.get("bin")),
+            "bbl": _clean(row.get("bbl")).split(".")[0],
+            "lon": _float(row.get("longitude")), "lat": _float(row.get("latitude")),
+            "x": _float(row.get("xcoord")), "y": _float(row.get("ycoord"))}
+
+
+def normalize_worship(row: dict, classes: dict[str, str]) -> dict:
+    """One PLUTO 64uk-42ks row -> a house-of-worship lot. PLUTO has no facility name, so the
+    lot is named by its building class."""
+    street = _clean(row.get("address"))
+    cls = _clean(row.get("bldgclass"))
+    return {"id": f"w-{_clean(row.get('bbl')).split('.')[0]}", "kind": "worship",
+            "name": "", "type": classes.get(cls, cls), "cls": cls, "street": street,
+            "street_name": street_name(street), "zip": zip5(row.get("zipcode")), "bin": None,
+            "bbl": _clean(row.get("bbl")).split(".")[0],
+            "lon": _float(row.get("longitude")), "lat": _float(row.get("latitude")),
+            "x": _float(row.get("xcoord")), "y": _float(row.get("ycoord"))}
+
+
+def bbox_with_margin(xs: list[float], ys: list[float], margin_ft: float) -> tuple[float, float, float, float]:
+    """(min lon, min lat, max lon, max lat) widened by margin_ft. One degree of latitude is
+    about 364,000 ft; a degree of longitude is that times cos(latitude). The margin only sizes
+    the pull, it measures nothing."""
+    import math
+    lat_mid = (min(ys) + max(ys)) / 2
+    dlat = margin_ft / 364_000
+    dlon = margin_ft / (364_000 * math.cos(math.radians(lat_mid)))
+    return min(xs) - dlon, min(ys) - dlat, max(xs) + dlon, max(ys) + dlat
+
+
+def same_street(page_streets: set[str], fac_street_name: str) -> bool | None:
+    """True when the facility's listed street name is one of the page's listed street names.
+    None when either side has no street name. False only means the records list different
+    streets: a corner building fronts two streets, and PLUTO and FacDB list one address each."""
+    if not fac_street_name or not page_streets:
+        return None
+    return fac_street_name in page_streets

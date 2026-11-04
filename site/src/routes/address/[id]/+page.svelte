@@ -1,6 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName } from '#lib/format.js';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 
@@ -17,6 +17,12 @@
 			...(a.co?.records?.length ? ['co_dobnow'] : [])
 		])
 	]);
+	// Schools and houses of worship (#60)
+	const sw = $derived(data.sw);
+	const rule = $derived(sw.rules);
+	const near = $derived(a.sw?.near ?? []);
+	const liq = $derived(a.sw?.liq ?? { premises: 0, licenses: 0, rows: [] });
+	let liqOpen = $state(false);
 	const rsrc = $derived(m.sources.restaurant_inspections);
 	const cosrc = $derived(m.sources.co_dobnow);
 	const coUrl = $derived(coBisUrl(a.co?.bin));
@@ -112,6 +118,107 @@
 	inside the two prototype districts. This page lists facts from the sources; it does not apply any
 	distance rule or make legal determinations.
 </p>
+
+<h2 id="sw">Schools and houses of worship nearby</h2>
+{#if near.length}
+	<div class="table-scroll">
+		<table>
+			<caption>Schools and houses of worship within about {sw.list_ft} ft of this address, nearest first ({near.length})</caption>
+			<thead>
+				<tr>
+					<th scope="col">Name</th>
+					<th scope="col">Type</th>
+					<th scope="col">Approx. distance</th>
+					<th scope="col">Same street?</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each near as f, i (f.kind + f.street + f.name + i)}
+					<tr>
+						<td>{swName(f)}{#if f.name && f.street}<br /><span class="muted">{f.street}</span>{/if}</td>
+						<td>{SW_KIND[f.kind]}<br /><span class="muted">{f.type}</span></td>
+						<td class="nowrap">about {f.ft} ft</td>
+						<td>{sameStreetLabel(f.same_street)}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+{:else}
+	<p class="muted">No schools or houses of worship in the data within about {sw.list_ft} ft of this address.</p>
+{/if}
+
+<h3 id="sw-liq">On-premises liquor licenses within about {sw.liquor_count_ft} ft</h3>
+<p>
+	<strong>{liq.premises}</strong> other address{liq.premises === 1 ? '' : 'es'} with an active on-premises
+	liquor license within about {sw.liquor_count_ft} ft ({liq.licenses} license{liq.licenses === 1 ? '' : 's'}),
+	not counting licenses at this address.
+	{#if liq.licenses}<a href="#sw-liq-list" onclick={() => (liqOpen = true)}>See the list</a>.{/if}
+</p>
+{#if liq.licenses}
+	<details id="sw-liq-list" bind:open={liqOpen}>
+		<summary>List of the {liq.licenses} license{liq.licenses === 1 ? '' : 's'}</summary>
+		<div class="table-scroll">
+			<table>
+				<caption>Active on-premises liquor licenses within about {sw.liquor_count_ft} ft, nearest first</caption>
+				<thead><tr><th scope="col">Name</th><th scope="col">Address</th><th scope="col">SLA class</th><th scope="col">Approx. distance</th></tr></thead>
+				<tbody>
+					{#each liq.rows as r, i (r.name + r.street + r.code + i)}
+						<tr>
+							<td>{r.name}</td>
+							<td>{#if r.aid}<a href={resolve('/address/[id]', { id: r.aid })}>{r.street}</a>{:else}{r.street}{/if}</td>
+							<td>{sw.on_premises_classes[r.code] ?? ''} <span class="muted">({r.code})</span></td>
+							<td class="nowrap">about {r.ft} ft</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	</details>
+{/if}
+
+<aside class="rule" aria-labelledby="rule-h">
+	<h3 id="rule-h">What the law says, and how SLA measures distance</h3>
+	<p><a href={rule.url}>{rule.law}</a> says, in part:</p>
+	<blockquote>
+		<p>“{rule.lead}</p>
+		<p>(a) {rule.a} or</p>
+		<p>(b) {rule.b};</p>
+		<p>(c) {rule.c} …”</p>
+	</blockquote>
+	<p class="muted">
+		Text from nysenate.gov, revision dated {rule.revision}, read {rule.read}. Similar rules:
+		{#each rule.related as r, i (r.url)}<a href={r.url}>{r.label}</a>{i < rule.related.length - 1 ? ', ' : '.'}{/each}
+		SLA's own explanation: <a href={rule.sla_guide.url}>{rule.sla_guide.label}</a>.
+	</p>
+	<p>
+		<strong>How SLAM measures.</strong> The law measures between the centers of the nearest
+		entrances. SLAM has no entrances. It measures a straight line between building points: this
+		page's address point, the school's point in the Facilities Database, the tax lot's point in
+		PLUTO, and each license's point from SLA. Every distance on this page is approximate, building
+		point to building point.
+	</p>
+	<p>
+		"Same street" compares the street names written in the records. A corner building fronts more
+		than one street, and the records list only one address for each school or lot.
+		The license count uses active SLA licenses of type 1, classes 0340 to 0421 (on-premises
+		liquor, from <a href={rule.sla_classes.url}>{rule.sla_classes.label}</a>). It leaves out
+		additional bars, wine- and beer-only licenses, and pending applications.
+	</p>
+	<p>
+		<strong>This page does not decide whether a rule applies.</strong> The law has exceptions, for
+		example for premises licensed continuously since before the school or place of worship was
+		there, and for some renewals.
+		The State Liquor Authority makes that decision.
+	</p>
+	<p class="muted">
+		Sources: <a href={m.sources.schools.url}>{m.sources.schools.name}</a> (schools, data last updated
+		{fmtStamp(m.sources.schools.rowsUpdatedAtIso)}); <a href={m.sources.worship.url}>{m.sources.worship.name}</a>
+		(building classes M1 to M4 and M9, data last updated {fmtStamp(m.sources.worship.rowsUpdatedAtIso)});
+		<a href={m.sources.liquor_active.url}>{m.sources.liquor_active.name}</a> (data last updated
+		{fmtStamp(m.sources.liquor_active.rowsUpdatedAtIso)}).
+	</p>
+</aside>
 
 <h2 id="c311">311 complaints</h2>
 <p class="muted">
