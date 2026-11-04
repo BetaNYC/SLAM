@@ -21,7 +21,7 @@ uv run pytest -q                   # 69 tests against recorded real responses
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 50 tests (ten read the built static/data, one the built site/build)
+npm test                           # node --test, 57 tests (ten read the built static/data, one the built site/build)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 
@@ -82,14 +82,23 @@ vector basemap, through one module, `site/src/lib/basemap.js`.
   (public item [NYC Basemap](https://nyc.maps.arcgis.com/home/item.html?id=df7862bfd7984baab51ff9df8e214278)).
   Style: `resources/styles/root.json`, version 8, 184 layers, with its own fonts and sprites.
 - **Loaded at runtime in the browser.** The module fetches the style and one tile (`tile/0/0/0.pbf`)
-  in parallel. It then rewrites the style's relative URLs to absolute ones: the source `url`
+  in parallel, then the sprite index and one glyph range (the street-name font, 0-255). It then rewrites the style's relative URLs to absolute ones: the source `url`
   (`../../`, which points at the Esri service JSON, not TileJSON) becomes an explicit `tiles`
   template taken from the service JSON (`tile/{z}/{y}/{x}.pbf`); `sprite` and `glyphs` are resolved
   against the style URL with their `{placeholders}` kept intact.
-- **Fallback:** if the style or the probe tile fails, returns an HTTP error, takes more than 8 s, or
-  the style is not a usable v8 style, the map uses OpenFreeMap "liberty", as before. The status
+- **Fallback at start-up:** if the style, the probe tile, the sprite or the glyph probe fails,
+  returns an HTTP error, takes more than 8 s, or the style is not a usable v8 style, the map uses
+  OpenFreeMap "liberty", as before. On timeout the pending City requests are aborted. The status
   line says which one loaded. Checked in a browser by blocking `tiles.arcgis.com` (instant
   fallback) and by holding its requests open (fallback after about 8 s).
+- **Fallback after start-up:** on the first MapLibre `error` from the City (an `esri` tile, the
+  sprite or the style), the map switches once to OpenFreeMap with `setStyle(..., { transformStyle })`,
+  carrying every overlay source and layer over with its visibility. At most one switch per page
+  view. The status line says "Street map unavailable; using a backup map." once; tile errors go to
+  the console, not the live region. Font failures fire no `error` in MapLibre 6.16 (it draws the
+  glyphs locally and warns), which is why the start-up check probes a glyph range.
+- **Record dots:** a 1.5 px white ring plus a thin dark edge (`#1f2937`, 5.8:1 on the City's park
+  green `#96A797`, 5.9:1 on its water blue `#88A9BC`), so they read on parks and water too.
 - **City layers changed for readability:** hidden: `Addresses/label/Default` (house numbers),
   `Buildings/label/Buildings`, `Buildings/label/Landmark Building`, and the four
   `Traffic Direction/*` one-way arrows. Building footprint fills (`Buildings/*`) are drawn at 45%
