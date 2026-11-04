@@ -1,13 +1,14 @@
 <script>
-	// MapLibre GL JS + OpenFreeMap, following https://openfreemap.org/quick_start/
-	// (npm maplibre-gl, Vite worker via setWorkerUrl, style URL .../styles/liberty).
-	// Points and outline are this site's own static files; only tiles come from OpenFreeMap.
+	// MapLibre GL JS on the City's own vector basemap (NYC OTI), with OpenFreeMap as the
+	// fallback: see #lib/basemap.js. Vite worker via setWorkerUrl, per
+	// https://openfreemap.org/quick_start/. Points and outline are this site's own static files.
 	import { onMount } from 'svelte';
 	import { resolve, asset } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR } from '#lib/format.js';
 	import { popup311 } from '#lib/popup311.js';
 	import { popupSW } from '#lib/popupSW.js';
+	import { chooseBasemap, basemapNote } from '#lib/basemap.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
 	/** @type {{data: any}} */
@@ -52,16 +53,20 @@
 			if (cancelled) return;
 			setWorkerUrl(workerUrl);
 			Popup = P;
-			const [outline, points] = await Promise.all([
+			const [outline, points, basemap] = await Promise.all([
 				fetch(asset('data/districts.geojson')).then((r) => r.json()),
-				fetch(asset(/** @type {any} */ (`data/${data.slug}/points.geojson`))).then((r) => r.json())
+				fetch(asset(/** @type {any} */ (`data/${data.slug}/points.geojson`))).then((r) => r.json()),
+				chooseBasemap()
 			]);
+			if (cancelled) return;
+			if (basemap.kind === 'fallback') console.warn('SLAM: City basemap unavailable, using OpenFreeMap:', basemap.reason);
+			const note = basemapNote(basemap.kind);
 			for (const k of LAYERS) counts[k] = points.features.filter((/** @type {any} */ f) => f.properties.source === k).length;
 			const mine = { ...outline, features: outline.features.filter((/** @type {any} */ f) => f.properties.slug === data.slug) };
 
 			map = new Map({
 				container,
-				style: 'https://tiles.openfreemap.org/styles/liberty',
+				style: basemap.style,
 				center: [-73.98, 40.71],
 				zoom: 13
 			});
@@ -69,6 +74,8 @@
 			map.on('error', (/** @type {any} */ e) => (status = `Map error: ${e?.error?.message ?? 'unknown'} (the list view still works)`));
 			map.on('load', () => {
 				map.addSource('district', { type: 'geojson', data: mine });
+				// A white casing under the outline keeps it readable over the City basemap's streets and parks.
+				map.addLayer({ id: 'district-casing', type: 'line', source: 'district', paint: { 'line-color': '#fff', 'line-width': 6, 'line-opacity': 0.85 } });
 				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#1a5ccf', 'line-width': 3 } });
 				map.addSource('points', { type: 'geojson', data: points });
 				for (const k of LAYERS) {
@@ -97,10 +104,10 @@
 				if (valid) {
 					map.jumpTo({ center: at, zoom: 17 });
 					new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
-					status = 'Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page.';
+					status = `Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page. ${note}`;
 				} else {
 					map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
-					status = 'Map loaded. Select a point to open its address page.';
+					status = `Map loaded. Select a point to open its address page. ${note}`;
 				}
 				mapReady = true;
 				if (show311) toggle311();
@@ -242,6 +249,8 @@
 	selecting one shows its name, type and address. Schools come from the City's Facilities Database; houses
 	of worship are PLUTO tax lots in building class M1, and other religious property is class M2, M3, M4 or M9
 	(PLUTO has no names). Street events have no coordinates in the source and are not on the map.
+	The street map is the City's own basemap, from NYC's Office of Technology and Innovation; if it
+	does not load, OpenFreeMap (OpenStreetMap data) is used instead.
 	The list view is the accessible equivalent of this map: every license, cannabis, Dining Out, school and
 	religious-property point is in it, and its 311 tab counts every complaint and lists the most recent ones.</p>
 

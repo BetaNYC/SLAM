@@ -1,0 +1,12 @@
+{
+ "currentVersion": 10.81,
+ "name": "NYC_Basemap_v3",
+ "copyrightText": "SOURCE: NYC OTI",
+ "type": "indexedVector",
+ "tiles": [
+  "tile/{z}/{y}/{x}.pbf"
+ ],
+ "defaultStyles": "resources/styles",
+ "serviceItemId": "5223421bee67466faa8911ffe89abff8",
+ "maxzoom": 23
+}

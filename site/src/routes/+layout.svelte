@@ -43,6 +43,12 @@
 		{/each}
 	</ul>
 	<p>
+		Maps: the street map is the City's own vector basemap,
+		<a href="https://nyc.maps.arcgis.com/home/item.html?id=df7862bfd7984baab51ff9df8e214278">NYC Basemap</a>
+		(SOURCE: NYC OTI, powered by Esri). If it does not load, the map falls back to
+		<a href="https://openfreemap.org/">OpenFreeMap</a> (<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap</a> contributors).
+	</p>
+	<p>
 		Facts only, as published by the City and State. This page does not make legal determinations.
 		A <a href="https://beta.nyc/">BetaNYC</a> prototype.
 	</p>

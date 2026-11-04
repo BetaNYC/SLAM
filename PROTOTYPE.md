@@ -16,12 +16,12 @@ cd pipeline
 uv sync
 uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
-uv run pytest -q                   # 64 tests against recorded real responses
+uv run pytest -q                   # 69 tests against recorded real responses
 
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 34 tests (ten read the built static/data, one the built site/build)
+npm test                           # node --test, 50 tests (ten read the built static/data, one the built site/build)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 
@@ -41,7 +41,7 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | Geocode OCM licenses (`jskf-tt3q`, no coordinates) with NYC GeoSearch v2, at most 4 req/s, cached in `pipeline/.cache/geocode.json`. A hit is accepted only if confidence >= 0.8, accuracy `point`, and the house number matches. License rows already in the retail-dealer list (`gttd-5u6y`) are deduped by license number. | `build.py` `geocode_cannabis`, `transform.accept_geosearch` | #48 |
 | District join with DuckDB spatial (`ST_Contains`), per-address grouping, nearby within 150 m (`ST_Distance_Sphere`), `manifest.json` with per-source counts and each portal's `rowsUpdatedAt`. Safe to re-run: outputs rewritten whole, geocode cache only grows, stale address files are moved to `.cache/orphaned-address/`. | `build.py` | #49 (partly) |
 | Home, "My district" list with tabs (Liquor: pending, active, inactive on request; Cannabis; Dining Out; Street events; 311 complaints), filter box, client-side CSV of the current tab, address page with "at this address" + "nearby", links to SLA LAMP, Dining Out NYC and each dataset, print stylesheet. | `site/src/routes/` | #50 |
-| Map: MapLibre GL JS 6 + OpenFreeMap "liberty" style, district outline, one toggle per layer, click a point to open its address page, "View as list" link, attribution shown by MapLibre. | `site/src/routes/[district]/map/` | #51 |
+| Map: MapLibre GL JS 6 on the City's own vector basemap (NYC OTI), with OpenFreeMap "liberty" as the fallback; district outline, one toggle per layer, click a point to open its address page, "View as list" link, attribution shown by MapLibre. See "City basemap" below. | `site/src/routes/[district]/map/`, `site/src/lib/basemap.js` | #51 |
 | 311 complaints at bar/club/restaurant locations: district tab (count by type x year plus the 200 most recent, filter + CSV), address-page section (by type x year and the 10 most recent at the address; counts by type within 150 m), map layer off by default and fetched only when switched on. See "311 complaints" below. | `sources.py` `complaints_311`, `transform.py` `normalize_311` etc., `site/src/lib/CountTable311.svelte`, `Complaints311Table.svelte`, `popup311.js` | #47 (source), #50, #51 |
 | Address search (one box in the header of every page) and address pages keyed on BIN. See "Address search" below. | `site/src/lib/AddressSearch.svelte`, `addressSearch.js`; `build.py` `geocode_addresses`; `transform.py` `pick_address_hit`, `key_pages` | #59 |
 | Restaurant health grades: "Health inspections" on the address page (latest grade, grade history, ABC Eats link per restaurant), "Health grades" tab on the district page (counts by current grade, grade filter, table, CSV). See "Health inspections" below. | `sources.py` `restaurant_inspections`, `transform.py` `reduce_inspections`, `grade_bucket`, `place_restaurant` | #61 |
@@ -63,7 +63,52 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 - **Geocoding**: 7 of 145 OCM addresses were rejected by the acceptance rule and are unmapped (they still appear in lists marked "not mapped").
 - **Size**: the static build is about 93 MB (68 MB before #61, #62 and #60), mostly per-address `index.html` and `__data.json`. Fine locally; worth slimming before hosting.
 - **No base path** is configured, so the build assumes it is served from `/`. GitHub Pages under `/SLAM/` would need `paths.base`.
-- The OpenFreeMap style logs three MapLibre warnings about highway-shield filters; they come from the style, not this code.
+- When the fallback is in use, the OpenFreeMap style logs three MapLibre warnings about highway-shield filters; they come from the style, not this code. The City style logs none.
+
+## City basemap
+
+Every SLAM map (today: the district map; address pages have no map) draws on the City's own
+vector basemap, through one module, `site/src/lib/basemap.js`.
+
+- **Service:** `NYC_Basemap_v3` VectorTileServer on ArcGIS Online, account `maps.nyc.data`
+  (public item [NYC Basemap](https://nyc.maps.arcgis.com/home/item.html?id=df7862bfd7984baab51ff9df8e214278)).
+  Style: `resources/styles/root.json`, version 8, 184 layers, with its own fonts and sprites.
+- **Loaded at runtime in the browser.** The module fetches the style and one tile (`tile/0/0/0.pbf`)
+  in parallel. It then rewrites the style's relative URLs to absolute ones: the source `url`
+  (`../../`, which points at the Esri service JSON, not TileJSON) becomes an explicit `tiles`
+  template taken from the service JSON (`tile/{z}/{y}/{x}.pbf`); `sprite` and `glyphs` are resolved
+  against the style URL with their `{placeholders}` kept intact.
+- **Fallback:** if the style or the probe tile fails, returns an HTTP error, takes more than 8 s, or
+  the style is not a usable v8 style, the map uses OpenFreeMap "liberty", as before. The status
+  line says which one loaded. Checked in a browser by blocking `tiles.arcgis.com` (instant
+  fallback) and by holding its requests open (fallback after about 8 s).
+- **City layers changed for readability:** hidden: `Addresses/label/Default` (house numbers),
+  `Buildings/label/Buildings`, `Buildings/label/Landmark Building`, and the four
+  `Traffic Direction/*` one-way arrows. Building footprint fills (`Buildings/*`) are drawn at 45%
+  opacity. Everything else (street names, subway stations, parks, neighborhoods) is unchanged.
+  Our district outline gained a white casing so it reads over streets and parks.
+- **Attribution:** "SOURCE: NYC OTI" (the service's own `copyrightText`) and "Powered by Esri",
+  which [Esri's attribution page](https://developers.arcgis.com/documentation/esri-and-data-attribution/)
+  requires when ArcGIS services are used from an open-source library. In fallback, MapLibre shows
+  OpenFreeMap's own credit ("OpenFreeMap © OpenMapTiles Data from OpenStreetMap"). The site
+  footer and home page say the street map is the City's.
+- **Fixtures:** `site/tests/fixtures/city_basemap_root.json` and `city_basemap_service.json` are
+  the real files, fetched once on 2026-11-04. Tests: `site/tests/basemap.test.js`.
+
+**Open questions for OTI (not resolved; nothing about them is claimed on the site):**
+
+1. **Terms.** The public item's license field links to the
+   [NYC.gov Terms of Use](https://www.nyc.gov/home/terms-of-use.page): a website's terms, not an
+   open license. May outside civic sites like this one use the tiles?
+2. **"Not for General Use."** The service's own `serviceItemId` (`5223421bee67466faa8911ffe89abff8`,
+   owner `tfauvell_nyc`) is the base tileset item, and its description says "Not for General Use"
+   and points to the web map and the tile layer instead. That recommended tile layer item
+   (`df7862bf…`, owner `maps.nyc.data`, public) points at **the same** VectorTileServer URL, so
+   this build uses that URL. Worth confirming with OTI that this is the intended use.
+3. The item also carries its own `styles/root.json` (dated June 2025) that differs from the
+   service's; this build uses the service's, as the brief does.
+4. Rate limits, cost to the City of outside traffic, and update cadence (the item says v3, Q2 2026,
+   released 5 May 2026) are not known.
 
 ## Sources (all verified from `/api/views/<id>.json`, 2026-11-04)
 
