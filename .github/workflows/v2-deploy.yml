@@ -1,0 +1,75 @@
+# SLAM v2: rebuild the data from NYC and NYS open data, test, and publish to slam.beta.nyc.
+# Runs on every push to v2, by hand (Actions tab > Run workflow), and nightly.
+# Note: GitHub only runs `schedule` from the default branch (main). Until v2 is the
+# default branch or merged into main, the nightly run does not fire; push and manual runs do.
+# No secrets: every source SLAM v2 reads is open and keyless.
+name: SLAM v2 build and deploy
+
+on:
+  push:
+    branches: [v2]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 10 * * *" # 10:17 UTC, about 5-6am in New York
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slam-v2-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2
+
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      # The GeoSearch caches keep the nightly run from re-geocoding every address.
+      # Raw pulls are refreshed every run; only geocodes are carried over.
+      - name: Restore geocode cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            pipeline/.cache/geocode.json
+            pipeline/.cache/geocode-address.json
+          key: slam-geocode-${{ github.run_id }}
+          restore-keys: slam-geocode-
+
+      - name: Pipeline tests
+        working-directory: pipeline
+        run: uv run pytest -q
+
+      - name: Build data (live)
+        working-directory: pipeline
+        run: uv run python build.py
+
+      - name: Site tests and build
+        working-directory: site
+        run: |
+          npm ci
+          npm test
+          npm run check
+          npm run build
+          touch build/.nojekyll
+
+      - name: Publish to gh-pages (slam.beta.nyc)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site/build
+          cname: slam.beta.nyc
+          force_orphan: false
+          commit_message: "SLAM v2 deploy"
