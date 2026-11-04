@@ -8,12 +8,15 @@
 	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR } from '#lib/format.js';
 	import { popup311 } from '#lib/popup311.js';
 	import { popupSW } from '#lib/popupSW.js';
-	import { chooseBasemap, basemapNote } from '#lib/basemap.js';
+	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
 
+	const HALO = '-halo';
+	/** The dark edge around each record dot: 5.8:1 on the City's park green, 5.9:1 on its water blue. */
+	const DOT_EDGE = '#1f2937';
 	const LAYERS = ['liquor_pending', 'liquor_active', 'liquor_inactive', 'cannabis_retail', 'cannabis_license', 'dining_out'];
 	/** @type {Record<string, boolean>} */
 	let visible = $state({
@@ -36,6 +39,9 @@
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateSW = 'idle';
 	let mapReady = false;
+	// Set while the map swaps from the City basemap to OpenFreeMap (at most once per page view).
+	/** @type {Promise<void> | null} */
+	let swapping = null;
 	/** @type {any} */
 	let Popup;
 	/** @type {any} */
@@ -60,7 +66,9 @@
 			]);
 			if (cancelled) return;
 			if (basemap.kind === 'fallback') console.warn('SLAM: City basemap unavailable, using OpenFreeMap:', basemap.reason);
-			const note = basemapNote(basemap.kind);
+			/** @type {ReturnType<typeof basemapSwitcher>} */
+			let switcher;
+			const note = () => basemapNote(switcher?.switched ? 'fallback' : basemap.kind);
 			for (const k of LAYERS) counts[k] = points.features.filter((/** @type {any} */ f) => f.properties.source === k).length;
 			const mine = { ...outline, features: outline.features.filter((/** @type {any} */ f) => f.properties.slug === data.slug) };
 
@@ -71,13 +79,47 @@
 				zoom: 13
 			});
 			map.addControl(new NavigationControl({}), 'top-right');
-			map.on('error', (/** @type {any} */ e) => (status = `Map error: ${e?.error?.message ?? 'unknown'} (the list view still works)`));
+			// The City can fail after start-up (tiles, sprite, style). On its first error, swap once to
+			// OpenFreeMap, carrying our overlay sources and layers over (MapLibre's setStyle
+			// transformStyle). Layer click handlers are bound by layer id on the map, so they keep working.
+			switcher = basemapSwitcher(basemap.kind, () => {
+				console.warn('SLAM: City basemap failed after load, switching to OpenFreeMap.');
+				status = SWITCH_NOTE;
+				swapping = new Promise((done) => {
+					const onStyle = () => {
+						if (map.getSource('esri')) return; // the City style's own style.load
+						map.off('style.load', onStyle);
+						reapplyVisibility();
+						swapping = null;
+						done();
+					};
+					map.on('style.load', onStyle);
+				});
+				map.setStyle(FALLBACK_STYLE_URL, { diff: false, transformStyle: carryOverlays(Object.keys(basemap.style.sources)) });
+			});
+			// Errors go to the console, not the live region; the switch announces itself once.
+			map.on('error', (/** @type {any} */ e) => {
+				console.warn('SLAM map error:', e?.error?.message ?? e);
+				switcher.handle(e);
+			});
 			map.on('load', () => {
 				map.addSource('district', { type: 'geojson', data: mine });
 				// A white casing under the outline keeps it readable over the City basemap's streets and parks.
 				map.addLayer({ id: 'district-casing', type: 'line', source: 'district', paint: { 'line-color': '#fff', 'line-width': 6, 'line-opacity': 0.85 } });
 				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#1a5ccf', 'line-width': 3 } });
 				map.addSource('points', { type: 'geojson', data: points });
+				// Each record dot has a white ring and, under it, a thin dark edge (a "halo" layer), so it
+				// stands out on the City's park green and water blue as well as on land (QA #69, finding 4).
+				for (const k of LAYERS) {
+					map.addLayer({
+						id: `${k}${HALO}`,
+						type: 'circle',
+						source: 'points',
+						filter: ['==', ['get', 'source'], k],
+						layout: { visibility: visible[k] ? 'visible' : 'none' },
+						paint: { 'circle-radius': 7.5, 'circle-color': DOT_EDGE }
+					});
+				}
 				for (const k of LAYERS) {
 					map.addLayer({
 						id: k,
@@ -85,7 +127,7 @@
 						source: 'points',
 						filter: ['==', ['get', 'source'], k],
 						layout: { visibility: visible[k] ? 'visible' : 'none' },
-						paint: { 'circle-radius': 5, 'circle-color': SOURCE_COLOR[k], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
+						paint: { 'circle-radius': 5, 'circle-color': SOURCE_COLOR[k], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 }
 					});
 					map.on('click', k, (/** @type {any} */ e) => {
 						const aid = e.features?.[0]?.properties?.aid;
@@ -104,10 +146,10 @@
 				if (valid) {
 					map.jumpTo({ center: at, zoom: 17 });
 					new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
-					status = `Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page. ${note}`;
+					status = `Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page. ${note()}`;
 				} else {
 					map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
-					status = `Map loaded. Select a point to open its address page. ${note}`;
+					status = `Map loaded. Select a point to open its address page. ${note()}`;
 				}
 				mapReady = true;
 				if (show311) toggle311();
@@ -120,8 +162,16 @@
 		};
 	});
 
+	/** After a basemap swap, set every overlay's visibility from the checkboxes again. */
+	function reapplyVisibility() {
+		for (const k of LAYERS) toggle(k);
+		if (map.getLayer('complaints_311')) map.setLayoutProperty('complaints_311', 'visibility', show311 ? 'visible' : 'none');
+		if (map.getLayer('schools_worship')) map.setLayoutProperty('schools_worship', 'visibility', showSW ? 'visible' : 'none');
+	}
+
 	async function toggle311() {
 		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
+		if (swapping) await swapping;
 		if (state311 === 'ready') {
 			map.setLayoutProperty('complaints_311', 'visibility', show311 ? 'visible' : 'none');
 			return;
@@ -131,6 +181,7 @@
 		status = 'Loading 311 complaints…';
 		try {
 			const pts = await fetch(asset(/** @type {any} */ (`data/${data.slug}/points-311.geojson`))).then((r) => r.json());
+			if (swapping) await swapping;
 			map.addSource('c311', { type: 'geojson', data: pts });
 			// Drawn under the license layers so their larger dots stay on top and clickable.
 			map.addLayer(
@@ -141,7 +192,7 @@
 					layout: { visibility: show311 ? 'visible' : 'none' },
 					paint: { 'circle-radius': 2.5, 'circle-color': SOURCE_COLOR.complaints_311, 'circle-opacity': 0.55 }
 				},
-				LAYERS[0]
+				`${LAYERS[0]}${HALO}`
 			);
 			map.on('click', 'complaints_311', (/** @type {any} */ e) => {
 				// A license dot under the cursor wins; its own handler opens the address page.
@@ -165,6 +216,7 @@
 
 	async function toggleSW() {
 		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
+		if (swapping) await swapping;
 		if (stateSW === 'ready') {
 			map.setLayoutProperty('schools_worship', 'visibility', showSW ? 'visible' : 'none');
 			return;
@@ -174,6 +226,7 @@
 		status = 'Loading schools and houses of worship…';
 		try {
 			const pts = await fetch(asset(`data/${data.slug}/schools-worship.geojson`)).then((r) => r.json());
+			if (swapping) await swapping;
 			map.addSource('sw', { type: 'geojson', data: pts });
 			// Drawn under the license layers so license dots stay on top and clickable.
 			map.addLayer(
@@ -189,7 +242,7 @@
 						'circle-stroke-width': 2
 					}
 				},
-				LAYERS[0]
+				`${LAYERS[0]}${HALO}`
 			);
 			map.on('click', 'schools_worship', (/** @type {any} */ e) => {
 				const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
@@ -211,7 +264,7 @@
 
 	/** @param {string} k */
 	function toggle(k) {
-		if (map?.getLayer(k)) map.setLayoutProperty(k, 'visibility', visible[k] ? 'visible' : 'none');
+		for (const id of [k, `${k}${HALO}`]) if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible[k] ? 'visible' : 'none');
 	}
 </script>
 
@@ -250,7 +303,7 @@
 	of worship are PLUTO tax lots in building class M1, and other religious property is class M2, M3, M4 or M9
 	(PLUTO has no names). Street events have no coordinates in the source and are not on the map.
 	The street map is the City's own basemap, from NYC's Office of Technology and Innovation; if it
-	does not load, OpenFreeMap (OpenStreetMap data) is used instead.
+	does not load, or stops loading while you use the map, OpenFreeMap (OpenStreetMap data) is used instead.
 	The list view is the accessible equivalent of this map: every license, cannabis, Dining Out, school and
 	religious-property point is in it, and its 311 tab counts every complaint and lists the most recent ones.</p>
 
