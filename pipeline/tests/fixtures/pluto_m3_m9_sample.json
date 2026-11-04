@@ -1,0 +1,30 @@
+[
+ {
+  "bbl": "1000880004.00000000",
+  "address": "18 VESEY STREET",
+  "borough": "MN",
+  "zipcode": "10007",
+  "bldgclass": "M3",
+  "latitude": "40.7119878",
+  "longitude": "-74.0093749",
+  "xcoord": "981651",
+  "ycoord": "198673",
+  "cd": "101",
+  "numbldgs": "1",
+  "version": "26v2"
+ },
+ {
+  "bbl": "1001060020.00000000",
+  "address": "334 PEARL STREET",
+  "borough": "MN",
+  "zipcode": "10038",
+  "bldgclass": "M9",
+  "latitude": "40.7091117",
+  "longitude": "-74.0015979",
+  "xcoord": "983807",
+  "ycoord": "197625",
+  "cd": "101",
+  "numbldgs": "1",
+  "version": "26v2"
+ }
+]

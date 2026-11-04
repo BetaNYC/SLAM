@@ -19,7 +19,8 @@
 	]);
 	// Schools and houses of worship (#60)
 	const sw = $derived(data.sw);
-	const rule = $derived(sw.rules);
+	const rule = $derived(sw.rule);
+	const pt = $derived(a.point ?? {});
 	const near = $derived(a.sw?.near ?? []);
 	const liq = $derived(a.sw?.liq ?? { premises: 0, licenses: 0, rows: [] });
 	let liqOpen = $state(false);
@@ -53,6 +54,16 @@
 {/if}
 {#if a.listed_as?.length > 1}
 	<p class="muted">The sources list this building as: {a.listed_as.join('; ')}.</p>
+{/if}
+{#if pt.outside_districts && !pt.measured}
+	<p class="note" role="note">The City's address lookup (GeoSearch) puts this building outside both prototype
+		districts and outside the area this prototype pulls data for. The licensing records place it in
+		{data.district.label}, so it is listed here as published, but SLAM does not show what is nearby: the
+		distance sections below are left empty on purpose.</p>
+{:else if pt.outside_districts}
+	<p class="note" role="note">The City's address lookup (GeoSearch) puts this building just outside
+		{data.district.label}, across the district line. The licensing records place it inside, so it is listed
+		here as published. Distances are measured from GeoSearch's point.</p>
 {/if}
 
 <h2>At this address ({a.records.length})</h2>
@@ -111,10 +122,13 @@
 		</table>
 	</div>
 {:else}
-	<p class="muted">No other listed addresses within {m.nearby_m} m in this district's data.</p>
+	<p class="muted">{pt.measured === false ? 'Not measured for this address (see the note at the top).' : `No other listed addresses within ${m.nearby_m} m in this district's data.`}</p>
 {/if}
 <p class="note">
-	Distances are straight-line between geocoded points, rounded to the meter. Nearby only covers records
+	Distances are straight-line between points, rounded to the meter. {#if pt.source === 'geosearch'}This
+	page's point is the City's address point for the building (GeoSearch).{:else}This page's point is the
+	average of its records' own points, because the City's address lookup did not match this address.{/if}
+	Nearby only covers records
 	inside the two prototype districts. This page lists facts from the sources; it does not apply any
 	distance rule or make legal determinations.
 </p>
@@ -123,7 +137,7 @@
 {#if near.length}
 	<div class="table-scroll">
 		<table>
-			<caption>Schools and houses of worship within about {sw.list_ft} ft of this address, nearest first ({near.length})</caption>
+			<caption>Schools, houses of worship and other religious property within about {sw.list_ft} ft of this address, building point to building point, nearest first ({near.length})</caption>
 			<thead>
 				<tr>
 					<th scope="col">Name</th>
@@ -135,7 +149,7 @@
 			<tbody>
 				{#each near as f, i (f.kind + f.street + f.name + i)}
 					<tr>
-						<td>{swName(f)}{#if f.name && f.street}<br /><span class="muted">{f.street}</span>{/if}</td>
+						<td>{swName(f)}{#if f.name && f.street}<br /><span class="muted">{f.street}</span>{/if}{#if f.note}<br /><span class="muted">Note: {f.note}</span>{/if}</td>
 						<td>{SW_KIND[f.kind]}<br /><span class="muted">{f.type}</span></td>
 						<td class="nowrap">about {f.ft} ft</td>
 						<td>{sameStreetLabel(f.same_street)}</td>
@@ -145,15 +159,18 @@
 		</table>
 	</div>
 {:else}
-	<p class="muted">No schools or houses of worship in the data within about {sw.list_ft} ft of this address.</p>
+	<p class="muted">{pt.measured === false ? 'Not measured for this address (see the note at the top).' : `No schools or houses of worship in the data within about ${sw.list_ft} ft of this address.`}</p>
 {/if}
+<p class="muted">"Other religious property" is a tax lot in PLUTO building class M2, M3, M4 or M9 (mission
+	house, parsonage or rectory, convent, miscellaneous). PLUTO does not say it is a place of worship.</p>
 
 <h3 id="sw-liq">On-premises liquor licenses within about {sw.liquor_count_ft} ft</h3>
 <p>
+	{#if pt.measured === false}Not measured for this address (see the note at the top).{:else}
 	<strong>{liq.premises}</strong> other address{liq.premises === 1 ? '' : 'es'} with an active on-premises
 	liquor license within about {sw.liquor_count_ft} ft ({liq.licenses} license{liq.licenses === 1 ? '' : 's'}),
-	not counting licenses at this address.
-	{#if liq.licenses}<a href="#sw-liq-list" onclick={() => (liqOpen = true)}>See the list</a>.{/if}
+	not counting licenses at this address. Licenses in Manhattan, Brooklyn and Queens are counted.
+	{#if liq.licenses}<a href="#sw-liq-list" onclick={() => (liqOpen = true)}>See the list</a>.{/if}{/if}
 </p>
 {#if liq.licenses}
 	<details id="sw-liq-list" bind:open={liqOpen}>
@@ -178,45 +195,13 @@
 {/if}
 
 <aside class="rule" aria-labelledby="rule-h">
-	<h3 id="rule-h">What the law says, and how SLA measures distance</h3>
-	<p><a href={rule.url}>{rule.law}</a> says, in part:</p>
-	<blockquote>
-		<p>“{rule.lead}</p>
-		<p>(a) {rule.a} or</p>
-		<p>(b) {rule.b};</p>
-		<p>(c) {rule.c} …”</p>
-	</blockquote>
-	<p class="muted">
-		Text from nysenate.gov, revision dated {rule.revision}, read {rule.read}. Similar rules:
-		{#each rule.related as r, i (r.url)}<a href={r.url}>{r.label}</a>{i < rule.related.length - 1 ? ', ' : '.'}{/each}
-		SLA's own explanation: <a href={rule.sla_guide.url}>{rule.sla_guide.label}</a>.
-	</p>
+	<h3 id="rule-h">The rule these distances relate to</h3>
 	<p>
-		<strong>How SLAM measures.</strong> The law measures between the centers of the nearest
-		entrances. SLAM has no entrances. It measures a straight line between building points: this
-		page's address point, the school's point in the Facilities Database, the tax lot's point in
-		PLUTO, and each license's point from SLA. Every distance on this page is approximate, building
-		point to building point.
-	</p>
-	<p>
-		"Same street" compares the street names written in the records. A corner building fronts more
-		than one street, and the records list only one address for each school or lot.
-		The license count uses active SLA licenses of type 1, classes 0340 to 0421 (on-premises
-		liquor, from <a href={rule.sla_classes.url}>{rule.sla_classes.label}</a>). It leaves out
-		additional bars, wine- and beer-only licenses, and pending applications.
-	</p>
-	<p>
-		<strong>This page does not decide whether a rule applies.</strong> The law has exceptions, for
-		example for premises licensed continuously since before the school or place of worship was
-		there, and for some renewals.
-		The State Liquor Authority makes that decision.
-	</p>
-	<p class="muted">
-		Sources: <a href={m.sources.schools.url}>{m.sources.schools.name}</a> (schools, data last updated
-		{fmtStamp(m.sources.schools.rowsUpdatedAtIso)}); <a href={m.sources.worship.url}>{m.sources.worship.name}</a>
-		(building classes M1 to M4 and M9, data last updated {fmtStamp(m.sources.worship.rowsUpdatedAtIso)});
-		<a href={m.sources.liquor_active.url}>{m.sources.liquor_active.name}</a> (data last updated
-		{fmtStamp(m.sources.liquor_active.rowsUpdatedAtIso)}).
+		<a href={rule.url}>{rule.law}</a> sets a 200-foot rule about schools and places of worship and a
+		500-foot rule about three or more existing on-premises licensed premises, measured entrance to entrance. SLAM measures
+		building point to building point, so every distance here is approximate. <strong>This page does not
+		decide whether a rule applies</strong>; the State Liquor Authority makes that decision.
+		<a href={resolve('/rules', {})}>The law's text, how SLAM measures, and the sources</a>.
 	</p>
 </aside>
 
@@ -246,7 +231,7 @@
 		</table>
 	</div>
 {:else}
-	<p class="muted">No other 311 complaints of these types within {m.nearby_m} m.</p>
+	<p class="muted">{pt.measured === false ? 'Not measured for this address (see the note at the top).' : `No other 311 complaints of these types within ${m.nearby_m} m.`}</p>
 {/if}
 <p class="note">
 	"At this address" means the complaint's incident address and ZIP, normalized the same way as the

@@ -1,0 +1,318 @@
+{
+ "377 GREENWICH ST, Manhattan, NY": {
+  "features": [
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.009862,
+      40.719854
+     ]
+    },
+    "properties": {
+     "label": "377 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "377",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10013",
+     "addendum": {
+      "pad": {
+       "bin": "1087575",
+       "bbl": "1001870016"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.013961,
+      40.705786
+     ]
+    },
+    "properties": {
+     "label": "37 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "37",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10004",
+     "addendum": {
+      "pad": {
+       "bin": "1000045",
+       "bbl": "1000130027"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.014613,
+      40.704967
+     ]
+    },
+    "properties": {
+     "label": "1 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "1",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10004",
+     "addendum": {
+      "pad": {
+       "bin": "1000043",
+       "bbl": "1000130001"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "7 WEST 51ST ST, Manhattan, NY": {
+  "features": [
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.977467,
+      40.759726
+     ]
+    },
+    "properties": {
+     "label": "7 WEST 51 STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "7",
+     "street": "WEST 51 STREET",
+     "borough": "Manhattan",
+     "postalcode": "10019",
+     "addendum": {
+      "pad": {
+       "bin": "1034514",
+       "bbl": "1012670028"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.978873,
+      40.760476
+     ]
+    },
+    "properties": {
+     "label": "51 WEST 51 STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "51",
+     "street": "WEST 51 STREET",
+     "borough": "Manhattan",
+     "postalcode": "10019",
+     "addendum": {
+      "pad": {
+       "bin": "1034510",
+       "bbl": "1012670001"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.983274,
+      40.761757
+     ]
+    },
+    "properties": {
+     "label": "202 WEST 51 STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "202",
+     "street": "WEST 51 STREET",
+     "borough": "Manhattan",
+     "postalcode": "10019",
+     "addendum": {
+      "pad": {
+       "bin": "1024811",
+       "bbl": "1010220035"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "378 Greenwich St, Manhattan, NY": {
+  "features": [
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.010479,
+      40.719939
+     ]
+    },
+    "properties": {
+     "label": "378 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "378",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10013",
+     "addendum": {
+      "pad": {
+       "bin": "1083705",
+       "bbl": "1001420025"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.010479,
+      40.719939
+     ]
+    },
+    "properties": {
+     "label": "378 1/2 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "378 1/2",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10013",
+     "addendum": {
+      "pad": {
+       "bin": "1083705",
+       "bbl": "1001420025"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -74.013961,
+      40.705786
+     ]
+    },
+    "properties": {
+     "label": "37 GREENWICH STREET, New York, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "37",
+     "street": "GREENWICH STREET",
+     "borough": "Manhattan",
+     "postalcode": "10004",
+     "addendum": {
+      "pad": {
+       "bin": "1000045",
+       "bbl": "1000130027"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "894 WYCKOFF AVE, Brooklyn, NY": {
+  "features": [
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.906845,
+      40.69691
+     ]
+    },
+    "properties": {
+     "label": "894 WYCKOFF AVENUE, Brooklyn, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "894",
+     "street": "WYCKOFF AVENUE",
+     "borough": "Brooklyn",
+     "postalcode": "11237",
+     "addendum": {
+      "pad": {
+       "bin": "3393935",
+       "bbl": "3033930054"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.923368,
+      40.7066
+     ]
+    },
+    "properties": {
+     "label": "10 WYCKOFF AVENUE, Brooklyn, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "10",
+     "street": "WYCKOFF AVENUE",
+     "borough": "Brooklyn",
+     "postalcode": "11237",
+     "addendum": {
+      "pad": {
+       "bin": "3072397",
+       "bbl": "3031760038"
+      }
+     }
+    }
+   },
+   {
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -73.923198,
+      40.707057
+     ]
+    },
+    "properties": {
+     "label": "3 WYCKOFF AVENUE, Brooklyn, NY, USA",
+     "confidence": 0.8,
+     "accuracy": "point",
+     "match_type": "fallback",
+     "housenumber": "3",
+     "street": "WYCKOFF AVENUE",
+     "borough": "Brooklyn",
+     "postalcode": "11237",
+     "addendum": {
+      "pad": {
+       "bin": "3072411",
+       "bbl": "3031770004"
+      }
+     }
+    }
+   }
+  ]
+ }
+}

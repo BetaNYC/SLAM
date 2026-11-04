@@ -1,0 +1,38 @@
+[
+ {
+  "uid": "0a9ba4d9c7bd7f1d9488f98cf4af59e6",
+  "facname": "URBAN ASSEMBLY NEW YORK HARBOR SCHOOL",
+  "addressnum": "10",
+  "streetname": "SOUTH STREET",
+  "address": "10 SOUTH STREET",
+  "boro": "MANHATTAN",
+  "zipcode": "10004",
+  "latitude": "40.7010576152",
+  "longitude": "-74.0117153376",
+  "xcoord": "981001.613032",
+  "ycoord": "194690.876841",
+  "bin": "1000003",
+  "bbl": "1000020002.0",
+  "cd": "101",
+  "facgroup": "SCHOOLS (K-12)",
+  "facsubgrp": "PUBLIC K-12 SCHOOLS",
+  "factype": "HIGH SCHOOL - PUBLIC"
+ },
+ {
+  "uid": "95379775cf74d9a898be7e8ad8f3c8a9",
+  "facname": "NEW YORK CITY CHARTER SCHOOL OF THE ARTS",
+  "address": "26 BROADWAY-12TH FL",
+  "boro": "MANHATTAN",
+  "zipcode": "10004",
+  "latitude": "40.7057996498",
+  "longitude": "-74.0130961649",
+  "xcoord": "980619.000469",
+  "ycoord": "196418.596055",
+  "bin": "1000811",
+  "bbl": "1000220013.0",
+  "cd": "101",
+  "facgroup": "SCHOOLS (K-12)",
+  "facsubgrp": "CHARTER K-12 SCHOOLS",
+  "factype": "CHARTER SCHOOL"
+ }
+]

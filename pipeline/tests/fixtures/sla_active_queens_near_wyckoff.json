@@ -1,0 +1,77 @@
+[
+ {
+  "licensepermitid": "0340-21-120299",
+  "premisescounty": "Queens",
+  "type": "1",
+  "class": "0340",
+  "description": "Restaurant",
+  "legalname": "KNIGHTS RIDGE LLC",
+  "dba": "TV EYE",
+  "actualaddressofpremises": "1647 WEIRFIELD ST",
+  "city": "RIDGEWOOD",
+  "statename": "New York",
+  "zipcode": "11385",
+  "originalissuedate": "2025-11-29T00:00:00.000",
+  "lastissuedate": "2025-11-29T00:00:00.000",
+  "effectivedate": "2025-12-01T00:00:00.000",
+  "expirationdate": "2027-11-30T00:00:00.000",
+  "legacyserialnumber": "1312100",
+  "georeference": {
+   "type": "Point",
+   "coordinates": [
+    -73.90516,
+    40.69775
+   ]
+  }
+ },
+ {
+  "licensepermitid": "0340-26-139245",
+  "premisescounty": "Queens",
+  "type": "1",
+  "class": "0340",
+  "description": "Restaurant",
+  "legalname": "La Parrillada Colombiana 2 Corporation",
+  "actualaddressofpremises": "859 Wyckoff Ave",
+  "city": "Ridgewood",
+  "statename": "New York",
+  "zipcode": "11385",
+  "originalissuedate": "2026-04-03T00:00:00.000",
+  "lastissuedate": "2026-04-03T00:00:00.000",
+  "effectivedate": "2026-04-03T00:00:00.000",
+  "expirationdate": "2028-03-31T00:00:00.000",
+  "legacyserialnumber": "6089765",
+  "georeference": {
+   "type": "Point",
+   "coordinates": [
+    -73.90771,
+    40.69765
+   ]
+  }
+ },
+ {
+  "licensepermitid": "0370-24-114347",
+  "premisescounty": "Queens",
+  "type": "1",
+  "class": "0370",
+  "description": "Food & Beverage Business",
+  "legalname": "WYCKOFF WEIRFIELD CORP",
+  "dba": "TRANS-PECOS",
+  "actualaddressofpremises": "9-15 WYCKOFF AVE",
+  "additionaladdressinformation": "AKA 16-11 WEIRFIELD ST (YARD)",
+  "city": "RIDGEWOOD",
+  "statename": "New York",
+  "zipcode": "11385",
+  "originalissuedate": "2025-12-22T00:00:00.000",
+  "lastissuedate": "2025-12-22T00:00:00.000",
+  "effectivedate": "2026-01-01T00:00:00.000",
+  "expirationdate": "2027-12-31T00:00:00.000",
+  "legacyserialnumber": "6022603",
+  "georeference": {
+   "type": "Point",
+   "coordinates": [
+    -73.90636,
+    40.69689
+   ]
+  }
+ }
+]
