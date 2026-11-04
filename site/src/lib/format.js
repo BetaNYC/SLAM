@@ -155,11 +155,13 @@ export const GRADE_LABEL = {
 
 /** Schools and houses of worship (#60). */
 /** @type {Record<string, string>} */
-export const SW_KIND = { school: 'School', worship: 'House of worship' };
+// worship = PLUTO class M1 ("Church, Synagogue, Chapel"). religious = M2, M3, M4, M9, which PLUTO
+// does not call a place of worship (M3 is "Parsonage, Rectory", M4 "Convents").
+export const SW_KIND = { school: 'School', worship: 'House of worship', religious: 'Other religious property' };
 
 /** Map colors, >= 3:1 against the light basemap. */
 /** @type {Record<string, string>} */
-export const SW_COLOR = { school: '#0f766e', worship: '#9d174d' };
+export const SW_COLOR = { school: '#0f766e', worship: '#9d174d', religious: '#6d28d9' };
 
 /**
  * The "same street" cell. `true` / `false` / `null` from the pipeline's `same_street`. False only

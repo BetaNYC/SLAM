@@ -4,7 +4,7 @@
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
-	import { toCsv, downloadText, fmtStamp } from '#lib/format.js';
+	import { toCsv, downloadText, fmtStamp, SW_KIND, swName } from '#lib/format.js';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
@@ -15,7 +15,8 @@
 		{ id: 'dining', label: 'Dining Out' },
 		{ id: 'events', label: 'Street events' },
 		{ id: 'c311', label: '311 complaints' },
-		{ id: 'health', label: 'Health grades' }
+		{ id: 'health', label: 'Health grades' },
+		{ id: 'sw', label: 'Schools and worship' }
 	];
 	let tab = $state('liquor');
 	let q = $state('');
@@ -48,6 +49,9 @@
 	const srcRest = $derived(data.manifest.sources.restaurant_inspections);
 	const REST_COLS = ['camis', 'dba', 'street', 'zip', 'grade', 'grade_date', 'last_inspected', 'bin', 'aid', 'placed'];
 
+	const SWL = $derived(L.schools_worship);
+	const swRows = $derived(filt(SWL.rows.map((/** @type {any} */ r) => ({ ...r, kind_label: SW_KIND[r.kind] }))));
+	const SW_COLS = ['kind_label', 'name', 'type', 'street', 'ft_outside', 'note'];
 	const REC_COLS = ['source', 'rid', 'name', 'legal_name', 'dba', 'street', 'street2', 'city', 'zip', 'type', 'cls', 'ltype', 'lclass', 'status', 'date_label', 'date', 'lat', 'lon'];
 	const C311_COLS = ['rid', 'date', 'type', 'descriptor', 'street', 'zip', 'agency', 'status'];
 	const EV_COLS = ['rid', 'name', 'start', 'end', 'agency', 'type', 'location', 'street_side', 'closure', 'boards'];
@@ -59,6 +63,7 @@
 		else if (tab === 'dining') downloadText(name, toCsv(dining, REC_COLS));
 		else if (tab === 'c311') downloadText(name, toCsv(c311, C311_COLS));
 		else if (tab === 'health') downloadText(name, toCsv(rest, REST_COLS));
+		else if (tab === 'sw') downloadText(name, toCsv(swRows, SW_COLS));
 		else downloadText(name, toCsv(events, EV_COLS));
 	}
 
@@ -190,6 +195,39 @@
 			of {R.total} are on an address page ({R.stats.on_page_by_bin} by BIN, {R.stats.on_page_by_point} by location);
 			the other {R.stats.not_on_a_page} are listed here only, because no address page in this
 			prototype shares their BIN or lists their street address within about {data.manifest.address_geocode.nearest_page_m} m.
+		</p>
+	{:else if tab === 'sw'}
+		<div class="table-scroll">
+			<table>
+				<caption>Schools, houses of worship and other religious property in or near this district <span class="muted">({swRows.length} rows)</span></caption>
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Kind / type</th>
+						<th scope="col">Where</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each swRows as r, i (r.kind + r.street + r.name + i)}
+						<tr>
+							<td>{swName(r)}{#if r.name && r.street}<br /><span class="muted">{r.street}</span>{/if}{#if r.note}<br /><span class="muted">Note: {r.note}</span>{/if}</td>
+							<td>{r.kind_label}<br /><span class="muted">{r.type}</span></td>
+							<td>{r.ft_outside ? `Outside the district, about ${r.ft_outside} ft from its line` : 'Inside the district'}</td>
+						</tr>
+					{:else}
+						<tr><td colspan="3" class="muted">None.</td></tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p class="note">
+			The same points as the map's schools and houses of worship layer: everything inside the district or
+			within about {SWL.buffer_ft} ft of its line, because a school across the line can be near an address
+			inside. Schools are K-12 schools from <a href={data.manifest.sources.schools.url}>{data.manifest.sources.schools.name}</a>.
+			Houses of worship are PLUTO tax lots in building class M1; other religious property is class M2, M3, M4
+			or M9, which PLUTO does not call a place of worship (<a href={data.manifest.sources.worship.url}>{data.manifest.sources.worship.name}</a>).
+			PLUTO has no names, so lots are listed by address. Distances to each address are on the address pages;
+			<a href={resolve('/rules', {})}>how they are measured</a>.
 		</p>
 	{:else}
 		<label class="no-print"><input type="checkbox" bind:checked={showSports} /> Include youth and adult sports permits</label>

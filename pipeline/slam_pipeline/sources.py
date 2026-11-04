@@ -35,6 +35,10 @@ DISTRICT_SOURCE = {
 }
 
 COUNTIES = "('New York','Kings')"  # SLA / OCM spell counties this way (checked via $group)
+# Extra counties for the 500-foot license count only (QA of #66): BK CD 4 borders Ridgewood,
+# Queens. Spelled as SLA does in 9s3h-dpkz premisescounty, checked via $group on 2026-11-04:
+# "Queens" 5,300 rows, "QUEENS" 1 row. Pulled only inside the widened box (build.py).
+LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 
 # ---- 311 complaints (NYC erm2-nwe9, "311 Service Requests from 2020 to Present")
 # One line to change the window. created_date is a floating timestamp; SoQL compares it
@@ -57,12 +61,27 @@ COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in D
 SCHOOL_FACGROUP = "SCHOOLS (K-12)"
 SCHOOL_SUBGROUPS = ("PUBLIC K-12 SCHOOLS", "CHARTER K-12 SCHOOLS", "NON-PUBLIC K-12 SCHOOLS",
                     "PUBLIC AND PRIVATE SPECIAL EDUCATION SCHOOLS")
-# PLUTO 64uk-42ks building classes for houses of worship, as v1 used (M1-M4, M9). Labels are
-# PLUTO's own data dictionary (pluto_datadictionary.pdf, August 2026, 26v2, class "M. CHURCHES,
-# SYNAGOGUES, ETC.").
+# PLUTO 64uk-42ks building classes M1-M4 and M9, as v1 used. Labels are word for word PLUTO's own
+# data dictionary, "PLUTO DATA DICTIONARY August 2026 (26v2)", group "M. CHURCHES, SYNAGOGUES,
+# ETC.", read 2026-11-04 from
+# https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/pluto_datadictionary.pdf
 WORSHIP_CLASSES = {"M1": "Church, Synagogue, Chapel", "M2": "Mission House (Non-Residential)",
-                   "M3": "Parsonage, Rectory", "M4": "Convents",
-                   "M9": "Miscellaneous (churches, synagogues, etc.)"}
+                   "M3": "Parsonage, Rectory", "M4": "Convents", "M9": "Miscellaneous"}
+# Only M1 is a place of worship by PLUTO's own label. M3 (a residence) and M4 (convents) are
+# not, and M2 and M9 do not say (QA of #66). Those lots are listed as "Other religious
+# property" with PLUTO's class label, never as a house of worship.
+PLACE_OF_WORSHIP_CLASSES = ("M1",)
+
+# Per-school notes shown on address pages, keyed on FacDB uid (QA of #66). The City's data is
+# shown as published; the note says what is known about it.
+SCHOOL_NOTES = {
+    # FacDB: '10 SOUTH STREET', BIN 1000003 (the Battery Maritime Building). The school's
+    # building is on Governors Island.
+    "0a9ba4d9c7bd7f1d9488f98cf4af59e6":
+        "The Facilities Database lists this school at 10 South Street, the Battery Maritime "
+        "Building. The school itself is on Governors Island, so this distance is to the listed "
+        "address, not to the school.",
+}
 
 # DOHMH 43nn-pn8j community_board text for the two districts ('101', '304').
 RESTAURANT_BOARDS = tuple(str(d["boro_cd"]) for d in DISTRICTS.values())
@@ -308,10 +327,13 @@ SLA_RULES = {
         {"label": "§105 (off-premises liquor and wine stores)",
          "url": "https://www.nysenate.gov/legislation/laws/ABC/105"},
     ],
+    # The guide URL redirects to a 2013 PDF (QA of #66, checked 2026-11-04); it is SLA Office of
+    # Counsel guidance, not the law. The class URL starts an .xlsx download.
     "sla_guide": {"label": "SLA, “Measuring the Distance: The 200 and 500 Foot Rules”",
-                  "url": "https://sla.ny.gov/200-and-500-foot-laws"},
+                  "url": "https://sla.ny.gov/200-and-500-foot-laws", "format": "PDF, 2013"},
     "sla_classes": {"label": "SLA license type and class definitions",
-                    "url": "https://sla.ny.gov/leap-license-type-and-class-definitions"},
+                    "url": "https://sla.ny.gov/leap-license-type-and-class-definitions",
+                    "format": "Excel file"},
 }
 
 # ---- what the address and district pages say about each SLA license (#63). Facts only.

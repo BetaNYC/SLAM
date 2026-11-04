@@ -1,0 +1,287 @@
+[
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0340-21-119526",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0340",
+   "description": "Restaurant",
+   "legalname": "GREENWICH HOTEL RESTAURANT LLC",
+   "dba": "LOCANDA VERDE",
+   "actualaddressofpremises": "377 GREENWICH ST",
+   "city": "NEW YORK",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2026-06-26T00:00:00.000",
+   "lastissuedate": "2026-06-26T00:00:00.000",
+   "effectivedate": "2025-12-01T00:00:00.000",
+   "expirationdate": "2027-11-30T00:00:00.000",
+   "legacyserialnumber": "1225129",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0340-26-151065",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0340",
+   "description": "Restaurant",
+   "legalname": "378 Greenwich Hospitality LLC",
+   "dba": "Friedman's Lunch/ Casa Louie",
+   "actualaddressofpremises": "378 Greenwich St",
+   "city": "New York",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2026-08-10T00:00:00.000",
+   "lastissuedate": "2026-08-10T00:00:00.000",
+   "effectivedate": "2026-08-10T00:00:00.000",
+   "expirationdate": "2028-07-31T00:00:00.000",
+   "legacyserialnumber": "6101852",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0340-26-151065-01",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0423",
+   "description": "Additional Bar",
+   "legalname": "378 Greenwich Hospitality LLC",
+   "dba": "Friedman's Lunch/ Casa Louie",
+   "actualaddressofpremises": "378 Greenwich St",
+   "city": "New York",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2026-08-10T00:00:00.000",
+   "lastissuedate": "2026-08-10T00:00:00.000",
+   "effectivedate": "2026-08-10T00:00:00.000",
+   "expirationdate": "2028-07-31T00:00:00.000",
+   "parentlicenseid": "0340-26-151065",
+   "legacyserialnumber": "6101853",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0343-22-128040",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0343",
+   "description": "Hotel",
+   "legalname": "377 GREENWICH LLC",
+   "dba": "THE GREENWICH",
+   "actualaddressofpremises": "377 GREENWICH STREET",
+   "city": "NEW YORK",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2026-02-10T00:00:00.000",
+   "lastissuedate": "2026-02-10T00:00:00.000",
+   "effectivedate": "2026-03-01T00:00:00.000",
+   "expirationdate": "2028-02-29T00:00:00.000",
+   "legacyserialnumber": "1189389",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0370-23-137478",
+   "premisescounty": "Kings",
+   "type": "1",
+   "class": "0370",
+   "description": "Food & Beverage Business",
+   "legalname": "FKIT LLC",
+   "dba": "LUV STORY",
+   "actualaddressofpremises": "894 WYCKOFF AVE",
+   "city": "BROOKLYN",
+   "statename": "New York",
+   "zipcode": "11237",
+   "originalissuedate": "2025-06-06T00:00:00.000",
+   "lastissuedate": "2025-06-06T00:00:00.000",
+   "effectivedate": "2025-07-01T00:00:00.000",
+   "expirationdate": "2027-06-30T00:00:00.000",
+   "legacyserialnumber": "1302170",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -73.90669,
+     40.69707
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0423-21-119231",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0423",
+   "description": "Additional Bar",
+   "legalname": "GREENWICH HOTEL RESTAURANT LLC",
+   "dba": "LOCANDA VERDE",
+   "actualaddressofpremises": "377 GREENWICH ST",
+   "city": "NEW YORK",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2025-11-12T00:00:00.000",
+   "lastissuedate": "2025-11-12T00:00:00.000",
+   "effectivedate": "2025-12-01T00:00:00.000",
+   "expirationdate": "2027-11-30T00:00:00.000",
+   "parentlicenseid": "0340-21-119526",
+   "legacyserialnumber": "1233378",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_active",
+  "row": {
+   "licensepermitid": "0423-22-103523",
+   "premisescounty": "New York",
+   "type": "1",
+   "class": "0423",
+   "description": "Additional Bar",
+   "legalname": "377 GREENWICH LLC",
+   "dba": "(GROUND FLOOR SOUTH-ADD'L BAR)",
+   "actualaddressofpremises": "377 GREENWICH STREET",
+   "city": "NEW YORK",
+   "statename": "New York",
+   "zipcode": "10013",
+   "originalissuedate": "2026-02-10T00:00:00.000",
+   "lastissuedate": "2026-02-10T00:00:00.000",
+   "effectivedate": "2026-03-01T00:00:00.000",
+   "expirationdate": "2028-02-29T00:00:00.000",
+   "parentlicenseid": "0343-22-128040",
+   "legacyserialnumber": "1189390",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_inactive",
+  "row": {
+   "license_permit_id": "0340-17-105813",
+   "premises_county": "New York",
+   "type": "1",
+   "class": "340",
+   "description": "Restaurant",
+   "legalname": "NYY STEAK MANHATTAN LLC",
+   "dba": "NYY STEAK",
+   "actual_address_of_premises": "7 WEST 51ST ST",
+   "city": "NEW YORK",
+   "state_name": "New York",
+   "zip_code": "10104",
+   "original_issue_date": "2017-10-03T00:00:00.000",
+   "last_issue_date": "2017-10-03T00:00:00.000",
+   "effective_date": "2017-11-01T00:00:00.000",
+   "expiration_date": "2019-10-31T00:00:00.000",
+   "legacy_serial_number": "1264214",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01723,
+     40.70514
+    ]
+   }
+  }
+ },
+ {
+  "source": "liquor_inactive",
+  "row": {
+   "license_permit_id": "0340-22-115486",
+   "premises_county": "New York",
+   "type": "1",
+   "class": "340",
+   "description": "Restaurant",
+   "legalname": "378 GREENWICH RESTAURANT LLC",
+   "dba": "CALIZA",
+   "actual_address_of_premises": "378 GREENWICH ST",
+   "city": "NEW YORK",
+   "state_name": "New York",
+   "zip_code": "10013",
+   "original_issue_date": "2022-08-16T00:00:00.000",
+   "last_issue_date": "2022-08-16T00:00:00.000",
+   "effective_date": "2022-08-16T00:00:00.000",
+   "expiration_date": "2024-07-31T00:00:00.000",
+   "legacy_serial_number": "1332514",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022,
+     40.7199
+    ]
+   }
+  }
+ },
+ {
+  "source": "dining_out",
+  "row": {
+   "business_legal_name": "GREENWICH HOTEL RESTAURANT LLC",
+   "assumed_name_s": "LOCANDA VERDE",
+   "street": "377 GREENWICH STREET",
+   "city": "NEW YORK",
+   "borough": "Manhattan",
+   "postcode": "10013",
+   "license_type": "Sidewalk",
+   "license_status": "Issued",
+   "license_issue_date": "2026-05-15T12:32:35.000",
+   "license_expiration_date": "2030-05-15T23:59:59.000",
+   "latitude": "40.719776065749",
+   "longitude": "-74.01022735674",
+   "council_district": "1",
+   "community_board": "101",
+   "bin": "1087575",
+   "bbl": "1001870016",
+   "ct2020": "39",
+   "nta2020": "MN0102",
+   "location": {
+    "type": "Point",
+    "coordinates": [
+     -74.01022735674,
+     40.719776065749
+    ]
+   }
+  }
+ }
+]

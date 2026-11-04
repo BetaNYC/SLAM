@@ -166,7 +166,7 @@
 		stateSW = 'loading';
 		status = 'Loading schools and houses of worship…';
 		try {
-			const pts = await fetch(asset('data/schools-worship.geojson')).then((r) => r.json());
+			const pts = await fetch(asset(`data/${data.slug}/schools-worship.geojson`)).then((r) => r.json());
 			map.addSource('sw', { type: 'geojson', data: pts });
 			// Drawn under the license layers so license dots stay on top and clickable.
 			map.addLayer(
@@ -177,7 +177,7 @@
 					layout: { visibility: showSW ? 'visible' : 'none' },
 					paint: {
 						'circle-radius': 6,
-						'circle-color': ['match', ['get', 'k'], 'school', SW_COLOR.school, SW_COLOR.worship],
+						'circle-color': ['match', ['get', 'k'], 'school', SW_COLOR.school, 'worship', SW_COLOR.worship, SW_COLOR.religious],
 						'circle-stroke-color': '#fff',
 						'circle-stroke-width': 2
 					}
@@ -193,9 +193,9 @@
 			map.on('mouseenter', 'schools_worship', () => (map.getCanvas().style.cursor = 'pointer'));
 			map.on('mouseleave', 'schools_worship', () => (map.getCanvas().style.cursor = ''));
 			stateSW = 'ready';
-			const n = pts.features.length;
-			const ns = pts.features.filter((/** @type {any} */ f) => f.properties.k === 'school').length;
-			status = `Schools and houses of worship shown (${ns} schools, ${n - ns} houses of worship, including just outside the district).`;
+			/** @param {string} k */
+			const nk = (k) => pts.features.filter((/** @type {any} */ f) => f.properties.k === k).length;
+			status = `Schools and houses of worship shown (${nk('school')} schools, ${nk('worship')} houses of worship, ${nk('religious')} other religious properties, inside the district or within ${data.sw_buffer_ft} ft of its line).`;
 		} catch (err) {
 			stateSW = 'idle';
 			status = `Schools and houses of worship could not load: ${/** @type {Error} */ (err).message}`;
@@ -230,17 +230,20 @@
 	</label>
 	<label>
 		<input type="checkbox" bind:checked={showSW} onchange={toggleSW} />
-		<span class="swatch" style="background:{SW_COLOR.school}"></span><span class="swatch" style="background:{SW_COLOR.worship}"></span>
-		Schools / houses of worship <span class="muted">({data.district.counts.schools} / {data.district.counts.worship} in the district)</span>
+		<span class="swatch" style="background:{SW_COLOR.school}"></span><span class="swatch" style="background:{SW_COLOR.worship}"></span><span class="swatch" style="background:{SW_COLOR.religious}"></span>
+		Schools / houses of worship / other religious property <span class="muted">({data.district.counts.schools} / {data.district.counts.worship} / {data.district.counts.religious} in the district)</span>
 	</label>
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
 <p class="note">311 complaints are off by default because they are dense. Selecting a 311 dot opens the
 	address page it is matched to, if there is one; otherwise it shows the date, type and address.
-	Schools (teal) and houses of worship (dark pink) are off by default; selecting one shows its name,
-	type and address. Schools come from the City's Facilities Database; houses of worship are tax lots
-	with building class M1 to M4 or M9 in PLUTO, which has no names. Street events have no coordinates in the source and are not on the map. Every point is also in the list view, which is the accessible equivalent of this map.</p>
+	Schools (teal), houses of worship (dark pink) and other religious property (violet) are off by default;
+	selecting one shows its name, type and address. Schools come from the City's Facilities Database; houses
+	of worship are PLUTO tax lots in building class M1, and other religious property is class M2, M3, M4 or M9
+	(PLUTO has no names). Street events have no coordinates in the source and are not on the map.
+	The list view is the accessible equivalent of this map: every license, cannabis, Dining Out, school and
+	religious-property point is in it, and its 311 tab counts every complaint and lists the most recent ones.</p>
 
 <style>
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
