@@ -8,7 +8,9 @@ export const SOURCE_LABEL = {
 	cannabis_license: 'Cannabis license (OCM)',
 	dining_out: 'Dining Out NYC (outdoor dining)',
 	street_events: 'Permitted street event',
-	complaints_311: '311 complaints (bar, club, restaurant locations)'
+	complaints_311: '311 complaints (bar, club, restaurant locations)',
+	restaurant_inspections: 'Restaurant health inspections (DOHMH)',
+	co_dobnow: 'Certificates of occupancy (DOB NOW)'
 };
 
 /** @type {Record<string, string>} */
@@ -111,3 +113,42 @@ export function fmtStamp(iso) {
 		timeStyle: 'short'
 	});
 }
+
+/**
+ * DOB BIS "C of O PDF Listing for Property" for a building. URL pattern from v1
+ * (Layer_SLA.svelte), opened and confirmed on 2026-11-04 for BIN 1089309 (185 Greenwich St:
+ * "no certificates of occupancy on file") and BIN 3071959 (44 Wilson Ave: one CO PDF).
+ * The page itself says COs requested on or after March 1, 2021 are in DOB NOW.
+ * @param {string | null | undefined} bin
+ */
+export function coBisUrl(bin) {
+	return bin && /^[1-5]\d{6}$/.test(bin)
+		? `https://a810-bisweb.nyc.gov/bisweb/COsByLocationServlet?requestid=1&allbin=${bin}`
+		: null;
+}
+
+/** DOB NOW public portal. Its BIN search is a form with no URL of its own, so we link the portal. */
+export const DOB_NOW_PORTAL = 'https://a810-dobnow.nyc.gov/publish/Index.html#!/';
+
+/**
+ * ABC Eats page for one restaurant. Pattern is the one ABC Eats' own search results link to
+ * (`#!/Search/<camis>`), opened cold and confirmed on 2026-11-04 for camis 50036043 (The Malt
+ * House) and 50165612 (La Cafeteria). v1's `#/Search/<camis>` now falls back to the search form.
+ * @param {string | null | undefined} camis
+ */
+export function abcEatsUrl(camis) {
+	return camis && /^\d{1,10}$/.test(camis)
+		? `https://a816-health.nyc.gov/ABCEatsRestaurants/#!/Search/${camis}`
+		: null;
+}
+
+/** DOHMH grade codes, from the 43nn-pn8j `grade` column description. */
+/** @type {Record<string, string>} */
+export const GRADE_LABEL = {
+	A: 'A',
+	B: 'B',
+	C: 'C',
+	Z: 'Grade pending',
+	P: 'Grade pending (re-opening)',
+	N: 'Not yet graded'
+};

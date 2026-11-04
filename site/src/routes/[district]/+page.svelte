@@ -3,7 +3,7 @@
 	import RecordTable from './RecordTable.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
-	import { toCsv, downloadText } from '#lib/format.js';
+	import { toCsv, downloadText, fmtStamp } from '#lib/format.js';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
@@ -13,7 +13,8 @@
 		{ id: 'cannabis', label: 'Cannabis' },
 		{ id: 'dining', label: 'Dining Out' },
 		{ id: 'events', label: 'Street events' },
-		{ id: 'c311', label: '311 complaints' }
+		{ id: 'c311', label: '311 complaints' },
+		{ id: 'health', label: 'Health grades' }
 	];
 	let tab = $state('liquor');
 	let q = $state('');
@@ -39,6 +40,11 @@
 	const C = $derived(L.complaints_311);
 	const c311 = $derived(filt(C.recent));
 	const src311 = $derived(data.manifest.sources.complaints_311);
+	const R = $derived(L.restaurants);
+	let gradeFilter = $state('');
+	const rest = $derived(filt(R.rows.filter((/** @type {any} */ r) => !gradeFilter || r.grade === gradeFilter)));
+	const srcRest = $derived(data.manifest.sources.restaurant_inspections);
+	const REST_COLS = ['camis', 'dba', 'street', 'zip', 'grade', 'grade_date', 'last_inspected', 'bin', 'aid', 'placed'];
 
 	const REC_COLS = ['source', 'rid', 'name', 'legal_name', 'dba', 'street', 'street2', 'city', 'zip', 'type', 'cls', 'status', 'date_label', 'date', 'lat', 'lon'];
 	const C311_COLS = ['rid', 'date', 'type', 'descriptor', 'street', 'zip', 'agency', 'status'];
@@ -50,6 +56,7 @@
 		else if (tab === 'cannabis') downloadText(name, toCsv(cannabis, REC_COLS));
 		else if (tab === 'dining') downloadText(name, toCsv(dining, REC_COLS));
 		else if (tab === 'c311') downloadText(name, toCsv(c311, C311_COLS));
+		else if (tab === 'health') downloadText(name, toCsv(rest, REST_COLS));
 		else downloadText(name, toCsv(events, EV_COLS));
 	}
 
@@ -125,6 +132,61 @@
 			report made to 311, not a finding. Counted in this district when its point falls inside the
 			district boundary. The count table covers every complaint; the list shows the most recent
 			{C.recent.length}, and the filter and CSV apply to that list. The full set is at the source.
+		</p>
+	{:else if tab === 'health'}
+		<div class="table-scroll">
+			<table>
+				<caption>Restaurants by current health grade ({R.total})</caption>
+				<thead><tr><th scope="col">Current grade</th><th scope="col">Restaurants</th></tr></thead>
+				<tbody>
+					{#each R.buckets as b (b.bucket)}
+						<tr><td>{b.bucket}</td><td>{b.n}</td></tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<label class="no-print">
+			Show grade
+			<select bind:value={gradeFilter}>
+				<option value="">All</option>
+				{#each R.buckets as b (b.bucket)}<option value={b.bucket}>{b.bucket} ({b.n})</option>{/each}
+			</select>
+		</label>
+		<div class="table-scroll">
+			<table>
+				<caption>Restaurants <span class="muted">({rest.length} rows)</span></caption>
+				<thead>
+					<tr>
+						<th scope="col">Restaurant</th>
+						<th scope="col">Address</th>
+						<th scope="col">Current grade</th>
+						<th scope="col">Grade date</th>
+						<th scope="col">Last inspected</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each rest as r (r.camis)}
+						<tr>
+							<td>{r.dba}<br /><span class="muted">CAMIS {r.camis}</span></td>
+							<td>{#if r.aid}<a href={resolve('/address/[id]', { id: r.aid })}>{r.street}</a>{:else}{r.street}<br /><span class="muted">not on an address page</span>{/if}</td>
+							<td>{r.grade}</td>
+							<td class="nowrap">{r.grade_date}</td>
+							<td class="nowrap">{r.last_inspected}</td>
+						</tr>
+					{:else}
+						<tr><td colspan="5" class="muted">No restaurants.</td></tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p class="note">
+			From <a href={srcRest.url}>{srcRest.name}</a>, data last updated {fmtStamp(srcRest.rowsUpdatedAtIso)}.
+			One row per restaurant (CAMIS), in this district by the Health Department's own community board.
+			"Current grade" is the grade from the newest graded inspection; "Not yet inspected" means the
+			Health Department lists the restaurant with no inspection yet. {R.stats.on_page_by_bin + R.stats.on_page_by_point}
+			of {R.total} are on an address page ({R.stats.on_page_by_bin} by BIN, {R.stats.on_page_by_point} by location);
+			the other {R.stats.not_on_a_page} are listed here only, because no address page in this
+			prototype shares their BIN or lists their street address within about {data.manifest.address_geocode.nearest_page_m} m.
 		</p>
 	{:else}
 		<label class="no-print"><input type="checkbox" bind:checked={showSports} /> Include youth and adult sports permits</label>

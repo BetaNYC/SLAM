@@ -1,0 +1,104 @@
+{
+ "id": "pkdm-hqz6",
+ "name": "DOB NOW: Certificate of Occupancy",
+ "rowsUpdatedAt": 1793476854,
+ "description": "This data set includes certificates of occupancy issued through the New York City Department of Buildings' DOB NOW: Certificate of Occupancy module. This module was released in March of 2021, anbd from that point onward this data set should be utilized instead of the \"DOB Certificate of Occupancy\" data set. The data is collected because the Department of Buildings tracks Certificates of Occupancies issued. This data include items such as job filing name, job filing label, BIN, Address, and Certificate of Occupancy status, sequence, label, and issuance date.\t\t\t\n<br>\n\"A Certificate of Occupancy (CO) states a legal use and/or type of permitted occupancy of a building. New buildings must have a CO, and existing buildings must have a current or amended CO when there is a change in use, egress or type of occupancy. No one may legally occupy a building until the Department has issued a CO or Temporary Certificate of Occupancy (TCO).\n\nA CO confirms that the completed work complies with all applicable laws, all paperwork has been completed, all fees owed to the Department have been paid, all relevant violations have been resolved, and all necessary approvals have been received from other City Agencies. The Department issues a final CO when the completed work matches the submitted plans for new buildings or major alterations.\"",
+ "columns": [
+  {
+   "fieldName": "job_filing_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "job_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bin",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "house_no",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "street_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "block",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "lot",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "zip_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "submitted_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "c_of_o_status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "c_of_o_sequence",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "c_of_o_filing_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "community_board",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "c_of_o_issuance_date",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "application_number",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "number_of_dwelling_units",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "c_of_o_number",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "latitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "longitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "citycouncildistrict",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bbl",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "censustract2010",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "ntaname",
+   "dataTypeName": "text"
+  }
+ ]
+}

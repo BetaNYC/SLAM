@@ -30,10 +30,13 @@ from slam_pipeline.sources import (
     DISTRICTS,
     SOURCES,
     SOURCES_BY_KEY,
+    _sql_list,
 )
 from slam_pipeline.transform import (
     GEOSEARCH_MIN_CONFIDENCE,
     GEOSEARCH_SIZE,
+    GRADE_BUCKETS,
+    GRADE_LABEL,
     accept_geosearch,
     address_query,
     board_311_slug,
@@ -42,14 +45,20 @@ from slam_pipeline.transform import (
     count_by_type,
     count_by_type_year,
     events_for_district,
+    grade_bucket,
     group_addresses,
     house_number,
     key_pages,
     normalize_311,
+    normalize_address,
+    normalize_co,
     normalize_event,
     normalize_record,
+    page_co_bin,
     pick_address_hit,
+    place_restaurant,
     recent_311,
+    reduce_inspections,
     slim_geosearch,
 )
 
@@ -85,8 +94,24 @@ REQUIRED_IN_ROWS = {
     "street_events": ["event_id", "event_name", "community_board", "event_borough"],
     "complaints_311": ["unique_key", "created_date", "complaint_type", "incident_address",
                        "latitude", "longitude", "community_board"],
+    "restaurant_inspections": ["camis", "dba", "inspection_date", "grade", "community_board",
+                               "latitude", "longitude", "bin"],
+    "co_dobnow": ["bin", "c_of_o_number", "c_of_o_issuance_date"],
 }
-NOT_RECORDS = ("street_events", "complaints_311")  # handled by their own normalizers
+# handled by their own normalizers
+NOT_RECORDS = ("street_events", "complaints_311", "restaurant_inspections", "co_dobnow")
+RESTAURANT_RECENT_INSPECTIONS = 10  # all inspections listed per restaurant on an address page
+
+
+RESTAURANT_BOARD_SLUG = {str(d["boro_cd"]): slug for slug, d in DISTRICTS.items()}
+
+
+def _coords(geom: dict):
+    """Every [lon, lat] in a GeoJSON Polygon / MultiPolygon."""
+    c = geom["coordinates"]
+    rings = c if geom["type"] == "Polygon" else [r for poly in c for r in poly]
+    for ring in rings:
+        yield from ring
 
 
 def write_json(path: Path, obj) -> None:
@@ -241,6 +266,20 @@ def main(argv=None) -> int:
         raw[s.key] = rows
         log("fetched", source=s.key, rows=len(rows))
 
+    # DOHMH agreement check (#61): every restaurant point inside the two districts' bounding
+    # box whose community_board is NOT one of ours. Point-in-polygon below tells how many of
+    # those the community_board filter missed. Grouped, so one row per restaurant point.
+    xs = [c[0] for f in dgeo["features"] for c in _coords(f["geometry"])]
+    ys = [c[1] for f in dgeo["features"] for c in _coords(f["geometry"])]
+    rsrc = SOURCES_BY_KEY["restaurant_inspections"]
+    bbox_where = (f"latitude between {min(ys)} and {max(ys)} and longitude between {min(xs)} and "
+                  f"{max(xs)} and (community_board is null or community_board not in "
+                  f"{_sql_list(RESTAURANT_BOARD_SLUG)})")
+    rest_bbox = load_or_fetch("restaurant_inspections_bbox", args.offline, lambda: net.fetch_all(
+        rsrc.domain, rsrc.id, select=["camis", "community_board", "latitude", "longitude"],
+        where=bbox_where, order="camis,community_board,latitude,longitude",
+        group="camis,community_board,latitude,longitude"))
+
     if not args.offline:
         write_json(RAW / "_fetched.json", {"fetched": started.isoformat(timespec="seconds")})
     fetched_at = json.loads((RAW / "_fetched.json").read_text())["fetched"]
@@ -370,6 +409,72 @@ def main(argv=None) -> int:
     # Year columns run from the configured start through the newest complaint's year.
     years = list(range(int(COMPLAINTS_311_START[:4]), int((c_through or COMPLAINTS_311_START)[:4]) + 1))
 
+    # ---- restaurant inspections (#61): one restaurant per camis; district = DOHMH's own
+    # community_board (the query filter), checked against point-in-polygon.
+    rests = reduce_inspections(raw["restaurant_inspections"])
+    rlist = list(rests.values())
+    con.execute("CREATE TABLE rest (i INT, lon DOUBLE, lat DOUBLE)")
+    con.executemany("INSERT INTO rest VALUES (?, ?, ?)",
+                    [[i, r["lon"], r["lat"]] for i, r in enumerate(rlist) if r["lon"] is not None])
+    r_pip = dict(con.execute("""
+        SELECT r.i, d.slug FROM rest r JOIN districts d ON ST_Contains(d.geom, ST_Point(r.lon, r.lat))
+    """).fetchall())
+    r_agree = r_with_point = 0
+    r_disagree = []
+    for i, r in enumerate(rlist):
+        r["district"] = RESTAURANT_BOARD_SLUG.get(r["board"])
+        if r["lon"] is None:
+            continue
+        r_with_point += 1
+        if r_pip.get(i) == r["district"]:
+            r_agree += 1
+        else:
+            r_disagree.append({"camis": r["camis"], "board": r["board"], "pip": r_pip.get(i)})
+    # Restaurants the board filter missed: other boards (or none) whose point is inside.
+    seen_missed = set()
+    con.execute("CREATE TABLE rbox (camis VARCHAR, lon DOUBLE, lat DOUBLE)")
+    con.executemany("INSERT INTO rbox VALUES (?, ?, ?)",
+                    [[b["camis"], float(b["longitude"]), float(b["latitude"])] for b in rest_bbox
+                     if b.get("latitude") and b.get("longitude") and float(b["latitude"])])
+    for camis, slug in con.execute("""
+        SELECT b.camis, d.slug FROM rbox b JOIN districts d ON ST_Contains(d.geom, ST_Point(b.lon, b.lat))
+    """).fetchall():
+        if camis not in rests:
+            seen_missed.add((camis, slug))
+    # Join to address pages: BIN first, then point (transform.place_restaurant).
+    page_bins = {a["bin"]: a["id"] for a in addrs.values() if a["bin"]}
+    page_pts = [(a["id"], a["lon"], a["lat"], bool(a["bin"]),
+                 frozenset(normalize_address(r.get("street")) for r in a["records"]))
+                for a in addrs.values() if a["lon"] is not None]
+    r_at: dict[str, list] = {}
+    r_stats = {slug: {"restaurants": 0, "on_page_by_bin": 0, "on_page_by_point": 0,
+                      "not_on_a_page": 0, "no_point": 0, "not_yet_inspected": 0}
+               for slug in DISTRICTS}
+    for r in rlist:
+        r.update(place_restaurant(r, page_bins, page_pts, NEAREST_PAGE_M))
+        r["bucket"] = grade_bucket(r)
+        st = r_stats[r["district"]]
+        st["restaurants"] += 1
+        st["no_point"] += r["lon"] is None
+        st["not_yet_inspected"] += r["not_inspected"]
+        if r["method"] == "bin":
+            st["on_page_by_bin"] += 1
+        elif r["method"] == "point":
+            st["on_page_by_point"] += 1
+        else:
+            st["not_on_a_page"] += 1
+        if r["aid"]:
+            r_at.setdefault(r["aid"], []).append(r)
+
+    # ---- certificates of occupancy (#62): DOB NOW records by BIN; BIS is linked by BIN.
+    co_by_bin: dict[str, list] = {}
+    for row in raw["co_dobnow"]:
+        c = normalize_co(row)
+        if c["bin"]:
+            co_by_bin.setdefault(c["bin"], []).append(c)
+    for v in co_by_bin.values():
+        v.sort(key=lambda c: (c["issued"], c["number"]), reverse=True)
+
     # ---- events
     events = [normalize_event(r) for r in raw["street_events"]]
 
@@ -397,6 +502,20 @@ def main(argv=None) -> int:
                                    "start": COMPLAINTS_311_START,
                                    "by_type_year": count_by_type_year(d311, years),
                                    "recent": recent_311(d311, C311_RECENT_DISTRICT)}
+        drest = sorted((r for r in rlist if r["district"] == slug),
+                       key=lambda r: (r["dba"], r["camis"]))
+        counts[slug]["restaurant_inspections"] = len(drest)
+        counts[slug]["co_dobnow"] = sum(1 for row in raw["co_dobnow"]
+                                        if str(row.get("community_board")) == str(d["boro_cd"]))
+        lists["restaurants"] = {
+            "buckets": [{"bucket": b, "n": sum(1 for r in drest if r["bucket"] == b)}
+                        for b in GRADE_BUCKETS],
+            "total": len(drest), "stats": r_stats[slug],
+            "rows": [{"camis": r["camis"], "dba": r["dba"], "street": r["street"], "zip": r["zip"],
+                      "grade": r["bucket"],
+                      "grade_date": (r["latest"] or {}).get("grade_date", ""),
+                      "last_inspected": r["last_inspected"], "bin": r["bin"] or "",
+                      "aid": r["aid"] or "", "placed": r["method"] or ""} for r in drest]}
         write_json(OUT / slug / "list.json", lists)
         feats = [{"type": "Feature", "geometry": {"type": "Point",
                                                   "coordinates": [r["lon"], r["lat"]]},
@@ -420,6 +539,7 @@ def main(argv=None) -> int:
         for f in dgeo["features"]]})
 
     index = []
+    co_pages_with_records = 0
     for a in addrs.values():
         out = {k: v for k, v in a.items() if k != "keys"}
         out["records"] = [slim(r) for r in a["records"]]
@@ -433,10 +553,24 @@ def main(argv=None) -> int:
                        "recent": recent_311(at, C311_RECENT_ADDRESS)}
         nb = c_near.get(a["id"], [])
         out["c311_near"] = {"n": len(nb), "by_type": count_by_type(nb)}
+        here = sorted(r_at.get(a["id"], []), key=lambda r: (r["dba"], r["camis"]))
+        out["restaurants"] = [{
+            "camis": r["camis"], "dba": r["dba"], "street": r["street"], "zip": r["zip"],
+            "bin": r["bin"], "placed": r["method"], "m": r["m"], "bucket": r["bucket"],
+            "latest": r["latest"], "history": r["history"],
+            "grade_labels": {h["grade"]: GRADE_LABEL[h["grade"]] for h in r["history"]},
+            "not_inspected": r["not_inspected"], "last_inspected": r["last_inspected"],
+            "n_inspections": len(r["inspections"]),
+            "inspections": r["inspections"][:RESTAURANT_RECENT_INSPECTIONS]} for r in here]
+        co_bin, co_src = page_co_bin(a["bin"], [r["bin"] for r in here])
+        out["co"] = {"bin": co_bin, "bin_source": co_src,
+                     "records": co_by_bin.get(co_bin, []) if co_bin else []}
+        co_pages_with_records += bool(out["co"]["records"])
         write_json(OUT / "address" / f"{a['id']}.json", out)
         index.append({"id": a["id"], "bin": a["bin"], "street": a["street"], "zip": a["zip"],
                       "district": a["district"], "n": len(a["records"]),
-                      "n311": len(c_at.get(a["id"], []))})
+                      "n311": len(c_at.get(a["id"], [])),
+                      "nrest": len(r_at.get(a["id"], []))})
     write_json(OUT / "address" / "index.json", index)
     # The search box's lookup table (#59): BIN -> page id, plus every page point for the
     # nearest-page fallback. Lives outside address/ so the orphan sweep below ignores it.
@@ -482,6 +616,22 @@ def main(argv=None) -> int:
             "within_25m_of_an_address_page": len(c_within_compare),
             "address_match": "normalized incident_address + ZIP equals the address page key",
         },
+        "restaurant_inspections": {
+            "filter": f"community_board in {list(RESTAURANT_BOARD_SLUG)}",
+            "violation_rows_fetched": len(raw["restaurant_inspections"]),
+            "restaurants": len(rlist),
+            "by_district": r_stats,
+            "board_vs_pip_agreement": f"{r_agree}/{r_with_point}",
+            "board_vs_pip_disagree": r_disagree,
+            "inside_a_district_but_other_board": len(seen_missed),
+            "inside_a_district_but_other_board_sample": sorted(seen_missed)[:20],
+            "placement": "BIN equals an address page's BIN; else nearest page without a BIN "
+                         f"(or any page, if the restaurant has no BIN) within {NEAREST_PAGE_M} m "
+                         "that lists the restaurant's own normalized address",
+            "not_yet_inspected_rule": "inspection_date 1900-01-01 (dataset column description)",
+        },
+        "co_dobnow": {"rows": len(raw["co_dobnow"]), "bins": len(co_by_bin),
+                      "address_pages_with_records": co_pages_with_records},
         "addresses": len(index),
         "address_geocode": {**addr_geo_stats, "endpoint": GEOSEARCH,
                             "rule": "same house number, street and borough; confidence >= "
@@ -509,6 +659,12 @@ def main(argv=None) -> int:
         d311 = [r for r in c311 if r["district"] == slug]
         by_lt = ", ".join(f"{y} {sum(1 for r in d311 if r['year'] == y)}" for y in years)
         print(f"  {slug}: {len(d311)} complaints ({by_lt})")
+    print(f"restaurants: {len(rlist)} from {len(raw['restaurant_inspections'])} violation rows; "
+          f"board vs point-in-polygon agree {r_agree}/{r_with_point}; inside a district with "
+          f"another board: {len(seen_missed)}")
+    for slug, st in r_stats.items():
+        print(f"  {slug}: {st}")
+    print(f"DOB NOW COs: {len(raw['co_dobnow'])} rows, {len(co_by_bin)} BINs")
     print(f"311 matched to an address page by address key: {c_matched}; "
           f"within {C311_COMPARE_M} m of an address page point: {len(c_within_compare)}")
     log("done", addresses=len(index))

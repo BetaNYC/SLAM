@@ -480,3 +480,169 @@ def key_pages(groups: dict[str, dict], geo: dict[str, dict]) -> tuple[dict[str, 
             r["aid"] = pid
         pages[pid] = page
     return pages, remap
+
+
+# ---------------------------------------------------------------- restaurant inspections (#61)
+#
+# DOHMH 43nn-pn8j. Field meanings are from the dataset's own column descriptions
+# (https://data.cityofnewyork.us/api/views/43nn-pn8j.json, recorded in
+# tests/fixtures/views_43nn-pn8j.json):
+#   - one row per violation; inspection-level values repeat on each violation row
+#   - "Inspection dates of 1/1/1900 mean an establishment has not yet had an inspection"
+#   - grade: N = Not Yet Graded, A/B/C, Z = Grade Pending, P = Grade Pending issued on
+#     re-opening following an initial inspection that resulted in a closure
+
+NOT_INSPECTED_DATE = "1900-01-01"
+GRADED = ("A", "B", "C", "Z", "P")  # N (not yet graded) and blank are not grades
+GRADE_LABEL = {"A": "A", "B": "B", "C": "C", "Z": "Grade pending",
+               "P": "Grade pending (re-opening)", "N": "Not yet graded"}
+# District-tab buckets for a restaurant's current state, in display order.
+GRADE_BUCKETS = ("A", "B", "C", "Grade pending", "Not yet graded", "Not yet inspected")
+
+
+def _num(v) -> float | None:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f or None  # 0 means "no coordinate" in this dataset
+
+
+def reduce_inspections(rows: list[dict]) -> dict[str, dict]:
+    """One restaurant per camis, one inspection per (inspection_date, inspection_type).
+
+    Each restaurant: camis, dba, street, zip, boro, board, bin, bbl, lon, lat,
+    inspections (newest first: date, type, action, score, grade, grade_date, violations),
+    history (graded inspections only, newest first), latest (history[0] or None),
+    not_inspected (only the 1900-01-01 placeholder row), last_inspected."""
+    out: dict[str, dict] = {}
+    insp: dict[str, dict[tuple, dict]] = {}
+    for r in rows:
+        camis = _clean(r.get("camis"))
+        if not camis:
+            continue
+        rest = out.get(camis)
+        if rest is None:
+            street = " ".join(x for x in (_clean(r.get("building")), _clean(r.get("street"))) if x)
+            rest = out[camis] = {
+                "camis": camis, "dba": _clean(r.get("dba")) or "(no name)", "street": street,
+                "zip": zip5(r.get("zipcode")), "boro": _clean(r.get("boro")),
+                "board": _clean(r.get("community_board")), "bin": real_bin(r.get("bin")),
+                "bbl": _clean(r.get("bbl")), "lon": _num(r.get("longitude")),
+                "lat": _num(r.get("latitude"))}
+        d = _d(r.get("inspection_date"))
+        if not d or d == NOT_INSPECTED_DATE:
+            continue
+        key = (d, _clean(r.get("inspection_type")))
+        i = insp.setdefault(camis, {}).setdefault(key, {
+            "date": d, "type": key[1], "action": _clean(r.get("action")),
+            "score": _clean(r.get("score")), "grade": "", "grade_date": "", "violations": 0})
+        if r.get("violation_code"):
+            i["violations"] += 1
+        g = _clean(r.get("grade")).upper()
+        if g and not i["grade"]:
+            i["grade"], i["grade_date"] = g, _d(r.get("grade_date"))
+    for camis, rest in out.items():
+        lst = sorted(insp.get(camis, {}).values(), key=lambda i: (i["date"], i["type"]), reverse=True)
+        rest["inspections"] = lst
+        rest["history"] = [{k: i[k] for k in ("date", "grade", "grade_date", "score", "type")}
+                           for i in lst if i["grade"] in GRADED]
+        rest["latest"] = rest["history"][0] if rest["history"] else None
+        rest["not_inspected"] = not lst
+        rest["last_inspected"] = lst[0]["date"] if lst else ""
+    return out
+
+
+def grade_bucket(rest: dict) -> str:
+    """The restaurant's current state for the district tab (one of GRADE_BUCKETS)."""
+    if rest["not_inspected"]:
+        return "Not yet inspected"
+    g = (rest["latest"] or {}).get("grade", "")
+    if g in ("A", "B", "C"):
+        return g
+    if g in ("Z", "P"):
+        return "Grade pending"
+    return "Not yet graded"
+
+
+def meters(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
+    """Great-circle distance (haversine, mean Earth radius 6,371,008.8 m)."""
+    import math
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = (math.sin((p2 - p1) / 2) ** 2
+         + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2)
+    return 2 * 6371008.8 * math.asin(math.sqrt(a))
+
+
+def place_restaurant(rest: dict, bins: dict[str, str],
+                     points: list[tuple[str, float, float, bool, frozenset]],
+                     radius_m: float) -> dict:
+    """Join a restaurant to an address page.
+
+    1. by BIN: the restaurant's (real) BIN is a page's BIN.
+    2. by point: otherwise, the nearest page within radius_m, but only a page that has
+       no BIN of its own, or any page when the restaurant has no BIN. A restaurant whose
+       BIN differs from a BIN page's is in another building, so it is never put there.
+       The page must also list the restaurant's own address (normalized house number +
+       street): 30 m reaches across a street, so distance alone put restaurants on the
+       wrong building's page (QA of PR #65: 26 Broadway -> 25 Broadway).
+    `points` = [(page id, lon, lat, page has a BIN, normalized addresses on the page)].
+    Returns {"aid", "method": "bin" | "point" | None, "m"}."""
+    if rest.get("bin") and rest["bin"] in bins:
+        return {"aid": bins[rest["bin"]], "method": "bin", "m": None}
+    if rest.get("lon") is None:
+        return {"aid": None, "method": None, "m": None}
+    best = None
+    own = normalize_address(rest.get("street"))
+    for pid, lon, lat, has_bin, streets in points:
+        if has_bin and rest.get("bin"):
+            continue
+        if not own or own not in streets:
+            continue
+        if abs(lat - rest["lat"]) > 0.001 or abs(lon - rest["lon"]) > 0.0015:  # cheap prefilter
+            continue
+        m = meters(rest["lon"], rest["lat"], lon, lat)
+        if m <= radius_m and (best is None or m < best[1]):
+            best = (pid, m)
+    if best:
+        return {"aid": best[0], "method": "point", "m": round(best[1])}
+    return {"aid": None, "method": None, "m": None}
+
+
+# ---------------------------------------------------------------- certificates of occupancy (#62)
+
+_CO_TS = re.compile(r"^\s*(\d{1,2})/(\d{1,2})/(\d{2,4})\b")
+
+
+def co_issued_date(v: str | None) -> str:
+    """pkdm-hqz6 c_of_o_issuance_date is text like '02/15/22 11:08:46 AM' (every value in
+    the 2026-11-04 pull for both districts had this MM/DD/YY shape) -> '2022-02-15'."""
+    m = _CO_TS.match(v or "")
+    if not m:
+        return ""
+    mo, dd, yy = (int(x) for x in m.groups())
+    if yy < 100:
+        yy += 2000
+    return f"{yy:04d}-{mo:02d}-{dd:02d}"
+
+
+def normalize_co(row: dict) -> dict:
+    return {"bin": real_bin(row.get("bin")), "number": _clean(row.get("c_of_o_number")),
+            "application": _clean(row.get("application_number")),
+            "job": _clean(row.get("job_filing_name")), "job_type": _clean(row.get("job_type")),
+            "status": _clean(row.get("c_of_o_status")),
+            "filing_type": _clean(row.get("c_of_o_filing_type")),
+            "issued": co_issued_date(row.get("c_of_o_issuance_date"))}
+
+
+def page_co_bin(page_bin: str | None, restaurant_bins: list[str]) -> tuple[str | None, str | None]:
+    """The BIN the CO link uses: the page's own (GeoSearch/PAD) BIN, else DOHMH's `bin`
+    when every restaurant placed on the page agrees on one. Callers pass only restaurants
+    whose own address is listed on the page (place_restaurant guarantees that for point
+    placements), so a borrowed BIN is for the same address. Returns (bin, source)."""
+    if page_bin:
+        return page_bin, "geosearch"
+    uniq = sorted({b for b in restaurant_bins if b})
+    if len(uniq) == 1:
+        return uniq[0], "dohmh"
+    return None, None
