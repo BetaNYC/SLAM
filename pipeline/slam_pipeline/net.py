@@ -54,7 +54,8 @@ def soql_url(domain: str, dataset_id: str, params: dict, fmt: str = "json") -> s
 def fetch_all(domain: str, dataset_id: str, *, select: list[str], where: str, order: str,
               page_size: int = 50000) -> list[dict]:
     """Page through a SoQL query with $limit/$offset and a stable $order
-    (https://dev.socrata.com/docs/paging.html)."""
+    (https://dev.socrata.com/docs/queries/offset.html, .../queries/order.html: results are
+    not implicitly ordered, so paging needs an $order)."""
     rows: list[dict] = []
     offset = 0
     while True:

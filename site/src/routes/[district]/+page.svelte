@@ -1,6 +1,8 @@
 <script>
 	import { resolve } from '$app/paths';
 	import RecordTable from './RecordTable.svelte';
+	import CountTable311 from '#lib/CountTable311.svelte';
+	import Complaints311Table from '#lib/Complaints311Table.svelte';
 	import { toCsv, downloadText } from '#lib/format.js';
 
 	/** @type {{data: any}} */
@@ -10,7 +12,8 @@
 		{ id: 'liquor', label: 'Liquor' },
 		{ id: 'cannabis', label: 'Cannabis' },
 		{ id: 'dining', label: 'Dining Out' },
-		{ id: 'events', label: 'Street events' }
+		{ id: 'events', label: 'Street events' },
+		{ id: 'c311', label: '311 complaints' }
 	];
 	let tab = $state('liquor');
 	let q = $state('');
@@ -33,8 +36,12 @@
 	const cannabis = $derived(filt([...L.cannabis_retail, ...L.cannabis_license]));
 	const dining = $derived(filt(L.dining_out));
 	const events = $derived(filt(L.street_events.filter((/** @type {any} */ e) => showSports || !e.sport)));
+	const C = $derived(L.complaints_311);
+	const c311 = $derived(filt(C.recent));
+	const src311 = $derived(data.manifest.sources.complaints_311);
 
 	const REC_COLS = ['source', 'rid', 'name', 'legal_name', 'dba', 'street', 'street2', 'city', 'zip', 'type', 'cls', 'status', 'date_label', 'date', 'lat', 'lon'];
+	const C311_COLS = ['rid', 'date', 'type', 'descriptor', 'street', 'zip', 'agency', 'status'];
 	const EV_COLS = ['rid', 'name', 'start', 'end', 'agency', 'type', 'location', 'street_side', 'closure', 'boards'];
 
 	function downloadCsv() {
@@ -42,6 +49,7 @@
 		if (tab === 'liquor') downloadText(name, toCsv([...pending, ...active, ...(showInactive ? inactive : [])], REC_COLS));
 		else if (tab === 'cannabis') downloadText(name, toCsv(cannabis, REC_COLS));
 		else if (tab === 'dining') downloadText(name, toCsv(dining, REC_COLS));
+		else if (tab === 'c311') downloadText(name, toCsv(c311, C311_COLS));
 		else downloadText(name, toCsv(events, EV_COLS));
 	}
 
@@ -103,6 +111,21 @@
 		</p>
 	{:else if tab === 'dining'}
 		<RecordTable rows={dining} caption="Dining Out NYC locations" showClass={false} />
+	{:else if tab === 'c311'}
+		<CountTable311
+			rows={C.by_type_year}
+			years={C.years}
+			through={C.through}
+			caption="311 complaints at bar, club and restaurant locations, by type and year ({C.total} since {C.start})"
+		/>
+		<Complaints311Table rows={c311} caption="Most recent {C.recent.length} complaints" />
+		<p class="note">
+			311 service requests whose location type is "Club/Bar/Restaurant" or "Restaurant/Bar/Deli/Bakery",
+			created on or after {C.start}, from <a href={src311.url}>{src311.name}</a>. A complaint is a
+			report made to 311, not a finding. Counted in this district when its point falls inside the
+			district boundary. The count table covers every complaint; the list shows the most recent
+			{C.recent.length}, and the filter and CSV apply to that list. The full set is at the source.
+		</p>
 	{:else}
 		<label class="no-print"><input type="checkbox" bind:checked={showSports} /> Include youth and adult sports permits</label>
 		<div class="table-scroll">

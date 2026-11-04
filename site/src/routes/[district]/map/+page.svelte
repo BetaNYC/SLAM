@@ -6,6 +6,7 @@
 	import { resolve, asset } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { SOURCE_SHORT, SOURCE_COLOR } from '#lib/format.js';
+	import { popup311 } from '#lib/popup311.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
 	/** @type {{data: any}} */
@@ -24,6 +25,13 @@
 	/** @type {Record<string, number>} */
 	let counts = $state({});
 	let status = $state('Loading map…');
+	// 311 complaints: dense, so OFF by default and fetched only when first switched on.
+	let show311 = $state(false);
+	/** @type {'idle' | 'loading' | 'ready'} */
+	let state311 = 'idle';
+	let mapReady = false;
+	/** @type {any} */
+	let Popup;
 	/** @type {any} */
 	let map;
 	/** @type {HTMLDivElement} */
@@ -32,12 +40,13 @@
 	onMount(() => {
 		let cancelled = false;
 		(async () => {
-			const [{ Map, NavigationControl, setWorkerUrl }, { default: workerUrl }] = await Promise.all([
+			const [{ Map, NavigationControl, setWorkerUrl, Popup: P }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
 				import('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url')
 			]);
 			if (cancelled) return;
 			setWorkerUrl(workerUrl);
+			Popup = P;
 			const [outline, points] = await Promise.all([
 				fetch(asset('data/districts.geojson')).then((r) => r.json()),
 				fetch(asset(/** @type {any} */ (`data/${data.slug}/points.geojson`))).then((r) => r.json())
@@ -78,6 +87,8 @@
 				const ys = b.map((/** @type {number[]} */ c) => c[1]);
 				map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
 				status = 'Map loaded. Select a point to open its address page.';
+				mapReady = true;
+				if (show311) toggle311();
 			});
 		})().catch((err) => (status = `Map could not load: ${err.message}. Use the list view.`));
 		return () => {
@@ -85,6 +96,49 @@
 			map?.remove();
 		};
 	});
+
+	async function toggle311() {
+		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
+		if (state311 === 'ready') {
+			map.setLayoutProperty('complaints_311', 'visibility', show311 ? 'visible' : 'none');
+			return;
+		}
+		if (state311 === 'loading' || !show311) return;
+		state311 = 'loading';
+		status = 'Loading 311 complaints…';
+		try {
+			const pts = await fetch(asset(/** @type {any} */ (`data/${data.slug}/points-311.geojson`))).then((r) => r.json());
+			map.addSource('c311', { type: 'geojson', data: pts });
+			// Drawn under the license layers so their larger dots stay on top and clickable.
+			map.addLayer(
+				{
+					id: 'complaints_311',
+					type: 'circle',
+					source: 'c311',
+					layout: { visibility: show311 ? 'visible' : 'none' },
+					paint: { 'circle-radius': 2.5, 'circle-color': SOURCE_COLOR.complaints_311, 'circle-opacity': 0.55 }
+				},
+				LAYERS[0]
+			);
+			map.on('click', 'complaints_311', (/** @type {any} */ e) => {
+				// A license dot under the cursor wins; its own handler opens the address page.
+				const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
+				if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
+				const f = e.features?.[0];
+				if (!f) return;
+				const aid = f.properties?.aid;
+				if (aid) goto(resolve('/address/[id]', { id: aid }));
+				else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311(f.properties)).addTo(map);
+			});
+			map.on('mouseenter', 'complaints_311', () => (map.getCanvas().style.cursor = 'pointer'));
+			map.on('mouseleave', 'complaints_311', () => (map.getCanvas().style.cursor = ''));
+			state311 = 'ready';
+			status = `311 complaints shown (${pts.features.length}).`;
+		} catch (err) {
+			state311 = 'idle';
+			status = `311 complaints could not load: ${/** @type {Error} */ (err).message}`;
+		}
+	}
 
 	/** @param {string} k */
 	function toggle(k) {
@@ -107,14 +161,22 @@
 			{SOURCE_SHORT[k]} {#if counts[k] !== undefined}<span class="muted">({counts[k]})</span>{/if}
 		</label>
 	{/each}
+	<label>
+		<input type="checkbox" bind:checked={show311} onchange={toggle311} />
+		<span class="swatch small" style="background:{SOURCE_COLOR.complaints_311}"></span>
+		{SOURCE_SHORT.complaints_311} <span class="muted">({data.district.counts.complaints_311}, since {data.manifest.complaints_311.start})</span>
+	</label>
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
-<p class="note">Street events have no coordinates in the source and are not on the map. Every point is also in the list view, which is the accessible equivalent of this map.</p>
+<p class="note">311 complaints are off by default because they are dense. Selecting a 311 dot opens the
+	address page it is matched to, if there is one; otherwise it shows the date, type and address.
+	Street events have no coordinates in the source and are not on the map. Every point is also in the list view, which is the accessible equivalent of this map.</p>
 
 <style>
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
 	.layers { border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.5rem 0; }
 	.layers label { display: inline-flex; align-items: center; gap: 0.35rem; }
+	.swatch.small { width: 0.55rem; height: 0.55rem; opacity: 0.7; }
 	.swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; border: 1px solid #fff; outline: 1px solid #999; }
 </style>

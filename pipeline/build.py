@@ -23,16 +23,28 @@ import duckdb
 
 from slam_pipeline import net
 from slam_pipeline.net import log
-from slam_pipeline.sources import DISTRICT_SOURCE, DISTRICTS, SOURCES, SOURCES_BY_KEY
+from slam_pipeline.sources import (
+    COMPLAINTS_311_LOCATION_TYPES,
+    COMPLAINTS_311_START,
+    DISTRICT_SOURCE,
+    DISTRICTS,
+    SOURCES,
+    SOURCES_BY_KEY,
+)
 from slam_pipeline.transform import (
     accept_geosearch,
+    board_311_slug,
     building_street,
     check_columns,
     check_rows,
+    count_by_type,
+    count_by_type_year,
     events_for_district,
     house_number,
+    normalize_311,
     normalize_event,
     normalize_record,
+    recent_311,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -42,6 +54,9 @@ GEOCODE_CACHE = CACHE / "geocode.json"
 OUT = HERE.parent / "site" / "static" / "data"
 
 NEARBY_M = 150
+C311_RECENT_DISTRICT = 200  # rows in the district tab
+C311_RECENT_ADDRESS = 10  # rows listed on an address page
+C311_COMPARE_M = 25  # reported only: how many complaints a 25 m radius would have matched
 GEOSEARCH = "https://geosearch.planninglabs.nyc/v2/search"  # https://geosearch.planninglabs.nyc/docs/
 GEOCODE_MIN_INTERVAL = 0.25  # seconds between requests -> at most 4 req/s
 
@@ -54,7 +69,10 @@ REQUIRED_IN_ROWS = {
     "cannabis_license": ["application_number", "address_line_1", "license_status"],
     "dining_out": ["street", "latitude", "longitude", "community_board"],
     "street_events": ["event_id", "event_name", "community_board", "event_borough"],
+    "complaints_311": ["unique_key", "created_date", "complaint_type", "incident_address",
+                       "latitude", "longitude", "community_board"],
 }
+NOT_RECORDS = ("street_events", "complaints_311")  # handled by their own normalizers
 
 
 def write_json(path: Path, obj) -> None:
@@ -171,7 +189,7 @@ def main(argv=None) -> int:
     # ---- normalize
     recs: list[dict] = []
     for s in SOURCES:
-        if s.key == "street_events":
+        if s.key in NOT_RECORDS:
             continue
         recs.extend(normalize_record(s, r) for r in raw[s.key])
 
@@ -254,6 +272,51 @@ def main(argv=None) -> int:
     for a_id, b_id, m in near:
         nearby.setdefault(a_id, []).append((b_id, round(m)))
 
+    # ---- 311 complaints: district by point-in-polygon; 311's own board only for agreement
+    c311 = [normalize_311(r) for r in raw["complaints_311"]]
+    con.execute("CREATE TABLE c311 (i INT, lon DOUBLE, lat DOUBLE)")
+    con.executemany("INSERT INTO c311 VALUES (?, ?, ?)",
+                    [[i, r["lon"], r["lat"]] for i, r in enumerate(c311) if r["lon"] is not None])
+    c_pip = dict(con.execute("""
+        SELECT c.i, d.slug FROM c311 c JOIN districts d
+          ON ST_Contains(d.geom, ST_Point(c.lon, c.lat))
+    """).fetchall())
+    c_agree = c_outside = c_nopoint = 0
+    for i, r in enumerate(c311):
+        r["district"] = c_pip.get(i)
+        if r["lon"] is None:
+            c_nopoint += 1
+        elif r["district"] is None:
+            c_outside += 1
+        c_agree += r["district"] is not None and r["district"] == board_311_slug(r["board"], DISTRICTS)
+    c_with_district = sum(1 for r in c311 if r["district"])
+    # "At this address" = same normalized incident_address + ZIP as the address page
+    # (see transform.normalize_311). All fetched rows are eligible, even ones whose point
+    # falls just outside the polygon, because the address key, not the point, decides.
+    c_at: dict[str, list] = {}
+    for r in c311:
+        if r["aid"] in addrs:
+            c_at.setdefault(r["aid"], []).append(r)
+    # Nearby: within NEARBY_M of the address point, excluding complaints counted "at" it.
+    c_near_rows = con.execute(f"""
+        SELECT a.id, c.i,
+               ST_Distance_Sphere(ST_Point(a.lon, a.lat), ST_Point(c.lon, c.lat)) AS m
+          FROM addrs a JOIN c311 c
+            ON abs(a.lat - c.lat) < 0.002 AND abs(a.lon - c.lon) < 0.003  -- cheap prefilter
+         WHERE ST_Distance_Sphere(ST_Point(a.lon, a.lat), ST_Point(c.lon, c.lat)) <= {NEARBY_M}
+    """).fetchall()
+    c_near: dict[str, list] = {}
+    c_within_compare = set()
+    for a_id, ci, m in c_near_rows:
+        if m <= C311_COMPARE_M:
+            c_within_compare.add(ci)
+        if c311[ci]["aid"] != a_id:
+            c_near.setdefault(a_id, []).append(c311[ci])
+    c_matched = sum(len(v) for v in c_at.values())
+    c_through = max((r["date"] for r in c311), default="")
+    # Year columns run from the configured start through the newest complaint's year.
+    years = list(range(int(COMPLAINTS_311_START[:4]), int((c_through or COMPLAINTS_311_START)[:4]) + 1))
+
     # ---- events
     events = [normalize_event(r) for r in raw["street_events"]]
 
@@ -275,6 +338,12 @@ def main(argv=None) -> int:
             lists[k].sort(key=lambda r: (r.get("date", "")), reverse=True)
         lists["street_events"] = sorted(devents, key=lambda e: e["start"])
         counts[slug] = {k: len(v) for k, v in lists.items()}
+        d311 = [r for r in c311 if r["district"] == slug]
+        counts[slug]["complaints_311"] = len(d311)
+        lists["complaints_311"] = {"total": len(d311), "years": years, "through": c_through,
+                                   "start": COMPLAINTS_311_START,
+                                   "by_type_year": count_by_type_year(d311, years),
+                                   "recent": recent_311(d311, C311_RECENT_DISTRICT)}
         write_json(OUT / slug / "list.json", lists)
         feats = [{"type": "Feature", "geometry": {"type": "Point",
                                                   "coordinates": [r["lon"], r["lat"]]},
@@ -282,6 +351,14 @@ def main(argv=None) -> int:
                                  "street": r.get("street", ""), "status": r.get("status", "")}}
                  for r in drecs if r.get("lon") is not None]
         write_json(OUT / slug / "points.geojson", {"type": "FeatureCollection", "features": feats})
+        # 311 dots in their own file so the map can load them only when the layer is on.
+        # aid is set only when that address has a page.
+        f311 = [{"type": "Feature", "geometry": {"type": "Point",
+                                                   "coordinates": [round(r["lon"], 6), round(r["lat"], 6)]},
+                 "properties": {"d": r["date"], "t": r["type"], "s": r["street"],
+                                "aid": r["aid"] if r["aid"] in addrs else ""}}
+                for r in d311]
+        write_json(OUT / slug / "points-311.geojson", {"type": "FeatureCollection", "features": f311})
 
     write_json(OUT / "districts.geojson", {"type": "FeatureCollection", "features": [
         {"type": "Feature", "geometry": f["geometry"],
@@ -297,9 +374,16 @@ def main(argv=None) -> int:
                           "records": [{k: r[k] for k in ("source", "name", "type", "status")
                                       if r.get(k)} for r in addrs[b]["records"]]}
                          for b, m in nearby.get(a["id"], [])]
+        at = c_at.get(a["id"], [])
+        out["c311"] = {"n": len(at), "years": years, "through": c_through,
+                       "by_type_year": count_by_type_year(at, years),
+                       "recent": recent_311(at, C311_RECENT_ADDRESS)}
+        nb = c_near.get(a["id"], [])
+        out["c311_near"] = {"n": len(nb), "by_type": count_by_type(nb)}
         write_json(OUT / "address" / f"{a['id']}.json", out)
         index.append({"id": a["id"], "street": a["street"], "zip": a["zip"],
-                      "district": a["district"], "n": len(a["records"])})
+                      "district": a["district"], "n": len(a["records"]),
+                      "n311": len(c_at.get(a["id"], []))})
     write_json(OUT / "address" / "index.json", index)
     # Idempotency: address ids from an earlier run that no longer exist are moved
     # (not deleted) out of the site's static tree so they are not published.
@@ -328,6 +412,15 @@ def main(argv=None) -> int:
                     for k in metas},
         "cannabis": {"license_rows_deduped_against_retail": dup_dropped, "geocode": geo_stats},
         "dining_out_pip_agreement": f"{do_agree}/{do_total}",
+        "complaints_311": {
+            "start": COMPLAINTS_311_START, "through": c_through,
+            "location_types": list(COMPLAINTS_311_LOCATION_TYPES),
+            "fetched": len(c311), "no_point": c_nopoint, "outside_both_districts": c_outside,
+            "board_vs_pip_agreement": f"{c_agree}/{c_with_district}",
+            "matched_to_address_page": c_matched,
+            "within_25m_of_an_address_page": len(c_within_compare),
+            "address_match": "normalized incident_address + ZIP equals the address page key",
+        },
         "addresses": len(index),
     }
     write_json(OUT / "manifest.json", manifest)
@@ -342,6 +435,15 @@ def main(argv=None) -> int:
     print(f"addresses: {len(index)}  nearby pairs (<= {NEARBY_M} m): {len(near)}")
     print(f"cannabis licenses deduped vs retail: {dup_dropped}; geocode: {geo_stats}")
     print(f"dining out: City board vs DuckDB point-in-polygon agree {do_agree}/{do_total}")
+    print(f"311 since {COMPLAINTS_311_START} (through {c_through}): fetched {len(c311)}, "
+          f"no point {c_nopoint}, outside both polygons {c_outside}; 311 community_board vs "
+          f"point-in-polygon agree {c_agree}/{c_with_district}")
+    for slug in DISTRICTS:
+        d311 = [r for r in c311 if r["district"] == slug]
+        by_lt = ", ".join(f"{y} {sum(1 for r in d311 if r['year'] == y)}" for y in years)
+        print(f"  {slug}: {len(d311)} complaints ({by_lt})")
+    print(f"311 matched to an address page by address key: {c_matched}; "
+          f"within {C311_COMPARE_M} m of an address page point: {len(c_within_compare)}")
     log("done", addresses=len(index))
     return 0
 

@@ -10,20 +10,33 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from slam_pipeline.sources import DISTRICT_SOURCE, SOURCES, SOURCES_BY_KEY
+from slam_pipeline.sources import (
+    COMPLAINTS_311_START,
+    DISTRICT_SOURCE,
+    DISTRICTS,
+    SOURCES,
+    SOURCES_BY_KEY,
+)
 from slam_pipeline.transform import (
+    C311_KEEP,
     SchemaError,
     accept_geosearch,
+    address_id,
     address_key,
+    board_311_slug,
     building_street,
     check_columns,
     check_rows,
+    count_by_type,
+    count_by_type_year,
     events_for_district,
     house_number,
+    normalize_311,
     normalize_address,
     normalize_event,
     normalize_record,
     parse_boards,
+    recent_311,
     strip_name_prefix,
 )
 
@@ -164,3 +177,83 @@ def test_distance_sphere_axis_order(con):
     m = con.execute("SELECT ST_Distance_Sphere(ST_Point(-74.0, 40.7), ST_Point(-74.0, 40.701))"
                     ).fetchone()[0]
     assert 110 < m < 112
+
+
+# ---------------------------------------------------------------- 311 complaints
+# complaints_311_sample.json: 9 real erm2-nwe9 rows fetched 2026-11-04 with the pipeline's
+# own $select (2 per district x location type, plus one extra MN CD 1 noise row).
+
+def test_311_query_uses_configured_window_and_location_types():
+    w = SOURCES_BY_KEY["complaints_311"].where
+    assert f"created_date >= '{COMPLAINTS_311_START}'" in w
+    assert "location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')" in w
+    assert "community_board in ('01 MANHATTAN','04 BROOKLYN')" in w
+
+
+def test_311_selects_only_minimal_fields():
+    # No resolution text, no cross streets, no channel: only what is shown (+ board for QA).
+    assert set(SOURCES_BY_KEY["complaints_311"].fields) == {
+        "unique_key", "created_date", "agency", "complaint_type", "descriptor",
+        "incident_address", "incident_zip", "status", "community_board", "latitude", "longitude"}
+    assert "board" not in C311_KEEP and "ts" not in C311_KEEP and "lat" not in C311_KEEP
+
+
+def test_board_311_slug():
+    assert board_311_slug("01 MANHATTAN", DISTRICTS) == "mn-cd1"
+    assert board_311_slug("04 BROOKLYN", DISTRICTS) == "bk-cd4"
+    assert board_311_slug("04 MANHATTAN", DISTRICTS) is None
+    assert board_311_slug("0 Unspecified", DISTRICTS) is None
+    assert board_311_slug(None, DISTRICTS) is None
+
+
+def test_normalize_311_real_row():
+    r = normalize_311(load("complaints_311_sample.json")[0])
+    assert r["rid"] == "59887065" and r["date"] == "2024-01-01" and r["year"] == 2024
+    assert r["type"] == "Noise - Commercial" and r["descriptor"] == "Loud Music/Party"
+    assert (r["lon"], r["lat"]) == (-74.01031512653833, 40.70435458995396)  # strings -> floats
+    assert r["agency"] == "NYPD" and r["status"] == "Closed"
+
+
+def test_311_address_matches_license_address_key():
+    """The documented match rule: normalized incident_address + ZIP equals the address
+    page key. '47 STONE STREET' / 10004 (311) and '47 Stone St' (license style) match;
+    the same street at another ZIP or house number does not."""
+    r = normalize_311(load("complaints_311_sample.json")[0])
+    assert r["aid"] == address_id(address_key("47 Stone St", "10004"))
+    assert r["aid"] != address_id(address_key("47 Stone St", "10005"))
+    assert r["aid"] != address_id(address_key("58 Stone St", "10004"))
+    w = normalize_311(load("complaints_311_sample.json")[4])  # 211 WEST BROADWAY 10013
+    assert w["aid"] == address_id(address_key("211 W Broadway", "10013"))
+
+
+def test_311_rows_point_in_polygon_agree_with_board(con):
+    for row in load("complaints_311_sample.json"):
+        r = normalize_311(row)
+        got = con.execute("SELECT cd FROM d WHERE ST_Contains(geom, ST_Point(?, ?))",
+                          [r["lon"], r["lat"]]).fetchall()
+        assert got, r["rid"]
+        slug = {101: "mn-cd1", 304: "bk-cd4"}[got[0][0]]
+        assert slug == board_311_slug(r["board"], DISTRICTS), r["rid"]
+
+
+def test_count_by_type_year_and_recent():
+    recs = [normalize_311(r) for r in load("complaints_311_sample.json")]
+    table = count_by_type_year(recs, [2024, 2025])
+    assert table[0] == {"type": "Noise - Commercial", "by_year": {"2024": 5, "2025": 0}, "total": 5}
+    assert {t["type"] for t in table} == {"Noise - Commercial", "Food Establishment"}
+    assert sum(t["total"] for t in table) == len(recs)
+    assert count_by_type_year(recs, [2025]) == []  # years outside the window are not counted
+    assert count_by_type(recs)[0] == {"type": "Noise - Commercial", "n": 5}
+    top = recent_311(recs, 2)
+    assert len(top) == 2 and top[0]["date"] >= top[1]["date"]
+    assert set(top[0]) <= set(C311_KEEP)
+
+
+def test_311_nearby_distance_real_rows(con):
+    # 81 PEARL ST and 47 STONE ST (real rows, both 10004) are a short block apart:
+    # inside the 150 m "nearby" radius, outside 25 m.
+    rows = load("complaints_311_sample.json")
+    a, b = normalize_311(rows[0]), normalize_311(rows[1])
+    m = con.execute("SELECT ST_Distance_Sphere(ST_Point(?, ?), ST_Point(?, ?))",
+                    [a["lon"], a["lat"], b["lon"], b["lat"]]).fetchone()[0]
+    assert 25 < m < 150

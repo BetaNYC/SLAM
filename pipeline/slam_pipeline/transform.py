@@ -267,3 +267,78 @@ def accept_geosearch(resp: dict, house_number: str | None) -> tuple[float, float
 def house_number(street: str | None) -> str | None:
     m = re.match(r"\s*(\d+(?:-\d+)?[A-Z]?)\b", (street or "").upper())
     return m.group(1) if m else None
+
+
+# ---------------------------------------------------------------- 311 complaints
+
+
+def board_311_slug(board: str | None, districts: dict) -> str | None:
+    """311's community_board text ('01 MANHATTAN', '04 BROOKLYN') -> our district slug,
+    or None for anything else ('0 Unspecified', other boards)."""
+    m = re.match(r"\s*(\d+)\s+(.+?)\s*$", board or "")
+    if not m:
+        return None
+    for slug, d in districts.items():
+        if int(m.group(1)) == d["cb"] and m.group(2).upper() == d["borough"].upper():
+            return slug
+    return None
+
+
+def normalize_311(row: dict) -> dict:
+    """Map an erm2-nwe9 row to the small shape the site shows. `aid` uses the same
+    address key as every other layer, so a complaint is "at" an address page exactly
+    when its normalized incident_address + ZIP equals that page's key."""
+    la, lo = row.get("latitude"), row.get("longitude")
+    street = _clean(row.get("incident_address"))
+    z = zip5(row.get("incident_zip"))
+    key = address_key(street, z)
+    created = _clean(row.get("created_date"))
+    return {
+        "rid": _clean(row.get("unique_key")),
+        "ts": created[:19],  # sort key only; not output
+        "date": created[:10],
+        "year": int(created[:4]) if created[:4].isdigit() else None,
+        "type": _clean(row.get("complaint_type")),
+        "descriptor": _clean(row.get("descriptor")),
+        "street": street,
+        "zip": z,
+        "agency": _clean(row.get("agency")),
+        "status": _clean(row.get("status")),
+        "board": _clean(row.get("community_board")),  # agreement check only; not output
+        "lon": float(lo) if lo else None,
+        "lat": float(la) if la else None,
+        "aid": address_id(key) if key else "",
+    }
+
+
+def count_by_type_year(recs: list[dict], years: list[int]) -> list[dict]:
+    """[{type, by_year: {"2024": n, ...}, total}] sorted by total, then type.
+    Years outside `years` are not counted."""
+    table: dict[str, dict[int, int]] = {}
+    for r in recs:
+        if r.get("year") in years:
+            table.setdefault(r["type"] or "(no type)", {}).setdefault(r["year"], 0)
+            table[r["type"] or "(no type)"][r["year"]] += 1
+    rows = [{"type": t, "by_year": {str(y): c.get(y, 0) for y in years},
+             "total": sum(c.values())} for t, c in table.items()]
+    return sorted(rows, key=lambda x: (-x["total"], x["type"]))
+
+
+def count_by_type(recs: list[dict]) -> list[dict]:
+    c: dict[str, int] = {}
+    for r in recs:
+        c[r["type"] or "(no type)"] = c.get(r["type"] or "(no type)", 0) + 1
+    return [{"type": t, "n": n} for t, n in sorted(c.items(), key=lambda x: (-x[1], x[0]))]
+
+
+C311_KEEP = ("rid", "date", "type", "descriptor", "street", "zip", "agency", "status")
+
+
+def slim_311(r: dict) -> dict:
+    """Only the displayed fields."""
+    return {k: r[k] for k in C311_KEEP if r.get(k)}
+
+
+def recent_311(recs: list[dict], n: int) -> list[dict]:
+    """Most recent first (created timestamp, then unique_key as a tiebreak), slimmed."""
+    return [slim_311(r) for r in sorted(recs, key=lambda r: (r["ts"], r["rid"]), reverse=True)[:n]]

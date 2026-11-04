@@ -1,12 +1,21 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine } from '#lib/format.js';
+	import CountTable311 from '#lib/CountTable311.svelte';
+	import Complaints311Table from '#lib/Complaints311Table.svelte';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
 	const a = $derived(data.a);
 	const m = $derived(data.manifest);
-	const usedSources = $derived([...new Set([...a.records.map((/** @type {any} */ r) => r.source), ...a.nearby.flatMap((/** @type {any} */ n) => n.records.map((/** @type {any} */ r) => r.source))])]);
+	const usedSources = $derived([
+		...new Set([
+			...a.records.map((/** @type {any} */ r) => r.source),
+			...a.nearby.flatMap((/** @type {any} */ n) => n.records.map((/** @type {any} */ r) => r.source)),
+			...(a.c311.n || a.c311_near.n ? ['complaints_311'] : [])
+		])
+	]);
+	const c311Start = $derived(m.complaints_311.start);
 </script>
 
 <svelte:head><title>{a.street} — SLAM v2 prototype</title></svelte:head>
@@ -81,6 +90,41 @@
 	Distances are straight-line between geocoded points, rounded to the meter. Nearby only covers records
 	inside the two prototype districts. This page lists facts from the sources; it does not apply any
 	distance rule or make legal determinations.
+</p>
+
+<h2 id="c311">311 complaints</h2>
+<p class="muted">
+	Complaints to 311 at bar, club and restaurant location types, created on or after {c311Start}. A
+	complaint is a report made to 311, not a finding.
+</p>
+<h3>At this address ({a.c311.n})</h3>
+{#if a.c311.n}
+	<CountTable311 rows={a.c311.by_type_year} years={a.c311.years} through={a.c311.through} caption="311 complaints at this address, by type and year" />
+	<Complaints311Table rows={a.c311.recent} caption="Most recent at this address" />
+{:else}
+	<p class="muted">No 311 complaints matched to this address.</p>
+{/if}
+<h3>311 complaints nearby, within {m.nearby_m} m ({a.c311_near.n})</h3>
+{#if a.c311_near.n}
+	<div class="table-scroll">
+		<table>
+			<caption>311 complaints within {m.nearby_m} m, not counting this address, by type</caption>
+			<thead><tr><th scope="col">Complaint type</th><th scope="col">Count</th></tr></thead>
+			<tbody>
+				{#each a.c311_near.by_type as t (t.type)}
+					<tr><td>{t.type}</td><td>{t.n}</td></tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+{:else}
+	<p class="muted">No other 311 complaints of these types within {m.nearby_m} m.</p>
+{/if}
+<p class="note">
+	"At this address" means the complaint's incident address and ZIP, normalized the same way as the
+	license addresses (upper case, street suffixes and directions unified), equal this page's address.
+	Complaints logged at an intersection or with a different spelling are not matched; they still count
+	in "nearby" if their point is within {m.nearby_m} m.
 </p>
 
 <h2>Look it up at the source</h2>

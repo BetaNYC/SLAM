@@ -6,8 +6,10 @@ on 2026-11-04. Recorded copies of those column lists live in
 `tests/fixtures/views_<id>.json`, and `check.py` re-verifies them on every run.
 
 Query language: Socrata SoQL, https://dev.socrata.com/docs/queries/
-  - `$select`, `$where`, `$order`, `$limit`, `$offset` (paging:
-    https://dev.socrata.com/docs/paging.html)
+  - `$select`, `$where`, `$order`, `$limit`, `$offset`. Paging: `$offset` with `$limit`
+    (https://dev.socrata.com/docs/queries/offset.html) and an explicit `$order`, because
+    results are not implicitly ordered (https://dev.socrata.com/docs/queries/order.html).
+    (The older docs/paging.html page now returns "You look lost", checked 2026-11-04.)
 """
 
 from __future__ import annotations
@@ -33,6 +35,20 @@ DISTRICT_SOURCE = {
 }
 
 COUNTIES = "('New York','Kings')"  # SLA / OCM spell counties this way (checked via $group)
+
+# ---- 311 complaints (NYC erm2-nwe9, "311 Service Requests from 2020 to Present")
+# One line to change the window. created_date is a floating timestamp; SoQL compares it
+# to an ISO date string. 2010-2019 is a separate dataset (76ig-c548), not used here.
+COMPLAINTS_311_START = "2024-01-01"
+# location_type values that mean a bar, club or restaurant (exact strings, checked via $group).
+COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bakery")
+# 311's own community_board text ("01 MANHATTAN"), used only to keep the pull small.
+# Districts are still assigned by point-in-polygon, like every other layer.
+COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in DISTRICTS.values())
+
+
+def _sql_list(values) -> str:
+    return "(" + ",".join("'" + v.replace("'", "''") + "'" for v in values) + ")"
 
 
 @dataclass(frozen=True)
@@ -148,6 +164,24 @@ SOURCES: list[Source] = [
         where="event_borough in ('Manhattan','Brooklyn')",
         order="event_id",
         notes="No coordinates; community_board is a comma list like '01,' or '04, 05,'.",
+    ),
+    Source(
+        key="complaints_311",
+        domain=NYC,
+        id="erm2-nwe9",
+        title="311 Service Requests from 2020 to Present",
+        # Only fields that are displayed, plus community_board (agreement check only,
+        # never written to the site). Columns read from
+        # https://data.cityofnewyork.us/api/views/erm2-nwe9.json on 2026-11-04.
+        fields=["unique_key", "created_date", "agency", "complaint_type", "descriptor",
+                "incident_address", "incident_zip", "status", "community_board",
+                "latitude", "longitude"],
+        where=(f"location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
+               f" AND created_date >= '{COMPLAINTS_311_START}'"
+               f" AND community_board in {_sql_list(COMPLAINTS_311_BOARDS)}"),
+        order="unique_key",
+        lat_lon=("latitude", "longitude"),
+        notes="Bar/club/restaurant location types only, created on or after COMPLAINTS_311_START.",
     ),
 ]
 

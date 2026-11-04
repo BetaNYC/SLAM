@@ -7,7 +7,8 @@ export const SOURCE_LABEL = {
 	cannabis_retail: 'Cannabis retail dealer (registered)',
 	cannabis_license: 'Cannabis license (OCM)',
 	dining_out: 'Dining Out NYC (outdoor dining)',
-	street_events: 'Permitted street event'
+	street_events: 'Permitted street event',
+	complaints_311: '311 complaints (bar, club, restaurant locations)'
 };
 
 /** @type {Record<string, string>} */
@@ -18,7 +19,8 @@ export const SOURCE_SHORT = {
 	cannabis_retail: 'Cannabis retail',
 	cannabis_license: 'Cannabis license',
 	dining_out: 'Dining Out',
-	street_events: 'Street event'
+	street_events: 'Street event',
+	complaints_311: '311 complaints'
 };
 
 /** Colors chosen for >= 3:1 contrast against the light basemap. */
@@ -29,8 +31,39 @@ export const SOURCE_COLOR = {
 	liquor_inactive: '#6b7280',
 	cannabis_retail: '#15803d',
 	cannabis_license: '#4d7c0f',
-	dining_out: '#7e22ce'
+	dining_out: '#7e22ce',
+	complaints_311: '#d97706'
 };
+
+/**
+ * Column headers for a 311 count table: one per year, the last marked "to date".
+ * @param {number[]} years
+ * @param {string} through  newest complaint date in the data, YYYY-MM-DD
+ */
+export function yearHeaders(years, through) {
+	const last = years[years.length - 1];
+	return years.map((y) => ({
+		key: String(y),
+		label: String(y),
+		sub: y === last && through && through.startsWith(String(y)) ? `to date (through ${through})` : ''
+	}));
+}
+
+/**
+ * Column totals for a 311 count table.
+ * @param {{by_year: Record<string, number>, total: number}[]} rows
+ * @param {number[]} years
+ */
+export function yearTotals(rows, years) {
+	/** @type {Record<string, number>} */
+	const t = { total: 0 };
+	for (const y of years) t[String(y)] = 0;
+	for (const r of rows) {
+		for (const y of years) t[String(y)] += r.by_year[String(y)] ?? 0;
+		t.total += r.total;
+	}
+	return t;
+}
 
 /** @param {string | undefined} s */
 export function fmtDate(s) {
