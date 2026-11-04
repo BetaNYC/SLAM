@@ -182,16 +182,17 @@
 		dataset covers inspections up to three years before each restaurant's latest one, for restaurants
 		that are active now. Grade history lists only inspections that gave a grade (A, B, C or grade
 		pending); a lower score is better. A restaurant is on this page when its BIN matches this page's,
-		or, without a match, when it is the closest page within about {m.address_geocode.nearest_page_m} m.
+		or, without a match, when it is the closest page within about {m.address_geocode.nearest_page_m} m
+		that lists the restaurant's own street address.
 	</p>
 {:else}
-	<p class="muted">No restaurant inspection records matched to this address. <a href={rsrc.url}>{rsrc.name}</a>.</p>
+	<p class="muted">No restaurant inspection records matched to this address in <a href={rsrc.url}>{rsrc.name}</a>, data last updated {fmtStamp(rsrc.rowsUpdatedAtIso)}.</p>
 {/if}
 
 <h2 id="co">Certificate of occupancy</h2>
 {#if a.co?.bin && coUrl}
 	<p>
-		Building (BIN) <code>{a.co.bin}</code>{#if a.co.bin_source === 'dohmh'} <span class="muted">(BIN from the Health Department's record for this address)</span>{/if}.
+		Building (BIN) <code>{a.co.bin}</code>{#if a.co.bin_source === 'dohmh'} <span class="muted">(this address has no BIN of its own here; this BIN comes from the Health Department's record for a restaurant at the same street address)</span>{/if}.
 		<a href={coUrl}>Certificates of occupancy for BIN {a.co.bin} (DOB BIS)</a>
 	</p>
 	<p class="muted">
@@ -202,22 +203,23 @@
 		<div class="table-scroll">
 			<table>
 				<caption>DOB NOW certificates of occupancy for BIN {a.co.bin} ({a.co.records.length})</caption>
-				<thead><tr><th scope="col">Issued</th><th scope="col">CO number</th><th scope="col">Filing type</th><th scope="col">Job type</th><th scope="col">Job</th></tr></thead>
+				<thead><tr><th scope="col">Issued</th><th scope="col">Application number</th><th scope="col">CO record number</th><th scope="col">Filing type</th><th scope="col">Job type</th><th scope="col">Filing sequence</th></tr></thead>
 				<tbody>
 					{#each a.co.records as c (c.application + c.number)}
-						<tr><td class="nowrap">{c.issued}</td><td><code>{c.number}</code></td><td>{c.filing_type}</td><td>{c.job_type}</td><td><code>{c.job}</code></td></tr>
+						<tr><td class="nowrap">{c.issued}</td><td><code>{c.application}</code></td><td><code>{c.number}</code></td><td>{c.filing_type}</td><td>{c.job_type}</td><td><code>{c.job}</code></td></tr>
 					{/each}
 				</tbody>
 			</table>
 		</div>
-		<p class="note">From <a href={cosrc.url}>{cosrc.name}</a>, data last updated {fmtStamp(cosrc.rowsUpdatedAtIso)}.</p>
+		<p class="note">From <a href={cosrc.url}>{cosrc.name}</a>, data last updated {fmtStamp(cosrc.rowsUpdatedAtIso)}.
+			"Application number" is the dataset's <code>application_number</code>, which the portal describes as the CO number. "CO record number" is <code>c_of_o_number</code>, which the portal does not describe. "Filing sequence" is <code>job_filing_name</code>. One building can have several rows: a renewal or a later filing is its own row.</p>
 	{:else}
-		<p class="muted">No DOB NOW certificates for this BIN in <a href={cosrc.url}>{cosrc.name}</a>.</p>
+		<p class="muted">No DOB NOW certificates for this BIN in <a href={cosrc.url}>{cosrc.name}</a>, data last updated {fmtStamp(cosrc.rowsUpdatedAtIso)}.</p>
 	{/if}
 {:else}
 	<p><strong>No BIN found.</strong> This address could not be matched to one building, so there is no
 		certificate of occupancy link. You can search by address in <a href="https://a810-bisweb.nyc.gov/bisweb/bispi00.jsp">DOB BIS</a>
-		or the <a href={DOB_NOW_PORTAL}>DOB NOW public portal</a>.</p>
+		or the <a href={DOB_NOW_PORTAL}>DOB NOW public portal</a>. (Checked against <a href={cosrc.url}>{cosrc.name}</a>, data last updated {fmtStamp(cosrc.rowsUpdatedAtIso)}.)</p>
 {/if}
 
 <h2>Look it up at the source</h2>

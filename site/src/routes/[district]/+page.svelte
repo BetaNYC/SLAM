@@ -185,8 +185,8 @@
 			"Current grade" is the grade from the newest graded inspection; "Not yet inspected" means the
 			Health Department lists the restaurant with no inspection yet. {R.stats.on_page_by_bin + R.stats.on_page_by_point}
 			of {R.total} are on an address page ({R.stats.on_page_by_bin} by BIN, {R.stats.on_page_by_point} by location);
-			the other {R.stats.not_on_a_page} are listed here only, because no license or permit in this
-			prototype's data shares their building.
+			the other {R.stats.not_on_a_page} are listed here only, because no address page in this
+			prototype shares their BIN or lists their street address within about {data.manifest.address_geocode.nearest_page_m} m.
 		</p>
 	{:else}
 		<label class="no-print"><input type="checkbox" bind:checked={showSports} /> Include youth and adult sports permits</label>

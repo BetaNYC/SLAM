@@ -37,6 +37,7 @@ from slam_pipeline.transform import (
     meters,
     normalize_311,
     normalize_address,
+    normalize_address,
     normalize_co,
     normalize_event,
     normalize_record,
@@ -430,15 +431,29 @@ def test_place_restaurant_bin_first_then_point(rests):
     # By BIN: 185 Greenwich's page is keyed on BIN 1089309.
     assert place_restaurant(polar, {"1089309": "1089309"}, [], 30)["method"] == "bin"
     # Same BIN missing: a BIN-keyed page nearby is another building, so never by point.
-    pts = [("1089309", polar["lon"], polar["lat"], True)]
+    here = frozenset({normalize_address(polar["street"])})
+    pts = [("1089309", polar["lon"], polar["lat"], True, here)]
     assert place_restaurant(polar, {}, pts, 30)["aid"] is None
     # A page without a BIN within 30 m takes it by point, with the distance.
-    pts = [("abcdef0123", polar["lon"] + 0.0001, polar["lat"], False)]
+    pts = [("abcdef0123", polar["lon"] + 0.0001, polar["lat"], False, here)]
     got = place_restaurant(polar, {}, pts, 30)
     assert got["method"] == "point" and got["aid"] == "abcdef0123" and 5 <= got["m"] <= 12
     # Too far: not placed, so it is counted as not on a page.
-    pts = [("abcdef0123", polar["lon"] + 0.001, polar["lat"], False)]
+    pts = [("abcdef0123", polar["lon"] + 0.001, polar["lat"], False, here)]
     assert place_restaurant(polar, {}, pts, 30)["method"] is None
+
+
+def test_point_placement_needs_the_same_address():
+    """QA of PR #65: within 30 m but a different building (26 Broadway vs 25 Broadway,
+    30 vs 33-35 Wyckoff Ave) must not be placed by point."""
+    rest = {"camis": "x", "bin": None, "street": "26 BROADWAY", "lon": -74.0130, "lat": 40.7056}
+    other = [("abcdef0123", -74.01302, 40.70562, False, frozenset({normalize_address("25 Broadway")}))]
+    assert place_restaurant(rest, {}, other, 30)["aid"] is None
+    same = [("abcdef0123", -74.01302, 40.70562, False, frozenset({normalize_address("26 Broadway")}))]
+    assert place_restaurant(rest, {}, same, 30)["method"] == "point"
+    rest2 = {"camis": "y", "bin": "3072600", "street": "30 WYCKOFF AVENUE", "lon": -73.92, "lat": 40.70}
+    across = [("fedcba9876", -73.92002, 40.70001, False, frozenset({normalize_address("33-35 Wyckoff Ave")}))]
+    assert place_restaurant(rest2, {}, across, 30)["aid"] is None
 
 
 def test_meters_matches_duckdb_sphere(con):

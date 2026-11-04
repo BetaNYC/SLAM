@@ -50,6 +50,7 @@ from slam_pipeline.transform import (
     house_number,
     key_pages,
     normalize_311,
+    normalize_address,
     normalize_co,
     normalize_event,
     normalize_record,
@@ -442,8 +443,9 @@ def main(argv=None) -> int:
             seen_missed.add((camis, slug))
     # Join to address pages: BIN first, then point (transform.place_restaurant).
     page_bins = {a["bin"]: a["id"] for a in addrs.values() if a["bin"]}
-    page_pts = [(a["id"], a["lon"], a["lat"], bool(a["bin"])) for a in addrs.values()
-                if a["lon"] is not None]
+    page_pts = [(a["id"], a["lon"], a["lat"], bool(a["bin"]),
+                 frozenset(normalize_address(r.get("street")) for r in a["records"]))
+                for a in addrs.values() if a["lon"] is not None]
     r_at: dict[str, list] = {}
     r_stats = {slug: {"restaurants": 0, "on_page_by_bin": 0, "on_page_by_point": 0,
                       "not_on_a_page": 0, "no_point": 0, "not_yet_inspected": 0}
@@ -537,6 +539,7 @@ def main(argv=None) -> int:
         for f in dgeo["features"]]})
 
     index = []
+    co_pages_with_records = 0
     for a in addrs.values():
         out = {k: v for k, v in a.items() if k != "keys"}
         out["records"] = [slim(r) for r in a["records"]]
@@ -562,6 +565,7 @@ def main(argv=None) -> int:
         co_bin, co_src = page_co_bin(a["bin"], [r["bin"] for r in here])
         out["co"] = {"bin": co_bin, "bin_source": co_src,
                      "records": co_by_bin.get(co_bin, []) if co_bin else []}
+        co_pages_with_records += bool(out["co"]["records"])
         write_json(OUT / "address" / f"{a['id']}.json", out)
         index.append({"id": a["id"], "bin": a["bin"], "street": a["street"], "zip": a["zip"],
                       "district": a["district"], "n": len(a["records"]),
@@ -622,12 +626,12 @@ def main(argv=None) -> int:
             "inside_a_district_but_other_board": len(seen_missed),
             "inside_a_district_but_other_board_sample": sorted(seen_missed)[:20],
             "placement": "BIN equals an address page's BIN; else nearest page without a BIN "
-                         f"(or any page, if the restaurant has no BIN) within {NEAREST_PAGE_M} m",
+                         f"(or any page, if the restaurant has no BIN) within {NEAREST_PAGE_M} m "
+                         "that lists the restaurant's own normalized address",
             "not_yet_inspected_rule": "inspection_date 1900-01-01 (dataset column description)",
         },
         "co_dobnow": {"rows": len(raw["co_dobnow"]), "bins": len(co_by_bin),
-                      "address_pages_with_records": sum(
-                          1 for a in addrs.values() if a["bin"] and a["bin"] in co_by_bin)},
+                      "address_pages_with_records": co_pages_with_records},
         "addresses": len(index),
         "address_geocode": {**addr_geo_stats, "endpoint": GEOSEARCH,
                             "rule": "same house number, street and borough; confidence >= "

@@ -119,8 +119,8 @@ Run of 2026-11-04 (live, then `--offline`, same numbers):
 |---|---|---|
 | Restaurants (one per `camis`) | 918 | 434 |
 | On an address page by BIN | 685 | 266 |
-| On an address page by location (≤ 30 m) | 80 | 21 |
-| Not on an address page (district tab only) | 153 | 147 |
+| On an address page by location (≤ 30 m, same street address) | 11 | 1 |
+| Not on an address page (district tab only) | 222 | 167 |
 | No coordinates | 0 | 0 |
 | Not yet inspected (1900-01-01 placeholder) | 157 | 50 |
 
@@ -139,7 +139,9 @@ Run of 2026-11-04 (live, then `--offline`, same numbers):
   "Not yet inspected" (a test reads the recorded description).
 - **Placement on an address page**: by BIN first (DOHMH `bin` = the page's BIN). Otherwise the nearest page within
   30 m (`NEAREST_PAGE_M`), but only a page with no BIN of its own, or any page when the restaurant has no BIN: a
-  restaurant whose BIN differs from a BIN-keyed page's is in another building. The page says when a restaurant was
+  restaurant whose BIN differs from a BIN-keyed page's is in another building. The page must also list the
+  restaurant's own normalized street address (QA on #65: distance alone had put 101 restaurants on pages by location; 89 of those did not share the page's
+  normalized street address, e.g. 25 Broadway on 26 Broadway's page). The page says when a restaurant was
   placed by location, and how far.
 - **Not on a page**: restaurants in buildings with no license, cannabis or Dining Out record get no address page of
   their own. They are counted (above, in the manifest and in the tab's note) and listed in the district tab, marked
@@ -153,7 +155,7 @@ Run of 2026-11-04 (live, then `--offline`, same numbers):
 ## Certificate of occupancy (#62)
 
 - **BIN**: the address page's own BIN (GeoSearch PAD, #59). For a page without one, DOHMH's `bin`, when every
-  restaurant placed there agrees on a single BIN (40 pages). Otherwise "No BIN found" (116 pages). No Geoclient, no key.
+  restaurant placed there agrees on a single BIN (3 pages). Otherwise "No BIN found" (153 pages). No Geoclient, no key.
 - **Link**: DOB BIS "C of O PDF Listing for Property",
   `https://a810-bisweb.nyc.gov/bisweb/COsByLocationServlet?requestid=1&allbin=<BIN>` (v1's pattern, now https).
   Opened in a browser on 2026-11-04 for BIN 1089309 (185 Greenwich St: "There are no certificates of occupancy on

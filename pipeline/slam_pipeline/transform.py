@@ -574,7 +574,8 @@ def meters(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     return 2 * 6371008.8 * math.asin(math.sqrt(a))
 
 
-def place_restaurant(rest: dict, bins: dict[str, str], points: list[tuple[str, float, float, bool]],
+def place_restaurant(rest: dict, bins: dict[str, str],
+                     points: list[tuple[str, float, float, bool, frozenset]],
                      radius_m: float) -> dict:
     """Join a restaurant to an address page.
 
@@ -582,15 +583,21 @@ def place_restaurant(rest: dict, bins: dict[str, str], points: list[tuple[str, f
     2. by point: otherwise, the nearest page within radius_m, but only a page that has
        no BIN of its own, or any page when the restaurant has no BIN. A restaurant whose
        BIN differs from a BIN page's is in another building, so it is never put there.
-    `points` = [(page id, lon, lat, page has a BIN)].
+       The page must also list the restaurant's own address (normalized house number +
+       street): 30 m reaches across a street, so distance alone put restaurants on the
+       wrong building's page (QA of PR #65: 26 Broadway -> 25 Broadway).
+    `points` = [(page id, lon, lat, page has a BIN, normalized addresses on the page)].
     Returns {"aid", "method": "bin" | "point" | None, "m"}."""
     if rest.get("bin") and rest["bin"] in bins:
         return {"aid": bins[rest["bin"]], "method": "bin", "m": None}
     if rest.get("lon") is None:
         return {"aid": None, "method": None, "m": None}
     best = None
-    for pid, lon, lat, has_bin in points:
+    own = normalize_address(rest.get("street"))
+    for pid, lon, lat, has_bin, streets in points:
         if has_bin and rest.get("bin"):
+            continue
+        if not own or own not in streets:
             continue
         if abs(lat - rest["lat"]) > 0.001 or abs(lon - rest["lon"]) > 0.0015:  # cheap prefilter
             continue
@@ -630,7 +637,9 @@ def normalize_co(row: dict) -> dict:
 
 def page_co_bin(page_bin: str | None, restaurant_bins: list[str]) -> tuple[str | None, str | None]:
     """The BIN the CO link uses: the page's own (GeoSearch/PAD) BIN, else DOHMH's `bin`
-    when every restaurant placed on the page agrees on one. Returns (bin, source)."""
+    when every restaurant placed on the page agrees on one. Callers pass only restaurants
+    whose own address is listed on the page (place_restaurant guarantees that for point
+    placements), so a borrowed BIN is for the same address. Returns (bin, source)."""
     if page_bin:
         return page_bin, "geosearch"
     uniq = sorted({b for b in restaurant_bins if b})
