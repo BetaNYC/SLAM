@@ -1,0 +1,56 @@
+{
+ "_note": "Real rows copied from the 2026-11-04 live pull (.cache/raw): the same building, 44 Wilson Ave, Brooklyn, carried as ZIP 11207 by 9s3h-dpkz and 11237 by 6dg3-2z7i.",
+ "liquor_active": [
+  {
+   "licensepermitid": "0370-22-104616",
+   "premisescounty": "Kings",
+   "type": "1",
+   "class": "0370",
+   "description": "Food & Beverage Business",
+   "legalname": "44 WILSON AVENUE LLC",
+   "dba": "GOLDSOUNDS",
+   "actualaddressofpremises": "44 WILSON AVE",
+   "city": "BROOKLYN",
+   "statename": "New York",
+   "zipcode": "11207",
+   "originalissuedate": "2026-01-13T00:00:00.000",
+   "lastissuedate": "2026-01-13T00:00:00.000",
+   "effectivedate": "2026-02-01T00:00:00.000",
+   "expirationdate": "2028-01-31T00:00:00.000",
+   "legacyserialnumber": "1289433",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -73.92944,
+     40.70281
+    ]
+   }
+  }
+ ],
+ "liquor_inactive": [
+  {
+   "license_permit_id": "0340-13-108536",
+   "premises_county": "Kings",
+   "type": "1",
+   "class": "340",
+   "description": "Restaurant",
+   "legalname": "BUSHWICK COFFEE HOUSE CORP",
+   "actual_address_of_premises": "44 WILSON AVE",
+   "city": "BROOKLYN",
+   "state_name": "New York",
+   "zip_code": "11237",
+   "original_issue_date": "2013-02-08T00:00:00.000",
+   "last_issue_date": "2013-02-08T00:00:00.000",
+   "effective_date": "2013-02-08T00:00:00.000",
+   "expiration_date": "2015-01-31T00:00:00.000",
+   "legacy_serial_number": "1267853",
+   "georeference": {
+    "type": "Point",
+    "coordinates": [
+     -73.92944,
+     40.70281
+    ]
+   }
+  }
+ ]
+}

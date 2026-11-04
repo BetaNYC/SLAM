@@ -257,3 +257,103 @@ def test_311_nearby_distance_real_rows(con):
     m = con.execute("SELECT ST_Distance_Sphere(ST_Point(?, ?), ST_Point(?, ?))",
                     [a["lon"], a["lat"], b["lon"], b["lat"]]).fetchone()[0]
     assert 25 < m < 150
+
+
+# ---------------------------------------------------------------- address pages keyed on BIN (#59)
+# Fixtures recorded 2026-11-04 from https://geosearch.planninglabs.nyc/v2/search (size=3).
+
+from slam_pipeline.transform import (  # noqa: E402
+    address_query,
+    group_addresses,
+    key_pages,
+    pick_address_hit,
+    real_bin,
+    slim_geosearch,
+)
+
+
+def test_address_query_drops_zip_and_unit():
+    assert address_query("185 Greenwich St Ste LL5155", "Manhattan") == "185 Greenwich St, Manhattan, NY"
+    assert address_query("", "Brooklyn") == ""
+
+
+def test_pick_hit_185_greenwich_gives_bin_1089309():
+    hit = pick_address_hit(load("geosearch_search_185_greenwich.json"), "185 Greenwich St", "Manhattan")
+    assert hit["status"] == "matched"
+    assert hit["bin"] == "1089309"
+    assert hit["label"] == "185 GREENWICH STREET, New York, NY, USA"
+    assert hit["confidence"] == 0.8
+
+
+def test_pick_hit_survives_the_slim_cache_shape():
+    full = load("geosearch_search_185_greenwich.json")
+    assert pick_address_hit(slim_geosearch(full), "185 Greenwich St", "Manhattan") == \
+        pick_address_hit(full, "185 Greenwich St", "Manhattan")
+
+
+def test_zip_in_query_would_have_picked_the_wrong_building():
+    # With the SLA's ZIP 11207 in the text, GeoSearch's hits are 514/518/524 Wilson Ave.
+    # The house-number rule refuses them all; that is why address_query leaves ZIP out.
+    hit = pick_address_hit(load("geosearch_search_44_wilson_11207.json"), "44 WILSON AVE", "Brooklyn")
+    assert hit["status"] == "low_confidence" and hit["bin"] is None
+    assert hit["label"].startswith("514 WILSON")
+
+
+def test_pick_hit_needs_borough_and_street_too():
+    resp = load("geosearch_search_44_wilson_brooklyn.json")
+    # second hit is 44 WILSON STREET, Staten Island: same number, other street and borough
+    assert pick_address_hit(resp, "44 Wilson Ave", "Brooklyn")["bin"] == "3071959"
+    assert pick_address_hit(resp, "44 Wilson St", "Brooklyn")["status"] == "low_confidence"
+    assert pick_address_hit(resp, "44 Wilson Ave", "Manhattan")["status"] == "low_confidence"
+
+
+def test_no_features_is_unmatched():
+    assert pick_address_hit(load("geosearch_search_no_match.json"), "1 Zzqx Ln", "Brooklyn")["status"] \
+        == "unmatched"
+    assert pick_address_hit(None, "", "Brooklyn")["status"] == "unmatched"
+
+
+def test_placeholder_million_bin_is_never_a_key():
+    resp = load("geosearch_search_million_bin.json")
+    assert resp["features"][0]["properties"]["addendum"]["pad"]["bin"] == "3000000"
+    hit = pick_address_hit(resp, "1 Brooklyn Bridge Park", "Brooklyn")
+    assert hit["status"] == "matched" and hit["bin"] is None
+    assert real_bin("3000000") is None and real_bin("1089309") == "1089309"
+    assert real_bin("") is None and real_bin("6000001") is None
+
+
+def _wilson_records():
+    fx = load("sla_44_wilson_rows.json")
+    recs = [normalize_record(SOURCES_BY_KEY[k], r) for k in ("liquor_active", "liquor_inactive")
+            for r in fx[k]]
+    for r in recs:
+        r["district"] = "bk-cd4"
+    return recs
+
+
+def test_44_wilson_zip_split_becomes_one_bin_page():
+    recs = _wilson_records()
+    assert sorted(r["zip"] for r in recs) == ["11207", "11237"]
+    groups = group_addresses(recs)
+    assert len(groups) == 2, "street + ZIP keys alone split the building (the old bug)"
+    hit = pick_address_hit(load("geosearch_search_44_wilson_brooklyn.json"), "44 WILSON AVE", "Brooklyn")
+    pages, remap = key_pages(groups, {gid: hit for gid in groups})
+    assert list(pages) == ["3071959"]
+    page = pages["3071959"]
+    assert len(page["records"]) == 2 and page["zip"] == "11237"
+    assert page["listed_as"] == ["44 WILSON AVE 11207", "44 WILSON AVE 11237"]
+    assert set(remap.values()) == {"3071959"}
+    assert all(r["aid"] == "3071959" for r in page["records"])
+    # A 311 complaint keyed on the 11237 street + ZIP lands on the merged page too.
+    c = normalize_311({"unique_key": "1", "created_date": "2026-10-31T23:00:00.000",
+                       "incident_address": "44 WILSON AVENUE", "incident_zip": "11237"})
+    assert remap[c["aid"]] == "3071959"
+
+
+def test_unmatched_groups_keep_their_old_key_and_are_not_dropped():
+    recs = _wilson_records()
+    groups = group_addresses(recs)
+    pages, remap = key_pages(groups, {})  # e.g. --offline with an empty cache
+    assert sorted(pages) == sorted(groups)
+    assert all(p["bin"] is None and p["geocode"]["status"] == "unmatched" for p in pages.values())
+    assert sum(len(p["records"]) for p in pages.values()) == len(recs)
