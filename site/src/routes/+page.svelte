@@ -34,5 +34,6 @@
 
 <p class="muted">
 	Data updated <time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>. Only two districts
-	are in this prototype.
+	are in this prototype. Maps use the City's own street basemap, from NYC's Office of Technology and
+	Innovation, when it is available.
 </p>
