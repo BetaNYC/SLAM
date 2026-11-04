@@ -28,6 +28,7 @@ from slam_pipeline.sources import (
     COMPLAINTS_311_START,
     DISTRICT_SOURCE,
     DISTRICTS,
+    SLA_LICENSE,
     SLA_RULES,
     SOURCES,
     SOURCES_BY_KEY,
@@ -565,8 +566,8 @@ def main(argv=None) -> int:
     # ---- outputs
     def slim(r):
         keep = ("source", "rid", "name", "legal_name", "dba", "street", "street2", "city", "zip",
-                "type", "cls", "status", "date", "date_label", "issued", "operational", "aid",
-                "lon", "lat", "geocoded")
+                "type", "cls", "ltype", "lclass", "status", "date", "date_label", "issued",
+                "operational", "aid", "lon", "lat", "geocoded")
         return {k: r[k] for k in keep if r.get(k) not in (None, "")}
 
     counts: dict[str, dict] = {}
@@ -742,6 +743,7 @@ def main(argv=None) -> int:
                          "that lists the restaurant's own normalized address",
             "not_yet_inspected_rule": "inspection_date 1900-01-01 (dataset column description)",
         },
+        "sla_license": SLA_LICENSE,
         "schools_worship": {
             "rules": SLA_RULES,
             "list_ft": SW_LIST_FT, "liquor_count_ft": LIQUOR_COUNT_FT, "buffer_ft": SW_BUFFER_FT,

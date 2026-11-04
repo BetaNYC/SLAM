@@ -3,6 +3,7 @@
 	import RecordTable from './RecordTable.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
+	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import { toCsv, downloadText, fmtStamp } from '#lib/format.js';
 
 	/** @type {{data: any}} */
@@ -31,6 +32,7 @@
 	}
 
 	const L = $derived(data.lists);
+	const lampLevel = $derived(data.manifest.sla_license.lamp.level);
 	const pending = $derived(filt(L.liquor_pending));
 	const active = $derived(filt(L.liquor_active));
 	const inactive = $derived(filt(L.liquor_inactive));
@@ -46,7 +48,7 @@
 	const srcRest = $derived(data.manifest.sources.restaurant_inspections);
 	const REST_COLS = ['camis', 'dba', 'street', 'zip', 'grade', 'grade_date', 'last_inspected', 'bin', 'aid', 'placed'];
 
-	const REC_COLS = ['source', 'rid', 'name', 'legal_name', 'dba', 'street', 'street2', 'city', 'zip', 'type', 'cls', 'status', 'date_label', 'date', 'lat', 'lon'];
+	const REC_COLS = ['source', 'rid', 'name', 'legal_name', 'dba', 'street', 'street2', 'city', 'zip', 'type', 'cls', 'ltype', 'lclass', 'status', 'date_label', 'date', 'lat', 'lon'];
 	const C311_COLS = ['rid', 'date', 'type', 'descriptor', 'street', 'zip', 'agency', 'status'];
 	const EV_COLS = ['rid', 'name', 'start', 'end', 'agency', 'type', 'location', 'street_side', 'closure', 'boards'];
 
@@ -102,12 +104,13 @@
 
 <div id="panel" role="tabpanel" aria-labelledby="tab-{tab}">
 	{#if tab === 'liquor'}
-		<RecordTable rows={pending} caption="Pending applications (SLA)" />
-		<RecordTable rows={active} caption="Active licenses (SLA)" />
+		<RecordTable rows={pending} caption="Pending applications (SLA)" {lampLevel} />
+		<RecordTable rows={active} caption="Active licenses (SLA)" {lampLevel} />
 		<label class="no-print"><input type="checkbox" bind:checked={showInactive} /> Show inactive licenses ({L.liquor_inactive.length})</label>
 		{#if showInactive}
-			<RecordTable rows={inactive} caption="Inactive licenses (SLA)" />
+			<RecordTable rows={inactive} caption="Inactive licenses (SLA)" {lampLevel} />
 		{/if}
+		<SlaLicenseNote manifest={data.manifest} keys={showInactive ? ['liquor_pending', 'liquor_active', 'liquor_inactive'] : ['liquor_pending', 'liquor_active']} />
 		<p class="note">No "new this week" badge yet: the prototype keeps no history between runs.</p>
 	{:else if tab === 'cannabis'}
 		<RecordTable rows={cannabis} caption="Cannabis (OCM retail dealers and licenses)" showClass={false} />

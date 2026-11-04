@@ -180,3 +180,25 @@ export function sameStreetLabel(v) {
 export function swName(f) {
 	return f.name || (f.street ? `${f.street} (no name in PLUTO)` : '(no name in PLUTO)');
 }
+
+/** SLA liquor record sources (#63). */
+export const SLA_SOURCES = ['liquor_pending', 'liquor_active', 'liquor_inactive'];
+
+/**
+ * LAMP, SLA's map, centered on a license's point (#63). Esri Web AppBuilder's documented
+ * `center` (geographic x,y: longitude first) and `level` parameters,
+ * https://doc.arcgis.com/en/web-appbuilder/latest/manage-apps/app-url-parameters.htm
+ * (read 2026-11-04); v1 used the same pattern. It opens a map location, not the license
+ * record. The `query=<layer id>,...` form is not used: it depends on an internal layer id.
+ * Coordinates are rounded to 5 decimals (about 1 m), the precision of the SLA georeference.
+ * No point, or a point outside the valid range, gives no link.
+ * @param {number | null | undefined} lon
+ * @param {number | null | undefined} lat
+ * @param {number} [level]
+ */
+export function lampUrl(lon, lat, level = 18) {
+	if (typeof lon !== 'number' || typeof lat !== 'number') return null;
+	if (!Number.isFinite(lon) || !Number.isFinite(lat) || Math.abs(lon) > 180 || Math.abs(lat) > 90) return null;
+	const r = (/** @type {number} */ v) => String(Number(v.toFixed(5)));
+	return `https://lamp.sla.ny.gov/?center=${r(lon)},${r(lat)}&level=${level}`;
+}

@@ -157,7 +157,8 @@ def normalize_record(src: Source, row: dict) -> dict:
                    zip=row.get("zip_code"), type=row.get("description"),
                    cls=f"{row.get('type', '')}/{row.get('class', '')}",
                    status=row.get("status") or "Pending", date=_d(row.get("received_date")),
-                   date_label="Received")
+                   date_label="Received",
+                   ltype=row.get("type"), lclass=row.get("class"))
     elif k in ("liquor_active", "liquor_inactive"):
         a = k == "liquor_active"
         rec = dict(rid=row.get("licensepermitid" if a else "license_permit_id"),
@@ -171,7 +172,8 @@ def normalize_record(src: Source, row: dict) -> dict:
                    status="Active" if a else "Inactive",
                    date=_d(row.get("expirationdate" if a else "expiration_date")),
                    date_label="Expires" if a else "Expiration date",
-                   issued=_d(row.get("originalissuedate" if a else "original_issue_date")))
+                   issued=_d(row.get("originalissuedate" if a else "original_issue_date")),
+                   ltype=row.get("type"), lclass=row.get("class"))
     elif k == "cannabis_retail":
         rec = dict(rid=row.get("ocm_license_number") or row.get("external_tpid"),
                    legal_name=row.get("legal_name"), dba=row.get("dba_name"),

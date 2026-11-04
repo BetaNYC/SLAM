@@ -313,3 +313,42 @@ SLA_RULES = {
     "sla_classes": {"label": "SLA license type and class definitions",
                     "url": "https://sla.ny.gov/leap-license-type-and-class-definitions"},
 }
+
+# ---- what the address and district pages say about each SLA license (#63). Facts only.
+# Field names and the georeference description are the datasets' own, read from
+# https://data.ny.gov/api/views/<id>.json (`columns[].fieldName`, `.name`, `.description`) on
+# 2026-11-04. tests/test_pipeline.py checks every field named here is selected in SOURCES.
+SLA_LICENSE = {
+    "fields": {
+        "liquor_active": {"id": "licensepermitid", "type": "type", "class": "class",
+                          "description": "description", "point": "georeference"},
+        "liquor_inactive": {"id": "license_permit_id", "type": "type", "class": "class",
+                            "description": "description", "point": "georeference"},
+        "liquor_pending": {"id": "application_id", "type": "type", "class": "class",
+                           "description": "description", "point": "georeference"},
+    },
+    # Column descriptions, word for word ("License Permit ID" / "Application ID").
+    "id_description": {"liquor_active": "Unique Serial Number for the licensee",
+                       "liquor_inactive": "Unique Serial Number for the licensee",
+                       "liquor_pending": "Unique Serial Number for the Applicant"},
+    # The `georeference` column description, word for word (the same on all three datasets).
+    "point_description": "Open Data platform-generated geocoding information from supplied "
+                         "address components. Point-type location is the centroid of the "
+                         "address components provided and does not reflect a specific address "
+                         "if the street address component is not provided.",
+    # LAMP link: Esri Web AppBuilder's documented `center` (geographic x,y, so longitude first)
+    # and `level` parameters, https://doc.arcgis.com/en/web-appbuilder/latest/manage-apps/
+    # app-url-parameters.htm (read 2026-11-04). v1 used the same pattern. The `query=` form is
+    # not used: it needs an internal web-map layer id. The site builds the URL (format.js).
+    "lamp": {"url": "https://lamp.sla.ny.gov/", "level": 18},
+    # Hours and method of operation are in none of the three datasets (#63 research,
+    # 2026-11-04). Approval conditions for contested applications are in Full Board minutes:
+    # each meeting's page (e.g. https://sla.ny.gov/event/10142026-full-board-meeting) links
+    # its minutes PDF. Both pages below were opened on 2026-11-04.
+    "full_board": {"label": "SLA Full Board meetings",
+                   "url": "https://sla.ny.gov/full-board-meetings"},
+    "event_calendar": {"label": "SLA event calendar",
+                       "url": "https://sla.ny.gov/event-calendar"},
+    "classes": {"label": "SLA license type and class definitions",
+                "url": "https://sla.ny.gov/leap-license-type-and-class-definitions"},
+}

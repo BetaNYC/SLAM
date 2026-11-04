@@ -599,3 +599,27 @@ def test_rule_text_is_the_published_text():
     assert "MOST RECENT REVISION (FROM 2026-07-31)" in page and SLA_RULES["revision"] == "2026-07-31"
     for k in ("lead", "a", "b", "c"):
         assert SLA_RULES[k] in page, k
+
+
+# ---------------------------------------------------------------- SLA license record (#63)
+
+def test_sla_license_fields_are_selected_and_in_the_recorded_metadata():
+    from slam_pipeline.sources import SLA_LICENSE
+    for key, names in SLA_LICENSE["fields"].items():
+        src = SOURCES_BY_KEY[key]
+        cols = {c["fieldName"] for c in load(f"views_{src.id}.json")["columns"]}
+        for field_name in names.values():
+            assert field_name in src.fields, (key, field_name)
+            assert field_name in cols, (key, field_name)
+        assert src.has_point == names["point"]
+
+
+def test_sla_license_keeps_raw_type_and_class_and_the_georeference_point():
+    rows = load("sla_44_wilson_rows.json")
+    act = normalize_record(SOURCES_BY_KEY["liquor_active"], rows["liquor_active"][0])
+    assert act["rid"] == "0370-22-104616"
+    assert (act["ltype"], act["lclass"]) == ("1", "0370")
+    g = rows["liquor_active"][0]["georeference"]["coordinates"]
+    assert (act["lon"], act["lat"]) == (g[0], g[1])  # GeoJSON [lon, lat], unchanged
+    pend = normalize_record(SOURCES_BY_KEY["liquor_pending"], load("sla_pending_sample.json")[1])
+    assert pend["ltype"] and pend["lclass"]
