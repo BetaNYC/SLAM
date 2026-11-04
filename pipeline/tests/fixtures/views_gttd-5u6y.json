@@ -1,0 +1,59 @@
+{
+ "id": "gttd-5u6y",
+ "name": "NYS Registered Retail Dealers of Adult-use Cannabis Products",
+ "rowsUpdatedAt": 1793445383,
+ "columns": [
+  {
+   "fieldName": "external_tpid",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "legal_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "dba_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "ocm_license_number",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "physical_county",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "physical_address",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "physical_city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "physical_state",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "physical_zip",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "georeference",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_yamh_8v7k",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_wbg7_3whc",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_kjdx_g34t",
+   "dataTypeName": "number"
+  }
+ ]
+}

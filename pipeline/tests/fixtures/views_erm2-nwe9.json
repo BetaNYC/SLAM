@@ -1,0 +1,199 @@
+{
+ "id": "erm2-nwe9",
+ "name": "311 Service Requests from 2020 to Present",
+ "rowsUpdatedAt": 1793587069,
+ "columns": [
+  {
+   "fieldName": "unique_key",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "created_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "closed_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "agency",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "agency_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "complaint_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "descriptor",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "descriptor_2",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "location_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "incident_zip",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "incident_address",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "street_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cross_street_1",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cross_street_2",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "intersection_street_1",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "intersection_street_2",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "address_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "landmark",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "facility_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "due_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "resolution_description",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "resolution_action_updated_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "community_board",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "council_district",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "police_precinct",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bbl",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "x_coordinate_state_plane",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "y_coordinate_state_plane",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "open_data_channel_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "park_facility_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "park_borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "vehicle_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "taxi_company_borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "taxi_pick_up_location",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bridge_highway_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bridge_highway_direction",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "road_ramp",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bridge_highway_segment",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "latitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "longitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "location",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_f5dn_yrer",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_yeji_bk3q",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_sbqj_enih",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_92fq_4b7q",
+   "dataTypeName": "number"
+  }
+ ]
+}
