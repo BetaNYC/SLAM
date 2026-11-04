@@ -1,0 +1,83 @@
+{
+ "id": "f8i8-k2gm",
+ "name": "Current SLA Pending Licenses",
+ "rowsUpdatedAt": 1793755987,
+ "columns": [
+  {
+   "fieldName": "application_id",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "premises_county",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "class",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "description",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "legalname",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "dba",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "actual_address_of_premises",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "additional_address_information",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "state_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "zip_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "received_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "aka_address",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "georeference",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_yamh_8v7k",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_wbg7_3whc",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_kjdx_g34t",
+   "dataTypeName": "number"
+  }
+ ]
+}

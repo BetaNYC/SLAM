@@ -1,0 +1,95 @@
+{
+ "id": "6dg3-2z7i",
+ "name": "Current SLA Inactive Licenses",
+ "rowsUpdatedAt": 1793756243,
+ "columns": [
+  {
+   "fieldName": "license_permit_id",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "premises_county",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "type",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "class",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "description",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "legalname",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "dba",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "actual_address_of_premises",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "additional_address_information",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "state_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "zip_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "original_issue_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "last_issue_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "effective_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "expiration_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "legacy_serial_number",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "aka_address",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "georeference",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_yamh_8v7k",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_wbg7_3whc",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_kjdx_g34t",
+   "dataTypeName": "number"
+  }
+ ]
+}

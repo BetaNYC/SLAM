@@ -1,0 +1,59 @@
+{
+ "id": "tvpp-9vvx",
+ "name": "NYC Permitted Event Information",
+ "rowsUpdatedAt": 1793564416,
+ "columns": [
+  {
+   "fieldName": "event_id",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "event_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "start_date_time",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "end_date_time",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "event_agency",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "event_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "event_borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "event_location",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "event_street_side",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "street_closure_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "community_board",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "police_precinct",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cemsid",
+   "dataTypeName": "text"
+  }
+ ]
+}

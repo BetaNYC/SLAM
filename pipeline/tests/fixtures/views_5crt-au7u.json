@@ -1,0 +1,23 @@
+{
+ "id": "5crt-au7u",
+ "name": "Community Districts",
+ "rowsUpdatedAt": 1793648400,
+ "columns": [
+  {
+   "fieldName": "boro_cd",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "shape_leng",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "shape_area",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "the_geom",
+   "dataTypeName": "multipolygon"
+  }
+ ]
+}

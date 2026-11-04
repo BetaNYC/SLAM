@@ -1,0 +1,183 @@
+{
+ "id": "jskf-tt3q",
+ "name": "Current OCM Licenses",
+ "rowsUpdatedAt": 1793748668,
+ "columns": [
+  {
+   "fieldName": "license_number",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_type_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_status_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "issued_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "effective_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "expiration_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "application_number",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "see_category",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "entity_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "dba",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "location_id",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "address_line_1",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "address_line_2",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "state",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "zip_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "county",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "region",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "business_website",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "operational_status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "business_purpose",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "tier_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "processor_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_indoor",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_outdoor",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_mixed_light",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_combination",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_activities_drying",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_activities_storage",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_activities",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cultivation_activities_waste",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "processing_activities",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "processing_activities_blending",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "processing_activities_1",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "processing_activities_branding",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "retail_activities_sales_with",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "retail_activities_sales_no",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "retail_activities_non_cannabis",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "retail_activities_drive_thru",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "retail_date_opened_to_public",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "hours_of_operation",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "primary_contact_name",
+   "dataTypeName": "text"
+  }
+ ]
+}

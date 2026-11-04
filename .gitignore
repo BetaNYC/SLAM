@@ -24,3 +24,12 @@ dist-ssr
 *.sw?
 
 .env
+# SLAM v2 prototype: built data, caches and build output stay out of git
+pipeline/.cache/
+pipeline/.venv/
+pipeline/.pytest_cache/
+pipeline/.ruff_cache/
+**/__pycache__/
+site/static/data/
+site/build/
+site/.svelte-kit/

@@ -1,0 +1,46 @@
+[
+ {
+  "application_id": "NA-0081-26-132590",
+  "premises_county": "Kings",
+  "type": "1",
+  "class": "81",
+  "description": "Grocery Store",
+  "legalname": "BOLLA OPERATING CORP.",
+  "dba": "Bolla 1193 Myrtle Ave",
+  "actual_address_of_premises": "1193 Myrtle Ave",
+  "city": "Brooklyn",
+  "state_name": "New York",
+  "zip_code": "11221",
+  "received_date": "2026-11-03T11:27:00.000",
+  "status": "IntakeComplete",
+  "georeference": {
+   "type": "Point",
+   "coordinates": [
+    -73.93283,
+    40.69725
+   ]
+  }
+ },
+ {
+  "application_id": "NA-0082-26-132486",
+  "premises_county": "New York",
+  "type": "1",
+  "class": "82",
+  "description": "Drug Store",
+  "legalname": "DUANE READE",
+  "dba": "Duane Reade Store #16415",
+  "actual_address_of_premises": "185 Greenwich St Ste LL1207",
+  "city": "New York",
+  "state_name": "New York",
+  "zip_code": "10007",
+  "received_date": "2026-11-02T14:30:00.000",
+  "status": "IntakeComplete",
+  "georeference": {
+   "type": "Point",
+   "coordinates": [
+    -74.01087,
+    40.71091
+   ]
+  }
+ }
+]

@@ -1,0 +1,99 @@
+{
+ "id": "fpeh-f7ci",
+ "name": "Dining Out NYC Locations",
+ "rowsUpdatedAt": 1793712665,
+ "columns": [
+  {
+   "fieldName": "business_legal_name",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "assumed_name_s",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "street",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "city",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "borough",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "postcode",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_status",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "license_issue_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "license_expiration_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "latitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "longitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "council_district",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "community_board",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "bin",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "bbl",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "ct2020",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "nta2020",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "location",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_92fq_4b7q",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_f5dn_yrer",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_yeji_bk3q",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_sbqj_enih",
+   "dataTypeName": "number"
+  }
+ ]
+}
