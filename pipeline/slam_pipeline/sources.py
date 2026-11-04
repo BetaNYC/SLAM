@@ -35,6 +35,10 @@ DISTRICT_SOURCE = {
 }
 
 COUNTIES = "('New York','Kings')"  # SLA / OCM spell counties this way (checked via $group)
+# Extra counties for the 500-foot license count only (QA of #66): BK CD 4 borders Ridgewood,
+# Queens. Spelled as SLA does in 9s3h-dpkz premisescounty, checked via $group on 2026-11-04:
+# "Queens" 5,300 rows, "QUEENS" 1 row. Pulled only inside the widened box (build.py).
+LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 
 # ---- 311 complaints (NYC erm2-nwe9, "311 Service Requests from 2020 to Present")
 # One line to change the window. created_date is a floating timestamp; SoQL compares it
@@ -46,6 +50,38 @@ COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bak
 # Districts are still assigned by point-in-polygon, like every other layer.
 COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in DISTRICTS.values())
 
+
+# ---- schools and houses of worship (#60)
+# FacDB ji82-xba5 school categories, read from the dataset's own data dictionary
+# (facilities_data_dictionary.xlsx, sheet "Categorization", attached to the dataset; recorded
+# 2026-11-04) and confirmed with $group over cd in (101,304). Group "SCHOOLS (K-12)"; its
+# subgroup "GED AND ALTERNATIVE HIGH SCHOOL EQUIVALENCY" is programs, not schools, so it is left
+# out. Day care, pre-K, colleges, after-school and proprietary schools are other groups and are
+# not pulled. FacDB has no house-of-worship category at all (checked in the same sheet).
+SCHOOL_FACGROUP = "SCHOOLS (K-12)"
+SCHOOL_SUBGROUPS = ("PUBLIC K-12 SCHOOLS", "CHARTER K-12 SCHOOLS", "NON-PUBLIC K-12 SCHOOLS",
+                    "PUBLIC AND PRIVATE SPECIAL EDUCATION SCHOOLS")
+# PLUTO 64uk-42ks building classes M1-M4 and M9, as v1 used. Labels are word for word PLUTO's own
+# data dictionary, "PLUTO DATA DICTIONARY August 2026 (26v2)", group "M. CHURCHES, SYNAGOGUES,
+# ETC.", read 2026-11-04 from
+# https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/pluto_datadictionary.pdf
+WORSHIP_CLASSES = {"M1": "Church, Synagogue, Chapel", "M2": "Mission House (Non-Residential)",
+                   "M3": "Parsonage, Rectory", "M4": "Convents", "M9": "Miscellaneous"}
+# Only M1 is a place of worship by PLUTO's own label. M3 (a residence) and M4 (convents) are
+# not, and M2 and M9 do not say (QA of #66). Those lots are listed as "Other religious
+# property" with PLUTO's class label, never as a house of worship.
+PLACE_OF_WORSHIP_CLASSES = ("M1",)
+
+# Per-school notes shown on address pages, keyed on FacDB uid (QA of #66). The City's data is
+# shown as published; the note says what is known about it.
+SCHOOL_NOTES = {
+    # FacDB: '10 SOUTH STREET', BIN 1000003 (the Battery Maritime Building). The school's
+    # building is on Governors Island.
+    "0a9ba4d9c7bd7f1d9488f98cf4af59e6":
+        "The Facilities Database lists this school at 10 South Street, the Battery Maritime "
+        "Building. The school itself is on Governors Island, so this distance is to the listed "
+        "address, not to the school.",
+}
 
 # DOHMH 43nn-pn8j community_board text for the two districts ('101', '304').
 RESTAURANT_BOARDS = tuple(str(d["boro_cd"]) for d in DISTRICTS.values())
@@ -67,6 +103,9 @@ class Source:
     has_point: str | None = None  # name of a Socrata `point` column, if any
     lat_lon: tuple[str, str] | None = None  # separate numeric lat/lon columns
     page_size: int = 50000
+    # (latitude field, longitude field): build.py ANDs a bounding box around the two
+    # districts, widened by SW_BUFFER_FT, onto `where` (sources with no district field).
+    bbox: tuple[str, str] | None = None
     notes: str = ""
     extra: dict = field(default_factory=dict)
 
@@ -220,6 +259,79 @@ SOURCES: list[Source] = [
         order="application_number",
         notes="Joined to address pages by BIN only.",
     ),
+
+    Source(
+        key="schools",
+        domain=NYC,
+        id="ji82-xba5",
+        title="Facilities Database (schools, K-12)",
+        # Columns read from https://data.cityofnewyork.us/api/views/ji82-xba5.json on
+        # 2026-11-04. xcoord/ycoord are DCP's own State Plane feet; build.py checks its own
+        # projection of latitude/longitude against them (axis-order guard).
+        fields=["uid", "facname", "addressnum", "streetname", "address", "boro", "zipcode",
+                "latitude", "longitude", "xcoord", "ycoord", "bin", "bbl", "cd", "facgroup",
+                "facsubgrp", "factype"],
+        where=(f"facgroup = '{SCHOOL_FACGROUP}' AND facsubgrp in {_sql_list(SCHOOL_SUBGROUPS)}"),
+        order="uid",
+        lat_lon=("latitude", "longitude"),
+        bbox=("latitude", "longitude"),
+        notes="School facilities in and within SW_BUFFER_FT of the two districts.",
+    ),
+    Source(
+        key="worship",
+        domain=NYC,
+        id="64uk-42ks",
+        title="PLUTO (houses of worship, building class M1-M4, M9)",
+        # Columns read from https://data.cityofnewyork.us/api/views/64uk-42ks.json on
+        # 2026-11-04. latitude/longitude: "the approximate location of the tax lot".
+        # ownername is deliberately NOT selected. PLUTO carries no facility name.
+        fields=["bbl", "address", "borough", "zipcode", "bldgclass", "latitude", "longitude",
+                "xcoord", "ycoord", "cd", "numbldgs", "version"],
+        where=f"bldgclass in {_sql_list(WORSHIP_CLASSES)}",
+        order="bbl",
+        lat_lon=("latitude", "longitude"),
+        bbox=("latitude", "longitude"),
+        notes="Tax lots with a house-of-worship building class, in and near the two districts.",
+    ),
 ]
 
 SOURCES_BY_KEY = {s.key: s for s in SOURCES}
+
+# ---- the rule text shown on address pages (#60). Quoted from ABC Law §64(7) as published on
+# https://www.nysenate.gov/legislation/laws/ABC/64, "VIEWING MOST RECENT REVISION (FROM
+# 2026-07-31)", read 2026-11-04 in a browser. Paragraphs (a) to (c) are word for word the same
+# as the 2025-08-29 text in the local nys-openlegislation corpus. Facts only; the site never
+# says whether a rule applies.
+SLA_RULES = {
+    "law": "New York Alcoholic Beverage Control Law §64(7)",
+    "url": "https://www.nysenate.gov/legislation/laws/ABC/64",
+    "revision": "2026-07-31",
+    "read": "2026-11-04",
+    "lead": "No retail license for on-premises consumption shall be granted for any premises "
+            "which shall be",
+    "a": "on the same street or avenue and within two hundred feet of a building occupied "
+         "exclusively as a school, church, synagogue or other place of worship",
+    "b": "in a city, town or village having a population of twenty thousand or more within five "
+         "hundred feet of three or more existing premises licensed and operating pursuant to "
+         "this section and sections sixty-four-a, sixty-four-b, sixty-four-c, and/or "
+         "sixty-four-d of this article",
+    "c": "the measurements in paragraphs (a) and (b) of this subdivision are to be taken in "
+         "straight lines from the center of the nearest entrance of the premises sought to be "
+         "licensed to the center of the nearest entrance of such school, church, synagogue or "
+         "other place of worship or to the center of the nearest entrance of each such premises "
+         "licensed and operating pursuant to this section and sections sixty-four-a, "
+         "sixty-four-b, sixty-four-c, and/or sixty-four-d of this article",
+    "related": [
+        {"label": "§64-a (special on-premises licenses)",
+         "url": "https://www.nysenate.gov/legislation/laws/ABC/64-A"},
+        {"label": "§105 (off-premises liquor and wine stores)",
+         "url": "https://www.nysenate.gov/legislation/laws/ABC/105"},
+    ],
+    # The guide URL redirects to a 2013 PDF (QA of #66, checked 2026-11-04); it is SLA Office of
+    # Counsel guidance, not the law. The class URL starts an .xlsx download.
+    "sla_guide": {"label": "SLA, “Measuring the Distance: The 200 and 500 Foot Rules”",
+                  "url": "https://sla.ny.gov/200-and-500-foot-laws", "format": "PDF, 2013"},
+    "sla_classes": {"label": "SLA license type and class definitions",
+                    "url": "https://sla.ny.gov/leap-license-type-and-class-definitions",
+                    "format": "Excel file"},
+}

@@ -445,6 +445,25 @@ def group_addresses(records: list[dict]) -> dict[str, dict]:
     return groups
 
 
+def page_point(hit: dict, rec_lon: float | None, rec_lat: float | None) -> dict:
+    """The point an address page is measured from.
+
+    GeoSearch's PAD address point when the page's geocode is `matched` (same house number,
+    street and borough; see pick_address_hit); otherwise the average of the records' own
+    points, which for most pages is SLA's `georeference`. SLA's points are coarse: QA of
+    PR #66 found a median gap of 75 ft to the PAD point on 1,013 matched pages, two buildings
+    across Greenwich St sharing one SLA point, and '7 WEST 51ST ST' placed in Lower Manhattan.
+    Returns {"lon", "lat", "source": "geosearch" | "records" | None, "records_gap_m"}: the gap
+    between the records' average and the GeoSearch point, in metres (None if not both)."""
+    if hit.get("status") == "matched" and hit.get("lon") is not None:
+        gap = (round(meters(rec_lon, rec_lat, hit["lon"], hit["lat"]))
+               if rec_lon is not None else None)
+        return {"lon": hit["lon"], "lat": hit["lat"], "source": "geosearch", "records_gap_m": gap}
+    if rec_lon is not None:
+        return {"lon": rec_lon, "lat": rec_lat, "source": "records", "records_gap_m": None}
+    return {"lon": None, "lat": None, "source": None, "records_gap_m": None}
+
+
 def key_pages(groups: dict[str, dict], geo: dict[str, dict]) -> tuple[dict[str, dict], dict[str, str]]:
     """Merge address groups into address pages.
 
@@ -467,11 +486,14 @@ def key_pages(groups: dict[str, dict], geo: dict[str, dict]) -> tuple[dict[str, 
         recs = [r for g in gs for r in g["records"]]
         pts = [(g["lon"], g["lat"], len(g["records"])) for g in gs if g["lon"] is not None]
         w = sum(p[2] for p in pts)
+        rec_lon = sum(p[0] * p[2] for p in pts) / w if pts else None
+        rec_lat = sum(p[1] * p[2] for p in pts) / w if pts else None
+        point = page_point(hit, rec_lon, rec_lat)
         page = {"id": pid, "bin": hit["bin"], "street": main["street"], "city": main["city"],
                 "zip": (hit.get("zip") if hit["bin"] else None) or main["zip"],
                 "district": main["district"], "records": recs,
-                "lon": sum(p[0] * p[2] for p in pts) / w if pts else None,
-                "lat": sum(p[1] * p[2] for p in pts) / w if pts else None,
+                "lon": point["lon"], "lat": point["lat"],
+                "point": {k: point[k] for k in ("source", "records_gap_m")},
                 "geocode": {k: hit.get(k) for k in ("status", "label", "confidence")},
                 "keys": [g["id"] for g in gs],
                 # Every street + ZIP the sources used for this page (more than one = merged).
@@ -646,3 +668,146 @@ def page_co_bin(page_bin: str | None, restaurant_bins: list[str]) -> tuple[str |
     if len(uniq) == 1:
         return uniq[0], "dohmh"
     return None, None
+
+
+# ---------------------------------------------------------------- schools and houses of worship (#60)
+#
+# Distances follow the State Liquor Authority's rules only in KIND: ABC Law §64(7)(c) measures
+# "in straight lines" between "the center of the nearest entrance" of each premises. The data
+# has no entrances, only one point per building or lot, so every distance here is a straight
+# line between those points ("approximate, building point to building point"). Nothing here
+# decides whether a rule applies.
+
+SW_LIST_FT = 200  # §64(7)(a): "within two hundred feet"
+LIQUOR_COUNT_FT = 500  # §64(7)(b): "within five hundred feet"
+# Margin around the districts' bounding box for the facility and license pulls. More than
+# LIQUOR_COUNT_FT, so nothing within 500 ft of a page near the district line is cut off.
+SW_BUFFER_FT = 600
+
+# On-premises liquor classes counted for the 500-foot figure. §64(7)(b) counts premises
+# "licensed and operating pursuant to this section and sections sixty-four-a, sixty-four-b,
+# sixty-four-c, and/or sixty-four-d". SLA's own class table (https://sla.ny.gov/leap-license-
+# type-and-class-definitions, an .xlsx linked from the active-licenses dataset 9s3h-dpkz,
+# recorded in tests/fixtures/sla_license_classes.json) gives each class a product but no ABC
+# section. Counted: license type 1, classes 0340 to 0421, the run of retail classes whose product
+# is Liquor, from Restaurant (0340) through Winter Race Tracks (0421), including Bottle Club
+# (0415), Restaurant Brewer (0416) and Cabaret (0417). Not counted: wine- and beer-only classes,
+# off-premises classes (Liquor Store 0100, Off Premises Caterer 0101), manufacturers and
+# wholesalers, permits (type 2), Additional Bar classes (0422, 0423, 0426: extra bars, product
+# blank in SLA's table) and For-profit Club (0425: not in SLA's table; §64-f is not named in
+# §64(7)(b)).
+ON_PREMISES_LIQUOR_CLASSES = range(340, 422)
+
+
+def is_on_premises_liquor(lic_type, lic_class) -> bool:
+    """True for an SLA license row counted toward the 500-foot figure (see above)."""
+    if str(lic_type or "").strip() != "1":
+        return False
+    c = str(lic_class or "").strip()
+    return c.isdigit() and int(c) in ON_PREMISES_LIQUOR_CLASSES
+
+
+_ORDN = r"\d+(?:ST|ND|RD|TH)?"
+# Floor, suite and unit text written after the street (QA of #66, all real strings from FacDB
+# `address` and SLA `actualaddressofpremises`): '26 BROADWAY-12TH FL', '231 PALMETTO
+# ST-FL 3-RM 327A', '99 WALL ST - #4487', '1 WALL ST 15TH FL', '200 WEST ST 11TH & 12TH
+# FLOORS', '21 23 PECK SLIP, GR FL STORE 1', '363 Greenwich St # 1A', '179 Duane St Frnt 1'.
+_STREET_TAILS = (
+    re.compile(r"\s*-\s*(?:\d|#|STE\b|SUITE\b|FL\b|FLR\b|FLOOR|RM\b|ROOM\b|UNIT\b|APT\b).*$"),
+    re.compile(r"\s*#.*$"),
+    re.compile(rf"\s+{_ORDN}(?:\s*(?:-|&|AND)\s*{_ORDN})?\s*(?:FL|FLR|FLRS|FLOOR|FLOORS)\b.*$"),
+    re.compile(r"\s+\d+(?:ST|ND|RD|TH)FL\b.*$"),
+    re.compile(r"\s+(?:GR|GRD|GROUND)(?:\s+(?:FL|FLR|FLOOR))?\b.*$"),
+    re.compile(r"\s+(?:FRNT|FRONT|REAR|SITE|SPC)\b.*$"),
+)
+_SUFFIX_TOKENS = set(_SUFFIX.values())
+
+
+def street_name(street: str | None) -> str:
+    """Normalized street name with the house number, and any floor, suite or unit text after
+    the street, removed: '75 Broad Street' -> 'BROAD ST', '26 BROADWAY-12TH FL' -> 'BROADWAY'.
+    For the "same street" comparison only; address keys (normalize_address) are unchanged.
+    'SAINT' is read as 'ST' ('SAINT NICHOLAS AVE' = 'ST NICHOLAS AVE'). A number left right
+    after a street suffix is a unit ('25 N MOORE ST 1A'); after anything else it is kept
+    ('89 SOUTH STREET PIER 17'). A second bare number is the end of a house-number range
+    ('21 23 PECK SLIP'); an ordinal is a street ('100 5TH AVE')."""
+    if not street:
+        return ""
+    m = re.match(r"\s*(\d+(?:-\d+)?[A-Z]?\s+)?(.*)$", re.sub(r"\s+", " ", street.upper()))
+    rest = m.group(2).replace(",", " ")
+    if m.group(1):  # a house-number range written with a space: '21 23 PECK SLIP'
+        rest = re.sub(r"^\d+[A-Z]?\s+(?=[A-Z])", "", rest)
+    for rx in _STREET_TAILS:
+        rest = rx.sub("", rest)
+    n = _street_part(f"0 {rest}")
+    toks = ["ST" if t == "SAINT" else t for t in n.split(" ") if t]
+    if len(toks) > 1 and re.fullmatch(r"\d+[A-Z]?", toks[-1]) and toks[-2] in _SUFFIX_TOKENS:
+        toks.pop()
+    return " ".join(toks)
+
+
+def _float(v) -> float | None:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if f else None
+
+
+# FacDB's own column description (ji82-xba5 `streetname`, `address`): streetname is "left blank"
+# when the address "is not complete with an address number", and address then holds "any
+# location description that was provided".
+NO_VALIDATED_ADDRESS_NOTE = ("The Facilities Database has no validated street address for this "
+                             "school. The address shown is the text the source was given, which "
+                             "may be an office or mailing address.")
+
+
+def normalize_school(row: dict, notes: dict[str, str] | None = None) -> dict:
+    """One FacDB ji82-xba5 row -> a school facility. `note`: a per-school note keyed on uid,
+    else NO_VALIDATED_ADDRESS_NOTE when FacDB left streetname blank, else ''."""
+    street = _clean(row.get("address"))
+    note = (notes or {}).get(row.get("uid")) or ("" if row.get("streetname") else NO_VALIDATED_ADDRESS_NOTE)
+    return {"id": f"s-{row.get('uid')}", "kind": "school", "name": _clean(row.get("facname")),
+            "note": note,
+            "type": _clean(row.get("factype")).capitalize(), "street": street,
+            "street_name": street_name(f"0 {row.get('streetname')}") if row.get("streetname")
+            else street_name(street),
+            "zip": zip5(row.get("zipcode")), "bin": real_bin(row.get("bin")),
+            "bbl": _clean(row.get("bbl")).split(".")[0],
+            "lon": _float(row.get("longitude")), "lat": _float(row.get("latitude")),
+            "x": _float(row.get("xcoord")), "y": _float(row.get("ycoord"))}
+
+
+def normalize_worship(row: dict, classes: dict[str, str], worship_classes=("M1",)) -> dict:
+    """One PLUTO 64uk-42ks row -> a lot. kind 'worship' (house of worship) for a class in
+    worship_classes, else 'religious' (other religious property). PLUTO has no facility name,
+    so the lot is described by its building class."""
+    street = _clean(row.get("address"))
+    cls = _clean(row.get("bldgclass"))
+    return {"id": f"w-{_clean(row.get('bbl')).split('.')[0]}",
+            "kind": "worship" if cls in worship_classes else "religious", "note": "",
+            "name": "", "type": classes.get(cls, cls), "cls": cls, "street": street,
+            "street_name": street_name(street), "zip": zip5(row.get("zipcode")), "bin": None,
+            "bbl": _clean(row.get("bbl")).split(".")[0],
+            "lon": _float(row.get("longitude")), "lat": _float(row.get("latitude")),
+            "x": _float(row.get("xcoord")), "y": _float(row.get("ycoord"))}
+
+
+def bbox_with_margin(xs: list[float], ys: list[float], margin_ft: float) -> tuple[float, float, float, float]:
+    """(min lon, min lat, max lon, max lat) widened by margin_ft. One degree of latitude is
+    about 364,000 ft; a degree of longitude is that times cos(latitude). The margin only sizes
+    the pull, it measures nothing."""
+    import math
+    lat_mid = (min(ys) + max(ys)) / 2
+    dlat = margin_ft / 364_000
+    dlon = margin_ft / (364_000 * math.cos(math.radians(lat_mid)))
+    return min(xs) - dlon, min(ys) - dlat, max(xs) + dlon, max(ys) + dlat
+
+
+def same_street(page_streets: set[str], fac_street_name: str) -> bool | None:
+    """True when the facility's listed street name is one of the page's listed street names.
+    None when either side has no street name. False only means the records list different
+    streets: a corner building fronts two streets, and PLUTO and FacDB list one address each."""
+    if not fac_street_name or not page_streets:
+        return None
+    return fac_street_name in page_streets

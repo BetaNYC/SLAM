@@ -1,0 +1,548 @@
+{
+ "id": "64uk-42ks",
+ "name": "Primary Land Use Tax Lot Output (PLUTO)",
+ "rowsUpdatedAt": 1787604531,
+ "description": "Extensive land use and geographic data at the tax lot level in comma-separated values (CSV) file format. The PLUTO files contain more than seventy fields derived from data maintained by city agencies.\n\nAll previously released versions of this data are available on the <a href=\"https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change\">DCP Website: BYTES of the BIG APPLE</a>. Current version: 26v2",
+ "columns": [
+  {
+   "fieldName": "borough",
+   "dataTypeName": "text",
+   "description": "The borough in which the tax lot is located. This field contains a two-character borough code.\n\nTwo portions of the city, Marble Hill and Rikers Island, are legally located in one borough but are serviced by a different borough. The BOROUGH codes associated with these areas are the boroughs in which they are legally located. Marble Hill is serviced by the Bronx, but is legally located in Manhattan and has a BOROUGH of MN. Rikers Island is serviced by Queens, but is legally located in the Bronx and has a BOROUGH of BX."
+  },
+  {
+   "fieldName": "block",
+   "dataTypeName": "number",
+   "description": "The tax block in which the tax lot is located.\nThis field contains a one to five-digit tax block number.\nEach tax block is unique within a borough (see BOROUGH)."
+  },
+  {
+   "fieldName": "lot",
+   "dataTypeName": "number",
+   "description": "The number of the tax lot.\n\nThis field contains a one to four-digit tax lot number.\n\nEach tax lot is unique within a tax block (see TAX BLOCK).\n\n<b>Special handling for condominiums:</b>\n\nIn a condominium complex, each condominium unit is a separate tax lot and has its own lot number. In a residential condominium, the condominium units are generally the individual apartments; in a commercial condominium, the units might be floors in an office building, individual retail shops, or blocks of office space. These unit lot numbers have values between 1001 - 6999.\n\nEach unit tax lot has an associated billing lot number, with values between 7501 - 7599. Lots in a condominium complex on the same block will have the same billing lot number. To make condominium information more compatible with parcel information, the Department of City Planning aggregates condominium unit tax lot information to the billing lot. For example, if a residential condominium building contains 20 units, the Department of Finance will assign 20 unit lot numbers and each of these lot numbers will have the same billing lot number. PLUTO will contain one record with the billing lot number and RESIDENTIAL UNITS will be set to 20.\n\nIf the Department of Finance has not yet assigned a billing lot number to the condominium complex, PLUTO uses the lowest unit lot number within the complex.\n\nNote on MapPLUTO: The Department of Finance Digital Tax Map (DTM) contains the geography of the base lot for condominiums. The base lot is also called the \"Formerly Known As\" or FKA lot. For most condominium complexes, there is one base lot per billing lot. In using the DTM to create MapPLUTO, DCP replaces the base lot number with the billing lot number. If there is more than one base lot with the same billing lot number, DCP merges the base lots to create a geography for the billing lot.\n\nUnder certain circumstances, DCP is unable to aggregate condominium unit tax lot information to the billing lot or to the lowest unit lot number. This occurs when a CONDOMINIUM NUMBER has not yet been assigned to the unit lots in PTS. In most cases, these unit lots will appear in PLUTO and in the NOT_MAPPED_LOTS table that is released with MapPLUTO. Before including these unit lots, the data is checked to verify that it pertains only to the unit lot. If unit lots have an identical address and a value for RESIDENTIAL UNITS that is greater than 1 and the same for all records, and there is no matching BBL in the DTM, they are assumed to part of the same condominium. BUILDING AREA is checked in the same way. These unit lots are removed from PLUTO and NOT_MAPPED_LOTS to avoid overcounting the number of residential units and building area."
+  },
+  {
+   "fieldName": "cd",
+   "dataTypeName": "number",
+   "description": "The community district (CD) or joint interest area (JIA) for the tax lot. The city is divided into 59 community districts and 12 joint interest areas, which are large parks or airports that are not considered part of any community district.\n\nThis field consists of three digits, the first of which is the borough code (see BORO CODE). The second and third digits are the community district or joint interest area number, whichever is applicable.\n\nJoint interest areas:\nBOROUGH JIA NAME\nManhattan 164 Central Park\nBronx\n226 Van Cortlandt Park\n227 Bronx Park\n228 Pelham Bay Park\nBrooklyn 355 Prospect Park\n356 Gateway National Recreation Area\nQueens\n480 LaGuardia Airport\n481 Flushing Meadow/Corona Park\n482 Forest Park\n483 JFK International Airport\n484 Gateway National Recreation Area\nStaten Island 595 Gateway National Recreation Area\n\nTwo portions of the city, Marble Hill and Rikers Island, are legally located in one borough, but serviced by a different borough. The COMMUNITY DISTRICT associated with these areas is the community district by which they are serviced.\n\nMarble Hill is legally located in Manhattan, but is serviced by the Bronx and is divided between community districts 207 and 208. Rikers Island is legally located in the Bronx, but is serviced by Queens and is part of community district 401.\n\nCOMMUNITY DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, COMMUNITY DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "ct2010",
+   "dataTypeName": "number",
+   "description": "The 2010 census tract in which the tax lot is located.\n\nThis field contains a one to four-digit census tract number, sometimes with a decimal point and a two-digit suffix.\n\n2010 census tracts are geographic areas defined by the U.S. Census Bureau for the\n2010 Census. Census tracts are comprised of census blocks.\n\nEach census tract is unique within a borough (see BOROUGH).\n\nExamples:\n   Census Tract 203.01\n   Census Tract 23\n\nCENSUS TRACT 2010 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS TRACT 2010 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "cb2010",
+   "dataTypeName": "number",
+   "description": "The 2010 census block in which the tax lot is located.\n\nThis field contains a four-digit census block number and, when applicable, a one- character alphabetic suffix.\n\n2010 census blocks are the smallest geographic areas defined by the U.S. Census Bureau.\n\nEach census block number is unique within a census tract (see CENSUS TRACT).\n\nExamples:\n   Census Block 101A\n   Census Block 102"
+  },
+  {
+   "fieldName": "schooldist",
+   "dataTypeName": "number",
+   "description": "The school district in which the tax lot is located.\n\nThis field contains a two-digit school district number, which is preceded with a zero when the district number is one digit.\n\nThe city is divided up into 34 school districts. Those districts are then divided into smaller zones which determine the area served by local schools. Each district has its own superintendent and receives guidance from a Community District Education Council made up of parents and local representatives.\n\nSCHOOL DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SCHOOL DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "council",
+   "dataTypeName": "number",
+   "description": "The city council district in which the tax lot is located.\n\nThis field contains a two-digit city council district number, which is preceded with a zero when the district number is one digit.\n\nThere are currently 51 city council districts in the City, which serve as political districts for the legislative branch of city government."
+  },
+  {
+   "fieldName": "zipcode",
+   "dataTypeName": "number",
+   "description": "A ZIP code that is valid for one of the addresses assigned to the tax lot.\n\nNote that a tax lot may have multiple addresses and these addresses may not have the same ZIP code. A building with entrances on two streets may have a different ZIP code for each street address. ZIP CODE may not be valid for the street address in ADDRESS.\n\nIf a tax lot does not have an ADDRESS or the ADDRESS contains a street name without a house number, ZIP CODE will be blank."
+  },
+  {
+   "fieldName": "firecomp",
+   "dataTypeName": "text",
+   "description": "The fire company that services the tax lot.\n\nThis field consists of four characters, the first of which is an alphabetic code identifying the type of fire company, where E stands for Engine, L stands for Ladder and Q stands for Squad. The type code is followed by a one to three- digit fire company number which is preceded with leading zeros if the company number is less than three digits.\n\nFIRE COMPANY contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, FIRE COMPANY is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files. data_type: text"
+  },
+  {
+   "fieldName": "policeprct",
+   "dataTypeName": "number",
+   "description": "The police precinct in which the tax lot is located.\n\nThis field contains a three-digit police precinct number which is preceded with\nleading zeros if the precinct number has less than three digits.\n\nPOLICE PRECINCT contains the value returned by Geosupport for one of the\naddresses assigned to the lot. If Geosupport does not return a value, POLICE\nPRECINCT is calculated spatially using the tax lot's XY COORDINATES and\nDCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "healtharea",
+   "dataTypeName": "number",
+   "description": "The health area in which the tax lot is located.\n\nHealth areas were originally created in the 1920s for the purpose of reporting and statistical analysis of public health data. They were based on census tracts and created to be areas of equal population. Health areas are contained within health center districts.\n\nThis field contains a four-digit health area number, which is preceded with leading zeros when the health area is less than four digits. There is an implied decimal point after the first two digits.\n\nHEALTH AREA contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, HEALTH AREA is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "sanitboro",
+   "dataTypeName": "number",
+   "description": "The borough of the sanitation district that services the tax lot.\n\nSANITATION DISTRICT BORO contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SANITATION DISTRICT BORO is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "sanitsub",
+   "dataTypeName": "text",
+   "description": "The subsection of the sanitation district that services the tax lot.\n\nSANITATION SUBSECTION contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SANITATION SUBSECTION is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.    data_source: |"
+  },
+  {
+   "fieldName": "address",
+   "dataTypeName": "text",
+   "description": "An address for the tax lot.\n\nTax lots may be assigned a single house number on a street, a range of house numbers on a street, or addresses on multiple streets. ADDRESS contains the address in PTS, using the low number when there is a range of house numbers. Some tax lots, such as vacant lots or parks, have only a street name and no house number.\n\nA complete list of the addresses assigned to a tax lot is available through Geosupport or by downloading the Property Address Directory (PAD) from the BYTES of the BIG APPLETM.\n\nMost house numbers in Queens contain a hyphen."
+  },
+  {
+   "fieldName": "zonedist1",
+   "dataTypeName": "text",
+   "description": "The zoning district classification of the tax lot. Under the Zoning Resolution, the map of New York City is generally apportioned into three basic zoning district categories: Residence (R), Commercial (C) and Manufacturing (M), which are further divided into a range of individual zoning districts, denoted by different number and letter combinations. In general, the higher the number immediately following the first letter (R, C or M), the higher the density or intensity of land use permitted.\n\nIf the tax lot is divided by a zoning boundary line, ZONING DISTRICT 1 represents the zoning district classification occupying the greatest percentage of the tax lot's area.\n\nFor example: Tax lot 98 is divided by a zoning boundary line into part A and part B. Part A, the largest portion of the lot, is in a commercial zoning district, while part B is in a residential zoning district. ZONING DISTRICT 1 will contain the commercial zoning district associated with part A.\n\nTax lots that intersect with areas designated in NYC Zoning Districts as PARK, BALL FIELD, PLAYGROUND, and PUBLIC SPACE are assigned a single value of PARK in PLUTO. The NYC Zoning Districts do not constitute a definitive list of parks in the city. Lots designated as PARK should not be used to calculate the amount of open space in an area.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.\n\nAbbreviation Description\nR1-1 - R12 Residential Districts\nC1-6 - C8-4 Commercial Districts\nM1-1 - M3-2 Manufacturing Districts\nM1-1/R5 - M1-6/R10 Mixed Manufacturing & Residential Districts\nBPC Battery Park City\nPARK Areas designated as PARK, BALL FIELD,\nPLAYGROUND and PUBLIC SPACE in NYC\nZoning Districts"
+  },
+  {
+   "fieldName": "zonedist2",
+   "dataTypeName": "text",
+   "description": "If the tax lot is divided by zoning boundary lines, ZONING DISTRICT 2 represents the zoning classification occupying the second greatest percentage of the tax lot's area. Only zoning districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not divided by a zoning boundary line, the field is blank.\n\nFor example: Tax lot 98 is divided by a zoning boundary line into part A and part B. Part A, the larger portion of the lot, is in a commercial zoning district, while part B is in a residential zoning district. ZONING DISTRICT 2 will contain the residential zoning district associated with part B.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "zonedist3",
+   "dataTypeName": "text",
+   "description": "If the tax lot is divided by zoning boundary lines, ZONING DISTRICT 3 represents the zoning classification occupying the third greatest percentage of the tax lot's area. Only zoning districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not split between three zoning districts, the field is blank.\n\nFor example: Tax lot 98 is divided by zoning boundary lines into three sections - part A, part B and part C. Part A represents the largest portion of the lot, part B is the second largest portion of the lot, and part C covers the smallest portion of the tax lot. ZONING DISTRICT 3 will contain the zoning associated with part C.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "zonedist4",
+   "dataTypeName": "text",
+   "description": "If the tax lot is divided by zoning boundary lines, ZONING DISTRICT 4 represents\n\nthe zoning classification occupying the fourth greatest percentage of the tax lot's area. Only zoning districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not split between four zoning districts, the field is blank.\n\nFor example: Tax lot 98 is divided by zoning boundary lines into four sections - part A, part B, part C and part D. Part A represents the largest portion of the lot, part B is the second largest portion of the lot, part C represents the third largest portion of the lot, and part D covers the smallest portion of the tax lot. ZONING DISTRICT 4 will contain the zoning associated with part D.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "overlay1",
+   "dataTypeName": "text",
+   "description": "The commercial overlay assigned to the tax lot. A commercial overlay is a C1 or C2 zoning district mapped within residential zoning districts to serve local retail needs (grocery stores, dry cleaners, restaurants, for example).\n\nIf more than one commercial overlay exists on the tax lot, COMMERCIAL OVERLAY 1 represents the commercial overlay occupying the greatest percentage of the lot area. The commercial overlay district must either cover at least 10% of a tax lot's area or at least 50% of the commercial overlay district must be contained within the tax lot.\n\nIf the tax lot is does not contain a commercial overlay, the field is blank.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "overlay2",
+   "dataTypeName": "text",
+   "description": "A commercial overlay assigned to the tax lot.\n\nIf the tax lot has more than one commercial overlays, COMMERCIAL OVERLAY 2 represents the commercial overlay occupying the second largest percentage of the tax lot's area. The commercial overlay district must either cover at least 10% of a tax lot's area or at least 50% of the commercial overlay district must be contained within the tax lot.\n\nIf the tax lot is not divided by two commercial overlays the field is blank. See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "spdist1",
+   "dataTypeName": "text",
+   "description": "The special purpose district assigned to the tax lot. The regulations for special purpose districts are designed to supplement and modify the underlying zoning in order to respond to distinctive neighborhoods with particular issues and goals. Only special purpose districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not in a special purpose district, the field is blank.\n\nIf more than one special purpose district exists on the tax lot, SPECIAL PURPOSE DISTRICT 1 represents the special purpose district occupying the greatest percentage of the lot area. If the greatest percentage is occupied by two special purpose districts that overlap each other and cover the same percentage of the lot, SPECIAL PURPOSE DISTRICT 1 contains both special purpose districts. separated by \"/\".\n\u2022 See Appendix A for valid values.\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "spdist2",
+   "dataTypeName": "text",
+   "description": "The special purpose district assigned to the tax lot. The regulations for special purpose districts are designed to supplement and modify the underlying zoning in order to respond to distinctive neighborhoods with particular issues and goals. Only special purpose districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not divided by at least two special purpose districts, the field is blank.\n\nIf more than one special purpose district exists on the tax lot, SPECIAL PURPOSE DISTRICT 2 represents the special purpose district occupying the second greatest percentage of the lot area. If the second greatest percentage is occupied by two special purpose districts that overlap each other and cover the same percentage of the lot, SPECIAL PURPOSE DISTRICT 2 contains both special purpose districts. separated by \"/\".\n\nSee Appendix A for valid values.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "spdist3",
+   "dataTypeName": "text",
+   "description": "The special purpose district assigned to the tax lot. The regulations for special purpose districts are designed to supplement and modify the underlying zoning in order to respond to distinctive neighborhoods with particular issues and goals. Only special purpose districts that cover at least 10% of a tax lot's area are included.\n\nIf the tax lot is not divided by at least three special purpose districts, the field is blank.\n\nIf the tax lot has more than two special purpose districts, SPECIAL PURPOSE DISTRICT 3 represents the special purpose district occupying the smallest percentage of the lot area.\n\nSee Appendix A for valid values.\n\nSee SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided."
+  },
+  {
+   "fieldName": "ltdheight",
+   "dataTypeName": "text",
+   "description": "The limited height district assigned to the tax lot. A limited height district is superimposed on an area designated as an historic district by the Landmarks Preservation Commission.\n\nSee Appendix B for valid values."
+  },
+  {
+   "fieldName": "splitzone",
+   "dataTypeName": "checkbox",
+   "description": "A code indicating whether the tax lot is split between multiple zoning features. The split boundary indicator is equal to \"Y\" if the tax lot has a value for ZONING DISTRICT 2, COMMERCIAL OVERLAY 2, or SPECIAL DISTRICT BOUNDARY 2."
+  },
+  {
+   "fieldName": "bldgclass",
+   "dataTypeName": "text",
+   "description": "A code describing the major use of structures on the tax lot.\n\nExcept as described below, BUILDING CLASS is taken from PTS without modification.\n\nFor condominiums, PTS contains the building class for each unit lot. When merging this data into a single record for the billing lot, DCP creates several mixed-use building classes (RC, RD, RI, RM, RX, and RZ). These are assigned as follows:\n\u2022 If all unit lots have the same building class, that building class is used for the\nbilling lot.\n\u2022 PTS building class types are grouped as follows:\n  o Commercial - R5, R7, R8, RA, RB, RH, and RK\n  o Residential - R1, R2, R3, R4, R6, and RR\n  o Mixed commercial and residential - R9\n  o Industrial/warehouse - RW\n\u2022 If the unit lots are a mixture of commercial building types, BUILDING CLASS = RC.\n\u2022 If the unit lots are a mixture of residential building types, BUILDING CLASS = RD.\n\u2022 If the unit lots are a mixture of commercial and residential building types, BUILDING CLASS = RM.\n\u2022 If the unit lots are a mixture of commercial and industrial/warehouse building types, BUILDING CLASS = RI.\n\u2022 If the unit lots are a mixture of commercial, residential, and industrial/warehouse building types, BUILDING CLASS = RX.\n\u2022 If the unit lots are a mixture of residential and industrial/warehouse building types, BUILDING CLASS = RZ.\n\u2022 When unit lots with a building class of RG (Indoor Parking), RP (Outdoor Parking), RS (Non-Business Storage Space), or RT (Terraces/Gardens/Cabanas) have the same billing lot as another building class, their building class is ignored. For example, if the billing lot has unit lots with a building class of R4 (Residential Unit in Elevator Bldg) and RG (Indoor Parking), BUILDING CLASS = R4.\n\nQ0 is assigned by DCP to tax lots with a PTS building class starting with \"V\" that are identified in the NYC GIS Zoning Database as PARK, BALL FIELD, PLAYGROUND, or PUBLIC SPACE.\n\nQG is assigned by DCP to tax lots with a PTS building class starting with \"V\" that contain community gardens from the Department of Parks and Recreation's NYC Greenthumb Community Gardens dataset. This is done to comply with Local Law 46 of 2020, which requires that such lots be given a land use category of open space, outdoor recreation, a community garden, or other similar description. Lots with a BUILDING CLASS of QG are assigned to LAND USE CATEGORY \"09\" (Open Space & Outdoor Recreation). This land use assignment is solely informational and does not confer or change a legal status for such a tax lot.\n\nPTS contains two building classes for some tax lots, with one of the building classes being Z7 (Easement). BUILDING CLASS is only set to Z7 when it is the only PTS building class for the tax lot.\n\nSee Appendix C - Building Class Codes for valid values"
+  },
+  {
+   "fieldName": "landuse",
+   "dataTypeName": "number",
+   "description": "A code for the tax lot's land use category.\n\nThe Department of City Planning has created 11 land use categories and assigns each BUILDING CLASS to the most appropriate land use category.\n\nAppendix D - Land Use Categories details the relationship of building classes to land use categories."
+  },
+  {
+   "fieldName": "easements",
+   "dataTypeName": "number",
+   "description": "The number of unique easements on the tax lot.\n\nPTS contains a record for each easement. NUMBER OF EASEMENTS is calculated by counting the number of unique PTS easement records for the tax lot.\n\nIf the number of easements is zero, the tax lot has no easements."
+  },
+  {
+   "fieldName": "ownertype",
+   "dataTypeName": "text",
+   "description": "A code indicating type of ownership for the tax lot.\n\nOnly one data source is used per tax lot.\n\nThe COLP file, which contains more accurate and specific type of city ownership data than PTS, is used when data is available for that lot. Codes C, M, O, P are derived from COLP.\n\nIf the tax lot is not in COLP, PTS is checked to see if the lot's EXEMPT TOTAL VALUE equals its ASSESSED TOTAL VALUE. If the two values are the same, the lot is given a code of X. Otherwise the tax lot is not given any TYPE OF OWNERSHIP CODE.\n\nOWNER NAME should be referenced to verify type of ownership, particularly when it's important to distinguish between state, federal, and public authority ownership."
+  },
+  {
+   "fieldName": "ownername",
+   "dataTypeName": "text",
+   "description": "The name of the owner of the tax lot.\n\nFor publicly owned tax lots, owner names have been normalized. For example, \"NYC PARKS\", \"PARKS DEPARTMENT\", and \"PARKS AND RECREATION (GENERAL)\" have been changed to \"NYC DEPARTMENT OF PARKS AND RECREATION\".\n\nIf OWNER NAME is normalized, DCPEdited is set to \"1\". (see CHANGED BY DCP)."
+  },
+  {
+   "fieldName": "lotarea",
+   "dataTypeName": "number",
+   "description": "Total area of the tax lot, expressed in square feet rounded to the nearest integer.\n\nLOT AREA contains street beds when the tax lot contains \"paper streets\" i.e., streets mapped but not built.\n\nIf the tax lot is not an irregularly shaped lot (see IRREGULAR LOT CODE) the Department of Finance calculates the LOT AREA by multiplying the LOT FRONTAGE by the LOT DEPTH. If the tax lot is irregularly shaped, DOF calculates the LOT AREA from the Digital Tax Map.\n\nIf PTS contains a zero value for LOT AREA, this field is changed to show the area of the tax lot's geometric shape in the Digital Tax Map and DCPEdited is set to \"1\". (see CHANGED BY DCP)."
+  },
+  {
+   "fieldName": "bldgarea",
+   "dataTypeName": "number",
+   "description": "The total gross area in square feet, except for condominium measurements which come from the Condo Declaration and are net square footage not gross.\n\nTOTAL BUILDING FLOOR AREA is populated in the following order of preference:\n  1. Gross floor area from PTS\n  2. Gross floor area from CAMA\n  3. Calculated from the PTS building dimensions and number of stories for the primary building on the lot. TOTAL BUILDING FLOOR AREA calculated by this method will not include floor area for any other buildings on the lot.\n  4. TOTAL BUILDING FLOOR AREA is set to zero if the building class starts with \"V\" and the number of buildings is zero.\n\nSee TOTAL BUILDING FLOOR AREA SOURCE CODE to determine which method was used.\n\nIf TOTAL BUILDING FLOOR AREA SOURCE CODE has a value of 2 (PTS) or 7 (CAMA), the TOTAL BUILDING FLOOR AREA is based on gross building area, also known as total gross square feet. For these data sources, the TOTAL BUILDING FLOOR AREA is for all of the structures on the tax lot, including stairwells, halls, elevator shafts, attics and extensions such as attached garages. Measurements are based on exterior dimensions and take into account setbacks.\n\nIf the TOTAL BUILDING FLOOR AREA SOURCE CODE field has a value of 5, the floor area was calculated from the DOF Property Tax System (PTS) using the building dimensions and number of stories for ONLY the largest structure on the tax lot.\n\nIn all cases, this is a rough estimate of the gross building floor area and does not necessarily take into account all the criteria for calculating floor area as defined in section 12-10 of the Zoning Resolution.\n\nRoof areas used for parking/garden/playground are not included in the floor area.\n\nIf TOTAL BUILDING FLOOR AREA SOURCE CODE is 2, TOTAL BUILDING FLOOR AREA contains the common area for condominiums.\n\nIf FLOOR AREA, TOTAL BUILDING SOURCE CODE is 7, TOTAL BUILDING FLOOR AREA does not include below grade finished basements.\n\nIf the basement in a one, two or three family structure is above grade and finished, its square footage is included in TOTAL BUILDING FLOOR AREA.\n\nA TOTAL BUILDING FLOOR AREA of zero can mean it is either not available or not applicable. If NUMBER OF BUILDINGS is greater than zero, then a TOTAL BUILDING FLOOR AREA of zero means it is not available. If NUMBER OF BUILDINGS is zero, then a TOTAL BUILDING FLOOR AREA of zero means it is not applicable."
+  },
+  {
+   "fieldName": "comarea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for commercial use.\n\nValue is taken from PTS, if available. When calculated from PTS data, COMMERCIAL FLOOR AREA is the sum of floor areas for office, retail, garage, storage, factory, and other uses. If these fields are not populated in PTS, the value is taken from CAMA.\n\nOriginally square footage came from sketches, but, for both new construction and alterations, it now comes from site visits. Basement square footage may be included in COMMERCIAL FLOOR AREA if the commercial buildings meets two of the three following criteria:\n\u2022 Finished\n\u2022 Active\n\u2022 Publicly accessible\nFor condominiums, COMMERCIAL FLOOR AREA is the sum of the commercial floor area for condominium lots with the same billing lot. COMMERCIAL FLOOR AREA does not contain the condominium's common area.\n\nA COMMERCIAL FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "resarea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for residential use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nFor condominiums, RESIDENTIAL FLOOR AREA is the sum of the residential floor area for condominium lots with the same billing lot. RESIDENTIAL FLOOR AREA does not contain the condominium's common area.\n\nA RESIDENTIAL FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "officearea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for office use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nAn OFFICE FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "retailarea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for retail use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nA RETAIL FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "garagearea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for\ngarage use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nA GARAGE FLOOR AREA of zero can mean it is either not available or not\napplicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings\npermit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING\nFLOOR AREA."
+  },
+  {
+   "fieldName": "strgearea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for storage or loft purposes.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nA STORAGE FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "factryarea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for factory, warehouse or loft use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nA FACTORY FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "otherarea",
+   "dataTypeName": "number",
+   "description": "An estimate of the exterior dimensions of the portion of the structure(s) allocated for other than commercial, residential, office, retail, garage, storage, or factory use.\n\nValue is taken from PTS, if available. Otherwise it comes from CAMA.\n\nThis information is NOT available for one, two or three family structures.\n\nAn OTHER FLOOR AREA of zero can mean it is either not available or not applicable.\n\nAn update to the floor area is triggered by the issuance of a Department of Buildings permit, feedback from the public, or site visits by Department of Finance assessors.\n\nThe sum of the various floor area fields does not always equal TOTAL BUILDING FLOOR AREA."
+  },
+  {
+   "fieldName": "areasource",
+   "dataTypeName": "number",
+   "description": "A code indicating the methodology used to determine the tax lot's TOTAL BUILDING FLOOR AREA (BldgArea)\n\nOnly one source is used per tax lot."
+  },
+  {
+   "fieldName": "numbldgs",
+   "dataTypeName": "number",
+   "description": "The number of buildings on the tax lot.\n\nThe number of buildings on a lot is calculated by taking the Building Identification Number (BIN) for every building in DoITT's Building Footprints dataset, running Geosupport function BN to get the BBL associated with that BIN, and summing the number of buildings per tax lot."
+  },
+  {
+   "fieldName": "numfloors",
+   "dataTypeName": "number",
+   "description": "The number of full and partial floors starting from the ground floor, for the tallest building on the tax lot. A partial floor is a floor that does not span the entire building envelope. For example, if a building is 3 stories tall and 2 floors cover the entire footprint of the building and one floor covers half of the footprint, the number of floors would be 2.5.\n\nAbove ground basements are not included in the NUMBER OF FLOORS.\n\nA roof used for parking, farming, playground, etc. is not included in NUMBER OF FLOORS.\n\nIf the NUMBER OF FLOORS is null and the NUMBER OF BUILDINGS is greater than zero, then NUMBER OF FLOORS is not available for the tax lot."
+  },
+  {
+   "fieldName": "unitsres",
+   "dataTypeName": "number",
+   "description": "The sum of residential units in all buildings on the tax lot.\n\nIf there are no residential units in the tax lot, this field will be zero.\n\nHotels/motels, nursing homes and SROs do not have residential units, but boarding houses do. Basement units for building superintendents are counted as a residential unit.\n\nAn update to residential units is triggered by the issuance of a Department of Buildings permit."
+  },
+  {
+   "fieldName": "unitstotal",
+   "dataTypeName": "number",
+   "description": "The sum of residential and non-residential (offices, retail stores, etc.) units for all buildings on the tax lot.\n\nThe count of non-residential units is sometimes not available if the building contains residential units.\n\nNon-residential units are units with a separate use.  If a building has 25 different offices it would be counted as 1 unit because they have the same use.\n\nUpdates to residential and non-residential units are triggered by the issuance of a Department of Buildings permit."
+  },
+  {
+   "fieldName": "lotfront",
+   "dataTypeName": "number",
+   "description": "The tax lot's frontage measured in feet.\n\nNOTE: It appears that if a lot fronts on more than one street, the PTS building address often determines which side of the lot used for calculating lot frontage."
+  },
+  {
+   "fieldName": "lotdepth",
+   "dataTypeName": "number",
+   "description": "The tax lot's depth measured in feet."
+  },
+  {
+   "fieldName": "bldgfront",
+   "dataTypeName": "number",
+   "description": "The building's frontage along the street measured in feet."
+  },
+  {
+   "fieldName": "bldgdepth",
+   "dataTypeName": "number",
+   "description": "The building's depth, which is the effective perpendicular distance, measured in feet."
+  },
+  {
+   "fieldName": "ext",
+   "dataTypeName": "text",
+   "description": "A code identifying whether there is an extension on the lot or a garage other than the primary structure."
+  },
+  {
+   "fieldName": "proxcode",
+   "dataTypeName": "number",
+   "description": "A code describing the physical relationship of the building to neighboring buildings. If there are multiple buildings on the lot, CAMA data for building number 1 is used."
+  },
+  {
+   "fieldName": "irrlotcode",
+   "dataTypeName": "checkbox",
+   "description": "A code indicating whether the tax lot is irregularly shaped."
+  },
+  {
+   "fieldName": "lottype",
+   "dataTypeName": "number",
+   "description": "A code indicating the location of the tax lot in relationship to another tax lot and/or the water.\n\nCAMA may contain multiple lot types for a tax lot. For instance, a lot may be both a corner lot and waterfront lot. DCP assigns LOT TYPE by taking the lowest CAMA lot type for the tax lot, with the exception of LOT TYPE 5, which is only assigned if the lot has no other lot types in CAMA."
+  },
+  {
+   "fieldName": "bsmtcode",
+   "dataTypeName": "number",
+   "description": "A code describing the building's basement."
+  },
+  {
+   "fieldName": "assessland",
+   "dataTypeName": "number",
+   "description": "The assessed land value for the tax lot.\n\nThe Department of Finance calculates the assessed value by multiplying the tax lot's estimated full market land value, determined as if vacant and unimproved, by a uniform percentage for the property's tax class.\n\nAssessed and exempt values are updated twice a year. Tentative values are released in mid-January and final values are released around May 25. If the date on source file (PTS), as reported in the Readme file, is between January 15 and May 25, ASSESSED LAND VALUE is from the tentative roll for the tax year starting in July. Otherwise, ASSESSED LAND VALUE is from the final roll."
+  },
+  {
+   "fieldName": "assesstot",
+   "dataTypeName": "number",
+   "description": "The assessed total value for the tax lot.\n\nThe Department of Finance (DOF) calculates the assessed value by multiplying the tax lot's estimated full market value by a uniform percentage for the property's tax class.\n\nDOF values properties based on current and constructive use, rather than legal use. The predominant active use, which determines the classification of a property, is determined by square footage. If the second story of a three-story building is mixed-use, an interior inspection may be necessary to establish the commercial percentage of that story before reclassification. In other cases, a two-story building with retail on the first floor may have a sign identifying a second story accounting office.  If, for example, the second story is a primary residence and there is a difference in square footage from the first to second floor, the mere presence of a business sign does not confirm a predominant commercial use.\n\nAdditional research is required to ensure proper classification.  This can include an internal inspection, speaking to someone at the location or a neighbor, and researching various records (such as filed Real Property Income and Expenses statements) from DOF or other city agencies.\n\nNYC Property Tax Classes are determined by NYS and described under Real Property Tax Law (RPTL) [Article \u00a718-02](https://gcc02.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.nysenate.gov%2Flegislation%2Flaws%2FRPT%2F1802&data=05%7C01%7CLSeirup%40planning.nyc.gov%7Cd62da5a4813248adc71e08dab374460e%7C32f56fc75f814e22a95b15da66513bef%7C0%7C0%7C638019609211103424%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=rr4wH48ewePfrBbuHeY18ewwelGkQVsF62Rs9tJbBj8%3D&reserved=0) which mentions primary use for real property classification.\n\nProperty value is assessed as of January 5th.  If a new building is not completed by April 14th, the assessed building value is 0 and the Building Class reverts to Vacant.\n\nAssessed and exempt values are updated twice a year. Tentative values are released in mid-January and final values are released around May 25. If the date on source file (PTS), as reported in the Readme file, is between January 15 and May 25, ASSESSED TOTAL VALUE is from the tentative roll for the tax year starting in July. Otherwise, ASSESSED TOTAL VALUE is from the final roll"
+  },
+  {
+   "fieldName": "exempttot",
+   "dataTypeName": "number",
+   "description": "The exempt total value, which is determined differently for each exemption program, is the dollar amount related to that portion of the tax lot that has received an exemption.\n\nAssessed and exempt values are updated twice a year. Tentative values are released in mid-January and final values are released around May 25. If the date on source file (PTS), as reported in the Readme file, is between January 15 and May 25, EXEMPT TOTAL VALUE is from the tentative roll for the tax year starting in July. Otherwise, EXEMPT TOTAL VALUE is from the final roll.\n\nNote that New York State typically releases STAR exempt values right after the tentative roll is released. EXEMPT TOTAL VALUE will change to reflect these values after they are received."
+  },
+  {
+   "fieldName": "yearbuilt",
+   "dataTypeName": "number",
+   "description": "The year construction of the building was completed.\n\nIn general, YEAR BUILT is accurate for the decade, but not necessarily for the specific year. Between 1910 and 1985, the majority of YEAR BUILT values are in years ending in 5 or 0. Many structures built between 1800s and early 1900s have a YEAR BUILT between 1899 and 1901.\n\nFor ~26,000 buildings in historic districts, YEAR BUILT has been changed to the date_high value from Landmarks Preservation Commission's [Individual Landmark and Historic District Building Database](https://data.cityofnewyork.us/Housing-Development/LPC-Individual-Landmark-and-Historic-District-Buil/7mgd-s57w). Any tax lot updated with LPC data has a value of 1 in field CHANGED BY DCP. The original YEAR BUILT value can be found in PLUTOChangeFileYYv#.#.csv, where YYv#.# is the version number.\n\nIf Year Built is null or 0, then the value is unknown."
+  },
+  {
+   "fieldName": "yearalter1",
+   "dataTypeName": "number",
+   "description": "If a building has only been altered once, YEAR ALTERED 1 is the date that alteration began.\n\nIf a building has been altered more than once, YEAR ALTERED 1 is the year of the second most recent alteration.\n\nThe Department of Finance defines alterations as modifications to the structure that, according to the assessor, change the value of the real property.\n\nThe date comes from Department of Buildings permits and may either be the actual date or an estimate."
+  },
+  {
+   "fieldName": "yearalter2",
+   "dataTypeName": "number",
+   "description": "If a building has only been altered once, this field is blank.\n\nIf a building has been altered more than once, YEAR ALTERED 2 is the year that the most recent alteration began.\n\nThe Department of Finance defines alterations as modifications to the structure that, according to the assessor, change the value of the real property.\n\nThe date comes from Department of Buildings permits and may either be the actual date or an estimate."
+  },
+  {
+   "fieldName": "histdist",
+   "dataTypeName": "text",
+   "description": "The name of the Historic District that the tax lot is within. Historic Districts are designated by the New York City Landmarks Preservation Commission."
+  },
+  {
+   "fieldName": "landmark",
+   "dataTypeName": "text",
+   "description": "This value indicates whether the lot contains an individual landmark building, an interior landmark building, or both."
+  },
+  {
+   "fieldName": "builtfar",
+   "dataTypeName": "number",
+   "description": "The BUILT FLOOR AREA RATIO is the total building floor area divided by the area of the tax lot.\n\nThis is an estimate by City Planning based on rough building area and lot area measurements provided by the Department of Finance.  BUILT FLOOR AREA RATIO is calculated using the TOTAL BUILDING FLOOR AREA and the LOT AREA."
+  },
+  {
+   "fieldName": "residfar",
+   "dataTypeName": "number",
+   "description": "The maximum allowable residential floor area ratio for standard residences, based on the zoning district classification occupying the greatest percentage of the tax lot\u2019s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.\n\nThe maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities. For the maximum allowable floor area for affordable housing, Users should consult the AffResFAR field.\n\nUsers should consult Section 23-20 of the Zoning Resolution for more information.\n\nFor properties zoned R6, R7-1, R7-2, R8 or R9, ResidFAR reflects the maximum achievable floor area under ideal conditions for sky exposure plane buildings. Users should consult Section 23-73 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "commfar",
+   "dataTypeName": "number",
+   "description": "The maximum allowable commercial floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow commercial uses, MAXIMUM ALLOWABLE COMMERCIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.\n\nThe maximum allowable commercial floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.\n\nUsers should consult Section 33-12 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "facilfar",
+   "dataTypeName": "number",
+   "description": "The maximum allowable community facility floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow community facility uses, MAXIMUM ALLOWABLE COMMUNITY FACILITY FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.\n\nThe maximum allowable community facility floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.\n\nUsers should consult Section 24-11, 33-12, or 43-12 of the Zoning Resolution, as applicable, for more information."
+  },
+  {
+   "fieldName": "affresfar",
+   "dataTypeName": "number",
+   "description": "The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot\u2019s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE AFFORDABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.\n\nThe maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.\n\nUsers should consult Section 23-20 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "mnffar",
+   "dataTypeName": "number",
+   "description": "The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot\u2019s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow manufacturing uses, MAXIMUM ALLOWABLE MANUFACTURING FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.\n\nThe maximum allowable manufacturing floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.\n\nUsers should consult Section 43-12 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "borocode",
+   "dataTypeName": "number",
+   "description": "The borough in which the tax lot is located.\n\nTwo portions of the city, Marble Hill and Rikers Island, are legally located in one borough but are serviced by a different borough. The BORO CODEs associated with these areas are the boroughs in which they are legally located.\n\nMarble Hill is serviced by the Bronx, but is legally located in Manhattan and has a BORO CODE of 1. Rikers Island is serviced by Queens, but is legally located in the Bronx and has a BORO CODE of 2."
+  },
+  {
+   "fieldName": "bbl",
+   "dataTypeName": "number",
+   "description": "A concatenation of the borough code, tax block and tax lot.\n\nThis field consists of the borough code followed by the tax block followed by the tax lot.  The borough code is one numeric digit.  The tax block is one to five numeric digits, preceded with leading zeros when the block is less than five digits.  The tax lot is one to four digits and is preceded with leading zeros when the lot is less than four digits.\n\nFor condominiums, the BBL is for the billing lot. See TAX LOT for more information on how condominiums are handled.\n\nExamples:\nManhattan Borough Code 1, Tax Block 16, Tax Lot 100 would be stored as 1000160100.\nBrooklyn Borough Code 3, Tax Block 15828, Tax Lot 7501 would be stored as 3158287501."
+  },
+  {
+   "fieldName": "condono",
+   "dataTypeName": "number",
+   "description": "The condominium number assigned to the complex.\n\nCondominium numbers are unique within a borough (see BOROUGH)."
+  },
+  {
+   "fieldName": "tract2010",
+   "dataTypeName": "number",
+   "description": "The 2010 census tract in which the tax lot is located.\n\nThis field contains a one to four-digit census tract number and a two-digit suffix.  There is an implied decimal point between the census tract number and the suffix.  The census tract number is preceded with leading zeros when the tract is less than four digits.  If the tract has no suffix, CENSUS TRACT 2 contains 4 characters.\n\n2010 census tracts are geographic areas defined by the U.S. Census Bureau for the 2010 Census.\n\nExamples:\nCensus Tract 203.01 would be stored as 020301\nCensus Tract 23 would be stored as 0023"
+  },
+  {
+   "fieldName": "xcoord",
+   "dataTypeName": "number",
+   "description": "The X coordinate of the XY coordinate pair which depicts the approximate location of the lot.\n\nIf the X coordinate is not available from Geosupport, it is calculated from the centroid of the tax lot, with the constraint that the resulting point must be within the lot boundaries.\n\nThe XY coordinates are expressed in the New York-Long Island State Plane coordinate system."
+  },
+  {
+   "fieldName": "ycoord",
+   "dataTypeName": "number",
+   "description": "The Y coordinate of the XY coordinate pair which depicts the approximate location of the lot.\n\nIf the Y coordinate is not available from Geosupport, it is calculated from the centroid of the tax lot, with the constraint that the resulting point must be within the lot boundaries\n\nThe XY coordinates are expressed in the New York-Long Island State Plane coordinate system."
+  },
+  {
+   "fieldName": "latitude",
+   "dataTypeName": "number",
+   "description": "The WGS 84 latitude of the latitude/longitude coordinate pair for the approximate location of the tax lot."
+  },
+  {
+   "fieldName": "longitude",
+   "dataTypeName": "number",
+   "description": "The WGS 84 longitude of the latitude/longitude coordinate pair for the approximate location of the tax lot"
+  },
+  {
+   "fieldName": "zonemap",
+   "dataTypeName": "text",
+   "description": "The Department of City Planning Zoning Map Number associated with the tax lot's X and Y Coordinates. If the tax lot is on the border of two or more zoning maps, ZONING MAP \\# is the zoning map covering the greatest area."
+  },
+  {
+   "fieldName": "zmcode",
+   "dataTypeName": "checkbox",
+   "description": "A code (Y) identifies a tax lot on the border of two or more zoning maps."
+  },
+  {
+   "fieldName": "sanborn",
+   "dataTypeName": "text",
+   "description": "The Sanborn Map Company map number associated with the tax block and lot.\n\nSANBORN MAP \\# format is Borough Code/Volume Number/Page Number,\n\nwhere Borough Code is 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), or 5 (Staten Island)\n\nFor example:  the SANBORN MAP \\# associated with tax block 154, tax lot 23 in Manhattan is 1/01S/020.\n\nThis field has been deprecated and will be removed at a future date. The data in the field cannot be considered reliable."
+  },
+  {
+   "fieldName": "taxmap",
+   "dataTypeName": "number",
+   "description": "The Department of Finance paper tax map volume number associated with the tax block and lot.\n\nThe first character of the Tax Map \\# is the Borough Code - 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), or 5 (Staten Island). The second and third characters are the Section Number and the fourth and fifth characters are the Volume Number.\n\nNOTE: The Department of Finance no longer updates their paper tax maps."
+  },
+  {
+   "fieldName": "edesignum",
+   "dataTypeName": "text",
+   "description": "The (E) designation number assigned to the tax lot. An (E) designation provides notice of the presence of an environmental requirement pertaining to potential hazardous materials contamination, high ambient noise levels or air emission concerns on a particular tax lot.\n\nNote that a tax lot may have more than one (E) designation. See the source file for all designations on the lot."
+  },
+  {
+   "fieldName": "appbbl",
+   "dataTypeName": "number",
+   "description": "The originating BBL (borough, block and lot) from the apportionment prior to the merge, split or property's conversion to a condominium.\n\nAPPORTIONMENT BBL is only available for mergers, splits, and conversions since 1984."
+  },
+  {
+   "fieldName": "appdate",
+   "dataTypeName": "calendar_date",
+   "description": "The date of the apportionment.\n\nThe data is in the format MM/DD/YYYY, where MM is a two-digit month, DD is the two-digit day, and YYYY is the four-digit year."
+  },
+  {
+   "fieldName": "plutomapid",
+   "dataTypeName": "number",
+   "description": "A code indicating whether the tax lot is in the PLUTO file, the MapPLUTO file with water areas included, and/or the MapPLUTO file that is clipped to the shoreline.\n\nBecause the Digital Tax Map (DTM) and the Property Tax System (PTS) are not updated at the same time, they are slightly out-of-sync. There will be lots in PTS that are not in the DTM and vice versa. In addition, some lots are wholly underwater and are not included in the version of MapPLUTO that is clipped to the shoreline.\n\nThe lot geographies in MapPLUTO (with water areas included) are created from the DTM. City Planning modifies the DTM for condominium lots to show the billing tax lot in MapPLUTO, rather than the base tax lot. If there is more than one base tax lot with the same billing lot, the base tax lots are merged into a single feature and assigned to the billing lot. See LOT for more information on condominium lots.\n\nMapPLUTO (clipped to shoreline) is created by clipping the full MapPLUTO using DOF's Shoreline File."
+  },
+  {
+   "fieldName": "version",
+   "dataTypeName": "text",
+   "description": "The version number for this release of PLUTO.\n\nThe Version Number is in the format YYv#.# where:\n  YY is the last two digits of the year;\n  v stands for version;\n  \\# is the release number for that year; and .# indicates an amendment to the original release, if applicable."
+  },
+  {
+   "fieldName": "sanitdistrict",
+   "dataTypeName": "number",
+   "description": "The sanitation district that services the tax lot.\n\nSANITATION DISTRICT NUMBER contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SANITATION DISTRICT NUMBER is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "healthcenterdistrict",
+   "dataTypeName": "number",
+   "description": "The health center district in which the tax lot is located. Thirty health center districts were created by the City in 1930 to conduct neighborhood focused health interventions.\n\nThis field contains a two-digit health district number.\n\nHEALTH CENTER DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, HEALTH CENTER DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "firm07_flag",
+   "dataTypeName": "number",
+   "description": "A value of 1 means that some portion of the tax lot falls within the 1% annual chance floodplain as determined by FEMA's 2007 Flood Insurance Rate Map.\n\nNote that buildings on the tax lot may or may not be in the portion of the tax lot that is within the 1% annual chance floodplain."
+  },
+  {
+   "fieldName": "pfirm15_flag",
+   "dataTypeName": "number",
+   "description": "A value of 1 means that some portion of the tax lot falls within the 1% annual chance floodplain as determined by FEMA's 2015 Preliminary Flood Insurance Rate Map.\n\nNote that buildings on the tax lot may or may not be in the portion of the tax lot that is within the 1% annual chance floodplain."
+  },
+  {
+   "fieldName": "dcpedited",
+   "dataTypeName": "text",
+   "description": "Flag indicating that City Planning has applied a correction to the record.\n\nFlag set to \"1\" if City Planning has made a change to any field values for this tax lot. To see which field(s) were changed, refer to the PLUTOChangeFileYYv#.#.csv, where YYv#.# is the version number. See the PLUTO change file readme document for more information."
+  },
+  {
+   "fieldName": "notes",
+   "dataTypeName": "text",
+   "description": "A text field containing notes of importance to one or more lots."
+  },
+  {
+   "fieldName": "bct2020",
+   "dataTypeName": "text",
+   "description": "The 2020 census tract in which the tax lot is located.\n\nThis field contains a seven-digit code representing the one-digit borough code followed by the six-digit census tract number.\n\n2020 census tracts are geographic areas defined by the U.S. Census Bureau for the 2020 Census. Census tracts are comprised of census blocks.\n\nEach census tract is unique within a borough (see BOROUGH).\n\nExamples:\nCensus Tract 4062600\nCensus Tract 4063200\n\nCENSUS TRACT 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS TRACT 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "bctcb2020",
+   "dataTypeName": "text",
+   "description": "The 2020 census block in which the tax lot is located.\n\nThis field contains an eleven-digit code representing the one-digit borough code followed by the six-digit census tract number and then the four-digit census block number.\n\n2020 census blocks are the smallest geographic areas defined by the U.S. Census Bureau.\n\nEach census block number is unique within a census tract (see CENSUS TRACT).\n\nExamples:\nCensus Block 20350001000\nCensus Block 30403001002\n\nCENSUS BLOCK 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS BLOCK 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files."
+  },
+  {
+   "fieldName": "mih_opt1",
+   "dataTypeName": "checkbox",
+   "description": "Flag set to \u201c1\u201d if MIH Option 1 applies to tax lot. Under Option 1, 25 percent of the residential floor area must be affordable to households earning an average of 60 percent of Area Median Income, of which 10 percent shall be affordable to families earning 40 percent of Area Median Income.\n\nUsers should consult Section 27-131 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "mih_opt2",
+   "dataTypeName": "checkbox",
+   "description": "Flag set to \u201c1\u201d if MIH Option 2 applies to tax lot. Under Option 2, 30 percent of the residential floor area must be affordable to households earning an average of 80 percent of Area Median Income.\n\nUsers should consult Section 27-131 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "mih_opt3",
+   "dataTypeName": "checkbox",
+   "description": "Flag set to \u201c1\u201d if MIH Option 3 (deep affordability) applies to tax lot. Under Option 3, 20 percent of the residential floor area must be affordable to households earning an average of 40 percent of Area Median Income.\n\nUsers should consult Section 27-131 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "mih_opt4",
+   "dataTypeName": "checkbox",
+   "description": "Flag set to \u201c1\u201d if MIH Option 4 (workforce option) applies to tax lot. Under Option 4, 30 percent of the residential floor area must be affordable to families earning an average of 115 percent of Area Median Income, of which 5 percent must be affordable to families earning 90 percent of Area Median Income and another 5 percent must be affordable to families earning 70 percent of Area Median Income.\n\nUsers should consult Section 27-131 of the Zoning Resolution for more information."
+  },
+  {
+   "fieldName": "transitzone",
+   "dataTypeName": "text",
+   "description": "The Transit Zone classification of the tax lot. Under the Zoning Resolution, the map of New York City is apportioned into areas that generally govern residential parking. These include the Manhattan Core, LIC Parking Area, and Inner Transit Zone, where no residential parking is required. In addition, these include the Outer Transit Zone and the area Beyond the Greater Transit Zone where residential parking is required.\n\nUsers should consult Section 13-20 of the Zoning Resolution for more information on the Manhattan Core, Section 16-20 for more information on the LIC Parking Area, and Section 25-20 for more information on the other listed Transit Zone areas."
+  },
+  {
+   "fieldName": "geom",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "basempdate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "dcasdate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "edesigdate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "landmkdate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "masdate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "polidate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "rpaddate",
+   "dataTypeName": "text",
+   "description": null
+  },
+  {
+   "fieldName": "zoningdate",
+   "dataTypeName": "text",
+   "description": null
+  }
+ ]
+}

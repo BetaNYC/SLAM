@@ -1,0 +1,2209 @@
+{
+ "source": "https://sla.ny.gov/leap-license-type-and-class-definitions",
+ "recorded": "2026-11-04",
+ "note": "SLA's .xlsx, sheets Licenses and Permits, every row; class as written there (no leading zeros)",
+ "rows": [
+  {
+   "type": "1",
+   "class": "1",
+   "description": "Wholesale Beer (Retail)",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "2",
+   "description": "Wholesale Beer",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "5",
+   "description": "Cider Producer",
+   "product": "Cider"
+  },
+  {
+   "type": "1",
+   "class": "7",
+   "description": "Wholesale Wine",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "9",
+   "description": "Wholesale Liquor",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "11",
+   "description": "Importer",
+   "product": "NULL"
+  },
+  {
+   "type": "1",
+   "class": "13",
+   "description": "Brewer",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "14",
+   "description": "Micro-Brewer",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "15",
+   "description": "Farm Brewer",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "16",
+   "description": "Custom Beermaker's Center",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "20",
+   "description": "Mead Producer",
+   "product": "Mead"
+  },
+  {
+   "type": "1",
+   "class": "21",
+   "description": "Farm Meadery",
+   "product": "Mead"
+  },
+  {
+   "type": "1",
+   "class": "24",
+   "description": "Cider Producer (Manufacturer)",
+   "product": "Cider"
+  },
+  {
+   "type": "1",
+   "class": "25",
+   "description": "Farm Cidery",
+   "product": "Cider"
+  },
+  {
+   "type": "1",
+   "class": "26",
+   "description": "Custom Cidermaker's Center",
+   "product": "Cider"
+  },
+  {
+   "type": "1",
+   "class": "31",
+   "description": "Winery",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "32",
+   "description": "Farm winery",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "33",
+   "description": "Special Winery",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "34",
+   "description": "Special Farm Winery",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "35",
+   "description": "Custom Winemaker's Center",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "36",
+   "description": "Direct Shipper",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "37",
+   "description": "MicroFarm Winery",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "38",
+   "description": "Satellite Wine Store",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "51",
+   "description": "Distiller Class A",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "52",
+   "description": "Distiller Class A-1 (Micro-distiller)",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "53",
+   "description": "Distiller Class B",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "54",
+   "description": "Distiller Class B-1 (Micro-rectifier)",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "55",
+   "description": "Distiller Class C (Fruit Brandy Producer)",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "56",
+   "description": "Distiller Class D (Farm Distiller)",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "71",
+   "description": "Grocery Store",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "72",
+   "description": "Drug Store",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "73",
+   "description": "Supply Ship",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "74",
+   "description": "Vendor",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "81",
+   "description": "Grocery Store",
+   "product": "Beer & Wine Products"
+  },
+  {
+   "type": "1",
+   "class": "82",
+   "description": "Drug Store",
+   "product": "Beer & Wine Products"
+  },
+  {
+   "type": "1",
+   "class": "83",
+   "description": "Supply Ship",
+   "product": "Beer & Wine Products"
+  },
+  {
+   "type": "1",
+   "class": "91",
+   "description": "Wine Store",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "92",
+   "description": "Roadside Farm Market",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "100",
+   "description": "Liquor Store",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "101",
+   "description": "Off Premises Caterer",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "111",
+   "description": "Restaurant",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "112",
+   "description": "Summer Restaurant",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "113",
+   "description": "Winter Restaurant",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "114",
+   "description": "Hotel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "115",
+   "description": "Summer Hotel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "116",
+   "description": "Winter Hotel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "117",
+   "description": "Catering Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "118",
+   "description": "Summer Catering Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "119",
+   "description": "Winter Catering Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "120",
+   "description": "Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "121",
+   "description": "Summer Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "122",
+   "description": "Winter Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "123",
+   "description": "Railroad car",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "124",
+   "description": "Summer Railroad Car",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "125",
+   "description": "Winter Railroad Car",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "126",
+   "description": "Vessel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "127",
+   "description": "Summer Vessel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "128",
+   "description": "Winter Vessel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "129",
+   "description": "Aircraft",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "130",
+   "description": "Summer Aircraft",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "131",
+   "description": "Winter Aircraft",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "132",
+   "description": "Bed & Breakfast",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "133",
+   "description": "Summer Bed & Breakfast",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "134",
+   "description": "Winter Bed & Breakfast",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "135",
+   "description": "Misc- Not Primary Source of Revenue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "136",
+   "description": "Summer Misc- Not primary Source of Revenue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "137",
+   "description": "Winter Misc- Not Primary Source of Revenue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "138",
+   "description": "Food & Beverage Business",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "139",
+   "description": "Summer Food & Beverage Business",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "140",
+   "description": "Winter Food & Beverage Business",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "141",
+   "description": "Legitimate Theatre",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "142",
+   "description": "Summer Legitimate Theatre",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "143",
+   "description": "Winter Legitimate Theatre",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "144",
+   "description": "Concert Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "145",
+   "description": "Summer Concert Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "146",
+   "description": "Winter Concert Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "147",
+   "description": "Opera House",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "148",
+   "description": "Summer Opera House",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "149",
+   "description": "Winter Opera House",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "150",
+   "description": "Bowling Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "151",
+   "description": "Summer Bowling Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "152",
+   "description": "Winter Bowling Establishment",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "153",
+   "description": "Public Dance Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "154",
+   "description": "Summer Public Dance Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "155",
+   "description": "Winter Public Dance Hall",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "156",
+   "description": "Night Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "157",
+   "description": "Summer Night Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "158",
+   "description": "Winter Night Club",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "159",
+   "description": "Golf Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "160",
+   "description": "Summer Golf Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "161",
+   "description": "Winter Golf Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "162",
+   "description": "Tennis Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "163",
+   "description": "Summer Tennis Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "164",
+   "description": "Winter Tennis Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "165",
+   "description": "Swimming Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "166",
+   "description": "Summer Swimming Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "167",
+   "description": "Winter Swimming Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "168",
+   "description": "Skiing Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "169",
+   "description": "Summer Skiing Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "170",
+   "description": "Winter Skiing Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "171",
+   "description": "Ice Skating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "172",
+   "description": "Summer Ice Skating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "173",
+   "description": "Winter Ice Skating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "174",
+   "description": "Boating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "175",
+   "description": "Summer Boating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "176",
+   "description": "Winter Boating Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "177",
+   "description": "Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "178",
+   "description": "Summer Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "179",
+   "description": "Winter Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "180",
+   "description": "Excursion & Sight Seeing Vessels",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "181",
+   "description": "Summer Excursion & Sight Seeing Vessel",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "182",
+   "description": "Winter Excursion & Sight Seeing Vessels",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "183",
+   "description": "Race Tracks",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "184",
+   "description": "Summer Race Tracks",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "185",
+   "description": "Winter Race Tracks",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "186",
+   "description": "Outdoor Athletic Fields and Stadiums",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "187",
+   "description": "Summer Outdoor Athletic Fields and Stadiums",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "188",
+   "description": "Winter Outdoor Athletic Fields and Stadiums",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "189",
+   "description": "Additional bar- ball park, race track, etc",
+   "product": "Beer"
+  },
+  {
+   "type": "1",
+   "class": "240",
+   "description": "Restaurant",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "241",
+   "description": "Summer Restaurant",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "242",
+   "description": "Winter Restaurant",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "243",
+   "description": "Hotel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "244",
+   "description": "Summer Hotel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "245",
+   "description": "Winter Hotel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "246",
+   "description": "Catering Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "247",
+   "description": "Summer Catering Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "248",
+   "description": "Winter Catering Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "249",
+   "description": "Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "250",
+   "description": "Summer Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "251",
+   "description": "Winter Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "252",
+   "description": "Railroad Car",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "253",
+   "description": "Summer Railroad Car",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "254",
+   "description": "Winter Railroad Car",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "255",
+   "description": "Vessel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "256",
+   "description": "Summer Vessel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "257",
+   "description": "Winter Vessel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "258",
+   "description": "Aircraft",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "259",
+   "description": "Summer Aircraft",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "260",
+   "description": "Winter Aircraft",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "261",
+   "description": "Bed & Breakfast",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "262",
+   "description": "Summer Bed & Breakfast",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "263",
+   "description": "Winter Bed & Breakfast",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "264",
+   "description": "Misc- Not Primary Source of Revenue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "265",
+   "description": "Summer Misc- Not Primary Source of Revenue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "266",
+   "description": "Winter Misc- Not Primary Source of Revenue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "267",
+   "description": "Food & Beverage Business",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "268",
+   "description": "Summer Food & Beverage Business",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "269",
+   "description": "Winter Food & Beverage Business",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "270",
+   "description": "Legitimate Theatre",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "271",
+   "description": "Summer Legitimate Theatre",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "272",
+   "description": "Winter Legitimate Theatre",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "273",
+   "description": "Concert Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "274",
+   "description": "Summer Concert Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "275",
+   "description": "Winter Concert Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "276",
+   "description": "Opera House",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "277",
+   "description": "Summer Opera House",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "278",
+   "description": "Winter Opera House",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "279",
+   "description": "Bowling Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "280",
+   "description": "Summer Bowling Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "281",
+   "description": "Winter Bowling Establishment",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "282",
+   "description": "Public Dance Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "283",
+   "description": "Summer Public Dance Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "284",
+   "description": "Winter Public Dance Hall",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "285",
+   "description": "Night Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "286",
+   "description": "Summer Night Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "287",
+   "description": "Winter Night Club",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "288",
+   "description": "Golf Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "289",
+   "description": "Summer Golf Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "290",
+   "description": "Winter Golf Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "291",
+   "description": "Tennis Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "292",
+   "description": "Summer Tennis Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "293",
+   "description": "Winter Tennis Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "294",
+   "description": "Swimming Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "295",
+   "description": "Summer Swimming Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "296",
+   "description": "Winter Swimming Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "297",
+   "description": "Skiing Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "298",
+   "description": "Summer Skiing Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "299",
+   "description": "Winter Skiing Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "300",
+   "description": "Ice Skating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "301",
+   "description": "Summer Ice Skating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "302",
+   "description": "Winter Ice Skating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "303",
+   "description": "Boating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "304",
+   "description": "Summer Boating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "305",
+   "description": "Winter Boating Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "306",
+   "description": "Race Tracks",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "307",
+   "description": "Summer Race Tracks",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "308",
+   "description": "Winter Race Tracks",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "309",
+   "description": "Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "310",
+   "description": "Summer Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "311",
+   "description": "Winter Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "312",
+   "description": "Excursion & Sight Seeing Vessels",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "313",
+   "description": "Summer Excursion & Sight Seeing Vessel",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "314",
+   "description": "Winter Excursion & Sight Seeing Vessels",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "315",
+   "description": "Tavern Miscellaneous",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "316",
+   "description": "Summer - Tavern Miscellaneous",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "317",
+   "description": "Winter - Tavern Miscellaneous",
+   "product": "Wine"
+  },
+  {
+   "type": "1",
+   "class": "340",
+   "description": "Restaurant",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "341",
+   "description": "Summer Restaurant",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "342",
+   "description": "Winter Restaurant",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "343",
+   "description": "Hotel",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "344",
+   "description": "Summer Hotel Liquor",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "345",
+   "description": "Winter Hotel Liquor",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "346",
+   "description": "Catering Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "347",
+   "description": "Summer Catering Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "348",
+   "description": "Winter Catering Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "349",
+   "description": "Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "350",
+   "description": "Summer Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "351",
+   "description": "Winter Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "352",
+   "description": "Luncheon Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "353",
+   "description": "Summer Luncheon Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "354",
+   "description": "Winter Luncheon Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "355",
+   "description": "Golf Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "356",
+   "description": "Summer Golf Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "357",
+   "description": "Winter Golf Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "358",
+   "description": "Railroad car",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "359",
+   "description": "Summer Railroad car",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "360",
+   "description": "Winter Railroad Car",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "361",
+   "description": "Vessel",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "362",
+   "description": "Summer Vessel",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "363",
+   "description": "Winter Vessel",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "364",
+   "description": "Aircraft",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "365",
+   "description": "Summer Aircraft",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "366",
+   "description": "Winter Aircraft",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "367",
+   "description": "Bed & Breakfast",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "368",
+   "description": "Summer Bed & Breakfast",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "369",
+   "description": "Winter Bed & Breakfast",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "370",
+   "description": "Food & Beverage Business",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "371",
+   "description": "Summer Food & beverage business",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "372",
+   "description": "Winter Food & Beverage Business",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "373",
+   "description": "Legitimate theatre",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "374",
+   "description": "Summer Legitimate theatre",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "375",
+   "description": "Winter Legitimate Theatre",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "376",
+   "description": "Concert Hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "377",
+   "description": "Summer Concert hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "378",
+   "description": "Winter Concert Hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "379",
+   "description": "Opera House",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "380",
+   "description": "Summer Opera House",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "381",
+   "description": "Winter Opera House",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "382",
+   "description": "Bowling Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "383",
+   "description": "Summer Bowling Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "384",
+   "description": "Winter Bowling Establishment",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "385",
+   "description": "Public Dance Hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "386",
+   "description": "Summer Public Dance Hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "387",
+   "description": "Winter Public Dance Hall",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "388",
+   "description": "Night Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "389",
+   "description": "Summer Night Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "390",
+   "description": "Winter Night Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "391",
+   "description": "Golf Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "392",
+   "description": "Summer Golf Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "393",
+   "description": "Winter Golf Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "394",
+   "description": "Tennis Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "395",
+   "description": "Summer Tennis Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "396",
+   "description": "Winter Tennis Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "397",
+   "description": "Swimming Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "398",
+   "description": "Summer Swimming Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "399",
+   "description": "Winter Swimming Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "400",
+   "description": "Skiing Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "401",
+   "description": "Summer Skiing Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "402",
+   "description": "Winter Skiing Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "403",
+   "description": "Ice Skating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "404",
+   "description": "Summer Ice Skating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "405",
+   "description": "Winter Ice Skating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "406",
+   "description": "Boating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "407",
+   "description": "Summer Boating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "408",
+   "description": "Winter Boating Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "409",
+   "description": "Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "410",
+   "description": "Summer Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "411",
+   "description": "Winter Athletic/Sporting Event/Expositions/Large Gathering Venue",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "412",
+   "description": "Excursion & Sight Seeing Vessels",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "413",
+   "description": "Summer Excursion & Sight Seeing Vessel",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "414",
+   "description": "Winter Excursion & Sight Seeing Vessels",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "415",
+   "description": "Bottle Club",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "416",
+   "description": "Restaurant Brewer",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "417",
+   "description": "Cabaret",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "419",
+   "description": "Race Tracks",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "420",
+   "description": "Summer Race Tracks",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "421",
+   "description": "Winter Race Tracks",
+   "product": "Liquor"
+  },
+  {
+   "type": "1",
+   "class": "422",
+   "description": "Additional bar- legitimate theater",
+   "product": "NULL"
+  },
+  {
+   "type": "1",
+   "class": "423",
+   "description": "Additional Bar",
+   "product": "NULL"
+  },
+  {
+   "type": "1",
+   "class": "426",
+   "description": "Additional Bar-Seasonal",
+   "product": "NULL"
+  },
+  {
+   "type": "2",
+   "class": "500",
+   "description": "Sale of mead and braggot by retailer licensees",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "501",
+   "description": "Sale of mead and braggot by wholesale licensees",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "502",
+   "description": "Temporary brewer tasting",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "503",
+   "description": "Annual brewer tasting",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "504",
+   "description": "Branch office- farm meadery",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "505",
+   "description": "Branch office- farm brewery",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "506",
+   "description": "Branch office- farm cidery",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "507",
+   "description": "Branch office- farm distillery",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "508",
+   "description": "Off-premises sales by hotel",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "509",
+   "description": "Retail sales by winery for Sacramental purposes",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "510",
+   "description": "Retail sales by a wholesaler for Sacramental purposes",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "511",
+   "description": "Branch office- farm winery",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "512",
+   "description": "Manufacturer's Temporary",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "513",
+   "description": "Sale of wine products by off-premises beer licensee",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "514",
+   "description": "Sale of wine products by on-premises beer licensee",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "515",
+   "description": "Solicitor",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "516",
+   "description": "Temporary solicitor",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "517",
+   "description": "Company trucking",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "518",
+   "description": "Bottling- liquor/wine wholesaler at bonded customs warehouse",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "519",
+   "description": "Bottling- at permitted location or bonded customs warehouse",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "520",
+   "description": "Reconditioning",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "521",
+   "description": "Retail Beer Function Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "522",
+   "description": "State Fair concessionaire",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "523",
+   "description": "Wine manufacturer's special events",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "524",
+   "description": "Temporary retail",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "525",
+   "description": "Caterer's",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "526",
+   "description": "Club Caterer's",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "527",
+   "description": "All night",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "528",
+   "description": "All night - trade area",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "529",
+   "description": "Liquidator",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "530",
+   "description": "Sale by the bottle by wineries at State Fair",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "531",
+   "description": "Wine & Liquor Auction",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "532",
+   "description": "Sunday on-premises sales before 10",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "533",
+   "description": "Release of alcoholic beverages from warehouse",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "534",
+   "description": "Craft beverage tasting event",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "535",
+   "description": "Aircraft/vessel post boarding service",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "536",
+   "description": "Wholesale Cider",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "537",
+   "description": "Plenary storage",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "538",
+   "description": "Homemade Wine maker Center",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "551",
+   "description": "Broker's 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "552",
+   "description": "Broker's",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "553",
+   "description": "Trucking (individual vehicle)",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "554",
+   "description": "Fleet trucking",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "555",
+   "description": "Alcohol",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "556",
+   "description": "Aircraft Permit 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "557",
+   "description": "Aircraft Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "558",
+   "description": "Banking Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "559",
+   "description": "Charitable",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "560",
+   "description": "Sheriff Marshall, Receiver, Executor Assignee",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "561",
+   "description": "Drug Store",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "563",
+   "description": "Entertainer - Minor",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "564",
+   "description": "Fire Insurance-Salvage Company Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "565",
+   "description": "Homemade wine tasting function",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "566",
+   "description": "Industrial alcohol",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "567",
+   "description": "Industrial alcohol manufacturer",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "568",
+   "description": "Industrial Alcohol Manufacturer's Permit (Fuel Only)",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "569",
+   "description": "Hospital Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "570",
+   "description": "Lienor Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "571",
+   "description": "Negotiator 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "572",
+   "description": "Negotiator",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "573",
+   "description": "Marketing (tastings and bottle sales) 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "574",
+   "description": "Marketing (tastings and bottle sales)",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "575",
+   "description": "Plenary Market Research",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "576",
+   "description": "Taxi Cab",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "577",
+   "description": "Warehouse",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "578",
+   "description": "Temporary beer and wine",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "579",
+   "description": "Alcoholic Beverage Education Permit 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "580",
+   "description": "Alcoholic Beverage Education Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "581",
+   "description": "Alcohol Distributor's Class A",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "582",
+   "description": "Alcohol Distributor's Class B",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "583",
+   "description": "Alcohol Distributor's Class C",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "584",
+   "description": "Alcohol Distributor's Class D",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "585",
+   "description": "Manufacturer of Non-Beverage Products Permit 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "586",
+   "description": "Institute of Higher Education Permit 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "587",
+   "description": "Institute of Higher Education Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "588",
+   "description": "Manufacturer of Non-Beverage Products Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "589",
+   "description": "Steamship Permit 1x",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "590",
+   "description": "Steamship Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "591",
+   "description": "Plenary Miscellaneous",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "592",
+   "description": "NYS Fair Permit",
+   "product": ""
+  },
+  {
+   "type": "2",
+   "class": "593",
+   "description": "Trucking One Time Permit",
+   "product": ""
+  },
+  {
+   "type": "1",
+   "class": "999",
+   "description": "Manufacturing On Premises",
+   "product": "MOP"
+  },
+  {
+   "type": "1",
+   "class": "999",
+   "description": "Test Permit",
+   "product": "Test"
+  },
+  {
+   "type": "1",
+   "class": "CM",
+   "description": "Combined Craft Status",
+   "product": "NULL"
+  },
+  {
+   "type": "1",
+   "class": "CS",
+   "description": "Chain Restaurant Status",
+   "product": "NULL"
+  },
+  {
+   "type": "1",
+   "class": "MF",
+   "description": "Master File Status",
+   "product": "NULL"
+  }
+ ]
+}

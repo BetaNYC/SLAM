@@ -21,15 +21,20 @@ from pathlib import Path
 
 import duckdb
 
-from slam_pipeline import net
+from slam_pipeline import net, spatial
 from slam_pipeline.net import log
 from slam_pipeline.sources import (
     COMPLAINTS_311_LOCATION_TYPES,
     COMPLAINTS_311_START,
     DISTRICT_SOURCE,
     DISTRICTS,
+    LICENSE_COUNT_EXTRA_COUNTIES,
+    PLACE_OF_WORSHIP_CLASSES,
+    SCHOOL_NOTES,
+    SLA_RULES,
     SOURCES,
     SOURCES_BY_KEY,
+    WORSHIP_CLASSES,
     _sql_list,
 )
 from slam_pipeline.transform import (
@@ -37,8 +42,12 @@ from slam_pipeline.transform import (
     GEOSEARCH_SIZE,
     GRADE_BUCKETS,
     GRADE_LABEL,
+    LIQUOR_COUNT_FT,
+    SW_BUFFER_FT,
+    SW_LIST_FT,
     accept_geosearch,
     address_query,
+    bbox_with_margin,
     board_311_slug,
     check_columns,
     check_rows,
@@ -48,18 +57,23 @@ from slam_pipeline.transform import (
     grade_bucket,
     group_addresses,
     house_number,
+    is_on_premises_liquor,
     key_pages,
     normalize_311,
     normalize_address,
     normalize_co,
     normalize_event,
     normalize_record,
+    normalize_school,
+    normalize_worship,
     page_co_bin,
     pick_address_hit,
     place_restaurant,
     recent_311,
     reduce_inspections,
+    same_street,
     slim_geosearch,
+    street_name,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -97,9 +111,12 @@ REQUIRED_IN_ROWS = {
     "restaurant_inspections": ["camis", "dba", "inspection_date", "grade", "community_board",
                                "latitude", "longitude", "bin"],
     "co_dobnow": ["bin", "c_of_o_number", "c_of_o_issuance_date"],
+    "schools": ["uid", "facname", "factype", "latitude", "longitude", "xcoord", "ycoord"],
+    "worship": ["bbl", "bldgclass", "latitude", "longitude", "xcoord", "ycoord"],
 }
 # handled by their own normalizers
-NOT_RECORDS = ("street_events", "complaints_311", "restaurant_inspections", "co_dobnow")
+NOT_RECORDS = ("street_events", "complaints_311", "restaurant_inspections", "co_dobnow",
+               "schools", "worship")
 RESTAURANT_RECENT_INSPECTIONS = 10  # all inspections listed per restaurant on an address page
 
 
@@ -119,6 +136,13 @@ def write_json(path: Path, obj) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(obj, separators=(",", ":"), default=str))
     tmp.replace(path)
+
+
+def extra_county_where(box) -> str:
+    """SoQL for active licenses in LICENSE_COUNT_EXTRA_COUNTIES inside box (min lon, min lat,
+    max lon, max lat)."""
+    return (f"premisescounty in {_sql_list(LICENSE_COUNT_EXTRA_COUNTIES)} AND "
+            f"within_box(georeference, {box[3]:.6f}, {box[0]:.6f}, {box[1]:.6f}, {box[2]:.6f})")
 
 
 def load_or_fetch(key: str, offline: bool, fetch):
@@ -256,11 +280,25 @@ def main(argv=None) -> int:
     if got != want:
         raise RuntimeError(f"district polygons: expected boro_cd {want}, got {got}")
 
+    # Bounding box of both districts, widened by SW_BUFFER_FT, for sources with no district
+    # field (#60: schools, houses of worship, and the 500-foot license count).
+    dx = [c[0] for f in dgeo["features"] for c in _coords(f["geometry"])]
+    dy = [c[1] for f in dgeo["features"] for c in _coords(f["geometry"])]
+    sw_box = bbox_with_margin(dx, dy, SW_BUFFER_FT)
+
+    def in_box(lon, lat) -> bool:
+        return lon is not None and sw_box[0] <= lon <= sw_box[2] and sw_box[1] <= lat <= sw_box[3]
+
     # ---- rows
     raw = {}
     for s in SOURCES:
-        rows = load_or_fetch(s.key, args.offline, lambda s=s: net.fetch_all(
-            s.domain, s.id, select=s.fields, where=s.where, order=s.order,
+        where = s.where
+        if s.bbox:
+            la, lo = s.bbox
+            where += (f" AND {la} between {sw_box[1]:.6f} and {sw_box[3]:.6f}"
+                      f" AND {lo} between {sw_box[0]:.6f} and {sw_box[2]:.6f}")
+        rows = load_or_fetch(s.key, args.offline, lambda s=s, where=where: net.fetch_all(
+            s.domain, s.id, select=s.fields, where=where, order=s.order,
             page_size=s.page_size))
         check_rows(s.key, rows, REQUIRED_IN_ROWS[s.key])
         raw[s.key] = rows
@@ -279,6 +317,16 @@ def main(argv=None) -> int:
         rsrc.domain, rsrc.id, select=["camis", "community_board", "latitude", "longitude"],
         where=bbox_where, order="camis,community_board,latitude,longitude",
         group="camis,community_board,latitude,longitude"))
+
+    # Active licenses in the extra counties (Queens), inside the widened box, for the 500-foot
+    # count only. georeference is a Socrata point, so the box is within_box(field, NW lat,
+    # NW lon, SE lat, SE lon) (https://dev.socrata.com/docs/functions/within_box.html).
+    lsrc = SOURCES_BY_KEY["liquor_active"]
+    extra_liq = load_or_fetch("liquor_active_extra_counties", args.offline, lambda: net.fetch_all(
+        lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(sw_box),
+        order=lsrc.order, page_size=lsrc.page_size))
+    check_rows("liquor_active_extra_counties", extra_liq, REQUIRED_IN_ROWS["liquor_active"])
+    log("fetched", source="liquor_active_extra_counties", rows=len(extra_liq))
 
     if not args.offline:
         write_json(RAW / "_fetched.json", {"fetched": started.isoformat(timespec="seconds")})
@@ -347,9 +395,60 @@ def main(argv=None) -> int:
     for r in inside:
         r.pop("akey", None)
 
+    # Page points (QA of #66): GeoSearch's PAD point when matched, else the records' average
+    # (transform.page_point). A page stays in the district its records were assigned to (the
+    # data as published). A GeoSearch point outside both districts is usually just across a
+    # border street (Broadway, Flushing Ave, Canal St); those pages are still measured and say
+    # where GeoSearch puts them. Only a point so far out that a 500 ft circle around it leaves
+    # the pulled box (measure_box) gets no proximity facts: "nothing nearby" there would be
+    # false. The page says so instead.
+    measure_box = bbox_with_margin(dx, dy, SW_BUFFER_FT - LIQUOR_COUNT_FT)
+    con.execute("CREATE TABLE apts (id VARCHAR, lon DOUBLE, lat DOUBLE)")
+    con.executemany("INSERT INTO apts VALUES (?, ?, ?)",
+                    [[a["id"], a["lon"], a["lat"]] for a in addrs.values() if a["lon"] is not None])
+    a_pip = dict(con.execute("""
+        SELECT a.id, d.slug FROM apts a JOIN districts d ON ST_Contains(d.geom, ST_Point(a.lon, a.lat))
+    """).fetchall())
+    point_stats = {"geosearch": 0, "records": 0, "no_point": 0,
+                   "geosearch_outside_both_districts": 0, "geosearch_in_other_district": 0,
+                   "not_measured_outside_pulled_area": 0,
+                   "records_gap_over_30m": 0, "records_gap_over_100m": 0, "records_gap_median_m": None}
+    gaps = []
+    for a in addrs.values():
+        src = a["point"]["source"]
+        point_stats[src or "no_point"] += 1
+        a["point"]["outside_districts"] = src == "geosearch" and a["id"] not in a_pip
+        a["point"]["district"] = a_pip.get(a["id"])
+        a["point"]["measured"] = a["lon"] is not None and (
+            not a["point"]["outside_districts"]
+            or (measure_box[0] <= a["lon"] <= measure_box[2]
+                and measure_box[1] <= a["lat"] <= measure_box[3]))
+        point_stats["not_measured_outside_pulled_area"] += (a["lon"] is not None
+                                                            and not a["point"]["measured"])
+        if a["point"]["outside_districts"]:
+            point_stats["geosearch_outside_both_districts"] += 1
+        elif src == "geosearch" and a_pip.get(a["id"]) != a["district"]:
+            point_stats["geosearch_in_other_district"] += 1
+        g = a["point"]["records_gap_m"]
+        if g is not None:
+            gaps.append(g)
+            point_stats["records_gap_over_30m"] += g > 30
+            point_stats["records_gap_over_100m"] += g > 100
+    if gaps:
+        point_stats["records_gap_median_m"] = sorted(gaps)[len(gaps) // 2]
+    point_stats["outside_sample"] = sorted(
+        f"{a['id']} {a['street']}" for a in addrs.values() if a["point"]["outside_districts"])
+    point_stats["not_measured"] = sorted(
+        f"{a['id']} {a['street']}" for a in addrs.values()
+        if a["lon"] is not None and not a["point"]["measured"])
+
+    def measured(a) -> bool:
+        """Pages whose proximity facts are computed."""
+        return a["point"]["measured"]
+
     con.execute("CREATE TABLE addrs (id VARCHAR, lon DOUBLE, lat DOUBLE)")
     con.executemany("INSERT INTO addrs VALUES (?, ?, ?)",
-                    [[a["id"], a["lon"], a["lat"]] for a in addrs.values() if a["lon"] is not None])
+                    [[a["id"], a["lon"], a["lat"]] for a in addrs.values() if measured(a)])
     near = con.execute(f"""
         SELECT a.id, b.id,
                ST_Distance_Sphere(ST_Point(a.lon, a.lat), ST_Point(b.lon, b.lat)) AS m
@@ -445,7 +544,7 @@ def main(argv=None) -> int:
     page_bins = {a["bin"]: a["id"] for a in addrs.values() if a["bin"]}
     page_pts = [(a["id"], a["lon"], a["lat"], bool(a["bin"]),
                  frozenset(normalize_address(r.get("street")) for r in a["records"]))
-                for a in addrs.values() if a["lon"] is not None]
+                for a in addrs.values() if measured(a)]
     r_at: dict[str, list] = {}
     r_stats = {slug: {"restaurants": 0, "on_page_by_bin": 0, "on_page_by_point": 0,
                       "not_on_a_page": 0, "no_point": 0, "not_yet_inspected": 0}
@@ -474,6 +573,76 @@ def main(argv=None) -> int:
             co_by_bin.setdefault(c["bin"], []).append(c)
     for v in co_by_bin.values():
         v.sort(key=lambda c: (c["issued"], c["number"]), reverse=True)
+
+    # ---- schools and houses of worship (#60). Straight lines, building point to building
+    # point, in EPSG:2263 feet (slam_pipeline/spatial.py). Nothing here applies a rule.
+    sw_con = spatial.connect()
+    schools = [normalize_school(r, SCHOOL_NOTES) for r in raw["schools"]]
+    worship = [normalize_worship(r, WORSHIP_CLASSES, PLACE_OF_WORSHIP_CLASSES) for r in raw["worship"]]
+    # Axis-order guard: our projection of each lat/lon must land on the source's own x/y.
+    sw_axis_gap = {
+        "schools": round(spatial.check_axis_order(
+            sw_con, [(f["lon"], f["lat"], f["x"], f["y"]) for f in schools], "schools"), 2),
+        "worship": round(spatial.check_axis_order(
+            sw_con, [(f["lon"], f["lat"], f["x"], f["y"]) for f in worship], "worship"), 2)}
+    facs = [f for f in schools + worship if f["lon"] is not None]
+    fac_by_id = {f["id"]: f for f in facs}
+    con.execute("CREATE TABLE facs (id VARCHAR, lon DOUBLE, lat DOUBLE)")
+    con.executemany("INSERT INTO facs VALUES (?, ?, ?)", [[f["id"], f["lon"], f["lat"]] for f in facs])
+    for fid, slug in con.execute("""
+        SELECT f.id, d.slug FROM facs f JOIN districts d ON ST_Contains(d.geom, ST_Point(f.lon, f.lat))
+    """).fetchall():
+        fac_by_id[fid]["district"] = slug
+    # Per district: facilities inside it or within SW_BUFFER_FT of its line, with the distance
+    # outside (0 inside). These are the map layer's points and the list view's rows (QA of #66:
+    # the map note says every point is in the list view).
+    fac_ft = {}  # (slug, facility id) -> feet outside the district
+    for fid, slug, ft in con.execute(f"""
+        SELECT f.id, d.slug,
+               ST_Distance(ST_Transform(d.geom, 'EPSG:4326', 'EPSG:2263', always_xy := true),
+                           ST_Transform(ST_Point(f.lon, f.lat), 'EPSG:4326', 'EPSG:2263',
+                                        always_xy := true)) AS ft
+          FROM facs f, districts d
+         WHERE ft <= {SW_BUFFER_FT}
+    """).fetchall():
+        fac_ft[(slug, fid)] = ft
+    page_pts = [(a["id"], a["lon"], a["lat"]) for a in addrs.values() if measured(a)]
+    sw_near: dict[str, list] = {}
+    for pid, fid, ft in spatial.pairs_within(sw_con, page_pts,
+                                             [(f["id"], f["lon"], f["lat"]) for f in facs], SW_LIST_FT):
+        sw_near.setdefault(pid, []).append((fac_by_id[fid], ft))
+    # Active on-premises liquor licenses (SLA class mapping: transform.is_on_premises_liquor),
+    # rows for New York and Kings plus Queens (extra_liq), kept when inside the widened box. One "premises" =
+    # one address page, or one street + ZIP key for licenses without a page.
+    onprem = []
+    for row in raw["liquor_active"] + extra_liq:
+        if not is_on_premises_liquor(row.get("type"), row.get("class")):
+            continue
+        r = normalize_record(lsrc, row)
+        if not in_box(r["lon"], r["lat"]):
+            continue
+        r["premises"] = aid_remap.get(r["aid"], r["aid"]) or f"pt:{r['lon']:.5f},{r['lat']:.5f}"
+        r["code"] = str(row.get("class", "")).strip()
+        r["county"] = str(row.get("premisescounty", "")).strip()
+        onprem.append(r)
+    liq_near: dict[str, list] = {}
+    for pid, li, ft in spatial.pairs_within(sw_con, page_pts,
+                                            [(str(i), r["lon"], r["lat"]) for i, r in enumerate(onprem)],
+                                            LIQUOR_COUNT_FT):
+        r = onprem[int(li)]
+        if r["premises"] != pid:  # licenses at this address are not counted
+            liq_near.setdefault(pid, []).append((r, ft))
+    sw_stats = {slug: {"schools": 0, "worship": 0, "religious": 0, "pages": 0,
+                       "pages_with_sw_within_200ft": 0, "pages_with_school": 0,
+                       "pages_with_worship": 0, "pages_with_religious": 0,
+                       "pages_with_3_or_more_premises_within_500ft": 0}
+                for slug in DISTRICTS}
+    for f in facs:
+        if f.get("district"):
+            sw_stats[f["district"]]["schools" if f["kind"] == "school" else f["kind"]] += 1
+    liquor_classes = {}
+    for r in onprem:
+        liquor_classes.setdefault(r["code"], r["type"])
 
     # ---- events
     events = [normalize_event(r) for r in raw["street_events"]]
@@ -505,6 +674,15 @@ def main(argv=None) -> int:
         drest = sorted((r for r in rlist if r["district"] == slug),
                        key=lambda r: (r["dba"], r["camis"]))
         counts[slug]["restaurant_inspections"] = len(drest)
+        counts[slug]["schools"] = sw_stats[slug]["schools"]
+        counts[slug]["worship"] = sw_stats[slug]["worship"]
+        counts[slug]["religious"] = sw_stats[slug]["religious"]
+        dfac = sorted(((fac_by_id[fid], ft) for (s2, fid), ft in fac_ft.items() if s2 == slug),
+                      key=lambda p: (p[0]["kind"], p[0]["name"] or p[0]["street"], p[0]["id"]))
+        lists["schools_worship"] = {
+            "buffer_ft": SW_BUFFER_FT,
+            "rows": [{"kind": f["kind"], "name": f["name"], "type": f["type"], "street": f["street"],
+                      "ft_outside": round(ft), "note": f["note"]} for f, ft in dfac]}
         counts[slug]["co_dobnow"] = sum(1 for row in raw["co_dobnow"]
                                         if str(row.get("community_board")) == str(d["boro_cd"]))
         lists["restaurants"] = {
@@ -517,6 +695,13 @@ def main(argv=None) -> int:
                       "last_inspected": r["last_inspected"], "bin": r["bin"] or "",
                       "aid": r["aid"] or "", "placed": r["method"] or ""} for r in drest]}
         write_json(OUT / slug / "list.json", lists)
+        # Map layer (#60): the same facilities as the list view, loaded only when switched on.
+        write_json(OUT / slug / "schools-worship.geojson", {"type": "FeatureCollection", "features": [
+            {"type": "Feature", "geometry": {"type": "Point",
+                                             "coordinates": [round(f["lon"], 6), round(f["lat"], 6)]},
+             "properties": {"k": f["kind"], "n": f["name"], "t": f["type"], "s": f["street"],
+                            "o": round(ft)}}
+            for f, ft in dfac]})
         feats = [{"type": "Feature", "geometry": {"type": "Point",
                                                   "coordinates": [r["lon"], r["lat"]]},
                   "properties": {"source": r["source"], "name": r["name"], "aid": r.get("aid", ""),
@@ -531,6 +716,14 @@ def main(argv=None) -> int:
                                 "aid": r["aid"] if r["aid"] in addrs else ""}}
                 for r in d311]
         write_json(OUT / slug / "points-311.geojson", {"type": "FeatureCollection", "features": f311})
+
+    # The one-file map layer of the first #60 build is now per district (above). Move, not
+    # delete, the old file so it is not published.
+    old_sw = OUT / "schools-worship.geojson"
+    if old_sw.exists():
+        dest = CACHE / "orphaned" / started.strftime("%Y%m%dT%H%M%S")
+        dest.mkdir(parents=True, exist_ok=True)
+        old_sw.replace(dest / old_sw.name)
 
     write_json(OUT / "districts.geojson", {"type": "FeatureCollection", "features": [
         {"type": "Feature", "geometry": f["geometry"],
@@ -566,6 +759,26 @@ def main(argv=None) -> int:
         out["co"] = {"bin": co_bin, "bin_source": co_src,
                      "records": co_by_bin.get(co_bin, []) if co_bin else []}
         co_pages_with_records += bool(out["co"]["records"])
+        page_streets = {street_name(r.get("street")) for r in a["records"]} - {""}
+        near_sw = sorted(sw_near.get(a["id"], []), key=lambda p: (p[1], p[0]["id"]))
+        near_liq = sorted(liq_near.get(a["id"], []), key=lambda p: (p[1], p[0]["rid"]))
+        premises = {r["premises"] for r, _ in near_liq}
+        out["sw"] = {
+            "near": [{"kind": f["kind"], "name": f["name"], "type": f["type"], "street": f["street"],
+                      "ft": round(ft), "same_street": same_street(page_streets, f["street_name"]),
+                      **({"note": f["note"]} if f["note"] else {})}
+                     for f, ft in near_sw],
+            "liq": {"premises": len(premises), "licenses": len(near_liq),
+                    "rows": [{"name": r["name"], "street": r["street"], "code": r["code"],
+                              "ft": round(ft), "aid": r["premises"] if r["premises"] in addrs else ""}
+                             for r, ft in near_liq]}}
+        st = sw_stats[a["district"]]
+        st["pages"] += 1
+        st["pages_with_sw_within_200ft"] += bool(near_sw)
+        st["pages_with_school"] += any(f["kind"] == "school" for f, _ in near_sw)
+        st["pages_with_worship"] += any(f["kind"] == "worship" for f, _ in near_sw)
+        st["pages_with_religious"] += any(f["kind"] == "religious" for f, _ in near_sw)
+        st["pages_with_3_or_more_premises_within_500ft"] += len(premises) >= 3
         write_json(OUT / "address" / f"{a['id']}.json", out)
         index.append({"id": a["id"], "bin": a["bin"], "street": a["street"], "zip": a["zip"],
                       "district": a["district"], "n": len(a["records"]),
@@ -630,9 +843,39 @@ def main(argv=None) -> int:
                          "that lists the restaurant's own normalized address",
             "not_yet_inspected_rule": "inspection_date 1900-01-01 (dataset column description)",
         },
+        "schools_worship": {
+            "rules": SLA_RULES,
+            "list_ft": SW_LIST_FT, "liquor_count_ft": LIQUOR_COUNT_FT, "buffer_ft": SW_BUFFER_FT,
+            "bbox": [round(v, 6) for v in sw_box],
+            "measure": "straight line between building points (address page point; FacDB facility "
+                       "point; PLUTO lot point; SLA license point), projected to EPSG:2263 feet "
+                       "with DuckDB spatial; not entrance to entrance",
+            "axis_check_median_gap_ft": sw_axis_gap,
+            "schools_fetched": len(schools), "worship_fetched": len(worship),
+            "on_premises_licenses_in_box": len(onprem),
+            "on_premises_licenses_in_box_by_county": {
+                c: sum(1 for r in onprem if r["county"] == c)
+                for c in sorted({r["county"] for r in onprem})},
+            "license_counties": ["New York", "Kings", *LICENSE_COUNT_EXTRA_COUNTIES],
+            "extra_county_rows_fetched": len(extra_liq),
+            "on_premises_classes": dict(sorted(liquor_classes.items())),
+            "by_district": sw_stats,
+            "worship_classes": {c: WORSHIP_CLASSES[c] for c in PLACE_OF_WORSHIP_CLASSES},
+            "religious_classes": {c: v for c, v in WORSHIP_CLASSES.items()
+                                  if c not in PLACE_OF_WORSHIP_CLASSES},
+            "class_labels": "PLUTO DATA DICTIONARY August 2026 (26v2), M. CHURCHES, SYNAGOGUES, ETC.",
+            "same_street": "the facility's listed street name (house number and floor, suite or "
+                           "unit text removed, normalized like page addresses) equals one of the "
+                           "page's listed street names",
+        },
         "co_dobnow": {"rows": len(raw["co_dobnow"]), "bins": len(co_by_bin),
                       "address_pages_with_records": co_pages_with_records},
         "addresses": len(index),
+        "page_points": {**point_stats,
+                        "rule": "GeoSearch PAD point when the page's geocode is matched; else the "
+                                "average of the records' own points. A page whose GeoSearch point "
+                                "is outside both districts keeps its district but gets no "
+                                "proximity facts."},
         "address_geocode": {**addr_geo_stats, "endpoint": GEOSEARCH,
                             "rule": "same house number, street and borough; confidence >= "
                                     f"{GEOSEARCH_MIN_CONFIDENCE}; accuracy point; placeholder "
@@ -649,6 +892,10 @@ def main(argv=None) -> int:
         print(f"{s.key:<20}{len(raw[s.key]):>9}" +
               "".join(f"{counts[slug][s.key]:>10}" for slug in DISTRICTS))
     print(f"address geocode: {addr_geo_stats}")
+    lists_out = ("outside_sample", "not_measured")
+    print(f"page points: { {k: v for k, v in point_stats.items() if k not in lists_out} }")
+    print(f"  not measured (outside the pulled area): {point_stats['not_measured']}")
+    print(f"  GeoSearch point outside both districts: {point_stats['outside_sample']}")
     print(f"addresses: {len(index)}  nearby pairs (<= {NEARBY_M} m): {len(near)}")
     print(f"cannabis licenses deduped vs retail: {dup_dropped}; geocode: {geo_stats}")
     print(f"dining out: City board vs DuckDB point-in-polygon agree {do_agree}/{do_total}")
@@ -665,6 +912,10 @@ def main(argv=None) -> int:
     for slug, st in r_stats.items():
         print(f"  {slug}: {st}")
     print(f"DOB NOW COs: {len(raw['co_dobnow'])} rows, {len(co_by_bin)} BINs")
+    print(f"schools {len(schools)}, houses of worship {len(worship)} fetched (box + {SW_BUFFER_FT} ft); "
+          f"axis check median gap ft {sw_axis_gap}; on-premises liquor licenses in box {len(onprem)}")
+    for slug, st in sw_stats.items():
+        print(f"  {slug}: {st}")
     print(f"311 matched to an address page by address key: {c_matched}; "
           f"within {C311_COMPARE_M} m of an address page point: {len(c_within_compare)}")
     log("done", addresses=len(index))

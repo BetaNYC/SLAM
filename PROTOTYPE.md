@@ -16,12 +16,12 @@ cd pipeline
 uv sync
 uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
-uv run pytest -q                   # 51 tests against recorded real responses
+uv run pytest -q                   # 62 tests against recorded real responses
 
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 21 tests (six read the built static/data)
+npm test                           # node --test, 27 tests (eight read the built static/data)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 
@@ -46,6 +46,7 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | Address search (one box in the header of every page) and address pages keyed on BIN. See "Address search" below. | `site/src/lib/AddressSearch.svelte`, `addressSearch.js`; `build.py` `geocode_addresses`; `transform.py` `pick_address_hit`, `key_pages` | #59 |
 | Restaurant health grades: "Health inspections" on the address page (latest grade, grade history, ABC Eats link per restaurant), "Health grades" tab on the district page (counts by current grade, grade filter, table, CSV). See "Health inspections" below. | `sources.py` `restaurant_inspections`, `transform.py` `reduce_inspections`, `grade_bucket`, `place_restaurant` | #61 |
 | Certificate of occupancy: the address page shows the BIN (or "No BIN found"), links DOB BIS's CO listing for that BIN, points to DOB NOW for COs since March 2021, and lists DOB NOW CO records for the BIN. No Geoclient. See "Certificate of occupancy" below. | `sources.py` `co_dobnow`, `transform.py` `normalize_co`, `page_co_bin`; `site/src/lib/format.js` `coBisUrl` | #62 |
+| Schools and houses of worship (#60): address-page section with schools (FacDB), houses of worship (PLUTO M1) and other religious property (PLUTO M2–M4, M9) within about 200 ft, the count and list of active on-premises liquor licenses within about 500 ft, and a box quoting ABC Law §64(7) and how SLA measures. Map layer, off by default. Facts only, no verdict. See "Schools and houses of worship" below. | `sources.py` `schools`, `worship`, `SLA_RULES`; `slam_pipeline/spatial.py`; `transform.py` `is_on_premises_liquor` etc.; `site/src/lib/popupSW.js` | #60 |
 | Accessibility basics: skip link, semantic tables with `<caption>` and `scope`, labelled inputs, ARIA tabs with arrow keys, visible focus ring, works at 360 px (tables scroll sideways). | throughout | #53 (partly) |
 
 ## Stubbed or missing
@@ -59,7 +60,7 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 - **Address search gaps** (#59): 144 of 1,302 address keys come back "low confidence" and keep a street + ZIP page (house ranges like `599-603 BUSHWICK AVE`, `AKA` addresses, `ST NICHOLAS` vs GeoSearch's `SAINT NICHOLAS`, half numbers). 2 return nothing. GeoSearch autocomplete ranks citywide with no focus point, so "1 Centre Street" suggests a Bronx address first. 311 complaints still match a page only by street + ZIP key (now remapped to the BIN page); they are not geocoded themselves. The nearest-page fallback (30 m) can land on a neighbor on a dense block; the page says so and gives the distance. No screen-reader pass yet; axe found 0 violations.
 - **Address grouping is a simple normalizer** (uppercase, suffixes, drop unit designators such as `Ste`/`Fl`/`Store`). It will miss some matches and could rarely merge two. Retail-dealer addresses that start with the store name are trimmed only when the name starts with a letter (`7 LEAF CLOVER 132 METROPOLITAN AVE` is left as is).
 - **Geocoding**: 7 of 145 OCM addresses were rejected by the acceptance rule and are unmapped (they still appear in lists marked "not mapped").
-- **Size**: the static build is about 68 MB (60 MB before 311), mostly per-address `__data.json`. Fine locally; worth slimming before hosting.
+- **Size**: the static build is about 93 MB (68 MB before #61, #62 and #60), mostly per-address `index.html` and `__data.json`. Fine locally; worth slimming before hosting.
 - **No base path** is configured, so the build assumes it is served from `/`. GitHub Pages under `/SLAM/` would need `paths.base`.
 - The OpenFreeMap style logs three MapLibre warnings about highway-shield filters; they come from the style, not this code.
 
@@ -77,6 +78,9 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | street_events | NYC `tvpp-9vvx` NYC Permitted Event Information | `event_borough in ('Manhattan','Brooklyn')`, then board split in Python |
 | restaurant_inspections | NYC `43nn-pn8j` DOHMH New York City Restaurant Inspection Results | `community_board in ('101','304')` (text here) |
 | co_dobnow | NYC `pkdm-hqz6` DOB NOW: Certificate of Occupancy | `community_board in (101,304)` (number here) |
+| schools | NYC `ji82-xba5` Facilities Database (26v1) | `facgroup = 'SCHOOLS (K-12)'` and four subgroups (below), inside the districts' box + 600 ft |
+| worship | NYC `64uk-42ks` PLUTO (26v2) | `bldgclass in ('M1','M2','M3','M4','M9')`, inside the districts' box + 600 ft |
+| liquor_active_extra_counties | NYS `9s3h-dpkz` SLA Active Licenses | `premisescounty in ('Queens','QUEENS')` and `within_box(georeference, …)` of the districts' box + 600 ft; used only for the 500-ft count |
 | complaints_311 | NYC `erm2-nwe9` 311 Service Requests from 2020 to Present | `location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery') AND created_date >= '2024-01-01' AND community_board in ('01 MANHATTAN','04 BROOKLYN')`; start date is `COMPLAINTS_311_START` in `sources.py` |
 
 ## 311 complaints
@@ -168,6 +172,143 @@ Run of 2026-11-04 (live, then `--offline`, same numbers):
   on) is pulled for the two boards (4,849 rows, 794 BINs) and listed on the page by BIN (190 address pages have
   records). Chosen as well as, not instead of, the BIS link: neither test BIN has a DOB NOW record, and older COs exist
   only in BIS. Issuance dates arrive as text (`02/15/22 11:08:46 AM`) and are shown as `2022-02-15`.
+
+## Schools and houses of worship (#60)
+
+Run of 2026-11-04 after the QA fixes (`--offline` for every source; the Queens license rows were
+fetched live once):
+
+| | MN CD 1 | BK CD 4 |
+|---|---|---|
+| Schools inside the district | 40 | 45 |
+| Houses of worship (PLUTO M1 lots) inside the district | 12 | 48 |
+| Other religious property (PLUTO M2, M3, M4, M9) inside the district | 5 | 27 |
+| Address pages | 627 | 542 |
+| Pages with any of those within about 200 ft | 121 | 94 |
+| … with a school / a house of worship / other religious property | 90 / 33 / 9 | 17 / 55 / 30 |
+| Pages with 3 or more other addresses holding an on-premises liquor license within about 500 ft | 563 | 257 |
+
+Pulled: 438 schools and 782 lots (both districts' bounding box plus 600 ft, so it reaches past
+both district lines); 2,291 active on-premises liquor licenses in the same box (New York 1,021,
+Kings 1,172, Queens 98).
+
+The first #60 build (before the QA fixes) had 125 / 86 pages with something within 200 ft and
+568 / 253 pages at 3 or more licenses: it measured from SLA's points and left out Queens.
+
+**The rule, current text.** ABC Law §64(7) read on https://www.nysenate.gov/legislation/laws/ABC/64
+on 2026-11-04 in a browser (curl gets a 403). The page shows "VIEWING MOST RECENT REVISION (FROM
+2026-07-31)". Paragraphs (a), (b) and the measuring clause of (c) are word for word the same as the
+2025-08-29 text in the local nys-openlegislation corpus. The page quotes them from `SLA_RULES`
+in `sources.py`, and a test checks them against the recorded page text
+(`tests/fixtures/abc64_7_nysenate_2026-07-31.txt`). §64-a and §105 are linked, not quoted, and
+were not re-read.
+
+**Sources and why.**
+- **Schools: Facilities Database `ji82-xba5`.** Categories from its own data dictionary
+  (`facilities_data_dictionary.xlsx`, sheet "Categorization", attached to the dataset) and a
+  `$group` over the two districts: group `SCHOOLS (K-12)`, subgroups `PUBLIC K-12 SCHOOLS`,
+  `CHARTER K-12 SCHOOLS`, `NON-PUBLIC K-12 SCHOOLS`, `PUBLIC AND PRIVATE SPECIAL EDUCATION SCHOOLS`.
+  Left out: the GED and alternative high school equivalency subgroup (programs), and the day care,
+  pre-K, college, after-school and proprietary-school groups. FacDB gives a name and a point.
+- **Houses of worship: PLUTO `64uk-42ks`.** FacDB has **no** house-of-worship category (checked in
+  the same sheet), so PLUTO building classes M1–M4 and M9 are pulled, as v1 did. PLUTO has
+  `latitude`/`longitude` ("the approximate location of the tax lot") and no facility name, so a lot
+  is named by its address. Class labels are word for word PLUTO's own data dictionary
+  ("PLUTO DATA DICTIONARY August 2026 (26v2)", group "M. CHURCHES, SYNAGOGUES, ETC.", read
+  2026-11-04 from
+  https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/pluto_datadictionary.pdf):
+  M1 Church, Synagogue, Chapel; M2 Mission House (Non-Residential); M3 Parsonage, Rectory;
+  M4 Convents; M9 Miscellaneous. **Only M1 is shown as a "House of worship".** M2, M3, M4 and M9
+  are shown as "Other religious property" with PLUTO's class name: PLUTO does not call them a
+  place of worship, and M3 is a residence. `ownername` is not pulled.
+- **Schools at an office or mailing address.** FacDB leaves `streetname` blank when it has no
+  complete, validated address, and `address` then holds "any location description that was
+  provided" (its own column descriptions). Those schools get a note on the page saying the address
+  may be an office or mailing address. The Harbor School has its own note (below).
+
+**How distance is measured.** DuckDB spatial: every point is projected from WGS 84 to EPSG:2263
+(NAD83 / New York Long Island, US survey feet) and measured with planar `ST_Distance`. Axis order is
+set twice: `SET geometry_always_xy = true` and `ST_Transform(..., always_xy := true)`. A build-time
+guard projects each school and lot and compares it with the source's own State Plane `xcoord`/`ycoord`;
+the median gap was 0.00 ft (schools) and 0.01 ft (lots), and the build fails above 5 ft. With the axis
+order wrong the gap is millions of feet (tested). Points are the address page's point, FacDB's
+facility point, PLUTO's lot point and SLA's license point. None is an entrance, so the page says
+every distance is "approximate, building point to building point".
+
+**The address page's point** (QA of #66) is GeoSearch's PAD address point when the page's geocode
+is `matched` (same house number, street and borough; `transform.page_point`), else the average of
+its records' own points (mostly SLA `georeference`). Each page records which one it used
+(`point.source`) and the manifest counts them (`page_points`): 1,023 GeoSearch, 146 records. The
+first #60 build used the records' average for every page; on matched pages it was a median 23 m
+from the PAD point, over 30 m on 197 pages and over 100 m on 18. 377 and 378 Greenwich St shared
+one SLA point (3 m apart); they are now 53 m apart. Spot checks against QA's haversine numbers from
+the GeoSearch point: 73 Warren St to the German School 148 ft, 17 State St to the M1 lot at 7 State
+St 137 ft; 538 Hart St drops out of the 200-ft list.
+
+GeoSearch puts 36 pages outside both districts. 34 are just across a border street (Broadway and
+Flushing Ave in Brooklyn, Canal St): they keep the district their records were assigned to, as
+published, are measured from GeoSearch's point, and say they are just across the line. Two are far
+away: "7 WEST 51ST ST" and "127 W 28TH ST" (Midtown; SLA's points are in Lower Manhattan). A
+500-ft circle around them leaves the pulled box, so they keep their district but get **no**
+proximity facts (no nearby, 311 nearby, schools or license count), and the page says why.
+
+The same point is used for "Nearby" (150 m), 311 "nearby" and the 25 m comparison count, and
+restaurant placement by location. Before → after: nearby pairs 20,348 → 20,346; 311 complaints
+within 25 m of a page point 7,150 → 5,539 (matched by address key: 5,108, unchanged); restaurants
+placed by location 12 → 4 (by BIN 951, unchanged). Placement by location needs the restaurant
+within 30 m of the page point: with the PAD point, 8 restaurants at 96 South St, 21 Ann St and
+517 Clayton Rd (Governors Island, where GeoSearch's point is 263 m from SLA's and DOHMH's) are now
+farther than that and are listed on the district tab only.
+
+**Same street.** The facility's listed street name (house number removed, normalized like page
+addresses: `75 BROADWAY` → `BROADWAY`) is compared with the street names of the page's records.
+Floor, suite and unit text after the street is removed on both sides first (`26 BROADWAY-12TH FL`,
+`99 WALL ST - #4487`, `25 BROADWAY 9TH FLOOR`, `363 Greenwich St # 1A` all lose it; `SAINT` is read
+as `ST`). That turned 12 wrong "different street" rows into "same street", mostly Broadway schools.
+Still missed: spelling variants (`SAINT NICOLAS` vs `ST NICHOLAS`) and `AKA` addresses.
+The page shows "Same street name", "Different street name in the records" or "Not known". It never
+says "no": a corner building fronts two streets (SLA's guide counts it as on both) and PLUTO and
+FacDB list one address each.
+
+**500-foot count.** Active licenses (`9s3h-dpkz`) of type 1, classes 0340 to 0421, in New York,
+Kings and Queens counties. BK CD 4 borders Ridgewood, Queens, so Queens rows are pulled for this
+count only, inside the widened box (`premisescounty in ('Queens','QUEENS')`, both spellings from a
+`$group` on 2026-11-04, and `within_box(georeference, …)`): 334 rows, 98 on-premises. Four BK CD 4
+pages went from under 3 to 3 or more. 894 Wyckoff Ave went from 0 to 2 (859 Wyckoff Ave and
+9-15 Wyckoff Ave; a third Queens license, 1647 Weirfield St, is 491 ft from SLA's point but 558 ft
+from GeoSearch's). SLA's class table
+(https://sla.ny.gov/leap-license-type-and-class-definitions, an .xlsx linked from the dataset,
+recorded in `tests/fixtures/sla_license_classes.json`) gives each class a product but **no ABC
+section**, so the mapping to §64, 64-a, 64-b, 64-c and 64-d is ours: the run of retail classes whose
+product is Liquor, Restaurant (0340) to Winter Race Tracks (0421), which includes Bottle Club (0415),
+Restaurant Brewer (0416) and Cabaret (0417). Not counted: wine- and beer-only, Liquor Store (0100),
+Off Premises Caterer (0101), manufacturers, wholesalers, permits (type 2), Additional Bar (0422,
+0423, 0426; product blank in SLA's table) and For-profit Club (0425; not in SLA's table, and §64-f is
+not named in §64(7)(b)). Classes actually present in the box: 0340, 0343, 0346, 0349, 0361, 0370,
+0371, 0373, 0415, 0416, 0417. "Premises" = one address page (or one street + ZIP key for a
+license with no page). Licenses at the page itself are not counted. Pending and inactive licenses
+are not counted.
+
+**Gaps.**
+- Building points are not entrances. Big lots (a church with a long frontage) can be closer or
+  farther entrance to entrance than point to point.
+- FacDB places some schools at a mailing address: the Urban Assembly New York Harbor School is at
+  10 South Street (the Battery Maritime Building), while the school is on Governors Island. The
+  City's data is shown as published; the school's row on each address page carries a note saying
+  so (`SCHOOL_NOTES` in `sources.py`, keyed on FacDB `uid`). Pages 1000003 and 4265904626 list
+  it (1085792 did from SLA's point; from GeoSearch's it is over 200 ft away).
+- "Occupied exclusively as a school…" is not judged. A school in a mixed-use tower is listed the
+  same as a stand-alone building.
+- SLA's LAMP has its own "Public/Private Schools" and "Places of Worship" layers; not compared yet.
+- The page does not show the exceptions (pre-1933 premises, older licenses, renewals, parcel
+  carve-outs); it names them in one line and links the statute and SLA's guide.
+- The map layer is one file per district (`data/<district>/schools-worship.geojson`): everything
+  inside the district or within 600 ft of its line (65 points for MN CD 1, 161 for BK CD 4), loaded
+  only when switched on. The district list view's "Schools and worship" tab lists the same points,
+  so the map note's "the list view is the accessible equivalent" is true.
+- **The statute text is on one page, `/rules/`.** Each address page has a short summary of the rule
+  and a link. The SLA class link is marked "Excel file"; SLA's guide is marked "PDF, 2013" and as
+  Office of Counsel guidance, not the law.
 
 ## Address search (#59)
 

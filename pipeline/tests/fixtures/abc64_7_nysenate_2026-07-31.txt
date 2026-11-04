@@ -1,0 +1,24 @@
+Source: https://www.nysenate.gov/legislation/laws/ABC/64
+Page header: "VIEWING MOST RECENT REVISION (FROM 2026-07-31)". Read 2026-11-04 in a browser
+(document.body.innerText). Excerpt: subdivision 7, paragraphs (a) to the measuring clause of (c).
+
+7. No retail license for on-premises consumption shall be granted for
+any premises which shall be
+
+(a) on the same street or avenue and within two hundred feet of a
+building occupied exclusively as a school, church, synagogue or other
+place of worship or
+
+(b) in a city, town or village having a population of twenty thousand
+or more within five hundred feet of three or more existing premises
+licensed and operating pursuant to this section and sections
+sixty-four-a, sixty-four-b, sixty-four-c, and/or sixty-four-d of this
+article;
+
+(c) the measurements in paragraphs (a) and (b) of this subdivision are
+to be taken in straight lines from the center of the nearest entrance of
+the premises sought to be licensed to the center of the nearest entrance
+of such school, church, synagogue or other place of worship or to the
+center of the nearest entrance of each such premises licensed and
+operating pursuant to this section and sections sixty-four-a,
+sixty-four-b, sixty-four-c, and/or sixty-four-d of this article; except,

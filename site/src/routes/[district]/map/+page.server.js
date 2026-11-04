@@ -7,7 +7,8 @@ export function entries() {
 
 /** @param {{params: {district: string}}} e */
 export function load({ params }) {
-	const district = readData('manifest.json').districts[params.district];
+	const manifest = readData('manifest.json');
+	const district = manifest.districts[params.district];
 	if (!district) error(404, 'Unknown district');
-	return { slug: params.district, district };
+	return { slug: params.district, district, sw_buffer_ft: manifest.schools_worship.buffer_ft };
 }

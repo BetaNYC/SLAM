@@ -57,6 +57,10 @@ def load(name):
     return json.loads((FX / name).read_text())
 
 
+def load_text(name):
+    return (FX / name).read_text()
+
+
 # ---------------------------------------------------------------- schema check
 
 @pytest.mark.parametrize("src", [*(s.key for s in SOURCES), "districts"])
@@ -479,3 +483,245 @@ def test_co_bin_prefers_the_page_bin_then_a_single_dohmh_bin():
     assert page_co_bin(None, ["3071959", "3071960"]) == (None, None)
     assert page_co_bin(None, []) == (None, None)
     assert real_bin("3000000") is None  # placeholder BINs never make a CO link
+
+
+# ---------------------------------------------------------------- schools and houses of worship (#60)
+
+from slam_pipeline import spatial  # noqa: E402
+from slam_pipeline.sources import (  # noqa: E402
+    LICENSE_COUNT_EXTRA_COUNTIES,
+    PLACE_OF_WORSHIP_CLASSES,
+    SCHOOL_NOTES,
+    SLA_RULES,
+    WORSHIP_CLASSES,
+)
+from slam_pipeline.transform import (  # noqa: E402
+    NO_VALIDATED_ADDRESS_NOTE,
+    bbox_with_margin,
+    page_point,
+    is_on_premises_liquor,
+    normalize_school,
+    normalize_worship,
+    same_street,
+    street_name,
+)
+
+
+# SLA's spellings of Queens in 9s3h-dpkz premisescounty, from a $group query on 2026-11-04.
+LICENSE_COUNTY_SPELLINGS_CHECKED = {"Queens", "QUEENS"}
+
+
+def extra_county_where(box):
+    import build  # the SoQL lives in build.py next to the pull
+    return build.extra_county_where(box)
+
+
+@pytest.fixture(scope="module")
+def sp():
+    return spatial.connect()
+
+
+@pytest.fixture(scope="module")
+def schools():
+    return {s["name"]: s for s in map(normalize_school, load("facdb_schools_sample.json"))}
+
+
+def test_state_plane_projection_matches_dcp_own_xy(sp, schools):
+    """FacDB publishes DCP's own State Plane feet (xcoord/ycoord) next to latitude/longitude.
+    Our EPSG:2263 projection of the lat/lon must land on them."""
+    for s in schools.values():
+        (x, y), = spatial.project(sp, [(s["lon"], s["lat"])])
+        assert abs(x - s["x"]) < 0.1 and abs(y - s["y"]) < 0.1, s["name"]
+
+
+def test_axis_order_guard(sp, schools):
+    pts = [(s["lon"], s["lat"], s["x"], s["y"]) for s in schools.values()]
+    assert spatial.check_axis_order(sp, pts, "schools") < 0.1
+    # The same points with latitude and longitude swapped, or with always_xy off, are off by
+    # millions of feet, and the guard fails the build.
+    with pytest.raises(spatial.AxisOrderError, match="axis order"):
+        spatial.check_axis_order(sp, [(la, lo, x, y) for lo, la, x, y in pts], "swapped")
+    s = schools["MILLENNIUM HIGH SCHOOL"]
+    (x, y), = spatial.project(sp, [(s["lon"], s["lat"])], always_xy=False)
+    assert abs(x - s["x"]) > 1_000_000
+
+
+def test_distance_known_pair_in_feet(sp, schools):
+    """Millennium HS (75 Broad St) to Richard R. Green HS (7 Beaver St), real FacDB points."""
+    a, b = schools["MILLENNIUM HIGH SCHOOL"], schools["RICHARD R. GREEN HIGH SCHOOL OF TEACHING"]
+    by_dcp_xy = ((a["x"] - b["x"]) ** 2 + (a["y"] - b["y"]) ** 2) ** 0.5
+    assert by_dcp_xy == pytest.approx(534.6, abs=0.1)
+    pairs = spatial.pairs_within(sp, [("a", a["lon"], a["lat"])], [("b", b["lon"], b["lat"])], 600)
+    assert len(pairs) == 1 and pairs[0][2] == pytest.approx(by_dcp_xy, abs=0.5)
+    # Independent check: great-circle metres (haversine) in US survey feet.
+    assert pairs[0][2] == pytest.approx(meters(a["lon"], a["lat"], b["lon"], b["lat"]) / 0.3048006096, abs=1)
+    assert spatial.pairs_within(sp, [("a", a["lon"], a["lat"])], [("b", b["lon"], b["lat"])], 500) == []
+
+
+def test_sla_class_mapping_against_sla_table_and_real_values():
+    table = {(r["type"], r["class"].zfill(4)): r for r in load("sla_license_classes.json")["rows"]}
+    # Spot checks, each read from SLA's own table.
+    assert table[("1", "0340")]["description"] == "Restaurant" and table[("1", "0340")]["product"] == "Liquor"
+    assert table[("1", "0240")]["product"] == "Wine" and not is_on_premises_liquor("1", "0240")
+    assert table[("1", "0100")]["description"] == "Liquor Store" and not is_on_premises_liquor("1", "0100")
+    assert table[("1", "0101")]["description"] == "Off Premises Caterer"
+    assert not is_on_premises_liquor("1", "0101")
+    for c, name in (("0415", "Bottle Club"), ("0416", "Restaurant Brewer"), ("0417", "Cabaret"),
+                    ("0370", "Food & Beverage Business")):
+        assert table[("1", c)]["description"] == name and is_on_premises_liquor("1", c), c
+    for c in ("0422", "0423", "0426"):  # Additional Bar classes: product blank in SLA's table
+        assert table[("1", c)]["product"] == "NULL" and not is_on_premises_liquor("1", c)
+    assert ("1", "0425") not in table and not is_on_premises_liquor("1", "0425")
+    assert not is_on_premises_liquor("2", "0524") and not is_on_premises_liquor("1", "CM")
+    # Every counted class in SLA's table is a Liquor-product class: 0340 to 0421 is 82 codes,
+    # and SLA's table has all of them but 0418.
+    counted = [k for k in table if is_on_premises_liquor(*k)]
+    assert all(table[k]["product"] == "Liquor" for k in counted)
+    assert len(counted) == 81
+    # Every class/description pair in the real active-license pull for the two counties that
+    # is counted is in SLA's table with the same description (case-insensitive).
+    real = load("sla_active_type_class_values.json")["rows"]
+    hits = [r for r in real if is_on_premises_liquor(r["type"], r["class"])]
+    assert {r["class"] for r in hits} >= {"0340", "0370", "0417"}
+    for r in hits:
+        assert table[(r["type"], r["class"])]["description"].lower() == r["description"].lower(), r
+
+
+def test_pluto_m_class_labels_and_kinds():
+    """Labels are PLUTO 26v2's own (data dictionary, "M. CHURCHES, SYNAGOGUES, ETC."). Only M1 is a
+    house of worship; M3 "Parsonage, Rectory" and M9 are other religious property (QA of #66)."""
+    assert WORSHIP_CLASSES == {"M1": "Church, Synagogue, Chapel", "M2": "Mission House (Non-Residential)",
+                               "M3": "Parsonage, Rectory", "M4": "Convents", "M9": "Miscellaneous"}
+    assert PLACE_OF_WORSHIP_CLASSES == ("M1",)
+    w = {x["cls"]: x for x in (normalize_worship(r, WORSHIP_CLASSES, PLACE_OF_WORSHIP_CLASSES)
+                               for r in load("pluto_m3_m9_sample.json"))}
+    assert w["M3"]["kind"] == "religious" and w["M3"]["type"] == "Parsonage, Rectory"
+    assert w["M9"]["kind"] == "religious" and w["M9"]["type"] == "Miscellaneous"
+    m1 = {x["street"]: x for x in (normalize_worship(r, WORSHIP_CLASSES, PLACE_OF_WORSHIP_CLASSES)
+                                   for r in load("pluto_worship_sample.json"))}["75 BROADWAY"]
+    assert m1["cls"] == "M1" and m1["kind"] == "worship"
+
+
+def test_school_notes_harbor_and_no_validated_address():
+    rows = load("facdb_harbor_and_no_streetname.json")
+    s = {x["name"]: x for x in (normalize_school(r, SCHOOL_NOTES) for r in rows)}
+    assert "Governors Island" in s["URBAN ASSEMBLY NEW YORK HARBOR SCHOOL"]["note"]
+    arts = s["NEW YORK CITY CHARTER SCHOOL OF THE ARTS"]
+    assert arts["note"] == NO_VALIDATED_ADDRESS_NOTE and arts["street_name"] == "BROADWAY"
+    sample = load("facdb_schools_sample.json")
+    mill = {x["name"]: x for x in (normalize_school(r, SCHOOL_NOTES) for r in sample)}
+    assert mill["MILLENNIUM HIGH SCHOOL"]["note"] == ""  # FacDB has a validated streetname
+
+
+def _pages_from_real_rows():
+    """Real SLA / Dining Out rows and their real cached GeoSearch responses -> address pages."""
+    recs = []
+    for x in load("sla_rows_page_points.json"):
+        r = normalize_record(SOURCES_BY_KEY[x["source"]], x["row"])
+        r["district"] = "bk-cd4" if "WYCKOFF" in r["street"].upper() else "mn-cd1"
+        recs.append(r)
+    groups = group_addresses(recs)
+    cache = load("geosearch_cache_page_points.json")
+    geo = {}
+    for gid, g in groups.items():
+        borough = DISTRICTS[g["district"]]["borough"]
+        geo[gid] = pick_address_hit(cache.get(address_query(g["street"], borough)), g["street"], borough)
+    pages, _ = key_pages(groups, geo)
+    return {p["street"].upper(): p for p in pages.values()}
+
+
+def test_page_point_is_the_geosearch_point_when_matched():
+    """QA of #66: 377 and 378 Greenwich St share one SLA point (0 ft apart on the page);
+    GeoSearch puts them about 170 ft apart."""
+    p = _pages_from_real_rows()
+    a, b = p["377 GREENWICH ST"], p["378 GREENWICH ST"]
+    assert a["point"]["source"] == b["point"]["source"] == "geosearch"
+    recs_ft = meters(*avg_pt(a["records"]), *avg_pt(b["records"])) * 3.28084
+    page_ft = meters(a["lon"], a["lat"], b["lon"], b["lat"]) * 3.28084
+    assert recs_ft < 20 and 150 < page_ft < 200, (recs_ft, page_ft)
+    # "7 WEST 51ST ST": SLA's point is in Lower Manhattan, GeoSearch's in Midtown.
+    w = p["7 WEST 51ST ST"]
+    assert w["point"]["source"] == "geosearch" and w["lat"] > 40.75 and w["point"]["records_gap_m"] > 5000
+
+
+def avg_pt(records):
+    pts = [(r["lon"], r["lat"]) for r in records if r["lon"] is not None]
+    return sum(x for x, _ in pts) / len(pts), sum(y for _, y in pts) / len(pts)
+
+
+def test_page_point_falls_back_to_the_records_average():
+    hit = {"status": "low_confidence", "bin": None}
+    assert page_point(hit, -74.0, 40.7) == {"lon": -74.0, "lat": 40.7, "source": "records",
+                                            "records_gap_m": None}
+    assert page_point({"status": "unmatched"}, None, None)["source"] is None
+    m = page_point({"status": "matched", "lon": -74.0, "lat": 40.701}, -74.0, 40.7)
+    assert m["source"] == "geosearch" and m["records_gap_m"] == 111
+
+
+def test_queens_licenses_count_near_the_county_line(sp):
+    """QA of #66: 894 Wyckoff Ave (BK CD 4) showed 0 other on-premises addresses within 500 ft,
+    because Queens was not pulled. Real Queens rows from the widened-box pull."""
+    assert LICENSE_COUNTY_SPELLINGS_CHECKED <= set(LICENSE_COUNT_EXTRA_COUNTIES)
+    w = extra_county_where((-74.05, 40.67, -73.89, 40.73))
+    assert w.startswith("premisescounty in ('Queens','QUEENS') AND "
+                        "within_box(georeference, 40.730000, -74.050000")
+    page = _pages_from_real_rows()["894 WYCKOFF AVE"]
+    lsrc = SOURCES_BY_KEY["liquor_active"]
+    q = [normalize_record(lsrc, r) for r in load("sla_active_queens_near_wyckoff.json")
+         if is_on_premises_liquor(r["type"], r["class"])]
+    near = spatial.pairs_within(sp, [(page["id"], page["lon"], page["lat"])],
+                                [(r["street"], r["lon"], r["lat"]) for r in q], 500)
+    assert sorted(b for _, b, _ in near) == ["859 Wyckoff Ave", "9-15 WYCKOFF AVE"]
+    # From SLA's own (old page) point, 1647 Weirfield St is inside 500 ft too: 3, as QA found.
+    old = spatial.pairs_within(sp, [("old", *avg_pt(page["records"]))],
+                               [(r["street"], r["lon"], r["lat"]) for r in q], 500)
+    assert len(old) == 3
+
+
+def test_normalize_school_and_worship():
+    s = {x["name"]: x for x in map(normalize_school, load("facdb_schools_sample.json"))}
+    m = s["MILLENNIUM HIGH SCHOOL"]
+    assert m["kind"] == "school" and m["street"] == "75 BROAD STREET" and m["street_name"] == "BROAD ST"
+    lots = load("pluto_worship_sample.json")
+    w = {x["street"]: x for x in (normalize_worship(r, WORSHIP_CLASSES) for r in lots)}
+    t = w["75 BROADWAY"]
+    assert t["type"] == "Church, Synagogue, Chapel" and t["street_name"] == "BROADWAY"
+    assert t["bbl"] == "1000490001" and t["name"] == ""
+
+
+def test_same_street_flag():
+    assert street_name("111 BROADWAY") == "BROADWAY"
+    # QA of #66: real FacDB `address` and SLA street strings with floor, suite or unit text.
+    for raw, want in [("26 BROADWAY-12TH FL", "BROADWAY"), ("291 BROADWAY-2ND FL", "BROADWAY"),
+                      ("26 BROADWAY-STE 900", "BROADWAY"), ("6 BARCLAY ST-FL 2", "BARCLAY ST"),
+                      ("231 PALMETTO ST-FL 3-RM 327A", "PALMETTO ST"), ("99 WALL ST - #4487", "WALL ST"),
+                      ("101 BROAD ST FL 2", "BROAD ST"), ("25 BROADWAY 9TH FLOOR", "BROADWAY"),
+                      ("1 WALL ST 46TH-49TH FLOORS", "WALL ST"), ("200 WEST ST 11TH & 12TH FLOORS", "W ST"),
+                      ("21 23 PECK SLIP, GR FL STORE 1", "PECK SLIP"),
+                      ("363 Greenwich St # 1A", "GREENWICH ST"),
+                      ("25 N MOORE ST 1A", "N MOORE ST"), ("179 Duane St Frnt 1", "DUANE ST"),
+                      ("SAINT NICHOLAS AVE", "ST NICHOLAS AVE")]:
+        assert street_name(raw) == want, raw
+    # ...but street numbers and unit-like words that are part of the street stay.
+    assert street_name("217 NORTH 10TH ST") == "N 10 ST"
+    assert street_name("89 SOUTH STREET PIER 17") == "S ST PIER 17"
+    assert street_name("10-12 Cortlandt St") == "CORTLANDT ST" and street_name("62 AVE B") == "AVE B"
+    assert same_street({street_name("25 BROADWAY 9TH")}, street_name("26 BROADWAY-12TH FL")) is True
+    assert same_street({"BROADWAY", "CEDAR ST"}, "BROADWAY") is True
+    assert same_street({"WILSON AVE"}, street_name("1374 MYRTLE AVENUE")) is False
+    assert same_street(set(), "BROADWAY") is None and same_street({"BROADWAY"}, "") is None
+
+
+def test_bbox_margin_is_at_least_500_ft():
+    lo0, la0, lo1, la1 = bbox_with_margin([-74.0, -73.9], [40.70, 40.71], 600)
+    assert (40.70 - la0) * 364_000 == pytest.approx(600, rel=1e-6)
+    assert (-74.0 - lo0) * 364_000 * 0.7576 > 500  # cos(40.705 deg) is about 0.7576
+
+
+def test_rule_text_is_the_published_text():
+    """SLA_RULES quotes ABC Law §64(7) word for word, from the nysenate.gov page read in a
+    browser on 2026-11-04 (revision 2026-07-31)."""
+    page = " ".join(load_text("abc64_7_nysenate_2026-07-31.txt").split())
+    assert "MOST RECENT REVISION (FROM 2026-07-31)" in page and SLA_RULES["revision"] == "2026-07-31"
+    for k in ("lead", "a", "b", "c"):
+        assert SLA_RULES[k] in page, k

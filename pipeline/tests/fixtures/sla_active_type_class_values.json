@@ -1,0 +1,311 @@
+{
+ "source": "https://data.ny.gov/resource/9s3h-dpkz.json (premisescounty New York, Kings)",
+ "recorded": "2026-11-04",
+ "rows": [
+  {
+   "type": "1",
+   "class": "0001",
+   "description": "Wholesale Beer (Retail)"
+  },
+  {
+   "type": "1",
+   "class": "0002",
+   "description": "Wholesale Beer"
+  },
+  {
+   "type": "1",
+   "class": "0005",
+   "description": "Cider Producer"
+  },
+  {
+   "type": "1",
+   "class": "0007",
+   "description": "Wholesale Wine"
+  },
+  {
+   "type": "1",
+   "class": "0009",
+   "description": "Wholesale Liquor"
+  },
+  {
+   "type": "1",
+   "class": "0011",
+   "description": "Importer"
+  },
+  {
+   "type": "1",
+   "class": "0013",
+   "description": "Brewer"
+  },
+  {
+   "type": "1",
+   "class": "0014",
+   "description": "Micro-Brewer"
+  },
+  {
+   "type": "1",
+   "class": "0015",
+   "description": "Farm Brewer"
+  },
+  {
+   "type": "1",
+   "class": "0018",
+   "description": "Micro-Brewer 3 Year"
+  },
+  {
+   "type": "1",
+   "class": "0025",
+   "description": "Farm Cidery"
+  },
+  {
+   "type": "1",
+   "class": "0031",
+   "description": "Winery"
+  },
+  {
+   "type": "1",
+   "class": "0051",
+   "description": "Distiller Class A"
+  },
+  {
+   "type": "1",
+   "class": "0052",
+   "description": "Distiller Class A-1 (Micro-distiller)"
+  },
+  {
+   "type": "1",
+   "class": "0054",
+   "description": "Distiller Class B-1 (Micro-rectifier)"
+  },
+  {
+   "type": "1",
+   "class": "0056",
+   "description": "Distiller Class D (Farm Distiller)"
+  },
+  {
+   "type": "1",
+   "class": "0071",
+   "description": "Grocery Store"
+  },
+  {
+   "type": "1",
+   "class": "0072",
+   "description": "Drug Store"
+  },
+  {
+   "type": "1",
+   "class": "0081",
+   "description": "Grocery Store"
+  },
+  {
+   "type": "1",
+   "class": "0082",
+   "description": "Drug Store"
+  },
+  {
+   "type": "1",
+   "class": "0091",
+   "description": "Wine Store"
+  },
+  {
+   "type": "1",
+   "class": "0100",
+   "description": "Liquor Store"
+  },
+  {
+   "type": "1",
+   "class": "0101",
+   "description": "Off Premises Caterer Establishment"
+  },
+  {
+   "type": "1",
+   "class": "0111",
+   "description": "Restaurant"
+  },
+  {
+   "type": "1",
+   "class": "0138",
+   "description": "Food & Beverage Business"
+  },
+  {
+   "type": "1",
+   "class": "0189",
+   "description": "Additional bar- ball park, race track, etc"
+  },
+  {
+   "type": "1",
+   "class": "0240",
+   "description": "Restaurant"
+  },
+  {
+   "type": "1",
+   "class": "0243",
+   "description": "Hotel"
+  },
+  {
+   "type": "1",
+   "class": "0246",
+   "description": "Catering Establishment"
+  },
+  {
+   "type": "1",
+   "class": "0249",
+   "description": "Club"
+  },
+  {
+   "type": "1",
+   "class": "0267",
+   "description": "Food & Beverage Business"
+  },
+  {
+   "type": "1",
+   "class": "0270",
+   "description": "Legitimate Theatre"
+  },
+  {
+   "type": "1",
+   "class": "0272",
+   "description": "Winter Legitimate Theatre"
+  },
+  {
+   "type": "1",
+   "class": "0340",
+   "description": "Restaurant"
+  },
+  {
+   "type": "1",
+   "class": "0341",
+   "description": "Summer Restaurant"
+  },
+  {
+   "type": "1",
+   "class": "0343",
+   "description": "Hotel"
+  },
+  {
+   "type": "1",
+   "class": "0346",
+   "description": "Catering Establishment"
+  },
+  {
+   "type": "1",
+   "class": "0347",
+   "description": "Summer Catering Establishment"
+  },
+  {
+   "type": "1",
+   "class": "0349",
+   "description": "Club"
+  },
+  {
+   "type": "1",
+   "class": "0358",
+   "description": "Railroad car"
+  },
+  {
+   "type": "1",
+   "class": "0361",
+   "description": "Vessel"
+  },
+  {
+   "type": "1",
+   "class": "0370",
+   "description": "Food & Beverage Business"
+  },
+  {
+   "type": "1",
+   "class": "0371",
+   "description": "Summer Food & beverage business"
+  },
+  {
+   "type": "1",
+   "class": "0372",
+   "description": "Winter Food & Beverage Business"
+  },
+  {
+   "type": "1",
+   "class": "0373",
+   "description": "Legitimate theatre"
+  },
+  {
+   "type": "1",
+   "class": "0376",
+   "description": "Concert Hall"
+  },
+  {
+   "type": "1",
+   "class": "0388",
+   "description": "Night Club"
+  },
+  {
+   "type": "1",
+   "class": "0391",
+   "description": "Golf Venue"
+  },
+  {
+   "type": "1",
+   "class": "0409",
+   "description": "Athletic/Sporting Event/Expositions/Large Gathering Venue"
+  },
+  {
+   "type": "1",
+   "class": "0410",
+   "description": "Summer Athletic/Sporting Event/Expositions/Large Gathering Venue"
+  },
+  {
+   "type": "1",
+   "class": "0415",
+   "description": "Bottle Club"
+  },
+  {
+   "type": "1",
+   "class": "0416",
+   "description": "Restaurant Brewer"
+  },
+  {
+   "type": "1",
+   "class": "0417",
+   "description": "Cabaret"
+  },
+  {
+   "type": "1",
+   "class": "0422",
+   "description": "Additional bar- legitimate theater"
+  },
+  {
+   "type": "1",
+   "class": "0423",
+   "description": "Additional Bar"
+  },
+  {
+   "type": "1",
+   "class": "0425",
+   "description": "For-profit Club"
+  },
+  {
+   "type": "1",
+   "class": "0426",
+   "description": "Additional Bar-Seasonal"
+  },
+  {
+   "type": "1",
+   "class": "CM",
+   "description": "Combined Craft Status"
+  },
+  {
+   "type": "2",
+   "class": "0512",
+   "description": "Manufacturer's Temporary"
+  },
+  {
+   "type": "2",
+   "class": "0524",
+   "description": "Temporary retail"
+  },
+  {
+   "type": "2",
+   "class": "0593",
+   "description": "Wholesaler's Temporary"
+  }
+ ]
+}
