@@ -53,7 +53,15 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 ## Stubbed or missing
 
 - **No history, so no "new this week" badge** and no weekly digest (#52). Each run is a snapshot.
-- **No nightly build, CI or failure alerts** (#49). Runs by hand only.
+- **Deploy** (#49, partly): `.github/workflows/v2-deploy.yml` runs the pipeline tests, a live
+  pipeline build, the site tests, svelte-check and the site build, then publishes `site/build` to
+  the `gh-pages` branch, which GitHub Pages serves at **slam.beta.nyc** (this replaced SLAM v1 on
+  2026-11-04). It runs on every push to `v2` and by hand (Actions > "SLAM v2 build and deploy" >
+  Run workflow). The nightly `schedule` only fires from the default branch (`main`), so it is not
+  active yet. The GeoSearch caches are carried between runs with `actions/cache`; raw pulls are
+  fresh each run. If a step fails, nothing is published and the last good site stays up. No
+  failure alerts yet. The old v1 workflow (`deploy-to-gh-pages.yml`, on push to `main`) is still on
+  `main`; a push to `main` would put v1 back.
 - **No automated accessibility testing** (#53): no axe in CI, no screen-reader pass. Only checked by eye at 360 px and 1280 px.
 - **Pending cannabis**: there is no pending-applications dataset like SLA's. The closest signal is OCM license rows with `license_status` "In-Process", which are shown in the Cannabis tab.
 - **Street events** (`tvpp-9vvx`) are approved permits only and have **no coordinates**, so they are list-only and not on the map or on address pages. Each row is one occurrence; one permit (`event_id`) can repeat. Sports permits are hidden by default (toggle to show).
@@ -62,7 +70,7 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 - **Address grouping is a simple normalizer** (uppercase, suffixes, drop unit designators such as `Ste`/`Fl`/`Store`). It will miss some matches and could rarely merge two. Retail-dealer addresses that start with the store name are trimmed only when the name starts with a letter (`7 LEAF CLOVER 132 METROPOLITAN AVE` is left as is).
 - **Geocoding**: 7 of 145 OCM addresses were rejected by the acceptance rule and are unmapped (they still appear in lists marked "not mapped").
 - **Size**: the static build is about 93 MB (68 MB before #61, #62 and #60), mostly per-address `index.html` and `__data.json`. Fine locally; worth slimming before hosting.
-- **No base path** is configured, so the build assumes it is served from `/`. GitHub Pages under `/SLAM/` would need `paths.base`.
+- **No base path** is configured, so the build assumes it is served from `/`, which is how slam.beta.nyc serves it.
 - The OpenFreeMap style logs three MapLibre warnings about highway-shield filters; they come from the style, not this code.
 
 ## Sources (all verified from `/api/views/<id>.json`, 2026-11-04)
