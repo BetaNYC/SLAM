@@ -16,14 +16,19 @@ test('lampUrl rounds to 5 decimals and drops trailing zeros', () => {
 });
 
 test('lampUrl gives no link without a usable point', () => {
-	for (const [lon, lat] of [[null, 40.7], [-74, undefined], [undefined, undefined], ['', ''], ['-74', '40.7'], [NaN, 40.7], [-74, Infinity], [40.7, -200], [-74, 95]]) {
+	for (const [lon, lat] of [[null, 40.7], [-74, undefined], [undefined, undefined], ['', ''], ['-74', '40.7'], [NaN, 40.7], [-74, Infinity], [40.7, -200], [-74, 95], [0, 0]]) {
 		assert.equal(lampUrl(/** @type {any} */ (lon), /** @type {any} */ (lat)), null, `${lon},${lat}`);
 	}
 });
 
+test('lampUrl keeps the zoom level it is given', () => {
+	assert.match(lampUrl(-74.01011, 40.71513) ?? '', /&level=18$/);
+	assert.match(lampUrl(-74.01011, 40.71513, 16) ?? '', /&level=16$/);
+});
+
 test('no query= links and no verdict words in the license code', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/lib/format.js']) {
+	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/routes/address/[id]/+page.svelte', 'src/lib/format.js']) {
 		const s = readFileSync(f, 'utf8');
 		assert.equal(s.match(verdict), null, f);
 		assert.equal(/lamp\.sla\.ny\.gov\/\?query=/.test(s), false, f);

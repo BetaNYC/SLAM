@@ -17,12 +17,17 @@
 		<strong>Liquor license fields.</strong> The ID is SLA's own:
 		{#each keys as k, i (k)}<code>{S.fields[k].id}</code> ({ID_LABEL[k]}){i < keys.length - 1 ? ', ' : ''}{/each}.
 		Type and class are the datasets' <code>type</code> and <code>class</code> columns, shown as
-		the dataset has them; the words are <code>description</code>. See <a href={S.classes.url}>{S.classes.label}</a>.
+		the dataset has them; the words are <code>description</code>. The active-license dataset writes
+		classes with a leading zero (<code>0370</code>); the pending and inactive datasets, SLA's class
+		sheet and LAMP write the same class without it (<code>370</code>). See <a href={S.classes.url}>{S.classes.label}</a>.
 	</p>
 	<p>
 		<strong>LAMP link.</strong> "Show on the SLA's LAMP map" opens SLA's LAMP map centered on the
 		license's point, at zoom {S.lamp.level}. It opens a map location, not the license record. LAMP
-		first shows a welcome box; close it, then click the license on the map. When we checked
+		first shows a welcome box; close it. LAMP places each license at its own point, which can differ
+		from this one: when we compared (2026-11-04), most were within about 13 m, but 145 of 2,344 were
+		more than 50 m away, and LAMP shows no pin for "Additional Bar" permits. Check that the pin you
+		click has the same license ID. When we checked
 		(2026-11-04), SLA's LAMP popup listed premises and license details, principals and disciplinary
 		history, and several licenses at one spot are paged ("1 of 6"). The point is the dataset's <code>georeference</code>,
 		which the data.ny.gov platform geocodes from the address ("{S.point_description}"). It is not
@@ -33,7 +38,8 @@
 		operation or hours, and neither did the LAMP popup when we checked. Approval conditions for contested applications, which can include closing
 		hours and community board stipulations, appear in the minutes of SLA's
 		<a href={S.full_board.url}>Full Board meetings</a>; each meeting's page in the
-		<a href={S.event_calendar.url}>{S.event_calendar.label}</a> links its minutes.
+		<a href={S.event_calendar.url}>{S.event_calendar.label}</a> links its minutes once they are posted
+		after the meeting.
 	</p>
 	<p class="muted">
 		Sources:

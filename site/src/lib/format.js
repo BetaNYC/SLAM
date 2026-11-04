@@ -199,6 +199,7 @@ export const SLA_SOURCES = ['liquor_pending', 'liquor_active', 'liquor_inactive'
 export function lampUrl(lon, lat, level = 18) {
 	if (typeof lon !== 'number' || typeof lat !== 'number') return null;
 	if (!Number.isFinite(lon) || !Number.isFinite(lat) || Math.abs(lon) > 180 || Math.abs(lat) > 90) return null;
+	if (lon === 0 && lat === 0) return null; // 0,0 is a missing point, not a place
 	const r = (/** @type {number} */ v) => String(Number(v.toFixed(5)));
 	return `https://lamp.sla.ny.gov/?center=${r(lon)},${r(lat)}&level=${level}`;
 }

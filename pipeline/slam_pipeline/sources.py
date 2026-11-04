@@ -349,6 +349,6 @@ SLA_LICENSE = {
                    "url": "https://sla.ny.gov/full-board-meetings"},
     "event_calendar": {"label": "SLA event calendar",
                        "url": "https://sla.ny.gov/event-calendar"},
-    "classes": {"label": "SLA license type and class definitions",
+    "classes": {"label": "SLA license type and class definitions (Excel file)",
                 "url": "https://sla.ny.gov/leap-license-type-and-class-definitions"},
 }

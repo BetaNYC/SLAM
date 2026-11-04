@@ -270,8 +270,11 @@ Built 2026-11-04. The hours and method-of-operation half of #63 stays research.
 - **Browser check (Playwright, 2026-11-04, no sign-in)**: opened the link for OL'DAYS, 73 Warren St
   (`0240-24-104108`, MN CD 1) and GOLDSOUNDS, 44 Wilson Ave (`0370-22-104616`, BK CD 4). LAMP's map
   centered exactly on the requested point (read back from the map: same lon/lat to 5 decimals) at
-  level 18. LAMP shows a welcome box first. SLA's own pin for each license is 8 to 11 m from our
-  point and on screen; clicking it opened SLA's popup for that license ID. The popup ("1 of 6",
+  level 18. LAMP shows a welcome box first. For these two licenses SLA's own pin was 8 to 11 m from our
+  point and on screen. That is not true of every license: QA on #67 compared all 2,344 and found most
+  within about 13 m, but 145 more than 50 m away and 41 more than 150 m, and no LAMP pin at all for
+  "Additional Bar" permits (classes 422, 423, 426). The page tells people to check the pin's license ID.
+  For the two test licenses, clicking it opened SLA's popup for that license ID. The popup ("1 of 6",
   several licenses at one spot) lists premises and license details, principals and disciplinary
   history. It has **no hours or method of operation**.
 - **ID, type and class**: the dataset's own fields (`licensepermitid` active, `license_permit_id`
