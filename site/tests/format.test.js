@@ -67,3 +67,50 @@ test('popup311 builds text nodes, never HTML', async () => {
 	assert.equal(div.children[2].children[1].text, '<b>44 WILSON AVENUE</b>');
 	assert.equal(popup311({ d: '2026-10-31', t: 'x' }, doc).children[2].children[1].text, '(no address)');
 });
+
+test('coBisUrl builds the confirmed BIS pattern and refuses non-BINs', async () => {
+	const { coBisUrl } = await import('../src/lib/format.js');
+	assert.equal(coBisUrl('1089309'), 'https://a810-bisweb.nyc.gov/bisweb/COsByLocationServlet?requestid=1&allbin=1089309');
+	assert.equal(coBisUrl('3071959'), 'https://a810-bisweb.nyc.gov/bisweb/COsByLocationServlet?requestid=1&allbin=3071959');
+	assert.equal(coBisUrl(''), null);
+	assert.equal(coBisUrl(null), null);
+	assert.equal(coBisUrl('6000001'), null);
+	assert.equal(coBisUrl('1089309&x=1'), null);
+});
+
+test('abcEatsUrl uses the #!/Search/<camis> pattern', async () => {
+	const { abcEatsUrl } = await import('../src/lib/format.js');
+	assert.equal(abcEatsUrl('50036043'), 'https://a816-health.nyc.gov/ABCEatsRestaurants/#!/Search/50036043');
+	assert.equal(abcEatsUrl('abc'), null);
+	assert.equal(abcEatsUrl(undefined), null);
+});
+
+test('built restaurant data: district buckets add up and address pages agree', async () => {
+	const { readFileSync, existsSync } = await import('node:fs');
+	const m = JSON.parse(readFileSync('static/data/manifest.json', 'utf8'));
+	const idx = JSON.parse(readFileSync('static/data/address/index.json', 'utf8'));
+	let onPages = 0;
+	for (const slug of Object.keys(m.districts)) {
+		const R = JSON.parse(readFileSync(`static/data/${slug}/list.json`, 'utf8')).restaurants;
+		assert.equal(R.buckets.reduce((/** @type {number} */ n, /** @type {any} */ b) => n + b.n, 0), R.total, `${slug}: buckets add up`);
+		assert.equal(R.rows.length, R.total);
+		const st = m.restaurant_inspections.by_district[slug];
+		assert.equal(st.on_page_by_bin + st.on_page_by_point + st.not_on_a_page, st.restaurants, `${slug}: every restaurant counted once`);
+		for (const r of R.rows) if (r.aid) assert.ok(existsSync(`static/data/address/${r.aid}.json`), 'row links to a real page');
+		onPages += st.on_page_by_bin + st.on_page_by_point;
+	}
+	assert.equal(idx.reduce((/** @type {number} */ n, /** @type {any} */ a) => n + a.nrest, 0), onPages);
+});
+
+test('built address pages: 185 Greenwich and 44 Wilson carry BIN, CO block and restaurants', async () => {
+	const { readFileSync } = await import('node:fs');
+	for (const [bin, camis] of [['1089309', '50162301'], ['3071959', '50048523']]) {
+		const a = JSON.parse(readFileSync(`static/data/address/${bin}.json`, 'utf8'));
+		assert.equal(a.co.bin, bin);
+		assert.equal(a.co.bin_source, 'geosearch');
+		const r = a.restaurants.find((/** @type {any} */ x) => x.camis === camis);
+		assert.ok(r, `${camis} at ${bin}`);
+		assert.equal(r.placed, 'bin');
+		for (let i = 1; i < r.history.length; i++) assert.ok(r.history[i - 1].date >= r.history[i].date, 'newest first');
+	}
+});

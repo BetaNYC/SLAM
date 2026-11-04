@@ -58,3 +58,4 @@ th { background: var(--bg-soft); }
 	.badge { color: #000; border: 1px solid #000; }
 }
 .nowrap { white-space: nowrap; }
+.restaurant { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: 0.25rem; }

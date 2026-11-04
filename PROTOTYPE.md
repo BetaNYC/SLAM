@@ -16,12 +16,12 @@ cd pipeline
 uv sync
 uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
-uv run pytest -q                   # 39 tests against recorded real responses
+uv run pytest -q                   # 51 tests against recorded real responses
 
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 17 tests (four read the built static/data)
+npm test                           # node --test, 21 tests (six read the built static/data)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 
@@ -44,6 +44,8 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | Map: MapLibre GL JS 6 + OpenFreeMap "liberty" style, district outline, one toggle per layer, click a point to open its address page, "View as list" link, attribution shown by MapLibre. | `site/src/routes/[district]/map/` | #51 |
 | 311 complaints at bar/club/restaurant locations: district tab (count by type x year plus the 200 most recent, filter + CSV), address-page section (by type x year and the 10 most recent at the address; counts by type within 150 m), map layer off by default and fetched only when switched on. See "311 complaints" below. | `sources.py` `complaints_311`, `transform.py` `normalize_311` etc., `site/src/lib/CountTable311.svelte`, `Complaints311Table.svelte`, `popup311.js` | #47 (source), #50, #51 |
 | Address search (one box in the header of every page) and address pages keyed on BIN. See "Address search" below. | `site/src/lib/AddressSearch.svelte`, `addressSearch.js`; `build.py` `geocode_addresses`; `transform.py` `pick_address_hit`, `key_pages` | #59 |
+| Restaurant health grades: "Health inspections" on the address page (latest grade, grade history, ABC Eats link per restaurant), "Health grades" tab on the district page (counts by current grade, grade filter, table, CSV). See "Health inspections" below. | `sources.py` `restaurant_inspections`, `transform.py` `reduce_inspections`, `grade_bucket`, `place_restaurant` | #61 |
+| Certificate of occupancy: the address page shows the BIN (or "No BIN found"), links DOB BIS's CO listing for that BIN, points to DOB NOW for COs since March 2021, and lists DOB NOW CO records for the BIN. No Geoclient. See "Certificate of occupancy" below. | `sources.py` `co_dobnow`, `transform.py` `normalize_co`, `page_co_bin`; `site/src/lib/format.js` `coBisUrl` | #62 |
 | Accessibility basics: skip link, semantic tables with `<caption>` and `scope`, labelled inputs, ARIA tabs with arrow keys, visible focus ring, works at 360 px (tables scroll sideways). | throughout | #53 (partly) |
 
 ## Stubbed or missing
@@ -73,6 +75,8 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | cannabis_license | NYS `jskf-tt3q` Current OCM Licenses | `county in (...)`; `primary_contact_name` is never selected |
 | dining_out | NYC `fpeh-f7ci` Dining Out NYC Locations | `community_board in (101,304)` (the City's own assignment; agrees with point-in-polygon 98/98) |
 | street_events | NYC `tvpp-9vvx` NYC Permitted Event Information | `event_borough in ('Manhattan','Brooklyn')`, then board split in Python |
+| restaurant_inspections | NYC `43nn-pn8j` DOHMH New York City Restaurant Inspection Results | `community_board in ('101','304')` (text here) |
+| co_dobnow | NYC `pkdm-hqz6` DOB NOW: Certificate of Occupancy | `community_board in (101,304)` (number here) |
 | complaints_311 | NYC `erm2-nwe9` 311 Service Requests from 2020 to Present | `location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery') AND created_date >= '2024-01-01' AND community_board in ('01 MANHATTAN','04 BROOKLYN')`; start date is `COMPLAINTS_311_START` in `sources.py` |
 
 ## 311 complaints
@@ -106,6 +110,62 @@ Run of 2026-11-04 (live, then `--offline`, same numbers):
   11237 on the other). Both keys now resolve to BIN 3071959, so there is one page with both licenses,
   627 complaints at it and 36 nearby. Intersection-only complaints are never "at" an address.
   2010 to 2019 (`76ig-c548`) is not pulled. A complaint is a report to 311, not a finding, and the pages say so.
+
+## Health inspections (#61)
+
+Run of 2026-11-04 (live, then `--offline`, same numbers):
+
+| | MN CD 1 | BK CD 4 |
+|---|---|---|
+| Restaurants (one per `camis`) | 918 | 434 |
+| On an address page by BIN | 685 | 266 |
+| On an address page by location (≤ 30 m) | 80 | 21 |
+| Not on an address page (district tab only) | 153 | 147 |
+| No coordinates | 0 | 0 |
+| Not yet inspected (1900-01-01 placeholder) | 157 | 50 |
+
+- **Pull**: 12,049 violation rows for the two boards. `community_board` is DOHMH's own field (`'101'`, `'304'`, text).
+- **Agreement**: DOHMH `community_board` and point-in-polygon agree for **1,352 of 1,352** restaurants. A second,
+  grouped query lists every restaurant point in the two districts' bounding box with another board: **1** falls inside
+  a polygon, Dunkin at 325 Wyckoff Ave, Queens 11385 (board 405, BIN 4082322). It sits on the border street, so the
+  board filter is right to leave it out. District assignment is DOHMH's board; the check is in `manifest.json`.
+- **One row per violation → one row per inspection**: grouped by `camis`, then `(inspection_date, inspection_type)`;
+  the inspection keeps action, score, grade, grade date and a violation count.
+- **Grades** (from the `grade` column description): A, B, C, Z (grade pending), P (grade pending on re-opening) count
+  as graded; N (not yet graded) and blank do not. Grade history = graded inspections only, newest first. Latest grade
+  = the newest of those.
+- **Not yet inspected**: the dataset description says "Establishments with inspection date of 1/1/1900 are new
+  establishments that have not yet received an inspection." Those rows are not inspections; the restaurant shows
+  "Not yet inspected" (a test reads the recorded description).
+- **Placement on an address page**: by BIN first (DOHMH `bin` = the page's BIN). Otherwise the nearest page within
+  30 m (`NEAREST_PAGE_M`), but only a page with no BIN of its own, or any page when the restaurant has no BIN: a
+  restaurant whose BIN differs from a BIN-keyed page's is in another building. The page says when a restaurant was
+  placed by location, and how far.
+- **Not on a page**: restaurants in buildings with no license, cannabis or Dining Out record get no address page of
+  their own. They are counted (above, in the manifest and in the tab's note) and listed in the district tab, marked
+  "not on an address page".
+- **ABC Eats**: `https://a816-health.nyc.gov/ABCEatsRestaurants/#!/Search/<camis>`, the link ABC Eats' own search
+  results use. Opened cold on 2026-11-04 for camis 50036043 (The Malt House, 11 Maiden Ln) and 50165612 (La Cafeteria,
+  1153 Broadway): each showed that restaurant's name, address and inspections. v1's `#/Search/<camis>` (no `!`) now
+  drops to the empty search form.
+- No map layer for restaurants yet.
+
+## Certificate of occupancy (#62)
+
+- **BIN**: the address page's own BIN (GeoSearch PAD, #59). For a page without one, DOHMH's `bin`, when every
+  restaurant placed there agrees on a single BIN (40 pages). Otherwise "No BIN found" (116 pages). No Geoclient, no key.
+- **Link**: DOB BIS "C of O PDF Listing for Property",
+  `https://a810-bisweb.nyc.gov/bisweb/COsByLocationServlet?requestid=1&allbin=<BIN>` (v1's pattern, now https).
+  Opened in a browser on 2026-11-04 for BIN 1089309 (185 Greenwich St: "There are no certificates of occupancy on
+  file") and BIN 3071959 (44 Wilson Ave: one CO PDF). Plain `curl` gets an Akamai 403; browsers are fine.
+  The BIS page says "For Certificates of Occupancy requested on or after March 1, 2021, see DOB NOW."
+- **DOB NOW**: the public portal's BIN search is an in-page form; the URL stays `.../publish/Index.html#!/` after a
+  search, so there is no per-BIN link. The page links the portal and says which BIN to type.
+- **Open data**: two CO datasets carry BIN. `bs8b-p36w` (DOB Certificate Of Occupancy) covers 2012 to March 2021 only
+  and its PDFs are the ones BIS links, so it is not pulled. `pkdm-hqz6` (DOB NOW: Certificate of Occupancy, March 2021
+  on) is pulled for the two boards (4,849 rows, 794 BINs) and listed on the page by BIN (190 address pages have
+  records). Chosen as well as, not instead of, the BIS link: neither test BIN has a DOB NOW record, and older COs exist
+  only in BIS. Issuance dates arrive as text (`02/15/22 11:08:46 AM`) and are shown as `2022-02-15`.
 
 ## Address search (#59)
 

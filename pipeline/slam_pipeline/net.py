@@ -52,15 +52,18 @@ def soql_url(domain: str, dataset_id: str, params: dict, fmt: str = "json") -> s
 
 
 def fetch_all(domain: str, dataset_id: str, *, select: list[str], where: str, order: str,
-              page_size: int = 50000) -> list[dict]:
+              page_size: int = 50000, group: str | None = None) -> list[dict]:
     """Page through a SoQL query with $limit/$offset and a stable $order
     (https://dev.socrata.com/docs/queries/offset.html, .../queries/order.html: results are
-    not implicitly ordered, so paging needs an $order)."""
+    not implicitly ordered, so paging needs an $order). `group` is SoQL $group
+    (https://dev.socrata.com/docs/queries/group.html)."""
     rows: list[dict] = []
     offset = 0
     while True:
         params = {"$select": ",".join(select), "$where": where, "$order": order,
                   "$limit": page_size, "$offset": offset}
+        if group:
+            params["$group"] = group
         page = get_json(soql_url(domain, dataset_id, params))
         if not isinstance(page, list):
             raise RuntimeError(f"{dataset_id}: expected a JSON array, got {type(page).__name__}: "

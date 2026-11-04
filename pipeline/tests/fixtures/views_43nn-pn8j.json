@@ -1,0 +1,132 @@
+{
+ "id": "43nn-pn8j",
+ "name": "DOHMH New York City Restaurant Inspection Results",
+ "rowsUpdatedAt": 1793397869,
+ "description": "The dataset contains every sustained or not yet adjudicated violation citation from every full or special program inspection conducted up to three years prior to the most recent inspection for restaurants and college cafeterias in an active status on the RECORD DATE (date of the data pull). When an inspection results in more than one violation, values for associated fields are repeated for each additional violation record.  Establishments are uniquely identified by their CAMIS (record ID) number. Keep in mind that thousands of restaurants start business and go out of business every year; only restaurants in an active status are included in the dataset. \r\nRecords are also included for each restaurant that has applied for a permit but has not yet been inspected and for inspections resulting in no violations. Establishments with inspection date of 1/1/1900 are new establishments that have not yet received an inspection. Restaurants that received no violations are represented by a single row and coded as having no violations using the ACTION field. \r\nBecause this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing. \r\nThis dataset and the information on the Health Department\u2019s Restaurant Grading website come from the same data source.  The Health Department\u2019s Restaurant Grading website is here: \r\nhttp://www1.nyc.gov/site/doh/services/restaurant-grades.page\r\nSee the data dictionary file in the Attachments section of the OpenData website for a summary of data fields and allowable values.",
+ "columns": [
+  {
+   "fieldName": "camis",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "dba",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "boro",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "building",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "street",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "zipcode",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "phone",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "cuisine_description",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "inspection_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "action",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "violation_code",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "violation_description",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "critical_flag",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "score",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "grade",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "grade_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "record_date",
+   "dataTypeName": "calendar_date"
+  },
+  {
+   "fieldName": "inspection_type",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "latitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "longitude",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": "community_board",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "council_district",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "census_tract",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bin",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "bbl",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "nta",
+   "dataTypeName": "text"
+  },
+  {
+   "fieldName": "location",
+   "dataTypeName": "point"
+  },
+  {
+   "fieldName": ":@computed_region_f5dn_yrer",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_yeji_bk3q",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_sbqj_enih",
+   "dataTypeName": "number"
+  },
+  {
+   "fieldName": ":@computed_region_92fq_4b7q",
+   "dataTypeName": "number"
+  }
+ ]
+}

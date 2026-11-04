@@ -19,6 +19,7 @@ from slam_pipeline.sources import (
 )
 from slam_pipeline.transform import (
     C311_KEEP,
+    GRADE_BUCKETS,
     SchemaError,
     accept_geosearch,
     address_id,
@@ -27,16 +28,24 @@ from slam_pipeline.transform import (
     building_street,
     check_columns,
     check_rows,
+    co_issued_date,
     count_by_type,
     count_by_type_year,
     events_for_district,
+    grade_bucket,
     house_number,
+    meters,
     normalize_311,
     normalize_address,
+    normalize_co,
     normalize_event,
     normalize_record,
+    page_co_bin,
     parse_boards,
+    place_restaurant,
+    real_bin,
     recent_311,
+    reduce_inspections,
     strip_name_prefix,
 )
 
@@ -267,7 +276,6 @@ from slam_pipeline.transform import (  # noqa: E402
     group_addresses,
     key_pages,
     pick_address_hit,
-    real_bin,
     slim_geosearch,
 )
 
@@ -357,3 +365,102 @@ def test_unmatched_groups_keep_their_old_key_and_are_not_dropped():
     assert sorted(pages) == sorted(groups)
     assert all(p["bin"] is None and p["geocode"]["status"] == "unmatched" for p in pages.values())
     assert sum(len(p["records"]) for p in pages.values()) == len(recs)
+
+
+# ---------------------------------------------------------------- restaurant inspections (#61)
+# dohmh_sample.json: every 43nn-pn8j row for five camis, recorded 2026-11-04. The Malt House
+# and La Cafeteria inspection dates were checked by eye against their ABC Eats pages.
+
+@pytest.fixture(scope="module")
+def rests():
+    return reduce_inspections(load("dohmh_sample.json"))
+
+
+def test_inspection_source_filters_on_the_two_boards():
+    s = SOURCES_BY_KEY["restaurant_inspections"]
+    assert s.id == "43nn-pn8j"
+    assert s.where == "community_board in ('101','304')"
+    co = SOURCES_BY_KEY["co_dobnow"]
+    assert co.id == "pkdm-hqz6" and co.where == "community_board in (101,304)"
+
+
+def test_one_row_per_violation_reduces_to_one_per_inspection(rests):
+    malt = rests["50036043"]  # 7 violation rows, 3 inspections
+    assert sum(1 for r in load("dohmh_sample.json") if r["camis"] == "50036043") == 7
+    assert [i["date"] for i in malt["inspections"]] == ["2026-02-09", "2024-06-25", "2023-03-08"]
+    assert [i["violations"] for i in malt["inspections"]] == [4, 1, 2]
+    assert malt["bin"] == "1001098" and malt["street"] == "11 MAIDEN LN"
+
+
+def test_grade_history_is_graded_inspections_only_newest_first(rests):
+    gold = rests["50048523"]  # Gold Sounds, 44 Wilson Ave: 5 inspections, 2 graded
+    assert len(gold["inspections"]) == 5
+    assert [(h["date"], h["grade"]) for h in gold["history"]] == [("2025-03-21", "A"),
+                                                                   ("2023-03-07", "P")]
+    assert gold["latest"]["grade"] == "A" and gold["latest"]["grade_date"] == "2025-03-21"
+    caf = rests["50165612"]
+    assert [(h["date"], h["grade"]) for h in caf["history"]] == [("2026-09-23", "A"),
+                                                                  ("2025-06-26", "B")]
+
+
+def test_1900_placeholder_means_not_yet_inspected():
+    desc = load("views_43nn-pn8j.json")["description"]
+    assert "inspection date of 1/1/1900 are new establishments that have not yet received" in desc
+    r = reduce_inspections(load("dohmh_sample.json"))["50193697"]
+    assert r["not_inspected"] and r["inspections"] == [] and r["latest"] is None
+    assert grade_bucket(r) == "Not yet inspected"
+
+
+def test_grade_n_is_not_a_grade(rests):
+    polar = rests["50162301"]  # Polar Pub, 185 Greenwich: one pre-permit inspection, grade N
+    assert polar["inspections"][0]["grade"] == "N" and polar["history"] == []
+    assert grade_bucket(polar) == "Not yet graded"
+    assert {grade_bucket(r) for r in rests.values()} <= set(GRADE_BUCKETS)
+
+
+def test_restaurant_points_fall_in_their_board_district(con, rests):
+    for r in rests.values():
+        got = con.execute("SELECT cd FROM d WHERE ST_Contains(geom, ST_Point(?, ?))",
+                          [r["lon"], r["lat"]]).fetchall()
+        assert got == [(int(r["board"]),)], r["camis"]
+
+
+def test_place_restaurant_bin_first_then_point(rests):
+    polar = rests["50162301"]
+    # By BIN: 185 Greenwich's page is keyed on BIN 1089309.
+    assert place_restaurant(polar, {"1089309": "1089309"}, [], 30)["method"] == "bin"
+    # Same BIN missing: a BIN-keyed page nearby is another building, so never by point.
+    pts = [("1089309", polar["lon"], polar["lat"], True)]
+    assert place_restaurant(polar, {}, pts, 30)["aid"] is None
+    # A page without a BIN within 30 m takes it by point, with the distance.
+    pts = [("abcdef0123", polar["lon"] + 0.0001, polar["lat"], False)]
+    got = place_restaurant(polar, {}, pts, 30)
+    assert got["method"] == "point" and got["aid"] == "abcdef0123" and 5 <= got["m"] <= 12
+    # Too far: not placed, so it is counted as not on a page.
+    pts = [("abcdef0123", polar["lon"] + 0.001, polar["lat"], False)]
+    assert place_restaurant(polar, {}, pts, 30)["method"] is None
+
+
+def test_meters_matches_duckdb_sphere(con):
+    a, b = (-74.0113, 40.7113), (-74.0103, 40.7113)
+    m = con.execute("SELECT ST_Distance_Sphere(ST_Point(?, ?), ST_Point(?, ?))", [*a, *b]).fetchone()[0]
+    assert abs(meters(*a, *b) - m) < 0.5
+
+
+# ---------------------------------------------------------------- certificates of occupancy (#62)
+
+def test_co_dobnow_rows_normalize():
+    rows = [normalize_co(r) for r in load("co_dobnow_sample.json")]
+    assert rows and all(r["bin"] in ("1001905", "1087239") for r in rows)
+    first = next(r for r in rows if r["application"] == "CO-000015514")
+    assert first["issued"] == "2022-02-15" and first["number"] == "1001905-0000002"
+    assert co_issued_date("10/03/23  2:05:11 PM") == "2023-10-03"
+    assert co_issued_date(None) == ""
+
+
+def test_co_bin_prefers_the_page_bin_then_a_single_dohmh_bin():
+    assert page_co_bin("1089309", ["1001098"]) == ("1089309", "geosearch")
+    assert page_co_bin(None, ["3071959", "3071959", None]) == ("3071959", "dohmh")
+    assert page_co_bin(None, ["3071959", "3071960"]) == (None, None)
+    assert page_co_bin(None, []) == (None, None)
+    assert real_bin("3000000") is None  # placeholder BINs never make a CO link

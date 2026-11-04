@@ -47,6 +47,10 @@ COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bak
 COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in DISTRICTS.values())
 
 
+# DOHMH 43nn-pn8j community_board text for the two districts ('101', '304').
+RESTAURANT_BOARDS = tuple(str(d["boro_cd"]) for d in DISTRICTS.values())
+
+
 def _sql_list(values) -> str:
     return "(" + ",".join("'" + v.replace("'", "''") + "'" for v in values) + ")"
 
@@ -182,6 +186,39 @@ SOURCES: list[Source] = [
         order="unique_key",
         lat_lon=("latitude", "longitude"),
         notes="Bar/club/restaurant location types only, created on or after COMPLAINTS_311_START.",
+    ),
+    Source(
+        key="restaurant_inspections",
+        domain=NYC,
+        id="43nn-pn8j",
+        title="DOHMH New York City Restaurant Inspection Results",
+        # One row per violation (the dataset description says values repeat for each
+        # additional violation), reduced to one row per inspection in transform.py.
+        # Columns read from https://data.cityofnewyork.us/api/views/43nn-pn8j.json on
+        # 2026-11-04. community_board is text here ('101', '304'), checked via $group.
+        fields=["camis", "dba", "boro", "building", "street", "zipcode", "inspection_date",
+                "action", "violation_code", "score", "grade", "grade_date", "inspection_type",
+                "latitude", "longitude", "community_board", "bin", "bbl"],
+        where=f"community_board in {_sql_list(RESTAURANT_BOARDS)}",
+        order="camis,inspection_date,violation_code",
+        lat_lon=("latitude", "longitude"),
+        notes="Inspection date 1900-01-01 = not yet inspected (dataset description).",
+    ),
+    Source(
+        key="co_dobnow",
+        domain=NYC,
+        id="pkdm-hqz6",
+        title="DOB NOW: Certificate of Occupancy",
+        # COs requested through DOB NOW, March 2021 on (dataset description). Older COs are
+        # PDFs in BIS, which the address page links by BIN. Columns read from
+        # https://data.cityofnewyork.us/api/views/pkdm-hqz6.json on 2026-11-04;
+        # community_board is a number here (101, 304), checked via $group.
+        fields=["bin", "job_filing_name", "job_type", "house_no", "street_name", "borough",
+                "c_of_o_status", "c_of_o_filing_type", "c_of_o_issuance_date", "c_of_o_number",
+                "application_number", "community_board"],
+        where="community_board in (" + ",".join(str(d["boro_cd"]) for d in DISTRICTS.values()) + ")",
+        order="application_number",
+        notes="Joined to address pages by BIN only.",
     ),
 ]
 

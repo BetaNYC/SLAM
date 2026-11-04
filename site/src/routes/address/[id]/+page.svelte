@@ -1,6 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp } from '#lib/format.js';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 
@@ -12,9 +12,14 @@
 		...new Set([
 			...a.records.map((/** @type {any} */ r) => r.source),
 			...a.nearby.flatMap((/** @type {any} */ n) => n.records.map((/** @type {any} */ r) => r.source)),
-			...(a.c311.n || a.c311_near.n ? ['complaints_311'] : [])
+			...(a.c311.n || a.c311_near.n ? ['complaints_311'] : []),
+			...(a.restaurants?.length ? ['restaurant_inspections'] : []),
+			...(a.co?.records?.length ? ['co_dobnow'] : [])
 		])
 	]);
+	const rsrc = $derived(m.sources.restaurant_inspections);
+	const cosrc = $derived(m.sources.co_dobnow);
+	const coUrl = $derived(coBisUrl(a.co?.bin));
 	const c311Start = $derived(m.complaints_311.start);
 	// Set by the search box when it fell back to the nearest page (#59). Read in the
 	// browser only: pages are prerendered, so the query string does not exist at build time.
@@ -35,7 +40,7 @@
 </p>
 
 <h1>{a.street}</h1>
-<p class="muted">{a.city} {a.zip} · {data.district.label}{#if a.bin}{' · '}Building (BIN) <code>{a.bin}</code>{/if}</p>
+<p class="muted">{a.city} {a.zip} · {data.district.label} · {#if a.co?.bin}Building (BIN) <code>{a.co.bin}</code>{:else}No BIN found{/if}</p>
 {#if nearNote}
 	<p class="note" role="status">You searched for {nearNote.q}. There is no page for that building, so this is the
 		nearest address page on file, about {nearNote.m} m away.</p>
@@ -142,6 +147,78 @@
 	Complaints logged at an intersection or with a different spelling are not matched; they still count
 	in "nearby" if their point is within {m.nearby_m} m.
 </p>
+
+<h2 id="health">Health inspections ({a.restaurants.length})</h2>
+{#if a.restaurants.length}
+	{#each a.restaurants as r (r.camis)}
+		<section class="restaurant" aria-labelledby="rest-{r.camis}">
+			<h3 id="rest-{r.camis}">{r.dba}</h3>
+			<p class="muted">{r.street} {r.zip} · DOHMH record (CAMIS) <code>{r.camis}</code>{#if r.placed === 'point'} · placed on this page by location, about {r.m} m away{/if}</p>
+			{#if r.not_inspected}
+				<p><strong>Not yet inspected.</strong> The Health Department lists this restaurant with no inspection yet.</p>
+			{:else if r.latest}
+				<p><strong>Latest grade: {GRADE_LABEL[r.latest.grade] ?? r.latest.grade}</strong>{#if r.latest.grade_date}, graded {r.latest.grade_date}{/if}. Last inspected {r.last_inspected}.</p>
+			{:else}
+				<p><strong>No grade yet.</strong> Last inspected {r.last_inspected} ({r.n_inspections} inspection{r.n_inspections === 1 ? '' : 's'}, none graded).</p>
+			{/if}
+			{#if r.history.length}
+				<div class="table-scroll">
+					<table>
+						<caption>Grade history for {r.dba}, newest first ({r.history.length} graded inspection{r.history.length === 1 ? '' : 's'})</caption>
+						<thead><tr><th scope="col">Inspection date</th><th scope="col">Grade</th><th scope="col">Grade date</th><th scope="col">Score</th><th scope="col">Inspection type</th></tr></thead>
+						<tbody>
+							{#each r.history as h (h.date + h.type)}
+								<tr><td class="nowrap">{h.date}</td><td>{GRADE_LABEL[h.grade] ?? h.grade}</td><td class="nowrap">{h.grade_date}</td><td>{h.score}</td><td>{h.type}</td></tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
+			{#if abcEatsUrl(r.camis)}<p><a href={abcEatsUrl(r.camis)}>{r.dba} on ABC Eats (Health Department)</a></p>{/if}
+		</section>
+	{/each}
+	<p class="note">
+		From <a href={rsrc.url}>{rsrc.name}</a>, data last updated {fmtStamp(rsrc.rowsUpdatedAtIso)}. The
+		dataset covers inspections up to three years before each restaurant's latest one, for restaurants
+		that are active now. Grade history lists only inspections that gave a grade (A, B, C or grade
+		pending); a lower score is better. A restaurant is on this page when its BIN matches this page's,
+		or, without a match, when it is the closest page within about {m.address_geocode.nearest_page_m} m.
+	</p>
+{:else}
+	<p class="muted">No restaurant inspection records matched to this address. <a href={rsrc.url}>{rsrc.name}</a>.</p>
+{/if}
+
+<h2 id="co">Certificate of occupancy</h2>
+{#if a.co?.bin && coUrl}
+	<p>
+		Building (BIN) <code>{a.co.bin}</code>{#if a.co.bin_source === 'dohmh'} <span class="muted">(BIN from the Health Department's record for this address)</span>{/if}.
+		<a href={coUrl}>Certificates of occupancy for BIN {a.co.bin} (DOB BIS)</a>
+	</p>
+	<p class="muted">
+		BIS lists COs issued before DOB NOW. For COs requested on or after March 1, 2021, search BIN
+		{a.co.bin} in the <a href={DOB_NOW_PORTAL}>DOB NOW public portal</a> (its search has no direct link).
+	</p>
+	{#if a.co.records.length}
+		<div class="table-scroll">
+			<table>
+				<caption>DOB NOW certificates of occupancy for BIN {a.co.bin} ({a.co.records.length})</caption>
+				<thead><tr><th scope="col">Issued</th><th scope="col">CO number</th><th scope="col">Filing type</th><th scope="col">Job type</th><th scope="col">Job</th></tr></thead>
+				<tbody>
+					{#each a.co.records as c (c.application + c.number)}
+						<tr><td class="nowrap">{c.issued}</td><td><code>{c.number}</code></td><td>{c.filing_type}</td><td>{c.job_type}</td><td><code>{c.job}</code></td></tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p class="note">From <a href={cosrc.url}>{cosrc.name}</a>, data last updated {fmtStamp(cosrc.rowsUpdatedAtIso)}.</p>
+	{:else}
+		<p class="muted">No DOB NOW certificates for this BIN in <a href={cosrc.url}>{cosrc.name}</a>.</p>
+	{/if}
+{:else}
+	<p><strong>No BIN found.</strong> This address could not be matched to one building, so there is no
+		certificate of occupancy link. You can search by address in <a href="https://a810-bisweb.nyc.gov/bisweb/bispi00.jsp">DOB BIS</a>
+		or the <a href={DOB_NOW_PORTAL}>DOB NOW public portal</a>.</p>
+{/if}
 
 <h2>Look it up at the source</h2>
 <ul>
