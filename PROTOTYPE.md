@@ -16,12 +16,12 @@ cd pipeline
 uv sync
 uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
-uv run pytest -q                   # 62 tests against recorded real responses
+uv run pytest -q                   # 64 tests against recorded real responses
 
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 27 tests (eight read the built static/data)
+npm test                           # node --test, 34 tests (ten read the built static/data, one the built site/build)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 
@@ -47,6 +47,7 @@ The site build reads `site/static/data/`, so run the pipeline before the first b
 | Restaurant health grades: "Health inspections" on the address page (latest grade, grade history, ABC Eats link per restaurant), "Health grades" tab on the district page (counts by current grade, grade filter, table, CSV). See "Health inspections" below. | `sources.py` `restaurant_inspections`, `transform.py` `reduce_inspections`, `grade_bucket`, `place_restaurant` | #61 |
 | Certificate of occupancy: the address page shows the BIN (or "No BIN found"), links DOB BIS's CO listing for that BIN, points to DOB NOW for COs since March 2021, and lists DOB NOW CO records for the BIN. No Geoclient. See "Certificate of occupancy" below. | `sources.py` `co_dobnow`, `transform.py` `normalize_co`, `page_co_bin`; `site/src/lib/format.js` `coBisUrl` | #62 |
 | Schools and houses of worship (#60): address-page section with schools (FacDB), houses of worship (PLUTO M1) and other religious property (PLUTO M2–M4, M9) within about 200 ft, the count and list of active on-premises liquor licenses within about 500 ft, and a box quoting ABC Law §64(7) and how SLA measures. Map layer, off by default. Facts only, no verdict. See "Schools and houses of worship" below. | `sources.py` `schools`, `worship`, `SLA_RULES`; `slam_pipeline/spatial.py`; `transform.py` `is_on_premises_liquor` etc.; `site/src/lib/popupSW.js` | #60 |
+| SLA license record (#63, part): each liquor license on the address page and the district Liquor tab shows its SLA ID and raw `type` / `class`, and links "Show on the SLA's LAMP map" at the license's own point. A note names the dataset fields, says what the LAMP link is and isn't, and says where hours and conditions live (Full Board minutes). No hours or method are shown: no open source has them. See "SLA license record" below. | `sources.py` `SLA_LICENSE`; `transform.py` (`ltype`, `lclass`); `site/src/lib/format.js` `lampUrl`; `site/src/lib/SlaLicenseNote.svelte` | #63 |
 | Accessibility basics: skip link, semantic tables with `<caption>` and `scope`, labelled inputs, ARIA tabs with arrow keys, visible focus ring, works at 360 px (tables scroll sideways). | throughout | #53 (partly) |
 
 ## Stubbed or missing
@@ -309,6 +310,38 @@ are not counted.
 - **The statute text is on one page, `/rules/`.** Each address page has a short summary of the rule
   and a link. The SLA class link is marked "Excel file"; SLA's guide is marked "PDF, 2013" and as
   Office of Counsel guidance, not the law.
+
+## SLA license record (#63, part)
+
+Built 2026-11-04. The hours and method-of-operation half of #63 stays research.
+
+- **LAMP link**: `https://lamp.sla.ny.gov/?center=<lon>,<lat>&level=18` (`lampUrl` in `format.js`).
+  Esri Web AppBuilder's documented `center` (geographic x,y, so longitude first) and `level`
+  parameters ([docs](https://doc.arcgis.com/en/web-appbuilder/latest/manage-apps/app-url-parameters.htm)).
+  v1 used the same pattern. Rounded to 5 decimals. No point, or a point out of range, gives no
+  link. The `?query=<layer id>,...` form is **not** used: its layer id is internal to SLA's web map.
+- **Which point**: the license's own `georeference` from the SLA dataset, which the column
+  description says is "Open Data platform-generated geocoding information from supplied address
+  components". Not SLAM's geocode, not SLA's LAMP pin. In the 2026-11-04 build, all 2,344 SLA records on
+  address pages have one (records with no point never reach a page).
+- **Browser check (Playwright, 2026-11-04, no sign-in)**: opened the link for OL'DAYS, 73 Warren St
+  (`0240-24-104108`, MN CD 1) and GOLDSOUNDS, 44 Wilson Ave (`0370-22-104616`, BK CD 4). LAMP's map
+  centered exactly on the requested point (read back from the map: same lon/lat to 5 decimals) at
+  level 18. LAMP shows a welcome box first. For these two licenses SLA's own pin was 8 to 11 m from our
+  point and on screen. That is not true of every license: QA on #67 compared all 2,344 and found most
+  within about 13 m, but 145 more than 50 m away and 41 more than 150 m, and no LAMP pin at all for
+  "Additional Bar" permits (classes 422, 423, 426). The page tells people to check the pin's license ID.
+  For the two test licenses, clicking it opened SLA's popup for that license ID. The popup ("1 of 6",
+  several licenses at one spot) lists premises and license details, principals and disciplinary
+  history. It has **no hours or method of operation**.
+- **ID, type and class**: the dataset's own fields (`licensepermitid` active, `license_permit_id`
+  inactive, `application_id` pending; `type`, `class`, `description`), shown raw. Pending and
+  inactive store `class` without leading zeros (`340` vs active `0370`); the page shows what the
+  dataset has. Field names and source links with last-updated dates are in the note under the table.
+- **Hours, method, conditions**: none of the three SLA datasets has them. The note says so and links
+  [SLA Full Board meetings](https://sla.ny.gov/full-board-meetings) and the
+  [event calendar](https://sla.ny.gov/event-calendar); each meeting's page links its minutes PDF,
+  which record approval conditions for contested applications. PDFs are not parsed.
 
 ## Address search (#59)
 
