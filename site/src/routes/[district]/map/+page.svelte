@@ -2,13 +2,13 @@
 	// MapLibre GL JS on the City's own vector basemap (NYC OTI), with OpenFreeMap as the
 	// fallback: see #lib/basemap.js. Vite worker via setWorkerUrl, per
 	// https://openfreemap.org/quick_start/. Points and outline are this site's own static files.
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { resolve, asset } from '$app/paths';
-	import { goto } from '$app/navigation';
+	import { replaceState } from '$app/navigation';
+	import MapPanel from '#lib/MapPanel.svelte';
+	import { parseHash, buildHash, loadPrefs, savePrefs, EXTRA_KEYS } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
-	import { popup311, popup311Point } from '#lib/popup311.js';
-	import { C311_MODES, STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
-	import { popupSW } from '#lib/popupSW.js';
+		import { C311_MODES, STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -51,6 +51,38 @@
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateSW = 'idle';
 	let mapReady = false;
+	/** What the side panel shows (#75). @type {{aid?: string, kind: 'address' | 'c311' | 'c311point' | 'sw', props?: any} | null} */
+	let sel = $state(null);
+	const KNOWN = [...LAYERS, ...EXTRA_KEYS];
+
+	/** Layer keys that are on, for the URL and saved preferences. */
+	function onKeys() {
+		return [...LAYERS.filter((k) => visible[k]), ...(show311 ? ['c311'] : []), ...(showSW ? ['sw'] : [])];
+	}
+
+	/** Put the view, layers, 311 style and selection in the URL hash, and save layer choices (#75). */
+	function writeState() {
+		if (!mapReady || !map) return;
+		const c = map.getCenter();
+		const on = onKeys();
+		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng }, on, c311: mode311, sel: sel?.aid ?? null });
+		if (window.location.hash.slice(1) !== hash) replaceState(`${window.location.pathname}${window.location.search}#${hash}`, {});
+		savePrefs(window.localStorage, { on, c311: mode311 });
+	}
+
+	/**
+	 * Show something in the side panel and ring it on the map.
+	 * @param {{aid?: string, kind: 'address' | 'c311' | 'c311point' | 'sw', props?: any} | null} next
+	 * @param {number[]} [coords]
+	 */
+	async function select(next, coords) {
+		sel = next;
+		const src = map?.getSource('selected');
+		if (src) src.setData({ type: 'FeatureCollection', features: next && coords ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: coords }, properties: {} }] : [] });
+		await tick();
+		map?.resize();
+		writeState();
+	}
 	// Set while the map swaps from the City basemap to OpenFreeMap (at most once per page view).
 	/** @type {Promise<void> | null} */
 	let swapping = null;
@@ -63,6 +95,16 @@
 
 	onMount(() => {
 		let cancelled = false;
+		// Restore layers and the 311 style: URL hash first, then saved choices, then defaults (#75).
+		const hs = parseHash(window.location.hash, KNOWN);
+		const prefs = loadPrefs(window.localStorage, KNOWN);
+		const on = hs.on ?? prefs?.on;
+		if (on) {
+			for (const k of LAYERS) visible[k] = on.includes(k);
+			show311 = on.includes('c311');
+			showSW = on.includes('sw');
+		}
+		mode311 = hs.c311 ?? prefs?.c311 ?? mode311;
 		(async () => {
 			const [{ Map, NavigationControl, setWorkerUrl, Popup: P, Marker }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
@@ -144,12 +186,15 @@
 						paint: { 'circle-radius': 5, 'circle-color': SOURCE_COLOR[k], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 }
 					});
 					map.on('click', k, (/** @type {any} */ e) => {
-						const aid = e.features?.[0]?.properties?.aid;
-						if (aid) goto(resolve('/address/[id]', { id: aid }));
+						const f = e.features?.[0];
+						if (f?.properties?.aid) select({ aid: f.properties.aid, kind: 'address' }, f.geometry.coordinates);
 					});
 					map.on('mouseenter', k, () => (map.getCanvas().style.cursor = 'pointer'));
 					map.on('mouseleave', k, () => (map.getCanvas().style.cursor = ''));
 				}
+				// A ring around whatever is shown in the side panel.
+				map.addSource('selected', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+				map.addLayer({ id: 'selected-ring', type: 'circle', source: 'selected', paint: { 'circle-radius': 11, 'circle-opacity': 0, 'circle-stroke-color': '#000', 'circle-stroke-width': 3 } });
 				const b = mine.features[0].geometry.coordinates.flat(2);
 				const xs = b.map((/** @type {number[]} */ c) => c[0]);
 				const ys = b.map((/** @type {number[]} */ c) => c[1]);
@@ -157,15 +202,25 @@
 				const qs = new URLSearchParams(window.location.search);
 				const at = /** @type {[number, number]} */ ([Number(qs.get('lon')), Number(qs.get('lat'))]);
 				const valid = qs.has('lon') && qs.has('lat') && at.every(Number.isFinite) && Math.abs(at[0] + 74) < 1 && Math.abs(at[1] - 40.7) < 1;
-				if (valid) {
+				if (valid) new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
+				if (hs.view) {
+					// Back/Forward or a shared link: the exact view the user left (#75).
+					map.jumpTo({ center: [hs.view.lon, hs.view.lat], zoom: hs.view.z });
+					status = `Map loaded where you left it. Select a point to see its details beside the map. ${note()}`;
+				} else if (valid) {
 					map.jumpTo({ center: at, zoom: 17 });
-					new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
-					status = `Map loaded, centered on the address you searched for (orange marker). Select a point to open its address page. ${note()}`;
+					status = `Map loaded, centered on the address you searched for (orange marker). Select a point to see its details beside the map. ${note()}`;
 				} else {
 					map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 20 });
-					status = `Map loaded. Select a point to open its address page. ${note()}`;
+					status = `Map loaded. Select a point to see its details beside the map. ${note()}`;
 				}
 				mapReady = true;
+				if (hs.sel) {
+					const f = points.features.find((/** @type {any} */ x) => x.properties.aid === hs.sel);
+					select({ aid: hs.sel, kind: 'address' }, f?.geometry.coordinates);
+				}
+				map.on('moveend', writeState);
+				writeState();
 				if (show311) toggle311();
 				if (showSW) toggleSW();
 			});
@@ -186,6 +241,7 @@
 
 	/** Show only the current mode's 311 layers, and only while 311 is switched on. */
 	function set311Visibility() {
+		writeState();
 		for (const [mode, ids] of Object.entries(MODE_LAYERS))
 			for (const id of ids)
 				if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', show311 && mode === mode311 ? 'visible' : 'none');
@@ -199,8 +255,7 @@
 		const f = e.features?.[0];
 		if (!f) return;
 		const aid = f.properties?.aid;
-		if (aid) goto(resolve('/address/[id]', { id: aid }));
-		else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311(f.properties)).addTo(map);
+		select(aid ? { aid, kind: 'c311', props: f.properties } : { kind: 'c311', props: f.properties }, f.geometry.coordinates);
 	}
 
 	/** A sized circle was selected. @param {any} e */
@@ -210,8 +265,7 @@
 		const f = e.features?.[0];
 		if (!f) return;
 		const aid = f.properties?.aid;
-		if (aid) goto(resolve('/address/[id]', { id: aid }));
-		else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311Point(f.properties)).addTo(map);
+		select(aid ? { aid, kind: 'c311point', props: f.properties } : { kind: 'c311point', props: f.properties }, f.geometry.coordinates);
 	}
 
 	/** @param {string | string[]} id  one layer id, or several sharing one listener @param {(e: any) => void} handler */
@@ -222,6 +276,7 @@
 	}
 
 	async function toggle311() {
+		writeState();
 		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
 		if (swapping) await swapping;
 		if (state311 === 'ready') {
@@ -321,6 +376,7 @@
 	}
 
 	async function toggleSW() {
+		writeState();
 		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
 		if (swapping) await swapping;
 		if (stateSW === 'ready') {
@@ -354,7 +410,7 @@
 				const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
 				if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
 				const f = e.features?.[0];
-				if (f) new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popupSW(f.properties)).addTo(map);
+				if (f) select({ kind: 'sw', props: f.properties }, f.geometry.coordinates);
 			});
 			map.on('mouseenter', 'schools_worship', () => (map.getCanvas().style.cursor = 'pointer'));
 			map.on('mouseleave', 'schools_worship', () => (map.getCanvas().style.cursor = ''));
@@ -370,6 +426,7 @@
 
 	/** @param {string} k */
 	function toggle(k) {
+		writeState();
 		for (const id of [k, `${k}${HALO}`]) if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible[k] ? 'visible' : 'none');
 	}
 </script>
@@ -414,15 +471,20 @@
 	</label>
 </fieldset>
 <p class="muted" role="status">{status}</p>
-<div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
+<div class="map-wrap" class:has-panel={sel}>
+	<div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
+	<MapPanel {sel} onclose={() => select(null)} />
+</div>
 <p class="note">311 complaints are off by default because they are dense. They are colored by type, based on
 	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
 	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
 	stops at {STACK_CAP} chips and shows the total above it. "Circles sized by count" draws one circle
-	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting a 311 dot opens the
-	address page it is matched to, if there is one; otherwise it shows the date, type and address.
+	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting any point shows its details in a
+	panel beside the map (under it on a phone), with a link to its full address page. The map keeps your
+	view, layers and selection in its web address, so Back returns you here; your layer choices are also
+	remembered in this browser for next time.
 	Schools (teal), houses of worship (dark pink) and other religious property (violet) are off by default;
-	selecting one shows its name, type and address. Schools come from the City's Facilities Database; houses
+	selecting one shows its name, type and address in the panel. Schools come from the City's Facilities Database; houses
 	of worship are PLUTO tax lots in building class M1, and other religious property is class M2, M3, M4 or M9
 	(PLUTO has no names). Street events have no coordinates in the source and are not on the map.
 	The street map is the City's own basemap, from NYC's Office of Technology and Innovation; if it
@@ -431,6 +493,8 @@
 	religious-property point is in it, and its 311 tab counts every complaint and lists the most recent ones.</p>
 
 <style>
+	.map-wrap.has-panel { display: grid; grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); gap: 0.75rem; align-items: start; }
+	@media (max-width: 52rem) { .map-wrap.has-panel { display: block; } .map-wrap.has-panel :global(.panel) { margin-top: 0.75rem; } }
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
 	.layers { border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.5rem 0; }
 	.layers label { display: inline-flex; align-items: center; gap: 0.35rem; }
