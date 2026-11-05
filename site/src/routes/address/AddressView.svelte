@@ -1,15 +1,22 @@
 <script>
 	import { resolve } from '$app/paths';
+	import { addressHref } from '#lib/addressLink.js';
 	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, boundariesUrl } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 
-	/** @type {{data: any}} */
-	let { data } = $props();
-	const a = $derived(data.a);
-	const m = $derived(data.manifest);
+	// The body of the one address page (#84). The page (+page.svelte) fetches the address's data
+	// in the browser and passes it in; this component only renders it.
+	/**
+	 * @type {{
+	 *   a: any, manifest: any, sw: any, district: {label: string}, slug: string,
+	 *   near: {q: string, m: string} | null
+	 * }}
+	 */
+	let { a, manifest, sw, district, slug, near: nearNote } = $props();
+	const m = $derived(manifest);
 	const usedSources = $derived([
 		...new Set([
 			...a.records.map((/** @type {any} */ r) => r.source),
@@ -23,7 +30,6 @@
 	const slaKeys = $derived(SLA_SOURCES.filter((k) => a.records.some((/** @type {any} */ r) => r.source === k)));
 	const lampLevel = $derived(m.sla_license.lamp.level);
 	// Schools and houses of worship (#60)
-	const sw = $derived(data.sw);
 	const rule = $derived(sw.rule);
 	const pt = $derived(a.point ?? {});
 	const near = $derived(a.sw?.near ?? []);
@@ -34,26 +40,15 @@
 	const cosrc = $derived(m.sources.co_dobnow);
 	const coUrl = $derived(coBisUrl(a.co?.bin));
 	const c311Start = $derived(m.complaints_311.start);
-	// Set by the search box when it fell back to the nearest page (#59). Read in the
-	// browser only: pages are prerendered, so the query string does not exist at build time.
-	/** @type {{q: string, m: string} | null} */
-	let nearNote = $state(null);
-	$effect(() => {
-		void a.id;
-		const p = new URLSearchParams(window.location.search);
-		nearNote = p.get('q') && p.get('m') ? { q: p.get('q') ?? '', m: p.get('m') ?? '' } : null;
-	});
 </script>
 
-<svelte:head><title>{a.street} — SLAM v2 prototype</title></svelte:head>
-
 <p class="no-print">
-	<a href={resolve('/[district]', { district: data.slug })}>{data.district.label}</a> ·
-	<a href={resolve('/[district]/map', { district: data.slug })}>Map</a>
+	<a href={resolve('/[district]', { district: slug })}>{district.label}</a> ·
+	<a href={resolve('/[district]/map', { district: slug })}>Map</a>
 </p>
 
 <h1>{a.street}</h1>
-<p class="muted">{a.city} {a.zip} · {data.district.label} · {#if a.co?.bin}Building (BIN) <code>{a.co.bin}</code>{:else}No BIN found{/if}</p>
+<p class="muted">{a.city} {a.zip} · {district.label} · {#if a.co?.bin}Building (BIN) <code>{a.co.bin}</code>{:else}No BIN found{/if}</p>
 {#if boundariesUrl(a.lon, a.lat)}
 	<p class="no-print"><a href={boundariesUrl(a.lon, a.lat)}>See every district this address is in on Boundaries Map</a>
 		<span class="muted">(BetaNYC's map of NYC's political and administrative districts)</span></p>
@@ -68,11 +63,11 @@
 {#if pt.outside_districts && !pt.measured}
 	<p class="note" role="note">The City's address point for this building is outside both prototype
 		districts and outside the area this prototype pulls data for. The licensing records place it in
-		{data.district.label}, so it is listed here as published, but SLAM does not show what is nearby: the
+		{district.label}, so it is listed here as published, but SLAM does not show what is nearby: the
 		distance sections below are left empty on purpose.</p>
 {:else if pt.outside_districts}
 	<p class="note" role="note">The City's address point for this building is just outside
-		{data.district.label}, across the district line. The licensing records place it inside, so it is listed
+		{district.label}, across the district line. The licensing records place it inside, so it is listed
 		here as published. Distances are measured from the City's address point.</p>
 {/if}
 
@@ -123,7 +118,7 @@
 			<tbody>
 				{#each a.nearby as n (n.id)}
 					<tr>
-						<td><a href={resolve('/address/[id]', { id: n.id })}>{n.street}</a></td>
+						<td><a href={addressHref(n.id)}>{n.street}</a></td>
 						<td>{n.m} m</td>
 						<td>
 							{#each n.records as r, i (i)}
@@ -198,7 +193,7 @@
 					{#each liq.rows as r, i (r.name + r.street + r.code + i)}
 						<tr>
 							<td>{r.name}</td>
-							<td>{#if r.aid}<a href={resolve('/address/[id]', { id: r.aid })}>{r.street}</a>{:else}{r.street}{/if}</td>
+							<td>{#if r.aid}<a href={addressHref(r.aid)}>{r.street}</a>{:else}{r.street}{/if}</td>
 							<td>{sw.on_premises_classes[r.code] ?? ''} <span class="muted">({r.code})</span></td>
 							<td class="nowrap">about {r.ft} ft</td>
 						</tr>

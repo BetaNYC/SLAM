@@ -10,7 +10,7 @@ SLAM, the SLA Mapper, puts the open data a New York City community board looks u
 
 ## How it works
 
-A small Python program (`pipeline/`) downloads open data, places every record in today's community district lines with DuckDB spatial, groups records by building, finds what is near each address, and writes plain JSON and GeoJSON files. A SvelteKit site (`site/`) turns those files into static pages. There is no database server and no API key. GitHub Actions rebuilds and publishes it to GitHub Pages (`.github/workflows/v2-deploy.yml`).
+A small Python program (`pipeline/`) downloads open data, places every record in today's community district lines with DuckDB spatial, groups records by building, finds what is near each address, and writes plain JSON and GeoJSON files. A SvelteKit site (`site/`) turns those files into static pages. Address pages are one page, `/address/?id=<id>`, that loads that address's JSON file in the browser, so the site does not grow by one HTML page per address; old `/address/<id>/` links are forwarded by `site/static/404.html` (#84). There is no database server and no API key. GitHub Actions rebuilds and publishes it to GitHub Pages (`.github/workflows/v2-deploy.yml`).
 
 | Layer | Tools |
 |---|---|

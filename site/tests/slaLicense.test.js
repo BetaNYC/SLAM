@@ -1,5 +1,6 @@
 // SLA license record (#63): LAMP link, license ID and class, where hours live. node --test.
 import { test } from 'node:test';
+import { renderAddress } from './helpers/addressView.js';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { lampUrl, SLA_SOURCES } from '../src/lib/format.js';
@@ -28,7 +29,7 @@ test('lampUrl keeps the zoom level it is given', () => {
 
 test('no query= links and no verdict words in the license code', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/routes/address/[id]/+page.svelte', 'src/lib/format.js']) {
+	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/routes/address/AddressView.svelte', 'src/lib/format.js']) {
 		const s = readFileSync(f, 'utf8');
 		assert.equal(s.match(verdict), null, f);
 		assert.equal(/lamp\.sla\.ny\.gov\/\?query=/.test(s), false, f);
@@ -62,10 +63,11 @@ test('built data: every SLA record on an address page has its type, class and ID
 	assert.ok(withPoint === n, `with a LAMP link: ${withPoint} of ${n}`);
 });
 
-test('built site: an address page links LAMP at the license point and the Full Board page', { skip: !existsSync('build/address') }, () => {
+test('an address page links LAMP at the license point and the Full Board page', async () => {
 	const idx = JSON.parse(readFileSync('static/data/bin-index.json', 'utf8'));
 	const id = idx.bins['3071959']; // 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616)
-	const html = readFileSync(`build/address/${id}/index.html`, 'utf8').replace(/\s+/g, ' ');
+	const a = JSON.parse(readFileSync(`static/data/address/${id}.json`, 'utf8'));
+	const html = (await renderAddress(a)).replace(/\s+/g, ' ');
 	assert.ok(html.includes('https://lamp.sla.ny.gov/?center=-73.92944,40.70281&amp;level=18'));
 	assert.ok(html.includes('https://sla.ny.gov/full-board-meetings'));
 	assert.ok(html.includes('does not include method of operation or hours'));
