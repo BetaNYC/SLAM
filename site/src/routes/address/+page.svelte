@@ -38,15 +38,35 @@
 			if (stale) return;
 			view = r.kind === 'missing' ? { kind: 'missing', id: q.raw } : r;
 			// A shared link to a section (#health, #sw, ...) can only scroll once the section exists.
-			if (r.kind === 'ok' && location.hash.length > 1) {
-				await tick();
-				document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+			if (r.kind !== 'ok') return;
+			await tick();
+			let target = null;
+			if (location.hash.length > 1) {
+				try {
+					target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+				} catch {
+					target = null; // a malformed #hash: ignore it (code review nit 4)
+				}
+			}
+			if (target) target.scrollIntoView();
+			else {
+				// Tell screen-reader users the address has loaded (code review nit 6).
+				const h1 = document.querySelector('main h1');
+				if (h1 instanceof HTMLElement) {
+					h1.setAttribute('tabindex', '-1');
+					h1.focus();
+				}
 			}
 		});
 		return () => (stale = true);
 	});
 
-	const title = $derived(view.kind === 'ok' ? view.a.street : view.kind === 'loading' ? 'Address' : 'Address not found');
+	const title = $derived(
+		view.kind === 'ok' ? view.a.street
+			: view.kind === 'missing' ? 'Address not found'
+			: view.kind === 'error' ? 'Address could not load'
+			: 'Address'
+	);
 </script>
 
 <svelte:head><title>{title} — SLAM v2 prototype</title></svelte:head>

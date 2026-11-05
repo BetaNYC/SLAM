@@ -13,7 +13,9 @@
 // location.replace keeps this 404 out of the Back history. Tested in site/tests/addressPage.test.js.
 (function (w) {
 	function legacyAddressTarget(pathname, search, hash) {
-		var m = /^\/address\/([A-Za-z0-9_-]{1,40})\/?$/.exec(pathname);
+		// Also /address/<id>/index.html, which some tools write out (code review nit 7). The site is
+		// served at the domain root (slam.beta.nyc); a project-path deploy would need a base prefix.
+		var m = /^\/address\/([A-Za-z0-9_-]{1,40})\/?(?:index\.html)?$/.exec(pathname);
 		if (!m) return null;
 		var rest = new URLSearchParams(search);
 		rest.delete('id');
@@ -26,8 +28,8 @@
 })(window);
 </script>
 <style>
-	body { font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #1a1a1a; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
-	a { color: #0b4f8a; }
+	body { font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #414141; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
+	a { color: #2359a8; }
 </style>
 </head>
 <body>
