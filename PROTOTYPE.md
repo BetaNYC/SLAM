@@ -557,3 +557,18 @@ responses.
   precinct and more). 906 Broadway sits on Broadway, the BK CD 3 / CD 4 line, and Boundaries Map
   lists Brooklyn 3 at that point while SLAM places the address's records in BK CD 4: a reminder
   that points on a boundary street can land on either side.
+
+## 311 window: 2022-01-01 through 2026-11-04 (Noel, 2026-11-05)
+
+- `COMPLAINTS_311_START = "2022-01-01"` (was 2024-01-01) and `COMPLAINTS_311_END = "2026-11-04"`
+  (inclusive; the query uses `created_date < '2026-11-05'`; set it to `None` to run through the
+  newest data). The manifest records `start`, `end` and `through`.
+- Live run 2026-11-05: 13,241 complaints. MN CD 1: 5,599 (2022 645, 2023 1,043, 2024 1,612,
+  2025 1,301, 2026 998). BK CD 4: 7,613 (2022 1,273, 2023 1,443, 2024 1,925, 2025 1,677,
+  2026 1,295). DOT Outdoor Dining has rows every year 2022 to 2026; the COVID-era Open
+  Restaurants types have none since 2022.
+- **Stale-page guard** (`top_up_311` in `build.py`): a full paged fetch on 2026-11-05 stopped at
+  2026-11-01 while the portal already had complaints through 2026-11-04. After the paged fetch,
+  the build asks once more, newest first, for anything created after the newest row it got and
+  adds rows it does not have. That run added 13.
+

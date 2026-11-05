@@ -27,6 +27,7 @@ from slam_pipeline.sources import (
     COMPLAINTS_311_LOCATION_TYPES,
     COMPLAINTS_311_TYPES,
     COMPLAINTS_311_START,
+    COMPLAINTS_311_END,
     DISTRICT_SOURCE,
     DISTRICTS,
     LICENSE_COUNT_EXTRA_COUNTIES,
@@ -149,6 +150,22 @@ def extra_county_where(box) -> str:
     max lon, max lat)."""
     return (f"premisescounty in {_sql_list(LICENSE_COUNT_EXTRA_COUNTIES)} AND "
             f"within_box(georeference, {box[3]:.6f}, {box[0]:.6f}, {box[1]:.6f}, {box[2]:.6f})")
+
+
+def top_up_311(s, where: str, rows: list[dict]) -> list[dict]:
+    """Guard against a stale page (seen 2026-11-05: a full paged fetch stopped at 2026-11-01
+    while the portal already had complaints through 2026-11-04). Ask once more, sorted newest
+    first, for anything created after the newest row we got, and add rows we do not have."""
+    newest = max(r["created_date"] for r in rows)
+    newer = net.fetch_all(s.domain, s.id, select=s.fields,
+                          where=f"{where} AND created_date > '{newest}'",
+                          order="created_date DESC, unique_key", page_size=5000)
+    have = {r["unique_key"] for r in rows}
+    add = [r for r in newer if r["unique_key"] not in have]
+    if add:
+        log("topped_up", source=s.key, rows=len(add), newest_before=newest[:10],
+            newest_after=max(r["created_date"] for r in add)[:10])
+    return rows + add
 
 
 def load_or_fetch(key: str, offline: bool, fetch):
@@ -306,6 +323,8 @@ def main(argv=None) -> int:
         rows = load_or_fetch(s.key, args.offline, lambda s=s, where=where: net.fetch_all(
             s.domain, s.id, select=s.fields, where=where, order=s.order,
             page_size=s.page_size))
+        if s.key == "complaints_311" and not args.offline and rows:
+            rows = top_up_311(s, where, rows)
         check_rows(s.key, rows, REQUIRED_IN_ROWS[s.key])
         raw[s.key] = rows
         log("fetched", source=s.key, rows=len(rows))
@@ -850,7 +869,7 @@ def main(argv=None) -> int:
         "cannabis": {"license_rows_deduped_against_retail": dup_dropped, "geocode": geo_stats},
         "dining_out_pip_agreement": f"{do_agree}/{do_total}",
         "complaints_311": {
-            "start": COMPLAINTS_311_START, "through": c_through,
+            "start": COMPLAINTS_311_START, "end": COMPLAINTS_311_END, "through": c_through,
             "location_types": list(COMPLAINTS_311_LOCATION_TYPES),
             "complaint_types_any_location": list(COMPLAINTS_311_TYPES),
             "fetched": len(c311), "no_point": c_nopoint, "outside_both_districts": c_outside,
