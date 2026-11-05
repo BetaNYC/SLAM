@@ -47,6 +47,7 @@ from slam_pipeline.transform import (
     GRADE_BUCKETS,
     GRADE_LABEL,
     LIQUOR_COUNT_FT,
+    LICENSE_POINT_SLACK_FT,
     CANNABIS_SCHOOL_FT,
     CANNABIS_WORSHIP_FT,
     CANNABIS_SOURCES,
@@ -325,6 +326,10 @@ def main(argv=None) -> int:
     dx = [c[0] for f in dgeo["features"] for c in _coords(f["geometry"])]
     dy = [c[1] for f in dgeo["features"] for c in _coords(f["geometry"])]
     sw_box = bbox_with_margin(dx, dy, SW_BUFFER_FT)
+    # SLA's open-data points can be up to a few thousand feet off (#96), so license rows are
+    # pulled and checked against the City's address file within a wider box, then kept only if
+    # the corrected point is inside sw_box. Points off by more than this are still missed.
+    license_box = bbox_with_margin(dx, dy, SW_BUFFER_FT + LICENSE_POINT_SLACK_FT)
 
     def in_box(lon, lat) -> bool:
         return lon is not None and sw_box[0] <= lon <= sw_box[2] and sw_box[1] <= lat <= sw_box[3]
@@ -365,7 +370,7 @@ def main(argv=None) -> int:
     # NW lon, SE lat, SE lon) (https://dev.socrata.com/docs/functions/within_box.html).
     lsrc = SOURCES_BY_KEY["liquor_active"]
     extra_liq = load_or_fetch("liquor_active_extra_counties", args.offline, lambda: net.fetch_all(
-        lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(sw_box),
+        lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(license_box),
         order=lsrc.order, page_size=lsrc.page_size))
     check_rows("liquor_active_extra_counties", extra_liq, REQUIRED_IN_ROWS["liquor_active"])
     log("fetched", source="liquor_active_extra_counties", rows=len(extra_liq))
@@ -678,21 +683,25 @@ def main(argv=None) -> int:
     # one address page, or one street + ZIP key for licenses without a page.
     onprem = []
     onprem_points = {"address_page": 0, "city_address_file": 0, "sla_point": 0}
-    extra_ids = {row.get("licensepermitid") for row in extra_liq}
+    def in_license_box(lon, lat) -> bool:
+        return (lon is not None and license_box[0] <= lon <= license_box[2]
+                and license_box[1] <= lat <= license_box[3])
+
     for row in raw["liquor_active"] + extra_liq:
         if not is_on_premises_liquor(row.get("type"), row.get("class")):
             continue
         r = normalize_record(lsrc, row)
         page = addrs.get(aid_remap.get(r["aid"], r["aid"]))
-        if not in_box(r["lon"], r["lat"]) and not (page and page["point"]["source"] == "geosearch"):
+        on_page = bool(page and page["point"]["source"] == "geosearch" and page["lon"] is not None)
+        if not on_page and not in_license_box(r["lon"], r["lat"]):
             continue
         # Measure from the City's point (#96): the license's address page when it has a matched
-        # one; otherwise, for the pulled rows near the box, the City's address file.
-        if page and page["point"]["source"] == "geosearch" and page["lon"] is not None:
+        # one; otherwise the City's address file for any row whose SLA point is within the wider
+        # license box (a wrong point outside sw_box can still belong to a building inside it).
+        if on_page:
             r["lon"], r["lat"] = page["lon"], page["lat"]
             onprem_points["address_page"] += 1
-        elif pad and r.get("lon") is not None and (row.get("licensepermitid") in extra_ids
-                                                   or in_box(r["lon"], r["lat"])):
+        elif pad and r.get("lon") is not None:
             boro = padmatch.BORO_DIGIT.get(str(row.get("premisescounty", "")).strip().upper())
             hit = pad.lookup(r.get("street"), boro, r.get("zip"), (r["lon"], r["lat"])) if boro else None
             if hit:
@@ -956,6 +965,7 @@ def main(argv=None) -> int:
             "schools_fetched": len(schools), "worship_fetched": len(worship),
             "on_premises_licenses_in_box": len(onprem),
             "on_premises_license_points": onprem_points,
+            "license_point_slack_ft": LICENSE_POINT_SLACK_FT,
             "on_premises_licenses_in_box_by_county": {
                 c: sum(1 for r in onprem if r["county"] == c)
                 for c in sorted({r["county"] for r in onprem})},

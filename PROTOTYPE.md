@@ -609,3 +609,9 @@ responses.
 - Effect, same data, before → after: licenses in the box 2,293 → 2,283; pages with 3 or more other
   addresses within about 500 ft: MN CD 1 514 → 514, BK CD 4 254 → 253; 499 pages show a different
   count, mostly by 1 to 3, because both ends of each distance now come from the same source.
+- Review fixes (2026-11-05): license rows are now pulled and re-placed with the City's address
+  file within a box one mile wider than `sw_box` (`LICENSE_POINT_SLACK_FT = 5280`), so a license
+  whose SLA point is wrong and outside the area but whose building is inside it is counted (Queens
+  rows fetched 334 → 619; licenses in the box 2,283 → 2,290; measured from: 466 address page,
+  2,918 City file, 43 SLA point). Points off by more than a mile are still missed. The LAMP note now
+  says which comparison its numbers come from.
