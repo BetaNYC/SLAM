@@ -70,6 +70,7 @@ test('404.html forwards old /address/<id>/ links to the one address page', () =>
 	assert.deepEqual(run404('https://slam.beta.nyc/address/3071959'), ['/address/?id=3071959']);
 	assert.deepEqual(run404('https://slam.beta.nyc/address/a40aec8fce/?q=44+Wilson+Ave&m=12#health'), ['/address/?id=a40aec8fce&q=44+Wilson+Ave&m=12#health']);
 	assert.deepEqual(run404('https://slam.beta.nyc/address/3071959/?id=evil'), ['/address/?id=3071959']);
+	assert.deepEqual(run404('https://slam.beta.nyc/address/3071959/index.html'), ['/address/?id=3071959']); // review nit 7
 	for (const other of ['https://slam.beta.nyc/nope/', 'https://slam.beta.nyc/address/a/b/', 'https://slam.beta.nyc/address/..%2Fx/']) assert.deepEqual(run404(other), [], other);
 });
 
