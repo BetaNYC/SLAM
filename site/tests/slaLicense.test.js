@@ -64,8 +64,7 @@ test('built data: every SLA record on an address page has its type, class and ID
 });
 
 test('an address page links LAMP at the license point and the Full Board page', async () => {
-	const idx = JSON.parse(readFileSync('static/data/bin-index.json', 'utf8'));
-	const id = idx.bins['3071959']; // 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616)
+	const id = JSON.parse(readFileSync('static/data/lookup/bins-3.json', 'utf8')).bins['3071959']; // 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616)
 	const a = JSON.parse(readFileSync(`static/data/address/${id}.json`, 'utf8'));
 	const html = (await renderAddress(a)).replace(/\s+/g, ' ');
 	assert.ok(html.includes('https://lamp.sla.ny.gov/?center=-73.92944,40.70281&amp;level=18'));

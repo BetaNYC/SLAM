@@ -2,7 +2,7 @@
 // recorded 2026-11-04 (tests/fixtures/autocomplete_*.json); none are hand-written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
 	MAX_SUGGESTIONS,
 	autocompleteUrl,
@@ -13,6 +13,9 @@ import {
 	nextActive,
 	realBin,
 	resolvePick,
+	locate,
+	cachedLoader,
+	districtsNear,
 	searchUrl,
 	shouldQuery,
 	toSuggestions
@@ -111,14 +114,101 @@ test('makeSequencer drops out-of-order responses', () => {
 	assert.equal(s.isCurrent(b), true);
 });
 
-test('built bin-index.json: every BIN and point names a real address page', () => {
-	const idx = JSON.parse(readFileSync('static/data/bin-index.json', 'utf8'));
-	assert.ok(idx.radius_m > 0 && idx.radius_m <= 30);
-	for (const [bin, id] of Object.entries(idx.bins)) {
-		assert.equal(realBin(bin), bin);
-		const a = JSON.parse(readFileSync(`static/data/address/${id}.json`, 'utf8'));
-		assert.equal(a.bin, bin);
+// The split lookup files (#85): one bins file per borough, one points file per district.
+const L = 'static/data/lookup';
+const readL = (/** @type {string} */ n) => JSON.parse(readFileSync(`${L}/${n}`, 'utf8'));
+
+test('built lookup files: every BIN and point names a real address page, in the right file', () => {
+	const pages = new Map(JSON.parse(readFileSync('static/data/address/index.json', 'utf8')).map((/** @type {any} */ a) => [a.id, a]));
+	const index = readL('index.json');
+	assert.ok(index.radius_m > 0 && index.radius_m <= 30);
+	let nBins = 0;
+	for (const b of '12345') {
+		const { bins } = readL(`bins-${b}.json`);
+		for (const [bin, id] of Object.entries(bins)) {
+			assert.equal(realBin(bin), bin);
+			assert.equal(bin[0], b, 'BIN in its borough file');
+			assert.equal(pages.get(id)?.bin, bin);
+			nBins++;
+		}
 	}
-	const pages = new Set(JSON.parse(readFileSync('static/data/address/index.json', 'utf8')).map((/** @type {any} */ a) => a.id));
-	for (const [id] of idx.points) assert.ok(pages.has(id), id);
+	assert.equal(nBins, [...pages.values()].filter((a) => a.bin).length, 'every page BIN is in a bins file');
+	let nPts = 0;
+	for (const [slug, d] of Object.entries(index.districts)) {
+		const pts = readL(`points-${slug}.json`);
+		assert.equal(pts.length, /** @type {any} */ (d).n);
+		const [x0, y0, x1, y1] = /** @type {any} */ (d).bbox;
+		for (const [id, lon, lat] of pts) {
+			assert.equal(pages.get(id)?.district, slug, id);
+			assert.ok(lon >= x0 && lon <= x1 && lat >= y0 && lat <= y1, `${id} inside its bbox`);
+			nPts++;
+		}
+	}
+	assert.ok(nPts > 1000);
+	assert.ok(!existsSync('static/data/bin-index.json'), 'the single old file is gone');
 });
+
+/** A loader over the real built files that records what was asked for. */
+function realLoader() {
+	/** @type {string[]} */
+	const asked = [];
+	const load = cachedLoader(async (path) => {
+		asked.push(path);
+		return JSON.parse(readFileSync(`static/${path}`, 'utf8'));
+	});
+	return { asked, load };
+}
+
+test('locate: a BIN with a page loads one borough file only', async () => {
+	const { asked, load } = realLoader();
+	const [greenwich] = toSuggestions(fx('autocomplete_185_greenwich.json'));
+	const r = await locate(greenwich, load);
+	assert.equal(r.kind, 'page');
+	assert.deepEqual(asked, ['data/lookup/bins-1.json']);
+	// the same answer as resolving against everything at once
+	const all = { radius_m: readL('index.json').radius_m, bins: Object.assign({}, ...'12345'.split('').map((b) => readL(`bins-${b}.json`).bins)), points: Object.keys(readL('index.json').districts).flatMap((s) => readL(`points-${s}.json`)) };
+	assert.deepEqual(r, resolvePick(greenwich, all));
+});
+
+test('locate: no page for the BIN falls back to the nearest page, loading only nearby districts', async () => {
+	const { asked, load } = realLoader();
+	const [id, lon, lat] = readL('points-mn-cd1.json')[0];
+	const s = { label: 'test', bin: '1999998', lon, lat: lat + 0.00009 }; // about 10 m north
+	const r = await locate(s, load);
+	assert.equal(r.kind, 'near');
+	assert.equal(/** @type {any} */ (r).m, 10);
+	assert.ok(/** @type {any} */ (r).id === id || /** @type {any} */ (r).m <= 10);
+	assert.deepEqual(asked, ['data/lookup/bins-1.json', 'data/lookup/index.json', 'data/lookup/points-mn-cd1.json']);
+});
+
+test('locate: far from every page loads no points file and says none', async () => {
+	const { asked, load } = realLoader();
+	const r = await locate({ label: 'Staten Island', bin: '5000123', lon: -74.15, lat: 40.58 }, load);
+	assert.deepEqual(r, { kind: 'none' });
+	assert.deepEqual(asked, ['data/lookup/bins-5.json', 'data/lookup/index.json']);
+});
+
+test('districtsNear pads the bbox by the radius', () => {
+	const index = { radius_m: 30, districts: { a: { bbox: [-74, 40.7, -73.99, 40.71] }, b: { bbox: [-73.9, 40.6, -73.8, 40.65] } } };
+	assert.deepEqual(districtsNear(-73.995, 40.705, index), ['a']);
+	assert.deepEqual(districtsNear(-74.0003, 40.705, index), ['a'], '25 m west of the bbox');
+	assert.deepEqual(districtsNear(-74.001, 40.705, index), [], '84 m west');
+	assert.deepEqual(districtsNear(-73.5, 40.5, index), []);
+});
+
+test('cachedLoader fetches each file once, and again after a failure', async () => {
+	let n = 0;
+	const load = cachedLoader(async (p) => {
+		n++;
+		if (p === 'bad' && n < 3) throw new Error('offline');
+		return p;
+	});
+	assert.equal(await load('x'), 'x');
+	assert.equal(await load('x'), 'x');
+	assert.equal(n, 1);
+	await assert.rejects(load('bad'));
+	await new Promise((r) => setTimeout(r));
+	assert.equal(await load('bad'), 'bad');
+	assert.equal(n, 3);
+});
+
