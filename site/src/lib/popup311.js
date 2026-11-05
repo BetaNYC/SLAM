@@ -15,3 +15,21 @@ export function popup311(p, doc = document) {
 	}
 	return div;
 }
+
+/**
+ * Popup body for a "sized circle" (several complaints at one point) with no single address page.
+ * @param {{n?: number, s?: string, d?: string, types?: string}} p  properties from pointSummaries
+ * @param {Document} [doc]
+ */
+export function popup311Point(p, doc = document) {
+	const div = doc.createElement('div');
+	const rows = [['Complaints here', String(p.n ?? 0)], ['Address', p.s || '(no address)'], ['Newest', p.d ?? ''], ['By type', p.types ?? '']];
+	for (const [label, v] of rows) {
+		const line = doc.createElement('div');
+		const b = doc.createElement('strong');
+		b.textContent = `${label}: `;
+		line.append(b, doc.createTextNode(String(v ?? '')));
+		div.append(line);
+	}
+	return div;
+}

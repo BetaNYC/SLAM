@@ -200,7 +200,8 @@ def test_distance_sphere_axis_order(con):
 def test_311_query_uses_configured_window_and_location_types():
     w = SOURCES_BY_KEY["complaints_311"].where
     assert f"created_date >= '{COMPLAINTS_311_START}'" in w
-    assert "location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')" in w
+    assert ("(location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')"
+            " OR complaint_type in ('Outdoor Dining'))") in w
     assert "community_board in ('01 MANHATTAN','04 BROOKLYN')" in w
 
 
@@ -749,3 +750,16 @@ def test_sla_license_keeps_raw_type_and_class_and_the_georeference_point():
     assert (act["lon"], act["lat"]) == (g[0], g[1])  # GeoJSON [lon, lat], unchanged
     pend = normalize_record(SOURCES_BY_KEY["liquor_pending"], load("sla_pending_sample.json")[1])
     assert pend["ltype"] and pend["lclass"]
+
+
+# ---------------------------------------------------------------- cannabis siting (Cannabis Law §72(6))
+
+def test_cannabis_distances_follow_cannabis_law_72_6():
+    from slam_pipeline.sources import CANNABIS_RULES
+    from slam_pipeline.transform import CANNABIS_SCHOOL_FT, CANNABIS_WORSHIP_FT
+    # Text read 2026-11-05 through the NYS Open Legislation API (CAN 72, active 2026-02-13).
+    assert "within five hundred feet of a building containing a school" in CANNABIS_RULES["a"]
+    assert "within two hundred feet of a building exclusively occupied as a house of worship" in CANNABIS_RULES["b"]
+    assert "center of the nearest entrance" in CANNABIS_RULES["c"]
+    assert (CANNABIS_SCHOOL_FT, CANNABIS_WORSHIP_FT) == (500, 200)
+    assert CANNABIS_RULES["url"] == "https://www.nysenate.gov/legislation/laws/CAN/72"

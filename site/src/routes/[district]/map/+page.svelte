@@ -5,8 +5,9 @@
 	import { onMount } from 'svelte';
 	import { resolve, asset } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR } from '#lib/format.js';
-	import { popup311 } from '#lib/popup311.js';
+	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
+	import { popup311, popup311Point } from '#lib/popup311.js';
+	import { C311_MODES, STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { popupSW } from '#lib/popupSW.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
@@ -34,6 +35,17 @@
 	let show311 = $state(false);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let state311 = 'idle';
+	/** How 311 complaints are drawn: stacked chips, sized circles or plain dots (#29, compare). */
+	let mode311 = $state('stacks');
+	/** Label font for 311 counts; each basemap serves its own fonts. */
+	let labelFont = ['Source Sans Pro Bold'];
+	const STACK_LAYERS = Array.from({ length: STACK_CAP }, (_, i) => `c311-stack-${i}`);
+	/** @type {Record<string, string[]>} */
+	const MODE_LAYERS = {
+		dots: ['complaints_311'],
+		stacks: [...STACK_LAYERS, 'c311-stack-label'],
+		sized: ['c311-sized', 'c311-sized-label']
+	};
 	// Schools and houses of worship (#60): OFF by default, fetched on first switch-on.
 	let showSW = $state(false);
 	/** @type {'idle' | 'loading' | 'ready'} */
@@ -69,6 +81,7 @@
 			/** @type {ReturnType<typeof basemapSwitcher>} */
 			let switcher;
 			const note = () => basemapNote(switcher?.switched ? 'fallback' : basemap.kind);
+			if (basemap.kind === 'fallback') labelFont = ['Noto Sans Bold'];
 			for (const k of LAYERS) counts[k] = points.features.filter((/** @type {any} */ f) => f.properties.source === k).length;
 			const mine = { ...outline, features: outline.features.filter((/** @type {any} */ f) => f.properties.slug === data.slug) };
 
@@ -85,6 +98,7 @@
 			switcher = basemapSwitcher(basemap.kind, () => {
 				console.warn('SLAM: City basemap failed after load, switching to OpenFreeMap.');
 				status = SWITCH_NOTE;
+				labelFont = ['Noto Sans Bold'];
 				swapping = new Promise((done) => {
 					const onStyle = () => {
 						if (map.getSource('esri')) return; // the City style's own style.load
@@ -106,7 +120,7 @@
 				map.addSource('district', { type: 'geojson', data: mine });
 				// A white casing under the outline keeps it readable over the City basemap's streets and parks.
 				map.addLayer({ id: 'district-casing', type: 'line', source: 'district', paint: { 'line-color': '#fff', 'line-width': 6, 'line-opacity': 0.85 } });
-				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#1a5ccf', 'line-width': 3 } });
+				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#2359a8', 'line-width': 3 } });
 				map.addSource('points', { type: 'geojson', data: points });
 				// Each record dot has a white ring and, under it, a thin dark edge (a "halo" layer), so it
 				// stands out on the City's park green and water blue as well as on land (QA #69, finding 4).
@@ -165,15 +179,53 @@
 	/** After a basemap swap, set every overlay's visibility from the checkboxes again. */
 	function reapplyVisibility() {
 		for (const k of LAYERS) toggle(k);
-		if (map.getLayer('complaints_311')) map.setLayoutProperty('complaints_311', 'visibility', show311 ? 'visible' : 'none');
+		set311Visibility();
+		for (const id of ['c311-stack-label', 'c311-sized-label']) if (map.getLayer(id)) map.setLayoutProperty(id, 'text-font', labelFont);
 		if (map.getLayer('schools_worship')) map.setLayoutProperty('schools_worship', 'visibility', showSW ? 'visible' : 'none');
+	}
+
+	/** Show only the current mode's 311 layers, and only while 311 is switched on. */
+	function set311Visibility() {
+		for (const [mode, ids] of Object.entries(MODE_LAYERS))
+			for (const id of ids)
+				if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', show311 && mode === mode311 ? 'visible' : 'none');
+	}
+
+	/** A 311 complaint (dot or chip) was selected. @param {any} e */
+	function click311(e) {
+		// A license dot under the cursor wins; its own handler opens the address page.
+		const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
+		if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
+		const f = e.features?.[0];
+		if (!f) return;
+		const aid = f.properties?.aid;
+		if (aid) goto(resolve('/address/[id]', { id: aid }));
+		else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311(f.properties)).addTo(map);
+	}
+
+	/** A sized circle was selected. @param {any} e */
+	function clickPoint311(e) {
+		const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
+		if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
+		const f = e.features?.[0];
+		if (!f) return;
+		const aid = f.properties?.aid;
+		if (aid) goto(resolve('/address/[id]', { id: aid }));
+		else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311Point(f.properties)).addTo(map);
+	}
+
+	/** @param {string | string[]} id  one layer id, or several sharing one listener @param {(e: any) => void} handler */
+	function clickable(id, handler) {
+		map.on('click', id, handler);
+		map.on('mouseenter', id, () => (map.getCanvas().style.cursor = 'pointer'));
+		map.on('mouseleave', id, () => (map.getCanvas().style.cursor = ''));
 	}
 
 	async function toggle311() {
 		if (!mapReady) return; // the map's load handler calls this again if the box is ticked
 		if (swapping) await swapping;
 		if (state311 === 'ready') {
-			map.setLayoutProperty('complaints_311', 'visibility', show311 ? 'visible' : 'none');
+			set311Visibility();
 			return;
 		}
 		if (state311 === 'loading' || !show311) return;
@@ -182,32 +234,86 @@
 		try {
 			const pts = await fetch(asset(/** @type {any} */ (`data/${data.slug}/points-311.geojson`))).then((r) => r.json());
 			if (swapping) await swapping;
+			const chips = stackChips(pts);
+			const summaries = pointSummaries(pts);
 			map.addSource('c311', { type: 'geojson', data: pts });
-			// Drawn under the license layers so their larger dots stay on top and clickable.
+			map.addSource('c311-chips', { type: 'geojson', data: chips });
+			map.addSource('c311-points', { type: 'geojson', data: summaries });
+			// All drawn under the license layers so their larger dots stay on top and clickable.
+			const below = `${LAYERS[0]}${HALO}`;
+			const vis = (/** @type {string} */ mode) => (show311 && mode === mode311 ? 'visible' : 'none');
 			map.addLayer(
 				{
 					id: 'complaints_311',
 					type: 'circle',
 					source: 'c311',
-					layout: { visibility: show311 ? 'visible' : 'none' },
-					paint: { 'circle-radius': 2.5, 'circle-color': SOURCE_COLOR.complaints_311, 'circle-opacity': 0.55 }
+					layout: { visibility: vis('dots') },
+					paint: { 'circle-radius': 3, 'circle-color': c311ColorExpr(), 'circle-opacity': 0.7 }
 				},
-				`${LAYERS[0]}${HALO}`
+				below
 			);
-			map.on('click', 'complaints_311', (/** @type {any} */ e) => {
-				// A license dot under the cursor wins; its own handler opens the address page.
-				const on = LAYERS.filter((k) => visible[k] && map.getLayer(k));
-				if (on.length && map.queryRenderedFeatures(e.point, { layers: on }).length) return;
-				const f = e.features?.[0];
-				if (!f) return;
-				const aid = f.properties?.aid;
-				if (aid) goto(resolve('/address/[id]', { id: aid }));
-				else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311(f.properties)).addTo(map);
-			});
-			map.on('mouseenter', 'complaints_311', () => (map.getCanvas().style.cursor = 'pointer'));
-			map.on('mouseleave', 'complaints_311', () => (map.getCanvas().style.cursor = ''));
+			// Stacked chips: one circle layer per level, each nudged up a fixed number of screen
+			// pixels, so a stack keeps its size at every zoom (unlike v1's map-meter stacks, #29).
+			STACK_LAYERS.forEach((id, i) =>
+				map.addLayer(
+					{
+						id,
+						type: 'circle',
+						source: 'c311-chips',
+						filter: ['==', ['get', 'i'], i],
+						layout: { visibility: vis('stacks') },
+						paint: {
+							'circle-radius': 3.5,
+							'circle-color': c311ColorExpr(),
+							'circle-stroke-color': '#fff',
+							'circle-stroke-width': 0.75,
+							'circle-translate': [0, -i * STACK_STEP_PX],
+							'circle-translate-anchor': 'viewport'
+						}
+					},
+					below
+				)
+			);
+			// Total written above stacks that hit the cap.
+			map.addLayer(
+				{
+					id: 'c311-stack-label',
+					type: 'symbol',
+					source: 'c311-points',
+					filter: ['>', ['get', 'n'], STACK_CAP],
+					layout: { visibility: vis('stacks'), 'text-field': ['to-string', ['get', 'n']], 'text-font': labelFont, 'text-size': 11, 'text-allow-overlap': true, 'text-ignore-placement': true },
+					paint: { 'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 1.5, 'text-translate': [0, -(STACK_CAP * STACK_STEP_PX + 8)], 'text-translate-anchor': 'viewport' }
+				},
+				below
+			);
+			map.addLayer(
+				{
+					id: 'c311-sized',
+					type: 'circle',
+					source: 'c311-points',
+					layout: { visibility: vis('sized') },
+					paint: { 'circle-radius': sizedRadiusExpr(), 'circle-color': groupColorExpr(), 'circle-opacity': 0.8, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 }
+				},
+				below
+			);
+			map.addLayer(
+				{
+					id: 'c311-sized-label',
+					type: 'symbol',
+					source: 'c311-points',
+					filter: ['>=', ['get', 'n'], 5],
+					layout: { visibility: vis('sized'), 'text-field': ['to-string', ['get', 'n']], 'text-font': labelFont, 'text-size': 11, 'text-allow-overlap': true, 'text-ignore-placement': true },
+					paint: { 'text-color': '#fff', 'text-halo-color': '#1f2937', 'text-halo-width': 1.2 }
+				},
+				below
+			);
+			clickable('complaints_311', click311);
+			// One listener for all chip layers: neighboring chips overlap, and a click must fire once (QA #74).
+			clickable(STACK_LAYERS, click311);
+			clickable('c311-sized', clickPoint311);
 			state311 = 'ready';
-			status = `311 complaints shown (${pts.features.length}).`;
+			const busiest = summaries.features[0]?.properties;
+			status = `311 complaints shown (${pts.features.length} at ${summaries.features.length} points${busiest ? `; the most at one point: ${busiest.n}, ${busiest.s || 'no address'}` : ''}).`;
 		} catch (err) {
 			state311 = 'idle';
 			status = `311 complaints could not load: ${/** @type {Error} */ (err).message}`;
@@ -285,9 +391,22 @@
 	{/each}
 	<label>
 		<input type="checkbox" bind:checked={show311} onchange={toggle311} />
-		<span class="swatch small" style="background:{SOURCE_COLOR.complaints_311}"></span>
+		<span class="swatch small" style="background:{C311_GROUPS[0].color}"></span>
 		{SOURCE_SHORT.complaints_311} <span class="muted">({data.district.counts.complaints_311}, since {data.manifest.complaints_311.start})</span>
 	</label>
+	{#if show311}
+		<fieldset class="mode311">
+			<legend>Show 311 complaints as</legend>
+			{#each C311_MODES as mo (mo.key)}
+				<label><input type="radio" name="mode311" value={mo.key} bind:group={mode311} onchange={() => queueMicrotask(set311Visibility)} /> {mo.label}</label>
+			{/each}
+		</fieldset>
+		<ul class="legend311" aria-label="311 dot colors">
+			{#each C311_GROUPS as g (g.key)}
+				<li><span class="swatch" style="background:{g.color}"></span>{g.label}</li>
+			{/each}
+		</ul>
+	{/if}
 	<label>
 		<input type="checkbox" bind:checked={showSW} onchange={toggleSW} />
 		<span class="swatch" style="background:{SW_COLOR.school}"></span><span class="swatch" style="background:{SW_COLOR.worship}"></span><span class="swatch" style="background:{SW_COLOR.religious}"></span>
@@ -296,7 +415,11 @@
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
-<p class="note">311 complaints are off by default because they are dense. Selecting a 311 dot opens the
+<p class="note">311 complaints are off by default because they are dense. They are colored by type, based on
+	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
+	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
+	stops at {STACK_CAP} chips and shows the total above it. "Circles sized by count" draws one circle
+	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting a 311 dot opens the
 	address page it is matched to, if there is one; otherwise it shows the date, type and address.
 	Schools (teal), houses of worship (dark pink) and other religious property (violet) are off by default;
 	selecting one shows its name, type and address. Schools come from the City's Facilities Database; houses
@@ -311,6 +434,10 @@
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
 	.layers { border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.5rem 0; }
 	.layers label { display: inline-flex; align-items: center; gap: 0.35rem; }
+	.mode311 { border: 0; padding: 0 0 0 1.6rem; margin: 0; width: 100%; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.9rem; }
+	.mode311 legend { font-weight: 600; padding: 0; float: left; margin-right: 0.5rem; }
+	.legend311 { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; margin: 0; padding: 0 0 0 1.6rem; font-size: 0.85rem; width: 100%; }
+	.legend311 li { display: inline-flex; align-items: center; gap: 0.35rem; }
 	.swatch.small { width: 0.55rem; height: 0.55rem; opacity: 0.7; }
-	.swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; border: 1px solid #fff; outline: 1px solid #999; }
+	.swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; border: 1px solid #fff; outline: 1px solid #949494; }
 </style>

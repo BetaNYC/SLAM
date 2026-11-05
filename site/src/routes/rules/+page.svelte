@@ -1,9 +1,11 @@
 <script>
 	import { fmtStamp } from '#lib/format.js';
+	import DistanceNote from '#lib/DistanceNote.svelte';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
 	const rule = $derived(data.rules);
+	const crule = $derived(data.cannabis_rules);
 	const m = $derived(data.manifest);
 	// One entry per county; SLA spells Queens two ways ('Queens', 'QUEENS').
 	const counties = $derived(
@@ -43,7 +45,33 @@
 	</p>
 </section>
 
+<section class="rule" aria-labelledby="cannabis-h">
+	<h2 id="cannabis-h">Cannabis dispensaries: a different law</h2>
+	<p>
+		Cannabis has its own State law. <a href={crule.url}>{crule.law}</a> says, for adult-use retail
+		dispensaries:
+	</p>
+	<blockquote>
+		<p>“(a) {crule.a}”</p>
+		<p>“(b) {crule.b}”</p>
+		<p>“(c) {crule.c}”</p>
+		<p>“(f) {crule.f}”</p>
+	</blockquote>
+	<p class="muted">
+		Text from the NYS Senate's Open Legislation service, version active {crule.revision}, read {crule.read}.
+		Applicants must also notify the community board first: <a href={crule.notice.url}>{crule.notice.label}</a>.
+	</p>
+	<p>
+		The differences from the liquor rule: about {data.cannabis_school_ft} ft for schools, not
+		{data.list_ft}, and the building only has to contain a school. Address pages with a cannabis record
+		list schools within about {data.cannabis_school_ft} ft and houses of worship within about
+		{data.cannabis_worship_ft} ft. <strong>SLAM does not decide whether this rule applies.</strong> The
+		Office of Cannabis Management recommends and the Cannabis Control Board decides.
+	</p>
+</section>
+
 <h2 id="measure">How SLAM measures</h2>
+<DistanceNote />
 <p>
 	The law measures between the centers of the nearest entrances. SLAM has no entrances. It measures a
 	straight line between building points: the address page's point (the City's address point from

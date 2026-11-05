@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
+	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 
@@ -27,6 +28,7 @@
 	const pt = $derived(a.point ?? {});
 	const near = $derived(a.sw?.near ?? []);
 	const liq = $derived(a.sw?.liq ?? { premises: 0, licenses: 0, rows: [] });
+	const cann = $derived(a.cannabis_sw ?? null);
 	let liqOpen = $state(false);
 	const rsrc = $derived(m.sources.restaurant_inspections);
 	const cosrc = $derived(m.sources.co_dobnow);
@@ -142,6 +144,7 @@
 </p>
 
 <h2 id="sw">Schools and houses of worship nearby</h2>
+<DistanceNote />
 {#if near.length}
 	<div class="table-scroll">
 		<table>
@@ -202,20 +205,54 @@
 	</details>
 {/if}
 
+{#if cann && sw.cannabis}
+	<h3 id="sw-cannabis">For the cannabis records at this address</h3>
+	<p>
+		<a href={sw.cannabis.rule.url}>{sw.cannabis.rule.law}</a> uses different distances for cannabis
+		dispensaries: about {sw.cannabis.school_ft} ft from a building containing a school, and about
+		{sw.cannabis.worship_ft} ft from a building used only as a house of worship, both on the same street.
+		{#if pt.measured === false}Not measured for this address (see the note at the top).{/if}
+	</p>
+	{#if cann.length}
+		<div class="table-scroll">
+			<table>
+				<caption>Schools within about {sw.cannabis.school_ft} ft and houses of worship within about {sw.cannabis.worship_ft} ft, building point to building point, nearest first ({cann.length})</caption>
+				<thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Approx. distance</th><th scope="col">Same street?</th></tr></thead>
+				<tbody>
+					{#each cann as f, i (f.kind + f.street + f.name + i)}
+						<tr>
+							<td>{swName(f)}{#if f.name && f.street}<br /><span class="muted">{f.street}</span>{/if}{#if f.note}<br /><span class="muted">Note: {f.note}</span>{/if}</td>
+							<td>{SW_KIND[f.kind]}<br /><span class="muted">{f.type}</span></td>
+							<td class="nowrap">about {f.ft} ft</td>
+							<td>{sameStreetLabel(f.same_street)}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	{:else if pt.measured !== false}
+		<p class="muted">No schools within about {sw.cannabis.school_ft} ft and no houses of worship within about {sw.cannabis.worship_ft} ft in the data.</p>
+	{/if}
+{/if}
+
 <aside class="rule" aria-labelledby="rule-h">
-	<h3 id="rule-h">The rule these distances relate to</h3>
+	<h3 id="rule-h">The rules these distances relate to</h3>
 	<p>
 		<a href={rule.url}>{rule.law}</a> sets a 200-foot rule about schools and places of worship and a
 		500-foot rule about three or more existing on-premises licensed premises, measured entrance to entrance. SLAM measures
-		building point to building point, so every distance here is approximate. <strong>This page does not
-		decide whether a rule applies</strong>; the State Liquor Authority makes that decision.
+		building point to building point, so every distance here is approximate. {#if cann}For cannabis,
+		<a href={sw.cannabis?.rule.url}>Cannabis Law §72(6)</a> sets about {sw.cannabis?.school_ft} ft for
+		schools and {sw.cannabis?.worship_ft} ft for houses of worship, also entrance to entrance.{/if}
+		<strong>This page does not decide whether a rule applies</strong>; the State Liquor Authority (liquor)
+		or the Cannabis Control Board (cannabis) makes that decision.
 		<a href={resolve('/rules', {})}>The law's text, how SLAM measures, and the sources</a>.
 	</p>
 </aside>
 
 <h2 id="c311">311 complaints</h2>
 <p class="muted">
-	Complaints to 311 at bar, club and restaurant location types, created on or after {c311Start}. A
+	Complaints to 311 at bar, club and restaurant location types, plus outdoor dining complaints, created
+	on or after {c311Start}. A
 	complaint is a report made to 311, not a finding.
 </p>
 <h3>At this address ({a.c311.n})</h3>
@@ -225,11 +262,11 @@
 {:else}
 	<p class="muted">No 311 complaints matched to this address.</p>
 {/if}
-<h3>311 complaints nearby, within {m.nearby_m} m ({a.c311_near.n})</h3>
+<h3>311 complaints nearby, within about {m.nearby_m} m ({a.c311_near.n})</h3>
 {#if a.c311_near.n}
 	<div class="table-scroll">
 		<table>
-			<caption>311 complaints within {m.nearby_m} m, not counting this address, by type</caption>
+			<caption>311 complaints within about {m.nearby_m} m, not counting this address, by type</caption>
 			<thead><tr><th scope="col">Complaint type</th><th scope="col">Count</th></tr></thead>
 			<tbody>
 				{#each a.c311_near.by_type as t (t.type)}

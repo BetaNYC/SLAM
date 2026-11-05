@@ -46,6 +46,11 @@ LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 COMPLAINTS_311_START = "2024-01-01"
 # location_type values that mean a bar, club or restaurant (exact strings, checked via $group).
 COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bakery")
+# complaint_type values pulled at ANY location type (#73). v1 had a second 311 layer for Open
+# Restaurants complaints; of its types, only DOT "Outdoor Dining" still occurs (checked via $group
+# over both boards since 2024-01-01 on 2026-11-05: 359 rows; NYPD "Social Distancing" / "Face
+# Covering Violation" and DCA "Sidewalk Cafe": 0). Its location_type is "Sidewalk" or "Street".
+COMPLAINTS_311_TYPES = ("Outdoor Dining",)
 # 311's own community_board text ("01 MANHATTAN"), used only to keep the pull small.
 # Districts are still assigned by point-in-polygon, like every other layer.
 COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in DISTRICTS.values())
@@ -219,12 +224,14 @@ SOURCES: list[Source] = [
         fields=["unique_key", "created_date", "agency", "complaint_type", "descriptor",
                 "incident_address", "incident_zip", "status", "community_board",
                 "latitude", "longitude"],
-        where=(f"location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
+        where=(f"(location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
+               f" OR complaint_type in {_sql_list(COMPLAINTS_311_TYPES)})"
                f" AND created_date >= '{COMPLAINTS_311_START}'"
                f" AND community_board in {_sql_list(COMPLAINTS_311_BOARDS)}"),
         order="unique_key",
         lat_lon=("latitude", "longitude"),
-        notes="Bar/club/restaurant location types only, created on or after COMPLAINTS_311_START.",
+        notes="Bar/club/restaurant location types, plus Outdoor Dining complaints anywhere, "
+              "created on or after COMPLAINTS_311_START.",
     ),
     Source(
         key="restaurant_inspections",
@@ -302,6 +309,30 @@ SOURCES_BY_KEY = {s.key: s for s in SOURCES}
 # 2026-07-31)", read 2026-11-04 in a browser. Paragraphs (a) to (c) are word for word the same
 # as the 2025-08-29 text in the local nys-openlegislation corpus. Facts only; the site never
 # says whether a rule applies.
+# Cannabis Law §72(6), read 2026-11-05 with the nys-openlegislation MCP (law CAN, section 72,
+# activeDate 2026-02-13) and §76 (activeDate 2021-04-09). Quoted, not paraphrased.
+CANNABIS_RULES = {
+    "law": "New York Cannabis Law §72(6)",
+    "url": "https://www.nysenate.gov/legislation/laws/CAN/72",
+    "revision": "2026-02-13",
+    "read": "2026-11-05",
+    "a": "No premises with a license issued pursuant to this section, or section sixty-eight-a of "
+         "this article, or section seventy-three of this article that allows for the retail sale "
+         "of adult-use cannabis, shall be located on the same street and within five hundred feet "
+         "of a building containing a school.",
+    "b": "No premises with a license issued pursuant to this section, or section sixty-eight-a of "
+         "this article, or section seventy-three of this article that allows for the retail sale "
+         "of adult-use cannabis, shall be located on the same street and within two hundred feet "
+         "of a building exclusively occupied as a house of worship.",
+    "c": "The measurements in paragraphs (a) and (b) of this subdivision are to be taken in "
+         "straight lines from the center of the nearest entrance of the premises sought to be "
+         "licensed to the center of the nearest entrance of such school or house of worship.",
+    "f": "No renewal of a license shall be denied because of the restrictions in paragraphs (a) "
+         "or (b) of this subdivision.",
+    "notice": {"label": "Cannabis Law §76 (notice to the community board)",
+               "url": "https://www.nysenate.gov/legislation/laws/CAN/76", "revision": "2021-04-09"},
+}
+
 SLA_RULES = {
     "law": "New York Alcoholic Beverage Control Law §64(7)",
     "url": "https://www.nysenate.gov/legislation/laws/ABC/64",
