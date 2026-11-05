@@ -1,6 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, boundariesUrl } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
@@ -54,6 +54,10 @@
 
 <h1>{a.street}</h1>
 <p class="muted">{a.city} {a.zip} · {data.district.label} · {#if a.co?.bin}Building (BIN) <code>{a.co.bin}</code>{:else}No BIN found{/if}</p>
+{#if boundariesUrl(a.lon, a.lat)}
+	<p class="no-print"><a href={boundariesUrl(a.lon, a.lat)}>See every district this address is in on Boundaries Map</a>
+		<span class="muted">(BetaNYC's map of NYC's political and administrative districts)</span></p>
+{/if}
 {#if nearNote}
 	<p class="note" role="status">You searched for {nearNote.q}. There is no page for that building, so this is the
 		nearest address page on file, about {nearNote.m} m away.</p>

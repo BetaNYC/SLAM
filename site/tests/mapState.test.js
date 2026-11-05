@@ -30,11 +30,22 @@ test('preferences save and load, and survive broken storage', () => {
 	const store = {};
 	const storage = /** @type {any} */ ({ getItem: (k) => store[k] ?? null, setItem: (k, v) => (store[k] = v) });
 	savePrefs(storage, { on: ['dining_out', 'sw', 'nope'], c311: 'dots' });
-	assert.deepEqual(loadPrefs(storage, KNOWN), { on: ['dining_out', 'sw'], c311: 'dots' });
+	assert.deepEqual(loadPrefs(storage, KNOWN), { on: ['dining_out', 'sw'], c311: 'dots', open: true });
+	savePrefs(storage, { on: [], c311: 'stacks', open: false });
+	assert.equal(loadPrefs(storage, KNOWN)?.open, false);
 	store[PREFS_KEY] = '{not json';
 	assert.equal(loadPrefs(storage, KNOWN), null);
 	const broken = /** @type {any} */ ({ getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('full'); } });
 	assert.equal(loadPrefs(broken, KNOWN), null);
 	assert.doesNotThrow(() => savePrefs(broken, { on: [], c311: 'stacks' }));
 	assert.equal(loadPrefs(undefined, KNOWN), null);
+});
+
+test('boundariesUrl: Boundaries Map reads ?lng=&lat= (#77); no point, no link', async () => {
+	const { boundariesUrl } = await import('../src/lib/format.js');
+	assert.equal(boundariesUrl(-73.936314, 40.697876), 'https://boundaries.beta.nyc/?lng=-73.936314&lat=40.697876');
+	assert.equal(boundariesUrl(-73.93631449, 40.6978761), 'https://boundaries.beta.nyc/?lng=-73.936314&lat=40.697876');
+	assert.equal(boundariesUrl(0, 0), null);
+	assert.equal(boundariesUrl(null, 40.7), null);
+	assert.equal(boundariesUrl(-200, 40.7), null);
 });

@@ -65,7 +65,7 @@ export function buildHash(s) {
  * Saved layer choices, or null. Never throws (private mode, blocked storage, bad JSON).
  * @param {Storage | undefined} storage
  * @param {string[]} known
- * @returns {{on: string[], c311: string | null} | null}
+ * @returns {{on: string[], c311: string | null, open: boolean} | null}
  */
 export function loadPrefs(storage, known) {
 	try {
@@ -75,7 +75,8 @@ export function loadPrefs(storage, known) {
 		if (!Array.isArray(o?.on)) return null;
 		return {
 			on: o.on.filter((/** @type {any} */ k) => known.includes(k)),
-			c311: C311_MODE_KEYS.includes(o.c311) ? o.c311 : null
+			c311: C311_MODE_KEYS.includes(o.c311) ? o.c311 : null,
+			open: o.open !== false // the Layers box; open unless the user closed it (#77)
 		};
 	} catch {
 		return null;
@@ -84,11 +85,11 @@ export function loadPrefs(storage, known) {
 
 /**
  * @param {Storage | undefined} storage
- * @param {{on: string[], c311: string}} prefs
+ * @param {{on: string[], c311: string, open?: boolean}} prefs
  */
 export function savePrefs(storage, prefs) {
 	try {
-		storage?.setItem(PREFS_KEY, JSON.stringify({ on: prefs.on, c311: prefs.c311 }));
+		storage?.setItem(PREFS_KEY, JSON.stringify({ on: prefs.on, c311: prefs.c311, open: prefs.open !== false }));
 	} catch {
 		// Storage can be full or blocked; preferences are a convenience, not required.
 	}
