@@ -243,11 +243,38 @@
 			consulting the community board, it finds the license is in the public interest (§64(7)(f)). See <a href={rules}>the rules page</a>.
 		</dd>
 
+		<dt id="cannabis-school">Cannabis: 500-foot school rule</dt>
+		<dd>
+			State law (Cannabis Law §72(6)(a)) about adult-use cannabis dispensaries on the same street as,
+			and within 500 feet of, a building containing a school. It is a different law from the liquor
+			rules: 500 feet for schools, not 200, and the building only has to contain a school.
+			<a href="https://www.nysenate.gov/legislation/laws/CAN/72">Read §72</a>.
+		</dd>
+
+		<dt id="cannabis-worship">Cannabis: 200-foot house of worship rule</dt>
+		<dd>
+			State law (Cannabis Law §72(6)(b)) about adult-use cannabis dispensaries on the same street as,
+			and within 200 feet of, a building used only as a house of worship. Like the liquor rules, it is
+			measured from entrance to entrance (§72(6)(c)). A renewal is not denied because of these two
+			rules (§72(6)(f)). SLAM does not yet measure these distances for cannabis addresses.
+		</dd>
+
+		<dt id="cannabis-notice">Community board notice (cannabis and liquor)</dt>
+		<dd>
+			In New York City, an applicant must notify the community board before applying: for a liquor
+			license, under ABC Law §110-b; for a cannabis dispensary or on-site consumption license, 30 to 270
+			days ahead, under Cannabis Law §76. The board may send its opinion for or against, and the
+			opinion becomes part of the record. For cannabis, the Cannabis Control Board must answer the
+			community board in writing, explaining how its opinion was considered.
+		</dd>
+
 		<dt id="who-decides">Who decides</dt>
 		<dd>
-			The State Liquor Authority decides each application, including how these rules apply to it. A
-			community board can send SLA its opinion, which becomes part of SLA's record. SLAM lists what is nearby and how far
-			away it is. It does not make that decision.
+			For liquor, the State Liquor Authority decides each application, including how these rules
+			apply to it. For cannabis, the Office of Cannabis Management makes a recommendation and the
+			Cannabis Control Board decides. In both cases the community board's opinion becomes part of the
+			record (see Community board notice). SLAM lists what is nearby and how far away it is. It does not
+			make that decision.
 		</dd>
 	</dl>
 </section>
