@@ -30,13 +30,30 @@ test('site chrome uses BetaNYC Blue #2359a8, not the old brighter blue', () => {
 		assert.doesNotMatch(readFileSync(f, 'utf8').toLowerCase(), /#1a5ccf|#0f3f94/, f);
 });
 
-test('about page: no verdict words; the built page lists every source and the glossary', () => {
-	const src = readFileSync('src/routes/about/+page.svelte', 'utf8');
+test('about and glossary pages: no verdict words; built pages list every source and every glossary anchor', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	assert.equal(src.match(verdict), null);
+	const glossarySrc = readFileSync('src/routes/glossary/+page.svelte', 'utf8');
+	for (const f of ['src/routes/about/+page.svelte', 'src/routes/glossary/+page.svelte'])
+		assert.equal(readFileSync(f, 'utf8').match(verdict), null, f);
+	// Glossary numbers come from the manifest, not typed into the page.
+	assert.match(glossarySrc, /m\.nearby_m/);
+	assert.match(glossarySrc, /c311\.start/);
+	assert.doesNotMatch(glossarySrc, /2024-01-01|\b150 m(eters)?\b/);
 	if (!existsSync('build/about/index.html')) return; // site not built yet (npm test runs before build in CI)
 	const html = readFileSync('build/about/index.html', 'utf8');
 	const m = JSON.parse(readFileSync('static/data/manifest.json', 'utf8'));
 	for (const s of Object.values(m.sources)) assert.ok(html.includes(/** @type {any} */ (s).id), s.id);
-	for (const id of ['glossary', 'sla', 'lamp', 'bin', 'location-type', 'outdoor-dining']) assert.ok(html.includes(`id="${id}"`), id);
+	for (const id of ['data-h', 'history-h', 'ai-h', 'tools-h', 'open-data']) assert.ok(html.includes(`id="${id}"`), id);
+	assert.match(html.replace(/\s+/g, ' '), /Deepgram is an online speech-to-text service/, 'Deepgram named as an online service');
+	assert.ok(existsSync('build/glossary/index.html'), 'glossary page built');
+	const g = readFileSync('build/glossary/index.html', 'utf8');
+	const ids = [...glossarySrc.matchAll(/<dt id="([^"]+)"/g)].map((x) => x[1]);
+	assert.ok(ids.length >= 40, `glossary has ${ids.length} terms`);
+	for (const id of ids) assert.ok(g.includes(`id="${id}"`), id);
+	for (const id of ['sla', 'lamp', 'bin', 'location-type', 'outdoor-dining', 'c311-at-address', 'c311-nearby', 'count-200', 'count-500', 'same-street'])
+		assert.ok(ids.includes(id), id);
+	// Every in-page link on the glossary points at an anchor that exists.
+	for (const [, id] of g.matchAll(/href="#([^"]+)"/g)) assert.ok(g.includes(`id="${id}"`), `#${id}`);
+	assert.ok(g.includes(`${m.nearby_m} meters`), 'nearby distance from the manifest');
+	assert.ok(g.includes(m.complaints_311.start), '311 start date from the manifest');
 });

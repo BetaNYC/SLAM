@@ -155,7 +155,13 @@ vector basemap, through one module, `site/src/lib/basemap.js`.
 filter, adds `Restaurant/Bar/Deli/Bakery` (health complaints), and now also pulls every DOT
 `Outdoor Dining` complaint (`COMPLAINTS_311_TYPES`). The other Open Restaurants types have 0 rows in
 both districts since 2024. The map colors 311 dots in v1's groups: commercial noise, drinking,
-outdoor dining, other (`C311_GROUPS` in `format.js`). Live run of 2026-11-05: 8,812 fetched
+outdoor dining, other (`C311_GROUPS` in `format.js`). A picker on the map switches between three ways
+to draw them (`site/src/lib/c311Display.js`): **stacked chips** (v1's look: one chip per complaint,
+piled up at its point, 3 px apart in screen pixels and capped at 12 with the total above, which
+answers #29's "stacks run across streets"), **circles sized by count** (one circle per point, area
+by count, colored by the most common group, the #29 suggestion), and **one dot per complaint**.
+BK CD 4: 4,897 complaints at 553 points (top: 633 at 44 Wilson Ave); MN CD 1: 608 points (top: 535
+at 52 Stone St). Live run of 2026-11-05: 8,812 fetched
 (3,911 MN CD 1, 4,897 BK CD 4).
 
 Run of 2026-11-04 (live, then `--offline`, same numbers):
@@ -485,8 +491,21 @@ responses.
 
 ## About page and palette (#71, #72)
 
-- `/about/` holds every source (moved from the footer, with what each is used for) and a glossary
-  of 26 terms. The header links to it and to `/rules/`.
+- `/about/` and `/glossary/` follow BoardStat 2.0's About and Glossary pages
+  (https://www.beta.nyc/boardstat/v2/about.html, `glossary.html`). About: intro ("SLA Mapper"),
+  in-page nav, Where the data comes from (data date, 311 range and pilot districts from the
+  manifest; the sources table with what each is used for; other sources), History (dated eras,
+  2018 to November 2026, issue numbers linked), How we used AI tools (Claude for code; Deepgram, an
+  online service, transcribed the 2018 SDSC talk; no AI on the site), Open-source tools.
+- `/glossary/` has 48 terms in eight `<dl>` sections, each with an `id` anchor, including "How the
+  numbers are counted" (311 at this address vs nearby, the 200-ft list, same street, the 500-ft
+  count, building points). `nearby_m` and the 311 start date come from the manifest. Datasets point
+  to the About table instead of repeating it.
+- Header nav: Districts · About · Glossary · Rules, with `aria-current`. The footer says "Not an
+  official City of New York product."
+- `aboutPalette311.test.js` scans both pages for verdict words and checks the built glossary has
+  every `<dt id>` and every in-page `#` link target. axe: 0 violations on both pages, desktop and
+  390 px, 2026-11-05.
 - Site chrome uses the BetaNYC palette: BetaNYC Blue `#2359a8` (was `#1a5ccf`), body `#414141`,
   background blue `#EEF4FF`, border gray `#949494`, square card corners. The favicon is the BetaNYC
   square mark. Map data colors and the amber focus ring are functional exceptions.
