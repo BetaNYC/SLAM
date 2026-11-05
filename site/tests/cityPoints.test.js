@@ -48,5 +48,7 @@ test('the manifest says where each counted license was measured from', { skip: !
 	const m = JSON.parse(readFileSync(`${D}/manifest.json`, 'utf8'));
 	const p = m.schools_worship.on_premises_license_points;
 	assert.deepEqual(Object.keys(p).sort(), ['address_page', 'city_address_file', 'sla_point']);
-	assert.ok(p.address_page + p.city_address_file > p.sla_point);
+	const total = p.address_page + p.city_address_file + p.sla_point;
+	assert.ok(total > 1000, `${total}`);
+	assert.ok(p.sla_point / total < 0.05, `${p.sla_point} of ${total} measured from SLA's own point`);
 });
