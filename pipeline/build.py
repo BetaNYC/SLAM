@@ -385,6 +385,8 @@ def main(argv=None) -> int:
     except (RuntimeError, OSError, SystemExit) as exc:
         log("lamp_webmap_unavailable", error=str(exc))
         lamp_webmap = None
+    if isinstance(lamp_webmap, dict) and "error" in lamp_webmap:  # ArcGIS errors come back as HTTP 200
+        log("lamp_webmap_error", error=str(lamp_webmap.get("error"))[:300])
     lamp_query = verify_lamp_layers(lamp_webmap, SLA_LICENSE["lamp_records"]["layers"])
     log("lamp_query_links", sources=sorted(lamp_query))
     extra_liq = load_or_fetch("liquor_active_extra_counties", args.offline, lambda: net.fetch_all(

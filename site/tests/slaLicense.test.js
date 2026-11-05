@@ -77,7 +77,9 @@ test('built site: an address page links LAMP at the City point for the building 
 	assert.ok(html.includes('does not include method of operation or hours'));
 	// #63: one per-license link per SLA record, built from the manifest's checked layer settings.
 	const q = JSON.parse(readFileSync('static/data/manifest.json', 'utf8')).sla_license.lamp_query;
-	if (q.liquor_active) assert.ok(html.includes(`https://lamp.sla.ny.gov/?query=${q.liquor_active.layer_id},LicensePermitID,0370-22-104616`));
+	// Every build has LAMP's web map (live or cached), so all three must be there (review S5).
+	assert.deepEqual(Object.keys(q).sort(), ['liquor_active', 'liquor_inactive', 'liquor_pending']);
+	assert.ok(html.includes(`https://lamp.sla.ny.gov/?query=${q.liquor_active.layer_id},LicensePermitID,0370-22-104616`));
 });
 
 

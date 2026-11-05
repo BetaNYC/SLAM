@@ -662,3 +662,7 @@ responses.
   with an SLA record), never against a trusted point; a page placed at the nearest listed number does
   not pass its neighbor's point to records (`plon`) or to the 500-ft count. Citywide after the
   fixes: SLA 97.5%, DOHMH 98.6% (BIN agreeing 99.4%), 311 91.9%; SLAM still 1,291 of 1,303.
+- Review fixes (2026-11-05): an offline build reuses the cached web map, so the per-license check
+  is only as fresh as the last live build; an ArcGIS error body (served with HTTP 200) is logged
+  and drops the links. The LAMP-record paragraph shows only when the links exist. Not checked yet:
+  that the field names are still in each layer (the check covers layer id and service).
