@@ -188,7 +188,8 @@
 		<strong>Writing code.</strong> BetaNYC staff built SLAM v2 with the help of Claude, an AI coding
 		assistant made by Anthropic. BetaNYC staff set the goals, made the design decisions and decided
 		what to merge. The AI tool drafted the code, tests and documentation, including this page.
-		Changes were checked by automated tests and by a second, separate AI review before BetaNYC staff merged them.
+		Changes were checked by automated tests and by a second, separate AI review. BetaNYC staff reviewed
+		the published site on November 5, 2026, as BetaNYC's AI policy asks for anything AI helped make.
 	</p>
 	<p>
 		<strong>Learning from the first SLAM.</strong> To bring back what boards used, Claude read the
