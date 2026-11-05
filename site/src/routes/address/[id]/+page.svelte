@@ -140,7 +140,7 @@
 {/if}
 <p class="note">
 	Distances are straight-line between points, rounded to the meter. {#if pt.source === 'geosearch'}This
-	page's point is the City's address point for the building, from the City's own address file.{:else}This page's point is the
+	page's point is the City's address point for the building, from the City's own address file.{#if pt.matched_by === 'pad-nearest'} This house number is not in the City's address file, so the point is the City's point for the nearest listed number on the same side of the street.{/if}{:else}This page's point is the
 	average of its records' own points, because the City's address file did not match this address.{/if}
 	Nearby only covers records
 	inside the two prototype districts. This page lists facts from the sources; it does not apply any

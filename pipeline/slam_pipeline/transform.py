@@ -464,7 +464,8 @@ def page_point(hit: dict, rec_lon: float | None, rec_lat: float | None) -> dict:
         gap = (round(meters(rec_lon, rec_lat, hit["lon"], hit["lat"]))
                if rec_lon is not None else None)
         return {"lon": hit["lon"], "lat": hit["lat"], "source": "geosearch", "records_gap_m": gap,
-                "matched_by": hit.get("source", "geosearch")}
+                "matched_by": ("pad-nearest" if str(hit.get("rule", "")).startswith("nearest listed")
+                               else hit.get("source", "geosearch"))}
     if rec_lon is not None:
         return {"lon": rec_lon, "lat": rec_lat, "source": "records", "records_gap_m": None}
     return {"lon": None, "lat": None, "source": None, "records_gap_m": None}

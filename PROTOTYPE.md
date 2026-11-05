@@ -609,3 +609,26 @@ responses.
 - Effect, same data, before → after: licenses in the box 2,293 → 2,283; pages with 3 or more other
   addresses within about 500 ft: MN CD 1 514 → 514, BK CD 4 254 → 253; 499 pages show a different
   count, mostly by 1 to 3, because both ends of each distance now come from the same source.
+
+## Address matching: more readings and a review list (#95)
+
+- New readings in `padmatch.candidates` (each tagged with its rule): Queens numbers with a range on
+  the end (`29-12-14`), three-part Queens numbers (`136 20 30 ROOSEVELT`, `126 12 101 AVE`), a
+  letter written apart (`92-15 B`, `169 B GARDNER`), ranges of three or four numbers, a Brooklyn
+  number written with a hyphen (`65-02 18TH AVE` → 6502), text after " AT " or a slash, floor text
+  (`7TH FL`, `1ST AND 2ND FLRS`, a bare `9TH` at the end), AKA without spaces (`A/K/A15`),
+  street-type misspellings (`HGWY`, `PKW`, `AVEUE`), and the first street-type word when cutting
+  trailing words.
+- New lookups in `PadIndex.lookup`: the street with spaces ignored (`CROSSBAY`), the ZIP's own
+  borough with that borough's readings, a street name missing its ending or cut off
+  (`ADAM CLAYTON POWELL`, `300 WYCKOFF`, `381 BROADW`) when exactly one street fits, and, last,
+  the nearest listed house number on the same side of the street (point only: no BIN or BBL; the
+  page says so).
+- Safety: a risky reading must land within 1,000 ft of the record's own point **or** in the
+  record's ZIP; the nearest-number rule and place names matched on their first words only always
+  need the point.
+- SLAM, same data: 1,269 → **1,291 of 1,303** address groups matched; low confidence 33 → 11;
+  pages keyed on a BIN 1,056 → 1,061. Citywide test (no points for 311): SLA 97.3%, DOHMH 98.7%
+  (BIN agreeing 99.4%), 311 91.9%.
+- Every build writes `site/static/data/review/unmatched-addresses.csv` (district, street, ZIP,
+  status, GeoSearch's top hit, sources, record count) and its row count to the manifest.

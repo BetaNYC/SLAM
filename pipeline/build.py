@@ -12,6 +12,7 @@ output file is rewritten whole; the geocode cache only ever grows.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 import time
@@ -432,6 +433,24 @@ def main(argv=None) -> int:
     pad = padmatch.PadIndex(pad_pq) if pad_pq else None
     addr_geo, addr_geo_stats = geocode_addresses(groups, args.offline, pad)
     addrs, aid_remap = key_pages(groups, addr_geo)
+    # Addresses the City's file and GeoSearch could not match, for a person to review (#95).
+    # Public data only (street, ZIP, the sources and record counts); written every build.
+    review = []
+    for gid, g in sorted(groups.items(), key=lambda kv: (kv[1]["district"], kv[1]["street"] or "")):
+        hit = addr_geo.get(gid) or {"status": "unmatched"}
+        if hit["status"] != "matched":
+            review.append({"district": g["district"], "street": g["street"], "zip": g["zip"],
+                           "status": hit["status"], "geosearch_top_hit": hit.get("label") or "",
+                           "sources": ";".join(sorted({r["source"] for r in g["records"]})),
+                           "records": len(g["records"])})
+    (OUT / "review").mkdir(parents=True, exist_ok=True)
+    with open(OUT / "review" / "unmatched-addresses.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["district", "street", "zip", "status", "geosearch_top_hit",
+                                          "sources", "records"])
+        w.writeheader()
+        w.writerows(review)
+    addr_geo_stats["unmatched_review_file"] = {"path": "review/unmatched-addresses.csv",
+                                               "rows": len(review)}
     addr_geo_stats["pages"] = len(addrs)
     addr_geo_stats["pages_keyed_on_bin"] = sum(1 for a in addrs.values() if a["bin"])
     addr_geo_stats["pages_merged_from_several_keys"] = sum(1 for a in addrs.values()

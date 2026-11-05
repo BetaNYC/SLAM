@@ -53,7 +53,7 @@ def test_queens_number_without_hyphen():
     ("216 1/2 Greene Ave", "3", ("216 1/2", "GREENE AVE", "half number")),
     ("335 BOWERY AKA 4 E 3RD ST", "1", ("4", "E 3 ST", "AKA address")),
     ("335 BOWERY AKA 4 E 3RD ST", "1", ("335", "BOWERY", "address before AKA")),
-    ("55-48 METROPOLITAN AVE, 1ST FL", "4", ("55-48", "METROPOLITAN AVE", "text before the comma")),
+    ("55-48 METROPOLITAN AVE, 1ST FL", "4", ("55-48", "METROPOLITAN AVE", "as written")),  # floor text dropped first (#95)
     ("1185 BROADWAY- ZAYTINYA", "1", ("1185", "BROADWAY", "trailing text removed")),
     ("80-82 CLINTON ST", "3", ("80", "CLINTON ST", "first number of a range")),
 ])
@@ -117,3 +117,49 @@ def test_ensure_pad_offline(tmp_path):
     assert padmatch.ensure_pad(tmp_path, offline=True) is None
     (tmp_path / "pad.parquet").write_bytes(b"x")
     assert padmatch.ensure_pad(tmp_path, offline=True) == tmp_path / "pad.parquet"
+
+
+# ---------------------------------------------------------------- more readings (#95)
+@pytest.mark.parametrize("text,boro,expect", [
+    ("29-12-14 23RD AVE", "4", ("29-12", "23 AVE", "first of a hyphenated range")),
+    ("92-15 B 37TH AVE", "4", ("92-15B", "37 AVE", "letter written apart")),
+    ("169 B GARDNER AVENUE", "3", ("169B", "GARDNER AVE", "letter written apart")),
+    ("136 20 30 ROOSEVELT AVE", "4", ("136-20", "ROOSEVELT AVE", "Queens number without the hyphen")),
+    ("126 12 101 AVE", "4", ("126-12", "101 AVE", "Queens number without the hyphen")),
+    ("446 448 450 HUDSON ST", "1", ("446", "HUDSON ST", "first number of a range")),
+    ("185 187 189 191 BOWERY", "1", ("185", "BOWERY", "first number of a range")),
+    ("65-02 18TH AVE", "3", ("6502", "18 AVE", "hyphen removed outside Queens")),
+    ("80 COLUMBUS CIRCLE AT 60TH ST", "1", ("80", "COLUMBUS CIR", "text after AT or a slash removed")),
+    ("89 EAST 42ND ST/MAIN CONCOURSE", "1", ("89", "E 42 ST", "text after AT or a slash removed")),
+    ("184 1ST AVENUE-SOUTH STORE", "1", ("184", "1 AVE", "trailing text removed")),
+    ("50 HUDSON YARDS 7TH FL", "1", ("50", "HUDSON YARDS", "as written")),
+])
+def test_more_readings(text, boro, expect):
+    assert expect in candidates(text, boro)
+
+
+def test_queens_three_numbers_never_read_as_a_range_first():
+    # 126 12 101 AVE is 126-12 101 Avenue, not "126 AVE".
+    assert candidates("126 12 101 AVE", "4")[0][:2] != ("126", "AVE")
+    assert all(sk != "AVE" for _, sk, _ in candidates("126 12 101 AVE", "4"))
+
+
+def test_misspelled_street_types_fold():
+    assert street_key("KINGS HGWY") == street_key("KINGS HIGHWAY")
+    assert street_key("EASTERN PKW") == street_key("EASTERN PARKWAY")
+    assert street_key("HEGEMAN AVEUE") == street_key("HEGEMAN AVENUE")
+
+
+def test_street_name_completed_only_when_one_street_fits(ix):
+    # "237 AVENUE" is not a street; completion needs exactly one street with that number.
+    h = ix.lookup("365 5", "1", "10016")
+    assert h is None or h["bin"] == "1017097"
+
+
+@pytest.mark.parametrize("text,boro,expect", [
+    ("25 BROADWAY 9TH", "1", ("25", "BROADWAY")),
+    ("120 BROADWAY A/K/A15 NASSAU ST", "1", ("15", "NASSAU ST")),
+    ("351 BROADWAY 1ST AND 2ND FLRS", "1", ("351", "BROADWAY")),
+])
+def test_floor_and_tight_aka(text, boro, expect):
+    assert expect in [c[:2] for c in candidates(text, boro)]
