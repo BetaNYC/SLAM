@@ -786,3 +786,24 @@ def test_lamp_layers_verified_against_the_real_web_map():
                                    else l for l in wm["operationalLayers"]]}
     assert "liquor_active" not in verify_lamp_layers(moved, layers)
     assert verify_lamp_layers(None, layers) == {}
+
+
+def test_get_json_retries_a_connection_reset(monkeypatch):
+    # A live build on 2026-11-05 died on "Connection reset by peer" mid-download.
+    import io
+    from slam_pipeline import net
+    calls = {"n": 0}
+
+    class Resp(io.BytesIO):
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake(req, timeout=None):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise ConnectionResetError(54, "Connection reset by peer")
+        return Resp(b'[{"ok": 1}]')
+    monkeypatch.setattr(net.urllib.request, "urlopen", fake)
+    monkeypatch.setattr(net.time, "sleep", lambda s: None)
+    assert net.get_json("https://example.invalid/x.json") == [{"ok": 1}]
+    assert calls["n"] == 2

@@ -7,6 +7,7 @@ are subject to lower, shared throttling limits), so we keep volume small.
 
 from __future__ import annotations
 
+import http.client
 import json
 import sys
 import time
@@ -40,7 +41,10 @@ def get_json(url: str, *, retries: int = 3, timeout: int = 60):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.load(resp)
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        # ConnectionError covers a reset mid-download (seen 2026-11-05 on a live build), and
+        # http.client.HTTPException a truncated or dropped response; both are worth a retry.
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ConnectionError,
+                http.client.HTTPException) as exc:
             last = exc
             log("http_retry", url=url, attempt=attempt, error=str(exc))
             time.sleep(2 * attempt)
