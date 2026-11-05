@@ -62,11 +62,16 @@ test('built data: every SLA record on an address page has its type, class and ID
 	assert.ok(withPoint === n, `with a LAMP link: ${withPoint} of ${n}`);
 });
 
-test('built site: an address page links LAMP at the license point and the Full Board page', { skip: !existsSync('build/address') }, () => {
+test('built site: an address page links LAMP at the City point for the building and the Full Board page', { skip: !existsSync('build/address') }, () => {
 	const idx = JSON.parse(readFileSync('static/data/bin-index.json', 'utf8'));
 	const id = idx.bins['3071959']; // 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616)
 	const html = readFileSync(`build/address/${id}/index.html`, 'utf8').replace(/\s+/g, ' ');
-	assert.ok(html.includes('https://lamp.sla.ny.gov/?center=-73.92944,40.70281&amp;level=18'));
+	// #96: centered on the City's address point for the building (the page point), not SLA's.
+	const a = JSON.parse(readFileSync(`static/data/address/${id}.json`, 'utf8'));
+	const r5 = (v) => String(Number(v.toFixed(5)));
+	assert.equal(a.point.source, 'geosearch');
+	assert.ok(html.includes(`https://lamp.sla.ny.gov/?center=${r5(a.lon)},${r5(a.lat)}&amp;level=18`));
+	assert.ok(!html.includes('https://lamp.sla.ny.gov/?center=-73.92944,40.70281&amp;level=18'));
 	assert.ok(html.includes('https://sla.ny.gov/full-board-meetings'));
 	assert.ok(html.includes('does not include method of operation or hours'));
 	assert.ok(!html.includes('?query='));

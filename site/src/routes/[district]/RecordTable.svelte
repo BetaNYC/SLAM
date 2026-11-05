@@ -41,7 +41,7 @@
 					<td>{r.status}{#if r.operational}<br /><span class="muted">{r.operational}</span>{/if}</td>
 					<td class="nowrap">{#if r.date}<span class="muted">{r.date_label}</span><br />{r.date}{/if}</td>
 					{#if sla}
-						{@const lamp = lampUrl(r.lon, r.lat, lampLevel)}
+						{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}
 						<td><code>{r.rid}</code><br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point, no LAMP link</span>{/if}</td>
 					{/if}
 				</tr>
