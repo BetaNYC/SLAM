@@ -11,17 +11,17 @@ Tested on Node 26.13.0, npm 11.20.0, uv 0.12.22, Python 3.14.10 and 3.11.15.
 
 ```sh
 # 1. Pipeline: fetch NYC + NYS open data, write site/static/data/
-#    (about 20-50 s live, plus about 9 min the first time to geocode every address page)
+#    (a few minutes live; the first run also downloads the City's address file, about 35 s)
 cd pipeline
 uv sync
 uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
-uv run pytest -q                   # 69 tests against recorded real responses
+uv run pytest -q                   # 90 tests against recorded real responses
 
 # 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
 cd ../site
 npm install
-npm test                           # node --test, 57 tests (ten read the built static/data, one the built site/build)
+npm test                           # node --test, 76 tests (some read the built static/data and site/build)
 npm run check                      # svelte-check
 npm run build                      # writes site/build/
 

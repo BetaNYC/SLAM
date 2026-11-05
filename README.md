@@ -1,189 +1,69 @@
-# SLAM
+# SLAM v2
 
-SLA Mapper ([SLAM](https://slam.beta.nyc)) – is a tool that aggregates data that community boards often have to gather in order to review liquor license applications and sidewalk cafe applications. Displaying this information in a unified view saves community boards considerable time and resources.
+SLAM, the SLA Mapper, puts the open data a New York City community board looks up for a liquor license application in one place: State Liquor Authority licenses and applications, cannabis licenses, outdoor dining, permitted street events, 311 complaints, health inspections, certificates of occupancy, and nearby schools and houses of worship. It shows facts as the City and State publish them; it does not decide whether a law or rule applies.
 
-## How to Contribute
+- **Live:** https://slam.beta.nyc (a prototype covering Manhattan Community District 1 and Brooklyn Community District 4)
+- **On the site:** an About page (sources, history, how we used AI tools) and a Glossary of every term and calculation.
+- **Detailed build notes:** [`PROTOTYPE.md`](PROTOTYPE.md), section by section, with the numbers from each run.
+- **Plans and work:** [epic #56](https://github.com/BetaNYC/SLAM/issues/56), [what v1 had, #58](https://github.com/BetaNYC/SLAM/issues/58), [citywide, #93](https://github.com/BetaNYC/SLAM/issues/93).
+- **The first SLAM (2018-2023)** lives on the `main` branch, along with its leftover files in this branch (`src/`, `public/`, the root `package.json`). It ran on Carto, which is gone; v2 is `pipeline/` and `site/`.
 
-- File an issue via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
-- Request a feature via this [repo's issue cue](https://github.com/BetaNYC/SLAM/issues).
-- Comment on issues.
-- Write code to fix issues or to create new features. When contributing code, please be sure to:
+## How it works
 
-  - Fork this repository, modify the code (changing only one thing at a time), and then issue a pull request for each change.
-  - Follow the project's coding style (using K&R-style indentation and bracketing, commenting above each feature, and using snake case for variables).
-  - Test your code locally before issuing a pull request.
-  - Clearly state the purpose of your change in the description field for each commit.
+A small Python program (`pipeline/`) downloads open data, places every record in today's community district lines with DuckDB spatial, groups records by building, finds what is near each address, and writes plain JSON and GeoJSON files. A SvelteKit site (`site/`) turns those files into static pages. There is no database server and no API key. GitHub Actions rebuilds and publishes it to GitHub Pages (`.github/workflows/v2-deploy.yml`).
 
-## Architecture
+| Layer | Tools |
+|---|---|
+| Data | NYC Open Data and data.ny.gov (Socrata, read-only, keyless) |
+| Pipeline | Python 3.11+, [uv](https://docs.astral.sh/uv/), [DuckDB](https://duckdb.org) with the spatial extension, pytest |
+| Site | [SvelteKit](https://svelte.dev) (static adapter), [MapLibre GL](https://maplibre.org) |
+| Street map | The City's NYC Basemap (SOURCE: NYC OTI, powered by Esri); OpenFreeMap if it does not load |
+| Hosting | GitHub Pages, `slam.beta.nyc` |
 
-SLAM is a landing page that displays a Carto basemap and markers for each row of four datasets stored in BetaNYC's Carto account (1) 311 complaints about a club/restaurant/bar since 2017, 2) active SLA licenses, 3) sidewalk cafe licenses, and 4) the location of restaurant inspections). It also displays polygons representing buildings DCP has classed as schools and churches. Clicking on a marker further queries the datasets stored in Carto for additional information about the complaint/license/inspection. Datasets in in Carto are regularly automatically synced with datasets stored in the NYC or the NYS Open Data Portals. Searching for a NYC location queries NYC Planning Labs' GeoSearch for the geo-coordinates that correspond to the entered address, and the map repositions to this location.
+### Matching addresses to buildings
 
-## Setup
+Every address is matched to a building (BIN), a tax lot (BBL) and a map point with **the City's own address file**: NYC Planning Labs' normalized copy of City Planning's Property Address Directory (PAD), the same file the GeoSearch service is built from. The pipeline downloads it once per release, keeps it as Parquet, and matches in DuckDB (`pipeline/slam_pipeline/padmatch.py`). It also tries the common ways addresses are written: Queens numbers without the hyphen (`104 30` for `104-30`), ranges, half numbers, "AKA" addresses, trailing text, the borough taken from the ZIP, and named places. Readings that could land on the wrong building must be within 1,000 ft of the record's own map point. Only what the file cannot match is sent to [GeoSearch](https://geosearch.planninglabs.nyc), slowly and cached.
 
-In order to set things up, you'll need to copy .env.example to .env and add your [Carto](https://betanyc.carto.com/your_apps) and [GeoClient](https://developer.cityofnewyork.us/api/geoclient-api) API keys.
+Tested citywide on 2026-11-05: 97.2% of active liquor licenses, 98.5% of restaurant inspection addresses (agreeing with the Health Department's own BIN 99.4% of the time) and 91.9% of 311 addresses (agreeing with 311's own BBL 99.3% of the time). Details in `PROTOTYPE.md`, "Address matching with the City's own address file".
 
-```bash
-cp .env.example .env
-```
+### Distances are approximate
 
-Then you run to install node.js packages
+The laws SLAM quotes (ABC Law §64(7) for liquor, Cannabis Law §72(6) for cannabis) measure from entrance to entrance. SLAM has no entrances: it measures straight lines between building points, so every distance on the site is approximate and says so.
 
-```bash
+## Run it
+
+Requirements: uv (Python 3.11 to 3.15) and Node 22.17 or newer.
+
+```sh
+# 1. Pipeline: fetch the open data and write site/static/data/
+cd pipeline
+uv sync
+uv run python build.py             # live fetch; the first run also downloads the City's address file (~35 s)
+uv run python build.py --offline   # rebuild from pipeline/.cache/, no network
+uv run pytest -q                   # tests against recorded real responses
+
+# 2. Site
+cd ../site
 npm install
+npm test
+npm run check
+npm run build                      # writes site/build/
+
+# 3. Look at it
+cd build && python3 -m http.server 4173 --bind 127.0.0.1
+# open http://127.0.0.1:4173/
 ```
 
-You can either build by running `npm run build` or run live development environment by running `npm run dev`, then opening [localhost:5000](http://localhost:5000/) in your browser.
+`site/static/data/`, `site/build/` and `pipeline/.cache/` are not committed.
 
-## Backend Services
+## Updating the data
 
-### carto
+The workflow runs on every push to `v2`, by hand from the Actions tab, and nightly at 10:17 UTC. GitHub runs scheduled workflows only from the repository's default branch, so the nightly run starts when `v2` becomes the default branch (#90).
 
-Most of the data for SLAM is stored in BetaNYC's carto account.
-- `activelicensesv2`
-  - Dataset of all NYS active liquor licenses
-  - Data is updated directly from the [NYS Liquor Authority Mapping Project (LAMP)](https://lamp.sla.ny.gov/) daily.
-  - You may also get a data download from the data State Liquor Authority on [NYS's Open Data Portal](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2).
-<!-- - `liquor_authority_quarterly_list_of_active_licenses` / `sla_geo`
-  - Dataset of all NYS active liquor licenses
-  - [Published](https://data.ny.gov/Economic-Development/Liquor-Authority-Quarterly-List-of-Active-Licenses/hrvs-fxs2) by the State Liquor Authority on NYS's Open Data Portal
-  - Data is updated in the Open Data Portal quarterly, geocoded with GBAT, and synced with BetaNYC's Carto account weekly. -->
-- `nyc_open_restaurants_application_v2_6`
-  - Dataset of self-certified responses for NYC [Open Restaurants](https://www1.nyc.gov/html/dot/html/pedestrians/openrestaurants.shtml)
-  - [Published](http://nycopenrestaurants.info) by NYCDOT on an ArcGIS Dashboard and Service API Layer
-  - Data is synced wtih BetaNYC's Carto account hourly.
-- `open_restaurants_pre_filter_since_march`
-  - Dataset of all NYC 311 complaints made about an Open Restaurants since Dec 2020
-  - [Published](https://data.cityofnewyork.us/Social-Services/open_restaurants_pre_filter_since_march/sujq-j9cg) 
-  - NYPD - Social Distancing' and 'Face Covering Violation', DCA - 'Sidewalk Cafe', and DOT - 'Outdoor Dining' Types and Descriptors.
-  - Read more about 311 Complaints for Open Restaurants [here](https://portal.311.nyc.gov/article/?kanumber=KA-03321)
-- `club_bar_restaurant_complaints_since_jan_1_2017`
-  - Dataset of all NYC 311 complaints made about a club/restaurant/bar since 2019
-  - [Published](https://data.cityofnewyork.us/Social-Services/Club-Bar-Restaurant-Complaints-Since-Jan-1-2017/ezmw-ux9w) as a BetaNYC-filtered view on NYC's Open Data Portal
-  - Data is updated in the Open Data Portal daily and synced wtih BetaNYC's Carto account daily.
-- `sidewalk_caf_licenses_and_applications`
-  - Dataset of all current, pending, and expired sidewalk cafe licenses in NYC
-  - [Published](https://data.cityofnewyork.us/Business/Sidewalk-Caf-Licenses-and-Applications/qcdj-rwhu/data) by the Department of Consumer Affairs on NYC's Open Data Portal
-  - Data is updated in the Open Data Portal weekly and synced wtih BetaNYC's Carto account weekly.
-- `dohmh_inspections` / `table_6w5r_a6nw`
-  - Dataset of locations of NYC inspected restaurants
-  - [Published](https://data.cityofnewyork.us/Health/dohmh_new_york_city_restaurant_inspection_results_/6w5r-a6nw) by the Department of Health and Mental Hyegine on NYC's Open Data Portal and filtered for 2018 and after.
-  - Health grades for a NYC restaurant can be found in the Department and Health and Mental Hygiene's [Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) dataset, published on the City's Open Data Portal. This dataset is organized so that each row represents one violation raised during a restaurant's health inspection. The row also reports the date of the inspection and the resulting grade. If restaurants had more than one violation during the inspection, there will be multiple rows representing that particular inspection, each reporting different violations but all reporting the same grade. If a restaurant has had more than one inspection, there will be multiple rows representing the restaurant's violations and grades given on different inspection dates. When the page loads, however, we do not need to display all of this information. In fact, the dataset is so large that we can't display all of that information on the page load. We only need to display the location of a restaurant that has been inspected. Later a user can click on the restaurant to trigger a query to gather more information about the restaurant's inspection history.
-  - The DOHMH inspection restults dataset does not include geo-coordinates - only a building number, street name, and zip code. To get the locations in a format where they can be displayed on a map, we need to download the dataset and use the City's [Batch GeoSupport](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-gde-home.page) software to get the geo-coordinates. Since the same restaurants are often listed many times in the DOHMH inspection results dataset, to reduce processing time, we first remove rows representing the same restaurant from the dataset using R or Excel. We configure the GeoSupport software to read the filtered dataset and return the restaurant's name, unique identifier, address, lat, and lon.
-  - Data is downloaded from Socrata, geo-coded, and manually uplaoded to Carto weekly.
-- `dohmh_new_york_city_restaurant_inspection_results` / `camis_grade_not_null`
-  - Dataset of NYC restaurant inspection results
-  - [Published](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/data) by the Department of Health and Mental Hyegine on NYC's Open Data Portal
-  - Data is updated in the Open Data Portal weekly and synced with BetaNYC's Carto account weekly
-  - This dataset is only referenced once a user clicks on a resturant on the map. The query reads the unique identifier for the clicked on restaurant and then queries the restaurant inspection results dataset to get the inspection, violation, and grade history for the restaurant.
-- `bkmappluto`, `bxmappluto`, `mnmappluto`, `qnmappluto`, `simappluto`
-  - Shapefile of all lots in NYC
-  - [Published](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) by the Department of City Planning on City Planning's Website
-  - DCP updates the data bi-annually and needs to be manually replaced in Carto when updated
-- `NYC Boundaries Map (Community and city council districts)`
-  - From [Boundaries-Map](https://github.com/BetaNYC/Boundaries-Map)
+## Contributing
 
-### Carto.js v4
+Open an issue or a pull request against `v2`. Write facts, not verdicts: the site never says a place "violates", "meets" or is "eligible" for anything (a test checks). Every number on a page should come from a named source with a date.
 
-We use Carto.js to create and style map layers from data stored in the BetaNYC Carto account.
+## License and credit
 
-- [Source](https://libs.cartocdn.com/carto.js/v4.1.2/carto.min.js)
-- [Documentation](https://carto.com/developers/carto-js/reference/)
-
-### Leaflet.js
-
-We use leaflet.js for additional JS-based mapping features such as re-centering the map to certain geographic coordinates on a location search.
-
-- [Source](https://unpkg.com/leaflet@1.3.1/dist/leaflet.js)
-- [Documentation](https://leafletjs.com/reference-1.3.2.html)
-
-### Chart.js
-
-We use Chart.js to display a pie chart depicting the breakdown of 311 complaints made about a particular club/bar/restaurant according to their descriptors and a line chart depicting the number of 311 complaints made per year at a particular club/bar/restaurant.
-
-- [Source](https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js)
-- [Documentation](http://www.chartjs.org/docs/latest/)
-
-### NYC Planning Labs' GeoSearch API
-
-When users enter a text address into the location search field, the system queries GeoSearch for the lat/lon of that location. The map re-centers to this lat/lon.
-
-- [Source](https://github.com/NYCPlanning/labs-geosearch-api)
-- [Documentation](https://geosearch.planninglabs.nyc/docs)
-
-### NYC Geoclient API
-
-We use the City's Geoclient API to query for the Building Identification Number (BIN) of the address listed for that liquor license. Having the establishment's BIN, we can construct a URL to the Certificate of Occupancy of the building, hosted on the DOB's website.
-
-- [Source](https://developer.cityofnewyork.us/api/geoclient-api)
-- [Documentation](https://api.cityofnewyork.us/geoclient/v1/doc)
-
-### Svelte
-
-We use Svelte, a component framework to help manage the reactivity of the various libraries and components of the tool.
-
-- [Source](https://svelte.dev/)
-- [Documentation](https://github.com/sveltejs/svelte)
-
-## Change Log
-
-### SLAM v0.11e
-
-- Added Open Restaurants applicants and 311 complaint layers
-- Reorder layers to feature new layers
-- SLA dataset has to be manually geocoded due to georeference column not being filled out in the State ODP
-- Added Leaflet.Locate library to allow for geo-location of the user when first visiting the page
-
-### SLAM v0.10e
-
-- Refactor to use Svelte for better component, layers, and state management
-- Added a github action to automate build to gh-pages branch
-- Updates address search to use NYC Planning Labs' GeoSearch API
-- Added days_hours_of_operation and method_of_operation to infobox
-- Changes to panels for a more responsive tool
-- [[21]](../../../../BetaNYC/SLAM/issues/21) Remove API Keys from Public Code using rollup.js
-- [[26]](../../../../BetaNYC/SLAM/issues/26) Update Liquor License data (format changed)
-- Fixes to DOHMN layer to use [ABCEatsRestaurants](https://a816-health.nyc.gov/ABCEatsRestaurants/#/Search/) that replaced [NYC Restaurant Inspection](http://a816-restaurantinspection.nyc.gov/)
-- [[30]](../../../../BetaNYC/SLAM/issues/30) Added Community and city council districts
-
-### SLAM v0.9e
-
-- [[24]](../../../../BetaNYC/SLAM/issues/24) Upated SQL queries to match column names in SLA dataset
-- [[28]](../../../../BetaNYC/SLAM/issues/28) Added point to map when searching for a specific address.
-
-### SLAM v0.8e
-
-- [[22]](../../../../BetaNYC/SLAM/issues/22) Display schools and churches as polygons on the map.
-
-### SLAM v0.7e
-
-- [[20]](../../../../BetaNYC/SLAM/issues/20) Set the scroll on both info-boxes to scroll on the div only.
-- [[16]](../../../../BetaNYC/SLAM/issues/16) Added a BetaNYC logo and header information.
-- [[11]](../../../../BetaNYC/SLAM/issues/11) Changed the bar chart for complaints by year to a line chart.
-
-### SLAM v0.6e
-
-- [[8]](../../../../BetaNYC/SLAM/issues/8) Added Link to Certificate of Occupancy for each Liquor License
-- [[19]](../../../../BetaNYC/SLAM/issues/19) Added Instructions to the Main Info-box
-- [[12]](../../../../BetaNYC/SLAM/issues/12), [[13]](../../../../BetaNYC/SLAM/issues/13) Restyled the Info-boxes
-- [[18]](../../../../BetaNYC/SLAM/issues/18) Changed the basemap
-- [[17]](../../../../BetaNYC/SLAM/issues/17) Style adjustments for mobile devices
-
-### SLAM v0.5e
-
-- [[4]](../../../../BetaNYC/SLAM/issues/4) Icon sizes now scale according to the zoom.
-- [[1]](../../../../BetaNYC/SLAM/issues/1) The Main Infobox now includes a color-coded legend.
-- Restaurants and liquor licenses that were overlapping are now stacking on top of each other.
-- [[5]](../../../../BetaNYC/SLAM/issues/5) Added a close link on the info window, making it easier to use the webpage on a mobile phone.
-- [[6]](../../../../BetaNYC/SLAM/issues/6) The previous version only filtered to On-Premise liquor licenses. The current version filters to SW, SB, SL, VL, RL, HL, CL, CT, EL, TL, CR, RW, HW, CW, TW, WC, EB, and MR, which were identified to us as licence class codes, community boards often review.
-- [[3]](../../../../BetaNYC/SLAM/issues/3) A location search bar was added.
-
-## Copyrights
-
-Please see [license](https://github.com/BetaNYC/SLAM/blob/master/LICENSE) file for details.
-
-- Non-code, Creative Commons Attribution 4.0
-- Code, GNU General Public License
-
-## Have Questions?
-
-[Zhi Keng He](mainto:zhi@beta.nyc), and [Noel Hidalgo](mailto:noel@beta.nyc).
+GNU General Public License v3.0 (see [`LICENSE`](LICENSE)). A [BetaNYC](https://beta.nyc) prototype. Not an official City of New York product. Built with the help of Claude, an AI coding assistant; see the site's About page for how.
