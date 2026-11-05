@@ -108,5 +108,5 @@ export function groupColorExpr() {
 
 /** Circle radius in pixels: area grows with the count (radius with its square root). */
 export function sizedRadiusExpr() {
-	return ['interpolate', ['linear'], ['sqrt', ['get', 'n']], 1, 4, 4, 9, 10, 18, 20, 28];
+	return ['interpolate', ['linear'], ['sqrt', ['get', 'n']], 1, 4, 4, 9, 10, 18, 20, 28, 30, 36];
 }

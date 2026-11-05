@@ -214,7 +214,7 @@
 		else new Popup({ closeButton: true }).setLngLat(f.geometry.coordinates).setDOMContent(popup311Point(f.properties)).addTo(map);
 	}
 
-	/** @param {string} id @param {(e: any) => void} handler */
+	/** @param {string | string[]} id  one layer id, or several sharing one listener @param {(e: any) => void} handler */
 	function clickable(id, handler) {
 		map.on('click', id, handler);
 		map.on('mouseenter', id, () => (map.getCanvas().style.cursor = 'pointer'));
@@ -308,7 +308,8 @@
 				below
 			);
 			clickable('complaints_311', click311);
-			for (const id of STACK_LAYERS) clickable(id, click311);
+			// One listener for all chip layers: neighboring chips overlap, and a click must fire once (QA #74).
+			clickable(STACK_LAYERS, click311);
 			clickable('c311-sized', clickPoint311);
 			state311 = 'ready';
 			const busiest = summaries.features[0]?.properties;
@@ -414,8 +415,8 @@
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
-<p class="note">311 complaints are off by default because they are dense. They are colored by type, as in
-	the first SLAM: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
+<p class="note">311 complaints are off by default because they are dense. They are colored by type, based on
+	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
 	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
 	stops at {STACK_CAP} chips and shows the total above it. "Circles sized by count" draws one circle
 	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting a 311 dot opens the

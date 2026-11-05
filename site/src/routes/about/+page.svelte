@@ -17,7 +17,7 @@
 		liquor_active: 'Liquor licenses in effect now.',
 		liquor_inactive: 'Liquor licenses that have ended (shown on request).',
 		cannabis_retail: 'Registered adult-use cannabis retail dealers.',
-		cannabis_license: 'Cannabis licenses issued by the Office of Cannabis Management.',
+		cannabis_license: 'Cannabis licenses from the Office of Cannabis Management, plus applicants that hold proximity protection for a proposed dispensary.',
 		dining_out: 'Restaurants with outdoor dining approved under Dining Out NYC.',
 		street_events: 'Street fairs, block parties and other permitted events.',
 		complaints_311: '311 complaints at bars, clubs and restaurants, and outdoor dining complaints.',
@@ -164,7 +164,7 @@
 	<h3>November 2026: The map goes blank</h3>
 	<p>
 		By November 3, 2026, the first SLAM showed no data. BetaNYC's account with CARTO, the map
-		service it ran on, no longer existed. The data requests failed and the street map showed "API KEY
+		service it ran on, was no longer available. The data requests failed and the street map showed "API KEY
 		REQUIRED."
 	</p>
 
@@ -173,7 +173,7 @@
 		SLAM v2 is a rebuild with no hosted database and no API keys in the browser
 		(<a href={issue(56)}>#56</a>). A small program downloads the data from NYC Open Data and
 		data.ny.gov, places each record in today's community district lines, and saves it as web pages
-		and data files. It is hosted on GitHub Pages and updates itself from open data. It brings back
+		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. A nightly automatic update will start when this prototype becomes the main version. It brings back
 		what boards used in the first SLAM (<a href={issue(58)}>#58</a>). It is a prototype: it is live
 		at slam.beta.nyc, and we are testing it with two pilot districts, Manhattan Community District 1
 		and Brooklyn Community District 4.
@@ -187,7 +187,7 @@
 		<strong>Writing code.</strong> BetaNYC staff built SLAM v2 with the help of Claude, an AI coding
 		assistant made by Anthropic. BetaNYC staff set the goals, made the design decisions and decided
 		what to merge. The AI tool drafted the code, tests and documentation, including this page.
-		Changes were checked by automated tests and a separate review pass before they were merged.
+		Changes were checked by automated tests and by a second, separate AI review before BetaNYC staff merged them.
 	</p>
 	<p>
 		<strong>Learning from the first SLAM.</strong> To bring back what boards used, Claude read the

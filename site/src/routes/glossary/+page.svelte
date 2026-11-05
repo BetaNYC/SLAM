@@ -36,9 +36,9 @@
 	<dl class="glossary">
 		<dt id="community-board">Community board / community district</dt>
 		<dd>
-			New York City has 59 community districts. Each has a community board of up to 50 volunteer
-			members appointed by the Borough President, half of them nominated by the district's Council
-			members. Boards give advice on liquor licenses, land use and City services in their district.
+			New York City has 59 community districts. Each has a community board of up to 50 unpaid
+			members appointed by the Borough President, at least half of them nominated by the district's
+			Council members. Those Council members also sit on the board without a vote. Boards give advice on liquor licenses, land use and City services in their district.
 			SLAM shows one district at a time.
 		</dd>
 
@@ -88,7 +88,7 @@
 	<h2 id="licenses-h">Licenses and permits</h2>
 	<dl class="glossary">
 		<dt id="sla">SLA (State Liquor Authority)</dt>
-		<dd>The New York State agency that issues and enforces liquor licenses. Its decisions are made by a board at Full Board meetings.</dd>
+		<dd>The New York State agency that issues and enforces liquor licenses. Its Board holds Full Board meetings about every three weeks to decide licensing and disciplinary matters.</dd>
 
 		<dt id="lamp">LAMP</dt>
 		<dd>SLA's public map of licenses and applications (lamp.sla.ny.gov). SLAM links to it so you can see SLA's own record for a place.</dd>
@@ -103,7 +103,7 @@
 		<dd>
 			An on-premises license is for drinks served and drunk where they are sold, like a bar or
 			restaurant. An off-premises license is for sealed bottles to take away, like a liquor or
-			grocery store. The 200- and 500-foot rules are about on-premises licenses.
+			grocery store. The 200- and 500-foot rules in ABC Law §64 are about on-premises liquor licenses.
 		</dd>
 
 		<dt id="license-class">License type and class</dt>
@@ -117,9 +117,9 @@
 
 		<dt id="dining-out">Dining Out NYC</dt>
 		<dd>
-			The City's outdoor dining program, run by the Department of Transportation (DOT). It covers
-			sidewalk seating and seasonal roadway seating. It replaced the pandemic-era Open Restaurants
-			program.
+			The City's outdoor dining program, run by the Department of Transportation (DOT). It licenses
+			sidewalk seating and roadway seating, year-round or seasonal. It took the place of the temporary,
+			pandemic-era Open Restaurants program.
 		</dd>
 
 		<dt id="street-event">Permitted street event</dt>
@@ -139,8 +139,8 @@
 		<dt id="complaint-type">Complaint type and descriptor</dt>
 		<dd>
 			The category 311 gives a report, with a more specific descriptor. For example, complaint type
-			"Noise - Commercial" with descriptor "Loud Music/Party," or "Drinking" with "Underage -
-			Licensed Est."
+			"Noise - Commercial" with descriptor "Loud Music/Party," or "Drinking" with the descriptor
+			"Underage - Licensed Est" (underage drinking at a licensed place).
 		</dd>
 
 		<dt id="location-type">Location type</dt>
@@ -166,8 +166,9 @@
 
 		<dt id="c311-colors">Map colors for 311</dt>
 		<dd>
-			The map colors 311 dots in four groups, as the first SLAM did: Noise - Commercial, Drinking,
-			Outdoor Dining, and Other (every other complaint type).
+			The map colors 311 dots in four groups, based on the first SLAM's layers: Noise - Commercial,
+			Drinking, Outdoor Dining (a separate layer in the first SLAM), and Other (every other complaint
+			type).
 		</dd>
 	</dl>
 </section>
@@ -230,20 +231,22 @@
 
 		<dt id="rule-200">200-foot rule</dt>
 		<dd>
-			State law (ABC Law §64(7)(a)) about on-premises licenses on the same street or avenue as, and
+			State law (ABC Law §64(7)(a)) about on-premises liquor licenses on the same street or avenue as, and
 			within 200 feet of, a building used only as a school or place of worship. See
 			<a href={rules}>the rules page</a>.
 		</dd>
 
 		<dt id="rule-500">500-foot rule</dt>
 		<dd>
-			State law (ABC Law §64(7)(b)) about on-premises licenses within 500 feet of three or more
-			existing on-premises licensed premises. See <a href={rules}>the rules page</a>.
+			State law (ABC Law §64(7)(b)) about on-premises liquor licenses within 500 feet of three or more
+			existing on-premises licensed premises. SLA may still grant one after a hearing if, after
+			consulting the community board, it finds the license is in the public interest (§64(7)(f)). See <a href={rules}>the rules page</a>.
 		</dd>
 
 		<dt id="who-decides">Who decides</dt>
 		<dd>
-			The State Liquor Authority decides whether a rule applies. SLAM lists what is nearby and how far
+			The State Liquor Authority decides each application, including how these rules apply to it. A
+			community board can send SLA its opinion, which becomes part of SLA's record. SLAM lists what is nearby and how far
 			away it is. It does not make that decision.
 		</dd>
 	</dl>
