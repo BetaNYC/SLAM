@@ -218,14 +218,14 @@
 </form>
 
 <style>
-	.addr-search { margin: 0.5rem 0 0; max-width: 32rem; }
+	.addr-search { margin: 0; flex: 1 1 22rem; max-width: 32rem; }
 	label { display: block; font-size: 0.85rem; font-weight: 600; }
 	.box { position: relative; }
-	input { width: 100%; font: inherit; padding: 0.4rem 0.55rem; border: 1px solid #fff; border-radius: 4px; }
+	input { width: 100%; font: inherit; padding: 0.4rem 0.55rem; border: 1px solid var(--line); border-radius: 4px; }
 	ul { position: absolute; z-index: 20; left: 0; right: 0; margin: 2px 0 0; padding: 0; list-style: none; background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); }
 	li { padding: 0.45rem 0.6rem; cursor: pointer; }
 	li:hover, li.active { background: var(--blue-dark); color: #fff; }
 	.result { margin: 0.3rem 0 0; font-size: 0.9rem; min-height: 0; }
-	.result a { color: #fff; font-weight: 600; }
+	.result a { color: var(--blue-dark); font-weight: 600; }
 	.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>

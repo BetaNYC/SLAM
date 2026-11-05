@@ -18,24 +18,26 @@
 </svelte:head>
 
 <a class="skip" href="#main">Skip to content</a>
+<!-- Same structure and styles as BoardStat 2.0 (beta.nyc/boardstat/v2): brand, tag, nav on the right. -->
 <header class="site">
+	<a class="brand" href={resolve('/', {})}>SLAM 2.0</a><span class="tag">prototype</span>
+	<nav class="site-nav" aria-label="Site">
+		<a href={resolve('/', {})} aria-current={current('/')}>Districts</a>
+		<a href={resolve('/about', {})} aria-current={current('/about')}>About</a>
+		<a href={resolve('/glossary', {})} aria-current={current('/glossary')}>Glossary</a>
+		<a href={resolve('/rules', {})} aria-current={current('/rules')}>Rules</a>
+	</nav>
+</header>
+<div class="subbar no-print">
 	<div class="wrap">
-		<a class="brand" href={resolve('/', {})}>SLAM <span>v2 prototype</span></a>
-		<p class="banner">
-			<strong>Prototype</strong> — data from
-			<a href="https://data.cityofnewyork.us/">NYC Open Data</a> and
+		<AddressSearch />
+		<p class="updated">
+			Data from <a href="https://data.cityofnewyork.us/">NYC Open Data</a> and
 			<a href="https://data.ny.gov/">data.ny.gov</a>, updated
 			<time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>.
 		</p>
-		<nav class="site-nav" aria-label="Site">
-			<a href={resolve('/', {})} aria-current={current('/')}>Districts</a>
-			<a href={resolve('/about', {})} aria-current={current('/about')}>About</a>
-			<a href={resolve('/glossary', {})} aria-current={current('/glossary')}>Glossary</a>
-			<a href={resolve('/rules', {})} aria-current={current('/rules')}>Rules</a>
-		</nav>
-		<AddressSearch />
 	</div>
-</header>
+</div>
 
 <main id="main" class="wrap">
 	{@render children()}
@@ -57,6 +59,7 @@
 </footer>
 
 <style>
-	.site-nav { flex-wrap: wrap; }
-	.site-nav a[aria-current='page'] { font-weight: 700; text-decoration-thickness: 2px; }
+	.subbar { background: var(--bg-soft); border-bottom: 1px solid var(--line); padding: 0.6rem 0; }
+	.subbar .wrap { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.25rem 1.5rem; }
+	.updated { margin: 0; font-size: 0.875rem; }
 </style>

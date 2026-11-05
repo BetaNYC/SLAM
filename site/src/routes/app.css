@@ -10,7 +10,11 @@
 	--muted: #414141;
 	--line: #949494;
 	--bg-soft: #eef4ff;
-	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	/* Same font stacks as BoardStat 2.0: Poppins (body) and Roboto (headings) when installed
+	   locally; no font CDN is loaded, so most visitors get the system sans-serif. */
+	--font-body: 'Poppins', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+	--font-head: 'Roboto', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+	font-family: var(--font-body);
 	color: var(--ink);
 	line-height: 1.45;
 }
@@ -22,13 +26,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 	outline-offset: 2px;
 }
 .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: 1rem; top: 0.5rem; background: #fff; padding: 0.5rem; z-index: 10; }
-header.site { background: var(--blue); color: #fff; padding: 0.6rem 0; }
+.skip { position: absolute; left: -9999px; top: 0; background: var(--blue); color: #fff; padding: 0.5rem 1rem; z-index: 10; }
+.skip:focus { left: 0.5rem; }
+/* Header: same rules as BoardStat 2.0's css/style.css. */
+header.site { background: var(--blue); color: #fff; padding: 0.75rem 1.25rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0; }
 header.site a { color: #fff; }
-.brand { font-weight: 700; font-size: 1.25rem; text-decoration: none; }
-.brand span { font-weight: 400; font-size: 0.9rem; opacity: 0.9; }
-.banner { margin: 0.25rem 0 0; font-size: 0.9rem; }
+header.site .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.25rem; text-decoration: none; }
+header.site .tag { margin-left: 0.5rem; font-size: 0.875rem; background: #fff; color: var(--blue); padding: 0.1rem 0.5rem; border-radius: 3px; }
+h1, h2, h3 { font-family: var(--font-head); }
 main { padding-top: 1rem; padding-bottom: 2rem; }
 h1 { font-size: 1.6rem; margin: 0.5rem 0; }
 h2 { font-size: 1.2rem; margin: 1.25rem 0 0.5rem; }
@@ -36,7 +41,9 @@ footer.site { border-top: 1px solid var(--line); font-size: 0.85rem; color: var(
 footer.site h2 { font-size: 1rem; }
 .sources { padding-left: 1.1rem; }
 .muted { color: var(--muted); }
-.site-nav { display: flex; gap: 1rem; margin: 0.25rem 0 0; font-size: 0.9rem; }
+header.site .site-nav { margin-left: auto; display: flex; gap: 1rem; }
+header.site .site-nav a { text-decoration: none; font-weight: 600; }
+header.site .site-nav a:hover, header.site .site-nav a:focus, header.site .site-nav a[aria-current='page'] { text-decoration: underline; }
 .note { background: var(--bg-soft); border-left: 4px solid var(--blue); padding: 0.5rem 0.75rem; font-size: 0.9rem; }
 .table-scroll { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
