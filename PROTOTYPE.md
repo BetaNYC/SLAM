@@ -632,3 +632,20 @@ responses.
   (BIN agreeing 99.4%), 311 91.9%.
 - Every build writes `site/static/data/review/unmatched-addresses.csv` (district, street, ZIP,
   status, GeoSearch's top hit, sources, record count) and its row count to the manifest.
+
+## Per-license LAMP links (#63)
+
+- LAMP is an Esri Web AppBuilder app; its documented `query` URL parameter opens one record:
+  `https://lamp.sla.ny.gov/?query=<layer id>,<field>,<value>`. The layer ids are internal to LAMP's
+  web map (item `66237abfc6dd4ded86c8f181647afd0c`), so every build reads that web map and keeps a
+  link only while its layer id still points to the expected service
+  (`transform.verify_lamp_layers`; manifest `sla_license.lamp_query`). Active: `18c59d3a27d-layer-12`
+  / `LicensePermitID`; pending: `18c5a02ff71-layer-11` / `ApplicationID`; inactive:
+  `18c5a031648-layer-12` / `LicensePermitID`.
+- Opened in a headless browser on 2026-11-05: an active (0370-22-104616), a pending
+  (NA-0081-26-116209) and an inactive (0505-23-024145) license each zoomed LAMP to that record and
+  showed its ID. Address pages and district lists now show "Open this license in LAMP" next to the
+  map-location link.
+- Still not available as open data: days and hours, and method of operation. Approval conditions
+  for contested applications are only in SLA's Full Board minutes (PDFs); the page says so and links
+  them. Asking SLA to publish them is on the outreach list.

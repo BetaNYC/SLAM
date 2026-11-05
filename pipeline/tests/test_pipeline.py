@@ -764,3 +764,25 @@ def test_cannabis_distances_follow_cannabis_law_72_6():
     assert "center of the nearest entrance" in CANNABIS_RULES["c"]
     assert (CANNABIS_SCHOOL_FT, CANNABIS_WORSHIP_FT) == (500, 200)
     assert CANNABIS_RULES["url"] == "https://www.nysenate.gov/legislation/laws/CAN/72"
+
+
+# ---------------------------------------------------------------- LAMP per-license links (#63)
+
+def test_lamp_layers_verified_against_the_real_web_map():
+    import json
+    from pathlib import Path
+    from slam_pipeline.sources import SLA_LICENSE
+    from slam_pipeline.transform import verify_lamp_layers
+    wm = json.loads((Path(__file__).parent / "fixtures" / "lamp_webmap_2026-11-05.json").read_text())
+    layers = SLA_LICENSE["lamp_records"]["layers"]
+    got = verify_lamp_layers(wm, layers)
+    assert got == {
+        "liquor_active": {"layer_id": "18c59d3a27d-layer-12", "field": "LicensePermitID"},
+        "liquor_pending": {"layer_id": "18c5a02ff71-layer-11", "field": "ApplicationID"},
+        "liquor_inactive": {"layer_id": "18c5a031648-layer-12", "field": "LicensePermitID"},
+    }
+    # SLA re-authors the map: a layer id disappears or points elsewhere -> that link is dropped.
+    moved = {"operationalLayers": [dict(l, id=l["id"] + "x") if "ActiveLicenses" in (l["url"] or "")
+                                   else l for l in wm["operationalLayers"]]}
+    assert "liquor_active" not in verify_lamp_layers(moved, layers)
+    assert verify_lamp_layers(None, layers) == {}

@@ -1,0 +1,54 @@
+{
+ "operationalLayers": [
+  {
+   "id": "18c45ee76b7-layer-19",
+   "title": "NYS Counties",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/NYS_Counties/FeatureServer/0"
+  },
+  {
+   "id": "18c45e86dbb-layer-11",
+   "title": "NYC Police Precincts",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/Police_PrecinctsV2/FeatureServer/0"
+  },
+  {
+   "id": "18c45ed630f-layer-18",
+   "title": "NYC Community Boards",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/CommunityBdsWData/FeatureServer/0"
+  },
+  {
+   "id": "18c45eba706-layer-17",
+   "title": "SLA Zones",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/SLA_ZonesV2/FeatureServer/0"
+  },
+  {
+   "id": "18c45e8679b-layer-10",
+   "title": "Cities and Towns",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/Cities_TownsV2/FeatureServer/0"
+  },
+  {
+   "id": "18c45e7233f-layer-6",
+   "title": "Public/Private Schools",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/SchoolsV3/FeatureServer/0"
+  },
+  {
+   "id": "18c5a03a9b9-layer-13",
+   "title": "Places of Worship",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/ESRI_PlacesOfWorshipV3/FeatureServer/0"
+  },
+  {
+   "id": "18c5a031648-layer-12",
+   "title": "Inactive Licenses",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/InActiveLicensesV3/FeatureServer/0"
+  },
+  {
+   "id": "18c5a02ff71-layer-11",
+   "title": "Pending Licenses",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/PendingLicensesV3/FeatureServer/0"
+  },
+  {
+   "id": "18c59d3a27d-layer-12",
+   "title": "Active Licenses",
+   "url": "https://services8.arcgis.com/kHNnQD79LvY0XnKy/arcgis/rest/services/ActiveLicensesV3/FeatureServer/0"
+  }
+ ]
+}

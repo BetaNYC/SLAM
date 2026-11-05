@@ -406,6 +406,24 @@ SLA_LICENSE = {
     # app-url-parameters.htm (read 2026-11-04). v1 used the same pattern. The `query=` form is
     # not used: it needs an internal web-map layer id. The site builds the URL (format.js).
     "lamp": {"url": "https://lamp.sla.ny.gov/", "level": 18},
+    # Per-license LAMP links (#63): LAMP is an Esri Web AppBuilder app; its documented `query`
+    # URL parameter is "<layer id>,<field>,<value>" (doc.arcgis.com/en/web-appbuilder/latest/
+    # manage-apps/app-url-parameters.htm). The layer ids are internal to LAMP's web map, so each
+    # build reads the web map (item 66237abfc6dd4ded86c8f181647afd0c, "LAMP WebMap V3") and keeps
+    # a link only while its layer id still points to the expected service. Opened in a browser on
+    # 2026-11-05 for one active, one pending and one inactive license: each zoomed to the record.
+    "lamp_records": {
+        "webmap_data_url": "https://nysla.maps.arcgis.com/sharing/rest/content/items/"
+                           "66237abfc6dd4ded86c8f181647afd0c/data?f=json",
+        "layers": {
+            "liquor_active": {"layer_id": "18c59d3a27d-layer-12", "field": "LicensePermitID",
+                              "service": "ActiveLicensesV3"},
+            "liquor_pending": {"layer_id": "18c5a02ff71-layer-11", "field": "ApplicationID",
+                               "service": "PendingLicensesV3"},
+            "liquor_inactive": {"layer_id": "18c5a031648-layer-12", "field": "LicensePermitID",
+                                "service": "InActiveLicensesV3"},
+        },
+    },
     # Hours and method of operation are in none of the three datasets (#63 research,
     # 2026-11-04). Approval conditions for contested applications are in Full Board minutes:
     # each meeting's page (e.g. https://sla.ny.gov/event/10142026-full-board-meeting) links

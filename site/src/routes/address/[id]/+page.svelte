@@ -1,6 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, boundariesUrl } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, boundariesUrl } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
@@ -22,6 +22,7 @@
 	// SLA license record (#63): which SLA sources are at this address, and LAMP's zoom level
 	const slaKeys = $derived(SLA_SOURCES.filter((k) => a.records.some((/** @type {any} */ r) => r.source === k)));
 	const lampLevel = $derived(m.sla_license.lamp.level);
+	const lampQuery = $derived(m.sla_license.lamp_query);
 	// Schools and houses of worship (#60)
 	const sw = $derived(data.sw);
 	const rule = $derived(sw.rule);
@@ -98,7 +99,7 @@
 					<td>{r.type}{#if SLA_SOURCES.includes(r.source)}<br /><span class="muted">Type {r.ltype ?? '?'} · Class {r.lclass ?? '?'}</span>{:else if r.cls && r.cls !== '/'}<br /><span class="muted">{r.cls}</span>{/if}</td>
 					<td>{r.status}</td>
 					<td class="nowrap">{#if r.date}{r.date_label} {r.date}{/if}{#if r.issued}<br /><span class="muted">First issued {r.issued}</span>{/if}</td>
-					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
+					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}{@const rec = lampRecordUrl(r.source, r.rid, lampQuery)}{#if rec}<br /><a href={rec} aria-label="Open this license in LAMP: {r.name}, {r.rid}">Open this license in LAMP</a>{/if}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
 				</tr>
 			{/each}
 		</tbody>

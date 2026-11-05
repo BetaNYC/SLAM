@@ -34,6 +34,7 @@
 
 	const L = $derived(data.lists);
 	const lampLevel = $derived(data.manifest.sla_license.lamp.level);
+	const lampQuery = $derived(data.manifest.sla_license.lamp_query);
 	const pending = $derived(filt(L.liquor_pending));
 	const active = $derived(filt(L.liquor_active));
 	const inactive = $derived(filt(L.liquor_inactive));
@@ -109,11 +110,11 @@
 
 <div id="panel" role="tabpanel" aria-labelledby="tab-{tab}">
 	{#if tab === 'liquor'}
-		<RecordTable rows={pending} caption="Pending applications (SLA)" {lampLevel} />
-		<RecordTable rows={active} caption="Active licenses (SLA)" {lampLevel} />
+		<RecordTable rows={pending} caption="Pending applications (SLA)" {lampLevel} {lampQuery} />
+		<RecordTable rows={active} caption="Active licenses (SLA)" {lampLevel} {lampQuery} />
 		<label class="no-print"><input type="checkbox" bind:checked={showInactive} /> Show inactive licenses ({L.liquor_inactive.length})</label>
 		{#if showInactive}
-			<RecordTable rows={inactive} caption="Inactive licenses (SLA)" {lampLevel} />
+			<RecordTable rows={inactive} caption="Inactive licenses (SLA)" {lampLevel} {lampQuery} />
 		{/if}
 		<SlaLicenseNote manifest={data.manifest} keys={showInactive ? ['liquor_pending', 'liquor_active', 'liquor_inactive'] : ['liquor_pending', 'liquor_active']} />
 		<p class="note">No "new this week" badge yet: the prototype keeps no history between runs.</p>
