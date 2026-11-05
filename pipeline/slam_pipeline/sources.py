@@ -14,6 +14,8 @@ Query language: Socrata SoQL, https://dev.socrata.com/docs/queries/
 
 from __future__ import annotations
 
+import datetime as _dt
+
 from dataclasses import dataclass, field
 
 NYC = "data.cityofnewyork.us"
@@ -43,12 +45,21 @@ LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 # ---- 311 complaints (NYC erm2-nwe9, "311 Service Requests from 2020 to Present")
 # One line to change the window. created_date is a floating timestamp; SoQL compares it
 # to an ISO date string. 2010-2019 is a separate dataset (76ig-c548), not used here.
-COMPLAINTS_311_START = "2024-01-01"
+COMPLAINTS_311_START = "2022-01-01"  # Noel, 2026-11-05 (was 2024-01-01)
+# Last day included (Noel, 2026-11-05: "2022-01-01 through 2026-11-04"). The query uses
+# created_date < the next day, so every complaint on the end date is kept. Set to None to run
+# through the newest data.
+COMPLAINTS_311_END = "2026-11-04"
+COMPLAINTS_311_END_EXCLUSIVE = (
+    (_dt.date.fromisoformat(COMPLAINTS_311_END) + _dt.timedelta(days=1)).isoformat()
+    if COMPLAINTS_311_END else None)
+_311_END_CLAUSE = (f" AND created_date < '{COMPLAINTS_311_END_EXCLUSIVE}'"
+                   if COMPLAINTS_311_END_EXCLUSIVE else "")
 # location_type values that mean a bar, club or restaurant (exact strings, checked via $group).
 COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bakery")
 # complaint_type values pulled at ANY location type (#73). v1 had a second 311 layer for Open
 # Restaurants complaints; of its types, only DOT "Outdoor Dining" still occurs (checked via $group
-# over both boards since 2024-01-01 on 2026-11-05: 359 rows; NYPD "Social Distancing" / "Face
+# over both boards since 2022-01-01 on 2026-11-05: 646 rows, every year 2022-2026; NYPD "Social Distancing" / "Face
 # Covering Violation" and DCA "Sidewalk Cafe": 0). Its location_type is "Sidewalk" or "Street".
 COMPLAINTS_311_TYPES = ("Outdoor Dining",)
 # 311's own community_board text ("01 MANHATTAN"), used only to keep the pull small.
@@ -227,6 +238,7 @@ SOURCES: list[Source] = [
         where=(f"(location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
                f" OR complaint_type in {_sql_list(COMPLAINTS_311_TYPES)})"
                f" AND created_date >= '{COMPLAINTS_311_START}'"
+               f"{_311_END_CLAUSE}"
                f" AND community_board in {_sql_list(COMPLAINTS_311_BOARDS)}"),
         order="unique_key",
         lat_lon=("latitude", "longitude"),
