@@ -39,7 +39,8 @@ import{$ as e,B as t,E as n,H as r,I as i,J as a,L as o,S as s,U as c,V as l,X a
 		and Brooklyn Community District 4.</p></section> <section aria-labelledby="ai-h" class="svelte-cwls5q"><h2 id="ai-h">How we used AI tools</h2> <p class="svelte-cwls5q">We are telling you this under <a href="https://beta.nyc/about/ai-policy">BetaNYC's AI policy</a>.</p> <p class="svelte-cwls5q"><strong>Writing code.</strong> BetaNYC staff built SLAM v2 with the help of Claude, an AI coding
 		assistant made by Anthropic. BetaNYC staff set the goals, made the design decisions and decided
 		what to merge. The AI tool drafted the code, tests and documentation, including this page.
-		Changes were checked by automated tests and by a second, separate AI review before BetaNYC staff merged them.</p> <p class="svelte-cwls5q"><strong>Learning from the first SLAM.</strong> To bring back what boards used, Claude read the
+		Changes were checked by automated tests and by a second, separate AI review. BetaNYC staff reviewed
+		the published site on November 5, 2026, as BetaNYC's AI policy asks for anything AI helped make.</p> <p class="svelte-cwls5q"><strong>Learning from the first SLAM.</strong> To bring back what boards used, Claude read the
 		first SLAM's code, README and GitHub issues. We transcribed the 2018 Spatial Data Science
 		Conference talk, which is public on CARTO's YouTube channel, with Deepgram. Deepgram is an online
 		speech-to-text service, so the talk's audio was sent to Deepgram. We also reviewed frames from
