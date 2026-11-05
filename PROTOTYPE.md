@@ -638,3 +638,10 @@ responses.
   rows fetched 334 → 619; licenses in the box 2,283 → 2,290; measured from: 466 address page,
   2,918 City file, 43 SLA point). Points off by more than a mile are still missed. The LAMP note now
   says which comparison its numbers come from.
+- Review fixes (2026-11-05): a letter written apart never drops N, S, E or W (`100 W BROADWAY` had
+  matched 100 Broadway) and is now a risky reading; floor text is an extra reading, never a
+  replacement, and a trailing ordinal is a floor only after a street word (`200 WEST 42ND` stays
+  the street); the same-ZIP acceptance applies only when the record's point is not trusted (a group
+  with an SLA record), never against a trusted point; a page placed at the nearest listed number does
+  not pass its neighbor's point to records (`plon`) or to the 500-ft count. Citywide after the
+  fixes: SLA 97.5%, DOHMH 98.6% (BIN agreeing 99.4%), 311 91.9%; SLAM still 1,291 of 1,303.

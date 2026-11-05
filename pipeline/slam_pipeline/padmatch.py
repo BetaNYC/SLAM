@@ -53,6 +53,10 @@ _EXTRA = {
 _PLACE = {"AIRPORT": "ARPRT", "ARPT": "ARPRT", "AIRPRT": "ARPRT", "INT'L": "INTERNATIONAL",
           "INTL": "INTERNATIONAL", "TERM": "TERMINAL", "CTR": "CENTER", "CNTR": "CENTER",
           "LAGUARDIA": "LA GUARDIA", "UNIV": "UNIVERSITY", "PK": "PARK", "THE": ""}
+# Street words after which a trailing ordinal is a floor, not a street ("25 BROADWAY 9TH").
+_FLOOR_AFTER = {"ST", "STREET", "AVE", "AVENUE", "BLVD", "BOULEVARD", "RD", "ROAD", "PL", "PLACE",
+                "DR", "DRIVE", "LN", "LANE", "CT", "COURT", "SLIP", "BROADWAY", "BOWERY", "PLZ",
+                "PLAZA", "PKWY", "PARKWAY", "HWY", "SQ", "TER", "WAY"}
 _BARE_TYPES = {"ST", "AVE", "BLVD", "PL", "RD", "DR", "LN", "PLZ", "PKWY", "SQ", "TER", "CT",
                "HWY", "EXPY", "TPKE", "WAY", "CIR", "CRES", "N", "S", "E", "W"}
 _WORDNUM = {"ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4", "FIVE": "5", "SIX": "6",
@@ -105,14 +109,20 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             seen.add((num, sk))
             out.append((num, sk, rule))
 
-    # Floor text with its number: "50 HUDSON YARDS 7TH FL" -> "50 HUDSON YARDS" (#95).
-    raw = re.sub(r"\s+\d+(?:ST|ND|RD|TH)?(?:\s*(?:AND|&|-|,)\s*\d+(?:ST|ND|RD|TH)?)*"
-                 r"\s+(?:FL|FLR|FLRS|FLOOR|FLOORS)\b.*$", "", raw)
-    # A bare floor number left at the end: "25 BROADWAY 9TH", "32 OLD SLIP 2ND".
-    raw = re.sub(r"(?<=[A-Z]{2})\s+\d+(?:ST|ND|RD|TH)$", "", raw)
     # AKA written without spaces: "120 BROADWAY A/K/A15 NASSAU ST", "AKA251VESEYST".
     raw = re.sub(r"\s*(A/K/A|AKA)(?=\d)", r" \1 ", raw)
     texts = [(raw, "as written")]
+    # Floor text, tried as an extra reading so the original always stays first (review S4):
+    # "50 HUDSON YARDS 7TH FL" -> "50 HUDSON YARDS"; a bare floor number after a street word,
+    # "25 BROADWAY 9TH", "32 OLD SLIP 2ND" -- but never "200 WEST 42ND" (42ND is the street).
+    floor = re.sub(r"\s+\d+(?:ST|ND|RD|TH)?(?:\s*(?:AND|&|-|,)\s*\d+(?:ST|ND|RD|TH)?)*"
+                   r"\s+(?:FL|FLR|FLRS|FLOOR|FLOORS)\b.*$", "", raw)
+    m_floor = re.match(r"^(.*\b([A-Z]+))\s+\d+(?:ST|ND|RD|TH)$", floor)
+    if m_floor and m_floor.group(2) in _FLOOR_AFTER:
+        floor = m_floor.group(1)
+    if floor != raw:
+        texts.append((floor, "floor text removed"))
+        raw = floor  # the cuts below work on the text without floor words
     # Trailing text after " - ", "(", "#": "1185 BROADWAY- ZAYTINYA", "210 W 55 ST (ENTIRE BLDG)".
     cut = re.split(r"\s*-\s+(?=[A-Z])|\s+-\s*|(?<=[A-Z]{2})-(?=[A-Z]{3})|\s*\(|\s+#", raw)[0].strip()
     if cut and cut != raw:
@@ -148,7 +158,8 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             (r"^(\d{1,3}-\d{1,3})-\d{1,3}\s+(.*)$",
              lambda m: [(m.group(1), m.group(2), "first of a hyphenated range")]),
             # A letter written apart: 92-15 B 37TH AVE -> 92-15B, then 92-15 (#95)
-            (r"^(\d{1,3}-\d{1,3})\s+([A-Z])\s+(?=\S*\d|[A-Z]{2})(.*)$",
+            # N, S, E and W are never stray letters: they are part of the street (W BROADWAY).
+            (r"^(\d{1,3}-\d{1,3})\s+([A-DF-MO-RT-VX-Z])\s+(?=\S*\d|[A-Z]{2})(.*)$",
              lambda m: [(m.group(1) + m.group(2), m.group(3), "letter written apart"),
                         (m.group(1), m.group(3), "letter written apart")]),
             # Three numbers: Queens 136 20 30 ROOSEVELT -> 136-20; elsewhere a range,
@@ -166,7 +177,7 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             (r"^(\d{2,5})(?:\s+\d{2,5}){2,}\s+(.*)$",
              lambda m: [(m.group(1), m.group(2), "first number of a range")]),
             # A letter written apart from a plain number: 169 B GARDNER AVENUE -> 169B, 169
-            (r"^(\d+)\s+([A-Z])\s+(?=[A-Z]{2}|\d+(?:ST|ND|RD|TH)\b)(.*)$",
+            (r"^(\d+)\s+([A-DF-MO-RT-VX-Z])\s+(?=[A-Z]{2}|\d+(?:ST|ND|RD|TH)\b)(.*)$",
              lambda m: [(m.group(1) + m.group(2), m.group(3), "letter written apart"),
                         (m.group(1), m.group(3), "letter written apart")]),
             # A repeated Queens range: 47-31 47-33 JUNCTION BLVD -> 47-31
@@ -233,6 +244,7 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
 # matched 21 Broadway, Manhattan, 44,844 ft from SLA's point.
 RISKY_RULES = ("first number of a range", "second number of a range", "first of a slash range",
                "hyphen removed outside Queens", "nearest listed house number", "street name completed",
+               "letter written apart",
                "named place", "borough from the ZIP", "words after the street type removed",
                "first of two addresses", "second of two addresses")
 RISKY_MAX_FT = 1000
@@ -267,6 +279,7 @@ class PadIndex:
             FROM pad p JOIN smap m USING (street)""")
         self.con.execute("CREATE INDEX padk_ix ON padk (num, sk, b)")
         self.con.execute("CREATE INDEX padk_skn ON padk (num, skn, b)")
+        self.con.execute("CREATE INDEX padk_sk_b ON padk (sk, b)")
         # Each ZIP's borough: the borough most of its addresses are in (#95).
         self.zip_boro = dict(self.con.execute("""
             SELECT zipcode, arg_max(b, n) FROM (SELECT zipcode, b, count(*) AS n FROM padk GROUP BY 1, 2)
@@ -282,7 +295,7 @@ class PadIndex:
         self.rows = self.con.execute("SELECT count(*) FROM pad").fetchone()[0]
 
     def lookup(self, text: str | None, boro: str, zipcode: str | None = None,
-               near: tuple[float, float] | None = None) -> dict | None:
+               near: tuple[float, float] | None = None, near_reliable: bool = False) -> dict | None:
         """First reading in `candidates` order that the file knows, in the given borough. Then,
         if a ZIP is given, the same readings in any borough with that ZIP (sources sometimes
         file an address under a neighboring county). Then PAD's named places. With several rows,
@@ -301,6 +314,8 @@ class PadIndex:
             if near and feet_between(near, (hit["lon"], hit["lat"])) <= RISKY_MAX_FT:
                 return True
             if "nearest listed house number" in hit["rule"] or "leading words only" in hit["rule"]:
+                return False
+            if near and near_reliable:  # far from a point we trust: no ZIP excuse (review S1)
                 return False
             if re.fullmatch(r"\d{5}", z):
                 return hit.get("zip") == z

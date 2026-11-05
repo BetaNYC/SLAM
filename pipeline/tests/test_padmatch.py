@@ -53,7 +53,7 @@ def test_queens_number_without_hyphen():
     ("216 1/2 Greene Ave", "3", ("216 1/2", "GREENE AVE", "half number")),
     ("335 BOWERY AKA 4 E 3RD ST", "1", ("4", "E 3 ST", "AKA address")),
     ("335 BOWERY AKA 4 E 3RD ST", "1", ("335", "BOWERY", "address before AKA")),
-    ("55-48 METROPOLITAN AVE, 1ST FL", "4", ("55-48", "METROPOLITAN AVE", "as written")),  # floor text dropped first (#95)
+    ("55-48 METROPOLITAN AVE, 1ST FL", "4", ("55-48", "METROPOLITAN AVE", "floor text removed")),
     ("1185 BROADWAY- ZAYTINYA", "1", ("1185", "BROADWAY", "trailing text removed")),
     ("80-82 CLINTON ST", "3", ("80", "CLINTON ST", "first number of a range")),
 ])
@@ -132,7 +132,7 @@ def test_ensure_pad_offline(tmp_path):
     ("80 COLUMBUS CIRCLE AT 60TH ST", "1", ("80", "COLUMBUS CIR", "text after AT or a slash removed")),
     ("89 EAST 42ND ST/MAIN CONCOURSE", "1", ("89", "E 42 ST", "text after AT or a slash removed")),
     ("184 1ST AVENUE-SOUTH STORE", "1", ("184", "1 AVE", "trailing text removed")),
-    ("50 HUDSON YARDS 7TH FL", "1", ("50", "HUDSON YARDS", "as written")),
+    ("50 HUDSON YARDS 7TH FL", "1", ("50", "HUDSON YARDS", "floor text removed")),
 ])
 def test_more_readings(text, boro, expect):
     assert expect in candidates(text, boro)
@@ -163,3 +163,36 @@ def test_street_name_completed_only_when_one_street_fits(ix):
 ])
 def test_floor_and_tight_aka(text, boro, expect):
     assert expect in [c[:2] for c in candidates(text, boro)]
+
+
+# ---------------------------------------------------------------- code review fixes (2026-11-05)
+def test_direction_letter_is_never_dropped():
+    # B1: "100 W BROADWAY" must not become "100 BROADWAY" (a different street).
+    assert all(sk != "BROADWAY" for _, sk, _ in candidates("100 W BROADWAY", "1"))
+    assert all(sk != "14 ST" for _, sk, _ in candidates("124 E 14TH ST", "3"))
+    assert ("169B", "GARDNER AVE", "letter written apart") in candidates("169 B GARDNER AVENUE", "3")
+
+
+def test_letter_written_apart_is_a_risky_rule():
+    from slam_pipeline.padmatch import _risky
+    assert _risky("letter written apart")
+
+
+@pytest.mark.parametrize("text", ["200 WEST 42ND", "100 EAST 9TH", "50 BEACH 116TH"])
+def test_ordinal_street_names_are_not_floors(text):
+    # S4: the trailing ordinal is the street here, so the text is kept as written.
+    assert candidates(text, "1")[0][2] == "as written"
+    assert candidates(text, "1")[0][1] != "W" and candidates(text, "1")
+
+
+def test_floor_text_is_an_extra_reading_not_a_replacement():
+    c = candidates("25 BROADWAY 9TH", "1")
+    assert c[0][2] == "as written" and ("25", "BROADWAY", "floor text removed") in c
+
+
+def test_a_trusted_point_is_not_overruled_by_the_zip(ix):
+    # S1: a risky reading far from a trusted point fails even with the same ZIP.
+    far = (-73.95, 40.75)
+    assert ix.lookup("21 37 BROADWAY", "1", "10004", near=far, near_reliable=True) is None
+    loose = ix.lookup("21 37 BROADWAY", "1", "10004", near=far, near_reliable=False)
+    assert loose and loose["zip"] == "10004"
