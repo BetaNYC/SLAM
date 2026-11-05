@@ -526,3 +526,19 @@ responses.
   same wording in the glossary). SLAM cannot measure door to door, every distance is between
   approximate building points, and a distance near a limit is close, not over or under it.
   Tested in `site/tests/cannabisDistance.test.js`.
+
+## Map keeps its place; details in a side panel (#75)
+
+- The map's view (zoom, center), the layers that are on, the 311 style and the selected address
+  live in the URL hash (`#v=z/lat/lon&on=…&c311=…&sel=…`, `site/src/lib/mapState.js`), written
+  with SvelteKit's `replaceState` on every move and toggle. Back from an address page restores
+  all of it, and the link can be shared. Order on load: hash, then saved choices, then defaults.
+- Layer choices and the 311 style are saved in `localStorage` (`slam.map.v1`) for the next visit.
+  Storage errors are ignored.
+- Clicking any point (license, 311 chip or circle, school, house of worship) opens
+  `MapPanel.svelte` beside the map (under it below 52 rem) instead of leaving the page: the
+  address's records, 311 counts, health grades, approximate counts nearby with the distance note,
+  and a link to the full page. A black ring marks the selection. Focus moves to the panel heading.
+- Checked headless (Chromium) on BK CD 4: click a license dot → panel "906 BROADWAY" → full page
+  → Back → same view, same layers, sized circles, panel open; a fresh visit keeps the layer choices;
+  no console errors.
