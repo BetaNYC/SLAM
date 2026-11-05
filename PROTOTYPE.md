@@ -632,3 +632,9 @@ responses.
   (BIN agreeing 99.4%), 311 91.9%.
 - Every build writes `site/static/data/review/unmatched-addresses.csv` (district, street, ZIP,
   status, GeoSearch's top hit, sources, record count) and its row count to the manifest.
+- Review fixes (2026-11-05): license rows are now pulled and re-placed with the City's address
+  file within a box one mile wider than `sw_box` (`LICENSE_POINT_SLACK_FT = 5280`), so a license
+  whose SLA point is wrong and outside the area but whose building is inside it is counted (Queens
+  rows fetched 334 → 619; licenses in the box 2,283 → 2,290; measured from: 466 address page,
+  2,918 City file, 43 SLA point). Points off by more than a mile are still missed. The LAMP note now
+  says which comparison its numbers come from.

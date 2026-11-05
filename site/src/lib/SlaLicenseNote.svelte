@@ -28,8 +28,10 @@
 		geocoding and can be blocks off for Queens addresses written without the hyphen; LAMP's own
 		pins were within about 200 ft of the City's point when we checked on 2026-11-05.) It opens a map location, not the license record. LAMP
 		first shows a welcome box; close it. LAMP places each license at its own point, which can differ
-		from this one: when we compared (2026-11-04), most were within about 13 m, but 145 of 2,344 were
-		more than 50 m away, and LAMP shows no pin for "Additional Bar" permits. Check that the pin you
+		from the link's center. Against SLA's open-data points (2026-11-04), most LAMP pins were within about
+		13 m, but 145 of 2,344 were more than 50 m away; against the City's address point we have checked
+		only four Queens licenses (2026-11-05), whose LAMP pins were 92 to 203 ft away. LAMP shows no pin
+		for "Additional Bar" permits. Check that the pin you
 		click has the same license ID. When we checked
 		(2026-11-04), SLA's LAMP popup listed premises and license details, principals and disciplinary
 		history, and several licenses at one spot are paged ("1 of 6"). The point is the dataset's <code>georeference</code>,
