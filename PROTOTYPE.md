@@ -542,3 +542,18 @@ responses.
 - Checked headless (Chromium) on BK CD 4: click a license dot → panel "906 BROADWAY" → full page
   → Back → same view, same layers, sized circles, panel open; a fresh visit keeps the layer choices;
   no console errors.
+
+## Collapsible layers; Boundaries Map links (#77)
+
+- The map's Layers box is a `<details>` accordion. Its summary says how many layers are on and the
+  311 style; open or closed is saved with the other layer choices (`open` in `slam.map.v1`). The
+  long note under the map is now an "About this map" accordion too.
+- Each address page and the map's side panel link to BetaNYC's Boundaries Map at the address
+  page's point: `https://boundaries.beta.nyc/?lng=<lon>&lat=<lat>` (`boundariesUrl` in
+  `format.js`). Boundaries Map reads those two parameters on load (BetaNYC/nyc-boundaries
+  `frontend/src/stores.ts`, `selectedCoordinates`), drops a pin and lists every district that
+  contains the point. Checked headless 2026-11-05: the link for 906 Broadway opened with the
+  overlap list (Community District, Council, Assembly, Senate, Congress, school district,
+  precinct and more). 906 Broadway sits on Broadway, the BK CD 3 / CD 4 line, and Boundaries Map
+  lists Brooklyn 3 at that point while SLAM places the address's records in BK CD 4: a reminder
+  that points on a boundary street can land on either side.

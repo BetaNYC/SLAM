@@ -215,6 +215,21 @@ export function swName(f) {
 export const SLA_SOURCES = ['liquor_pending', 'liquor_active', 'liquor_inactive'];
 
 /**
+ * BetaNYC's Boundaries Map with a pin at a point (#77). Boundaries Map reads ?lng=&lat= on load
+ * (BetaNYC/nyc-boundaries frontend/src/stores.ts, selectedCoordinates) and lists every district
+ * that contains the point (components/Sidebar/CoordinateDetails.svelte).
+ * @param {number | null | undefined} lon
+ * @param {number | null | undefined} lat
+ */
+export function boundariesUrl(lon, lat) {
+	if (typeof lon !== 'number' || typeof lat !== 'number') return null;
+	if (!Number.isFinite(lon) || !Number.isFinite(lat) || Math.abs(lon) > 180 || Math.abs(lat) > 90) return null;
+	if (lon === 0 && lat === 0) return null;
+	const r = (/** @type {number} */ v) => String(Number(v.toFixed(6)));
+	return `https://boundaries.beta.nyc/?lng=${r(lon)}&lat=${r(lat)}`;
+}
+
+/**
  * LAMP, SLA's map, centered on a license's point (#63). Esri Web AppBuilder's documented
  * `center` (geographic x,y: longitude first) and `level` parameters,
  * https://doc.arcgis.com/en/web-appbuilder/latest/manage-apps/app-url-parameters.htm

@@ -2,7 +2,7 @@
 	// Side panel for the map (#75): what was selected, without leaving the map. An address shows a
 	// summary of its page (fetched from the same static file the page uses) and a link to the page.
 	import { resolve, asset } from '$app/paths';
-	import { SOURCE_SHORT, SOURCE_COLOR, GRADE_LABEL, SW_KIND, swName, c311Group } from '#lib/format.js';
+	import { SOURCE_SHORT, SOURCE_COLOR, GRADE_LABEL, SW_KIND, swName, c311Group, boundariesUrl } from '#lib/format.js';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 
 	/**
@@ -59,6 +59,7 @@
 				<h2 id="panel-h" tabindex="-1" bind:this={heading}>{a.street}</h2>
 				<p class="muted">{a.city ?? ''} {a.zip ?? ''}{#if a.bin}{` · BIN ${a.bin}`}{/if}</p>
 				<p><a class="btn" href={resolve('/address/[id]', { id: a.id })}>Open the full address page</a></p>
+				{#if boundariesUrl(a.lon, a.lat)}<p><a href={boundariesUrl(a.lon, a.lat)}>Districts for this address on Boundaries Map</a></p>{/if}
 
 				{#if sel.kind === 'c311' && sel.props}
 					<p class="sel-note">You selected a 311 complaint: <strong>{sel.props.t}</strong>, {sel.props.d}.</p>

@@ -53,6 +53,8 @@
 	let mapReady = false;
 	/** What the side panel shows (#75). @type {{aid?: string, kind: 'address' | 'c311' | 'c311point' | 'sw', props?: any} | null} */
 	let sel = $state(null);
+	/** The Layers box is an accordion; its open state is remembered (#77). */
+	let layersOpen = $state(true);
 	const KNOWN = [...LAYERS, ...EXTRA_KEYS];
 
 	/** Layer keys that are on, for the URL and saved preferences. */
@@ -67,7 +69,7 @@
 		const on = onKeys();
 		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng }, on, c311: mode311, sel: sel?.aid ?? null });
 		if (window.location.hash.slice(1) !== hash) replaceState(`${window.location.pathname}${window.location.search}#${hash}`, {});
-		savePrefs(window.localStorage, { on, c311: mode311 });
+		savePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
 	}
 
 	/**
@@ -105,6 +107,7 @@
 			showSW = on.includes('sw');
 		}
 		mode311 = hs.c311 ?? prefs?.c311 ?? mode311;
+		if (prefs) layersOpen = prefs.open;
 		(async () => {
 			const [{ Map, NavigationControl, setWorkerUrl, Popup: P, Marker }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
@@ -437,6 +440,8 @@
 <h1>Map: {data.district.label}</h1>
 <p><a class="btn secondary" href={resolve('/[district]', { district: data.slug })}>View as list</a></p>
 
+<details class="layers-acc" open={layersOpen} ontoggle={(e) => { layersOpen = e.currentTarget.open; writeState(); }}>
+	<summary>Layers <span class="muted">({onKeys().length} on{show311 ? `, 311 as ${C311_MODES.find((x) => x.key === mode311)?.label.toLowerCase()}` : ''})</span></summary>
 <fieldset class="layers">
 	<legend>Layers</legend>
 	{#each LAYERS as k (k)}
@@ -470,11 +475,14 @@
 		Schools / houses of worship / other religious property <span class="muted">({data.district.counts.schools} / {data.district.counts.worship} / {data.district.counts.religious} in the district)</span>
 	</label>
 </fieldset>
+</details>
 <p class="muted" role="status">{status}</p>
 <div class="map-wrap" class:has-panel={sel}>
 	<div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
 	<MapPanel {sel} onclose={() => select(null)} />
 </div>
+<details class="map-about">
+	<summary>About this map</summary>
 <p class="note">311 complaints are off by default because they are dense. They are colored by type, based on
 	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
 	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
@@ -491,8 +499,13 @@
 	does not load, or stops loading while you use the map, OpenFreeMap (OpenStreetMap data) is used instead.
 	The list view is the accessible equivalent of this map: every license, cannabis, Dining Out, school and
 	religious-property point is in it, and its 311 tab counts every complaint and lists the most recent ones.</p>
+</details>
 
 <style>
+	.layers-acc { margin: 0.5rem 0; }
+	.layers-acc > summary, .map-about > summary { cursor: pointer; font-weight: 600; padding: 0.35rem 0; }
+	.layers-acc .layers { margin-top: 0.25rem; }
+	.map-about { margin-top: 0.75rem; }
 	.map-wrap.has-panel { display: grid; grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); gap: 0.75rem; align-items: start; }
 	@media (max-width: 52rem) { .map-wrap.has-panel { display: block; } .map-wrap.has-panel :global(.panel) { margin-top: 0.75rem; } }
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
