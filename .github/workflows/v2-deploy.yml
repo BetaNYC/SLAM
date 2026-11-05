@@ -47,6 +47,15 @@ jobs:
           key: slam-geocode-${{ github.run_id }}
           restore-keys: slam-geocode-
 
+      # The City's address file as Parquet (~50 MB), refreshed by the build when its ETag
+      # changes (pipeline/slam_pipeline/padmatch.py, #86). Saves a 709 MB download each run.
+      - name: Restore City address file cache
+        uses: actions/cache@v4
+        with:
+          path: pipeline/.cache/pad
+          key: slam-pad-${{ github.run_id }}
+          restore-keys: slam-pad-
+
       - name: Pipeline tests
         working-directory: pipeline
         run: uv run pytest -q

@@ -74,8 +74,8 @@
 <DistanceNote />
 <p>
 	The law measures between the centers of the nearest entrances. SLAM has no entrances. It measures a
-	straight line between building points: the address page's point (the City's address point from
-	GeoSearch when the address matched, otherwise the average of the records' own points), the school's
+	straight line between building points: the address page's point (the City's address point, from the
+	City's own address file, when the address matched, otherwise the average of the records' own points), the school's
 	point in the Facilities Database, the tax lot's point in PLUTO, and each license's point from SLA.
 	Every distance is approximate, building point to building point.
 </p>

@@ -21,7 +21,7 @@ from pathlib import Path
 
 import duckdb
 
-from slam_pipeline import net, spatial
+from slam_pipeline import net, padmatch, spatial
 from slam_pipeline.net import log
 from slam_pipeline.sources import (
     COMPLAINTS_311_LOCATION_TYPES,
@@ -227,16 +227,33 @@ def geocode_cannabis(records: list[dict], offline: bool) -> dict:
 
 
 def geocode_addresses(groups: dict[str, dict], offline: bool) -> tuple[dict, dict]:
-    """Geocode every address group once with /v2/search (serial, polite, cached on disk).
-    Returns (group id -> pick_address_hit result, stats)."""
+    """Match every address group to a building. First the City's own address file in DuckDB
+    (slam_pipeline/padmatch.py, BetaNYC/SLAM#86), then GeoSearch /v2/search for what the file
+    cannot match (serial, polite, cached on disk). Returns (group id -> hit, stats)."""
     cache = json.loads(ADDRESS_GEOCODE_CACHE.read_text()) if ADDRESS_GEOCODE_CACHE.exists() else {}
     stats = {"addresses": len(groups), "requested": 0, "cached": 0, "errors": 0,
              "not_in_cache_offline": 0, "matched": 0, "matched_with_bin": 0,
-             "low_confidence": 0, "unmatched": 0}
+             "low_confidence": 0, "unmatched": 0, "matched_by_pad_file": 0,
+             "matched_by_geosearch": 0, "pad_rules": {}}
+    pq = padmatch.ensure_pad(CACHE / "pad", offline, log=log)
+    pad = padmatch.PadIndex(pq) if pq else None
+    if pad:
+        stats["pad_file"] = {**json.loads((CACHE / "pad" / "pad.json").read_text()),
+                             "version": pad.version, "rows": pad.rows}
     geo: dict[str, dict] = {}
     last = 0.0
     for gid, g in sorted(groups.items()):
         borough = DISTRICTS[g["district"]]["borough"]
+        if pad:
+            near = (g["lon"], g["lat"]) if g.get("lon") is not None else None
+            hit = pad.lookup(g["street"], padmatch.BORO_DIGIT[borough.upper()], g.get("zip"), near)
+            if hit:
+                geo[gid] = hit
+                stats["matched"] += 1
+                stats["matched_by_pad_file"] += 1
+                stats["matched_with_bin"] += bool(hit["bin"])
+                stats["pad_rules"][hit["rule"]] = stats["pad_rules"].get(hit["rule"], 0) + 1
+                continue
         q = address_query(g["street"], borough)
         resp = None
         if not q:
@@ -265,6 +282,7 @@ def geocode_addresses(groups: dict[str, dict], offline: bool) -> tuple[dict, dic
         hit = pick_address_hit(resp, g["street"], borough)
         geo[gid] = hit
         stats[hit["status"]] += 1
+        stats["matched_by_geosearch"] += hit["status"] == "matched"
         stats["matched_with_bin"] += bool(hit["bin"])
     write_json(ADDRESS_GEOCODE_CACHE, cache)
     log("address_geocode_done", **stats)
@@ -929,9 +947,15 @@ def main(argv=None) -> int:
                                 "is outside both districts keeps its district but gets no "
                                 "proximity facts."},
         "address_geocode": {**addr_geo_stats, "endpoint": GEOSEARCH,
-                            "rule": "same house number, street and borough; confidence >= "
-                                    f"{GEOSEARCH_MIN_CONFIDENCE}; accuracy point; placeholder "
-                                    "BINs (x000000) not used as keys",
+                            "rule": "first the City's normalized PAD file (the file GeoSearch is "
+                                    "built from) in DuckDB: same house number, normalized street and "
+                                    "borough, with cleanup readings (padmatch.candidates); readings "
+                                    f"that can land on the wrong building must be within "
+                                    f"{padmatch.RISKY_MAX_FT} ft of the records' own point. Then "
+                                    "GeoSearch for the rest: same house number, street and borough; "
+                                    f"confidence >= {GEOSEARCH_MIN_CONFIDENCE}; accuracy point. "
+                                    "Placeholder BINs (x000000) are never used as keys",
+                            "pad_url": padmatch.PAD_URL,
                             "nearest_page_m": NEAREST_PAGE_M},
     }
     write_json(OUT / "manifest.json", manifest)

@@ -456,11 +456,15 @@ def page_point(hit: dict, rec_lon: float | None, rec_lat: float | None) -> dict:
     PR #66 found a median gap of 75 ft to the PAD point on 1,013 matched pages, two buildings
     across Greenwich St sharing one SLA point, and '7 WEST 51ST ST' placed in Lower Manhattan.
     Returns {"lon", "lat", "source": "geosearch" | "records" | None, "records_gap_m"}: the gap
-    between the records' average and the GeoSearch point, in metres (None if not both)."""
+    between the records' average and the GeoSearch point, in metres (None if not both).
+    "geosearch" means "the City's PAD address point": since #86 it usually comes from the City's
+    normalized PAD file matched in DuckDB (the file GeoSearch is built from), and `matched_by`
+    says which ("pad" or "geosearch")."""
     if hit.get("status") == "matched" and hit.get("lon") is not None:
         gap = (round(meters(rec_lon, rec_lat, hit["lon"], hit["lat"]))
                if rec_lon is not None else None)
-        return {"lon": hit["lon"], "lat": hit["lat"], "source": "geosearch", "records_gap_m": gap}
+        return {"lon": hit["lon"], "lat": hit["lat"], "source": "geosearch", "records_gap_m": gap,
+                "matched_by": hit.get("source", "geosearch")}
     if rec_lon is not None:
         return {"lon": rec_lon, "lat": rec_lat, "source": "records", "records_gap_m": None}
     return {"lon": None, "lat": None, "source": None, "records_gap_m": None}
