@@ -59,15 +59,26 @@
 		<dt id="address-page">Address page</dt>
 		<dd>
 			One page for each address that has a record in SLAM. Records for the same building share a
-			page when GeoSearch matches them to the same BIN. Otherwise a page is keyed on the street
+			page when the City's address file matches them to the same BIN. Otherwise a page is keyed on the street
 			address and ZIP code.
+		</dd>
+
+		<dt id="address-file">The City's address file (PAD)</dt>
+		<dd>
+			The City Planning Department's Property Address Directory: every address in the city with
+			its building (BIN), tax lot (BBL) and map point. SLAM matches addresses against the copy NYC
+			Planning Labs prepares for its GeoSearch service. A match needs the same house number, street
+			and borough. SLAM also tries common ways addresses are written, such as a Queens number
+			without its hyphen ("104 30" for "104-30") or a range ("237-243"); readings that could land
+			on the wrong building must be close to the record's own map point.
 		</dd>
 
 		<dt id="geosearch">GeoSearch</dt>
 		<dd>
-			The City's address search service. SLAM uses it to turn addresses into map points and to find
-			a building's BIN. A match counts only when the house number, street and borough are the same,
-			and GeoSearch's confidence is 0.8 or higher.
+			The City's address search service, built from the same address file. SLAM asks it only about
+			addresses the file cannot match, and the address box at the top of the site uses it. A match
+			counts only when the house number, street and borough are the same, and GeoSearch's
+			confidence is 0.8 or higher.
 		</dd>
 
 		<dt id="low-confidence">Low-confidence match</dt>
@@ -285,8 +296,8 @@
 	<dl class="glossary">
 		<dt id="building-point">Building point</dt>
 		<dd>
-			SLAM puts each address page at one map point. When GeoSearch matches the address, it is
-			GeoSearch's point for that address. Otherwise it is the average of the records' own points.
+			SLAM puts each address page at one map point. When the City's address file matches the
+			address, it is the City's point for that address. Otherwise it is the average of the records' own points.
 		</dd>
 
 		<dt id="approx-distance">Approximate distance</dt>

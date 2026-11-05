@@ -66,14 +66,14 @@
 	<p class="muted">The sources list this building as: {a.listed_as.join('; ')}.</p>
 {/if}
 {#if pt.outside_districts && !pt.measured}
-	<p class="note" role="note">The City's address lookup (GeoSearch) puts this building outside both prototype
+	<p class="note" role="note">The City's address point for this building is outside both prototype
 		districts and outside the area this prototype pulls data for. The licensing records place it in
 		{data.district.label}, so it is listed here as published, but SLAM does not show what is nearby: the
 		distance sections below are left empty on purpose.</p>
 {:else if pt.outside_districts}
-	<p class="note" role="note">The City's address lookup (GeoSearch) puts this building just outside
+	<p class="note" role="note">The City's address point for this building is just outside
 		{data.district.label}, across the district line. The licensing records place it inside, so it is listed
-		here as published. Distances are measured from GeoSearch's point.</p>
+		here as published. Distances are measured from the City's address point.</p>
 {/if}
 
 <h2>At this address ({a.records.length})</h2>
@@ -140,8 +140,8 @@
 {/if}
 <p class="note">
 	Distances are straight-line between points, rounded to the meter. {#if pt.source === 'geosearch'}This
-	page's point is the City's address point for the building (GeoSearch).{:else}This page's point is the
-	average of its records' own points, because the City's address lookup did not match this address.{/if}
+	page's point is the City's address point for the building, from the City's own address file.{:else}This page's point is the
+	average of its records' own points, because the City's address file did not match this address.{/if}
 	Nearby only covers records
 	inside the two prototype districts. This page lists facts from the sources; it does not apply any
 	distance rule or make legal determinations.

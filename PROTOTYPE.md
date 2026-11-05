@@ -572,3 +572,24 @@ responses.
   the build asks once more, newest first, for anything created after the newest row it got and
   adds rows it does not have. That run added 13.
 
+## Address matching with the City's own address file (#86)
+
+- `pipeline/slam_pipeline/padmatch.py` matches each address group against the City's normalized
+  PAD file (the file NYC Planning Labs' GeoSearch is built from, `labs-geosearch-pad-normalized.csv`,
+  PAD 26c, 4,491,112 rows with a house number) in DuckDB, before any GeoSearch call. The file is
+  downloaded once per ETag, kept as Parquet in `pipeline/.cache/pad/` (47 MB, plus 45,375 named
+  places) and cached in Actions.
+- `candidates()` turns one address into the readings worth trying, each tagged with its rule:
+  as written; Queens number without the hyphen (`104 30` → `104-30`); ranges; half numbers; AKA;
+  text before a comma; trailing text; words after the street type; then the borough from the ZIP,
+  then PAD's named places. Readings that can land on the wrong building (`RISKY_RULES`) must be
+  within 1,000 ft of the records' own point.
+- Offline run 2026-11-05 (same raw data): matched 1,157 → **1,269** of 1,303 address groups;
+  "low confidence" 144 → 33; pages keyed on a BIN 1,013 → 1,056; address pages 1,169 → 1,105
+  (more records share a building page). GeoSearch matched none of the 34 left.
+- Citywide test the same day (`team/reference/nyc-address-matching.md` in the BetaNYC workspace):
+  SLA active licenses 97.2%, DOHMH restaurants 98.5% (BIN agreeing 99.4%), 311 addresses 91.9%
+  (BBL agreeing 99.3%). Risky readings: 0 matches more than 1,000 ft from SLA's point.
+- Found on the way: SLA's own points for Queens numbers written without the hyphen sit on the right
+  street at the wrong spot (e.g. `90 28 37TH AVENUE` placed at 74-12 37 Ave, about 4,000 ft off).
+

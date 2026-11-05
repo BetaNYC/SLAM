@@ -92,7 +92,7 @@
 		<li><a href={sla.full_board.url}>{sla.full_board.label}</a> and <a href={sla.event_calendar.url}>{sla.event_calendar.label}</a>.</li>
 		<li>The text of the 200- and 500-foot rules, from nysenate.gov: see <a href={resolve('/rules', {})}>the rules page</a>.</li>
 		<li>Each address links to BetaNYC's <a href="https://boundaries.beta.nyc/">Boundaries Map</a>, which lists every district that contains the address's point.</li>
-		<li>Address points and BINs: the City's <a href="https://geosearch.planninglabs.nyc/">GeoSearch</a> service.</li>
+		<li>Address points and BINs: the City's own address file (the Property Address Directory, as prepared by NYC Planning Labs for <a href="https://geosearch.planninglabs.nyc/">GeoSearch</a>), matched inside SLAM's build. GeoSearch itself is asked only about addresses the file cannot match.</li>
 		<li>Restaurant pages link to the Health Department's <a href="https://a816-health.nyc.gov/ABCEatsRestaurants/">ABC Eats</a> and to DOB's certificate of occupancy records.</li>
 	</ul>
 	<p>
