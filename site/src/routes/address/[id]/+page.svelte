@@ -215,7 +215,8 @@
 
 <h2 id="c311">311 complaints</h2>
 <p class="muted">
-	Complaints to 311 at bar, club and restaurant location types, created on or after {c311Start}. A
+	Complaints to 311 at bar, club and restaurant location types, plus outdoor dining complaints, created
+	on or after {c311Start}. A
 	complaint is a report made to 311, not a finding.
 </p>
 <h3>At this address ({a.c311.n})</h3>

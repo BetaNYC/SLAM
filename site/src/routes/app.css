@@ -1,10 +1,15 @@
 :root {
-	--blue: #1a5ccf;
-	--blue-dark: #0f3f94;
-	--ink: #1b1f24;
-	--muted: #4b5563;
-	--line: #d6dae0;
-	--bg-soft: #f3f6fb;
+	/* BetaNYC palette (archive/betanyc/brand.md in the BetaNYC workspace, #72):
+	   BetaNYC Blue #2359a8, dark gray #414141 for body text, background blue #EEF4FF,
+	   secondary blue #B8D6FF for hover, border gray #949494 for UI borders.
+	   Map data colors (format.js) and the amber focus ring are functional, not brand colors. */
+	--blue: #2359a8;
+	--blue-dark: #2359a8;
+	--blue-secondary: #b8d6ff;
+	--ink: #414141;
+	--muted: #414141;
+	--line: #949494;
+	--bg-soft: #eef4ff;
 	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 	color: var(--ink);
 	line-height: 1.45;
@@ -31,6 +36,7 @@ footer.site { border-top: 1px solid var(--line); font-size: 0.85rem; color: var(
 footer.site h2 { font-size: 1rem; }
 .sources { padding-left: 1.1rem; }
 .muted { color: var(--muted); }
+.site-nav { display: flex; gap: 1rem; margin: 0.25rem 0 0; font-size: 0.9rem; }
 .note { background: var(--bg-soft); border-left: 4px solid var(--blue); padding: 0.5rem 0.75rem; font-size: 0.9rem; }
 .table-scroll { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
@@ -42,11 +48,12 @@ th { background: var(--bg-soft); }
 .tabs button[aria-selected='true'] { background: var(--blue); color: #fff; border-color: var(--blue); }
 .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin-bottom: 0.5rem; }
 .toolbar label { display: flex; flex-direction: column; font-size: 0.85rem; }
-.toolbar input[type='search'] { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid #8a94a3; border-radius: 4px; min-width: 14rem; }
+.toolbar input[type='search'] { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 4px; min-width: 14rem; }
 .btn { font: inherit; display: inline-block; background: var(--blue); color: #fff; border: 0; padding: 0.45rem 0.8rem; border-radius: 4px; cursor: pointer; text-decoration: none; }
 .btn.secondary { background: #fff; color: var(--blue-dark); border: 1px solid var(--blue); }
+.btn.secondary:hover { background: var(--blue-secondary); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; padding: 0; list-style: none; }
-.cards li { border: 1px solid var(--line); border-radius: 6px; padding: 1rem; }
+.cards li { border: 1px solid var(--line); border-radius: 0; padding: 1rem; }
 .badge { display: inline-block; font-size: 0.75rem; padding: 0.05rem 0.4rem; border-radius: 3px; color: #fff; white-space: nowrap; }
 @media print {
 	header.site, footer.site, .no-print, .skip { display: none !important; }

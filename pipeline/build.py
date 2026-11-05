@@ -25,6 +25,7 @@ from slam_pipeline import net, spatial
 from slam_pipeline.net import log
 from slam_pipeline.sources import (
     COMPLAINTS_311_LOCATION_TYPES,
+    COMPLAINTS_311_TYPES,
     COMPLAINTS_311_START,
     DISTRICT_SOURCE,
     DISTRICTS,
@@ -824,6 +825,7 @@ def main(argv=None) -> int:
         "complaints_311": {
             "start": COMPLAINTS_311_START, "through": c_through,
             "location_types": list(COMPLAINTS_311_LOCATION_TYPES),
+            "complaint_types_any_location": list(COMPLAINTS_311_TYPES),
             "fetched": len(c311), "no_point": c_nopoint, "outside_both_districts": c_outside,
             "board_vs_pip_agreement": f"{c_agree}/{c_with_district}",
             "matched_to_address_page": c_matched,

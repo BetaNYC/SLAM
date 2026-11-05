@@ -8,7 +8,7 @@ export const SOURCE_LABEL = {
 	cannabis_license: 'Cannabis license (OCM)',
 	dining_out: 'Dining Out NYC (outdoor dining)',
 	street_events: 'Permitted street event',
-	complaints_311: '311 complaints (bar, club, restaurant locations)',
+	complaints_311: '311 complaints (bar, club, restaurant locations, and outdoor dining)',
 	restaurant_inspections: 'Restaurant health inspections (DOHMH)',
 	co_dobnow: 'Certificates of occupancy (DOB NOW)'
 };
@@ -29,13 +29,41 @@ export const SOURCE_SHORT = {
 /** @type {Record<string, string>} */
 export const SOURCE_COLOR = {
 	liquor_pending: '#c2410c',
-	liquor_active: '#1a5ccf',
+	liquor_active: '#2359a8', // BetaNYC Blue
 	liquor_inactive: '#6b7280',
 	cannabis_retail: '#15803d',
 	cannabis_license: '#4d7c0f',
 	dining_out: '#7e22ce',
 	complaints_311: '#d97706'
 };
+
+/**
+ * 311 complaint groups on the map, in v1's order (#73). v1 colored its bar/club/restaurant layer
+ * by "Noise - Commercial" and "Drinking", and had a separate Open Restaurants layer; "Outdoor
+ * Dining" (DOT) is the one Open Restaurants type that still occurs. Everything else is "Other".
+ * Keys are exact erm2-nwe9 complaint_type strings.
+ * @type {{key: string, types: string[], label: string, color: string}[]}
+ */
+export const C311_GROUPS = [
+	{ key: 'noise', types: ['Noise - Commercial'], label: 'Noise (commercial)', color: '#d97706' },
+	{ key: 'drinking', types: ['Drinking'], label: 'Drinking', color: '#b91c1c' },
+	{ key: 'dining', types: ['Outdoor Dining'], label: 'Outdoor dining', color: '#854d0e' },
+	{ key: 'other', types: [], label: 'Other (health, smoking and more)', color: '#57534e' }
+];
+
+/** @param {string | undefined} type  a 311 complaint_type */
+export function c311Group(type) {
+	return C311_GROUPS.find((g) => g.types.includes(type ?? '')) ?? C311_GROUPS[C311_GROUPS.length - 1];
+}
+
+/** MapLibre expression coloring a 311 dot by its complaint type (property `t`). */
+export function c311ColorExpr() {
+	/** @type {any[]} */
+	const e = ['match', ['get', 't']];
+	for (const g of C311_GROUPS) for (const t of g.types) e.push(t, g.color);
+	e.push(C311_GROUPS[C311_GROUPS.length - 1].color);
+	return e;
+}
 
 /**
  * Column headers for a 311 count table: one per year, the last marked "to date".

@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { resolve, asset } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR } from '#lib/format.js';
+	import { SOURCE_SHORT, SOURCE_COLOR, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
 	import { popup311 } from '#lib/popup311.js';
 	import { popupSW } from '#lib/popupSW.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
@@ -106,7 +106,7 @@
 				map.addSource('district', { type: 'geojson', data: mine });
 				// A white casing under the outline keeps it readable over the City basemap's streets and parks.
 				map.addLayer({ id: 'district-casing', type: 'line', source: 'district', paint: { 'line-color': '#fff', 'line-width': 6, 'line-opacity': 0.85 } });
-				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#1a5ccf', 'line-width': 3 } });
+				map.addLayer({ id: 'district-line', type: 'line', source: 'district', paint: { 'line-color': '#2359a8', 'line-width': 3 } });
 				map.addSource('points', { type: 'geojson', data: points });
 				// Each record dot has a white ring and, under it, a thin dark edge (a "halo" layer), so it
 				// stands out on the City's park green and water blue as well as on land (QA #69, finding 4).
@@ -190,7 +190,7 @@
 					type: 'circle',
 					source: 'c311',
 					layout: { visibility: show311 ? 'visible' : 'none' },
-					paint: { 'circle-radius': 2.5, 'circle-color': SOURCE_COLOR.complaints_311, 'circle-opacity': 0.55 }
+					paint: { 'circle-radius': 3, 'circle-color': c311ColorExpr(), 'circle-opacity': 0.7 }
 				},
 				`${LAYERS[0]}${HALO}`
 			);
@@ -285,9 +285,16 @@
 	{/each}
 	<label>
 		<input type="checkbox" bind:checked={show311} onchange={toggle311} />
-		<span class="swatch small" style="background:{SOURCE_COLOR.complaints_311}"></span>
+		<span class="swatch small" style="background:{C311_GROUPS[0].color}"></span>
 		{SOURCE_SHORT.complaints_311} <span class="muted">({data.district.counts.complaints_311}, since {data.manifest.complaints_311.start})</span>
 	</label>
+	{#if show311}
+		<ul class="legend311" aria-label="311 dot colors">
+			{#each C311_GROUPS as g (g.key)}
+				<li><span class="swatch" style="background:{g.color}"></span>{g.label}</li>
+			{/each}
+		</ul>
+	{/if}
 	<label>
 		<input type="checkbox" bind:checked={showSW} onchange={toggleSW} />
 		<span class="swatch" style="background:{SW_COLOR.school}"></span><span class="swatch" style="background:{SW_COLOR.worship}"></span><span class="swatch" style="background:{SW_COLOR.religious}"></span>
@@ -296,7 +303,8 @@
 </fieldset>
 <p class="muted" role="status">{status}</p>
 <div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
-<p class="note">311 complaints are off by default because they are dense. Selecting a 311 dot opens the
+<p class="note">311 complaints are off by default because they are dense. They are colored by type, as in
+	the first SLAM: commercial noise, drinking, outdoor dining, and other. Selecting a 311 dot opens the
 	address page it is matched to, if there is one; otherwise it shows the date, type and address.
 	Schools (teal), houses of worship (dark pink) and other religious property (violet) are off by default;
 	selecting one shows its name, type and address. Schools come from the City's Facilities Database; houses
@@ -311,6 +319,8 @@
 	.map { height: 70vh; min-height: 320px; border: 1px solid var(--line); }
 	.layers { border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.5rem 0; }
 	.layers label { display: inline-flex; align-items: center; gap: 0.35rem; }
+	.legend311 { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; margin: 0; padding: 0 0 0 1.6rem; font-size: 0.85rem; width: 100%; }
+	.legend311 li { display: inline-flex; align-items: center; gap: 0.35rem; }
 	.swatch.small { width: 0.55rem; height: 0.55rem; opacity: 0.7; }
-	.swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; border: 1px solid #fff; outline: 1px solid #999; }
+	.swatch { width: 0.8rem; height: 0.8rem; border-radius: 50%; display: inline-block; border: 1px solid #fff; outline: 1px solid #949494; }
 </style>

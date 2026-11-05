@@ -144,9 +144,19 @@ vector basemap, through one module, `site/src/lib/basemap.js`.
 | schools | NYC `ji82-xba5` Facilities Database (26v1) | `facgroup = 'SCHOOLS (K-12)'` and four subgroups (below), inside the districts' box + 600 ft |
 | worship | NYC `64uk-42ks` PLUTO (26v2) | `bldgclass in ('M1','M2','M3','M4','M9')`, inside the districts' box + 600 ft |
 | liquor_active_extra_counties | NYS `9s3h-dpkz` SLA Active Licenses | `premisescounty in ('Queens','QUEENS')` and `within_box(georeference, …)` of the districts' box + 600 ft; used only for the 500-ft count |
-| complaints_311 | NYC `erm2-nwe9` 311 Service Requests from 2020 to Present | `location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery') AND created_date >= '2024-01-01' AND community_board in ('01 MANHATTAN','04 BROOKLYN')`; start date is `COMPLAINTS_311_START` in `sources.py` |
+| complaints_311 | NYC `erm2-nwe9` 311 Service Requests from 2020 to Present | `(location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery') OR complaint_type in ('Outdoor Dining')) AND created_date >= '2024-01-01' AND community_board in ('01 MANHATTAN','04 BROOKLYN')`; start date is `COMPLAINTS_311_START` in `sources.py` |
 
 ## 311 complaints
+
+**Aligned with v1 (#73, 2026-11-05).** v1 had two 311 layers: complaints at location type
+`Club/Bar/Restaurant` (Open Data view `ezmw-ux9w`, all complaint types, colored by
+`Noise - Commercial` and `Drinking`), and an Open Restaurants layer (DOT `Outdoor Dining`, DCA
+`Sidewalk Cafe`, NYPD `Social Distancing` / `Face Covering Violation`). v2 keeps v1's location-type
+filter, adds `Restaurant/Bar/Deli/Bakery` (health complaints), and now also pulls every DOT
+`Outdoor Dining` complaint (`COMPLAINTS_311_TYPES`). The other Open Restaurants types have 0 rows in
+both districts since 2024. The map colors 311 dots in v1's groups: commercial noise, drinking,
+outdoor dining, other (`C311_GROUPS` in `format.js`). Live run of 2026-11-05: 8,812 fetched
+(3,911 MN CD 1, 4,897 BK CD 4).
 
 Run of 2026-11-04 (live, then `--offline`, same numbers):
 
@@ -472,3 +482,12 @@ responses.
 - **SvelteKit 3.** No `svelte.config.js` (config lives in `vite.config.js`), `#lib` instead of `$lib`,
   `resolve()`/`asset()` from `$app/paths`. Data is read at build time in `+page.server.js` via
   `src/lib/server/data.js`, and `entries()` lists every district and address to prerender.
+
+## About page and palette (#71, #72)
+
+- `/about/` holds every source (moved from the footer, with what each is used for) and a glossary
+  of 26 terms. The header links to it and to `/rules/`.
+- Site chrome uses the BetaNYC palette: BetaNYC Blue `#2359a8` (was `#1a5ccf`), body `#414141`,
+  background blue `#EEF4FF`, border gray `#949494`, square card corners. The favicon is the BetaNYC
+  square mark. Map data colors and the amber focus ring are functional exceptions.
+

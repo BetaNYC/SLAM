@@ -131,11 +131,12 @@
 			rows={C.by_type_year}
 			years={C.years}
 			through={C.through}
-			caption="311 complaints at bar, club and restaurant locations, by type and year ({C.total} since {C.start})"
+			caption="311 complaints at bar, club and restaurant locations, and outdoor dining complaints, by type and year ({C.total} since {C.start})"
 		/>
 		<Complaints311Table rows={c311} caption="Most recent {C.recent.length} complaints" />
 		<p class="note">
 			311 service requests whose location type is "Club/Bar/Restaurant" or "Restaurant/Bar/Deli/Bakery",
+			plus every "Outdoor Dining" complaint (handled by DOT; its location type is the sidewalk or street),
 			created on or after {C.start}, from <a href={src311.url}>{src311.name}</a>. A complaint is a
 			report made to 311, not a finding. Counted in this district when its point falls inside the
 			district boundary. The count table covers every complaint; the list shows the most recent

@@ -46,6 +46,11 @@ LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 COMPLAINTS_311_START = "2024-01-01"
 # location_type values that mean a bar, club or restaurant (exact strings, checked via $group).
 COMPLAINTS_311_LOCATION_TYPES = ("Club/Bar/Restaurant", "Restaurant/Bar/Deli/Bakery")
+# complaint_type values pulled at ANY location type (#73). v1 had a second 311 layer for Open
+# Restaurants complaints; of its types, only DOT "Outdoor Dining" still occurs (checked via $group
+# over both boards since 2024-01-01 on 2026-11-05: 359 rows; NYPD "Social Distancing" / "Face
+# Covering Violation" and DCA "Sidewalk Cafe": 0). Its location_type is "Sidewalk" or "Street".
+COMPLAINTS_311_TYPES = ("Outdoor Dining",)
 # 311's own community_board text ("01 MANHATTAN"), used only to keep the pull small.
 # Districts are still assigned by point-in-polygon, like every other layer.
 COMPLAINTS_311_BOARDS = tuple(f"{d['cb']:02d} {d['borough'].upper()}" for d in DISTRICTS.values())
@@ -219,12 +224,14 @@ SOURCES: list[Source] = [
         fields=["unique_key", "created_date", "agency", "complaint_type", "descriptor",
                 "incident_address", "incident_zip", "status", "community_board",
                 "latitude", "longitude"],
-        where=(f"location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
+        where=(f"(location_type in {_sql_list(COMPLAINTS_311_LOCATION_TYPES)}"
+               f" OR complaint_type in {_sql_list(COMPLAINTS_311_TYPES)})"
                f" AND created_date >= '{COMPLAINTS_311_START}'"
                f" AND community_board in {_sql_list(COMPLAINTS_311_BOARDS)}"),
         order="unique_key",
         lat_lon=("latitude", "longitude"),
-        notes="Bar/club/restaurant location types only, created on or after COMPLAINTS_311_START.",
+        notes="Bar/club/restaurant location types, plus Outdoor Dining complaints anywhere, "
+              "created on or after COMPLAINTS_311_START.",
     ),
     Source(
         key="restaurant_inspections",

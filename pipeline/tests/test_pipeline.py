@@ -200,7 +200,8 @@ def test_distance_sphere_axis_order(con):
 def test_311_query_uses_configured_window_and_location_types():
     w = SOURCES_BY_KEY["complaints_311"].where
     assert f"created_date >= '{COMPLAINTS_311_START}'" in w
-    assert "location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')" in w
+    assert ("(location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')"
+            " OR complaint_type in ('Outdoor Dining'))") in w
     assert "community_board in ('01 MANHATTAN','04 BROOKLYN')" in w
 
 
