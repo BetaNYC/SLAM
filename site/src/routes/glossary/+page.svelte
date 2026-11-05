@@ -256,7 +256,8 @@
 			State law (Cannabis Law §72(6)(b)) about adult-use cannabis dispensaries on the same street as,
 			and within 200 feet of, a building used only as a house of worship. Like the liquor rules, it is
 			measured from entrance to entrance (§72(6)(c)). A renewal is not denied because of these two
-			rules (§72(6)(f)). SLAM does not yet measure these distances for cannabis addresses.
+			rules (§72(6)(f)). Address pages with a cannabis record list schools within about 500 ft and houses of worship within
+			about 200 ft, building point to building point.
 		</dd>
 
 		<dt id="cannabis-notice">Community board notice (cannabis and liquor)</dt>
@@ -290,9 +291,12 @@
 
 		<dt id="approx-distance">Approximate distance</dt>
 		<dd>
-			SLAM measures straight lines from building point to building point. The law measures from
-			entrance to entrance, so every distance in SLAM is approximate. A big building can be closer or
-			farther entrance to entrance.
+			SLAM cannot measure door to door, because no dataset it uses has entrance locations. It
+			measures straight lines from building point to building point. The liquor and cannabis laws
+			measure from the center of the nearest entrance to the center of the nearest entrance, so every
+			distance in SLAM is approximate. Building points can sit away from the door, so a SLAM distance
+			can differ by tens of feet or more, especially for large or corner buildings. A distance near a
+			limit is close, not over or under it.
 		</dd>
 
 		<dt id="c311-at-address">311 at this address</dt>

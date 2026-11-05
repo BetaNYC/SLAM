@@ -685,6 +685,14 @@ LIQUOR_COUNT_FT = 500  # §64(7)(b): "within five hundred feet"
 # Margin around the districts' bounding box for the facility and license pulls. More than
 # LIQUOR_COUNT_FT, so nothing within 500 ft of a page near the district line is cut off.
 SW_BUFFER_FT = 600
+# Cannabis Law §72(6) (read 2026-11-05 through the NYS Open Legislation API, text active
+# 2026-02-13): adult-use retail dispensaries "on the same street and within five hundred feet of a
+# building containing a school" (a) and "within two hundred feet of a building exclusively
+# occupied as a house of worship" (b), measured entrance to entrance (c). Same building-point
+# method as above, so the same caveat: approximate, not door to door.
+CANNABIS_SCHOOL_FT = 500
+CANNABIS_WORSHIP_FT = 200
+CANNABIS_SOURCES = ("cannabis_retail", "cannabis_license")
 
 # On-premises liquor classes counted for the 500-foot figure. §64(7)(b) counts premises
 # "licensed and operating pursuant to this section and sections sixty-four-a, sixty-four-b,

@@ -510,3 +510,19 @@ responses.
   background blue `#EEF4FF`, border gray `#949494`, square card corners. The favicon is the BetaNYC
   square mark. Map data colors and the amber focus ring are functional exceptions.
 
+
+## Cannabis distances and the "approximate" note (#74)
+
+- **Cannabis Law §72(6)** (read 2026-11-05 through the nys-openlegislation MCP, text active
+  2026-02-13): dispensaries on the same street and within 500 ft of a building *containing* a
+  school, or within 200 ft of a building used only as a house of worship, measured entrance to
+  entrance. `CANNABIS_RULES` in `sources.py`, `CANNABIS_SCHOOL_FT` / `CANNABIS_WORSHIP_FT` in
+  `transform.py`. Every address page with a cannabis record gets `cannabis_sw` (schools within
+  500 ft, houses of worship within 200 ft, building point to building point). Offline run
+  2026-11-05: MN CD 1, 11 cannabis pages, 8 with a school within about 500 ft; BK CD 4, 9 pages,
+  none (nearest: 412 Knickerbocker Ave, a school about 530 ft away). The rules page quotes §72(6)
+  (a), (b), (c), (f) and links §76 (community board notice).
+- **`DistanceNote.svelte`**: one note wherever a distance is shown (address pages, rules page;
+  same wording in the glossary). SLAM cannot measure door to door, every distance is between
+  approximate building points, and a distance near a limit is close, not over or under it.
+  Tested in `site/tests/cannabisDistance.test.js`.

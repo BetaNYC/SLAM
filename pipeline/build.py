@@ -34,6 +34,7 @@ from slam_pipeline.sources import (
     SCHOOL_NOTES,
     SLA_LICENSE,
     SLA_RULES,
+    CANNABIS_RULES,
     SOURCES,
     SOURCES_BY_KEY,
     WORSHIP_CLASSES,
@@ -45,6 +46,9 @@ from slam_pipeline.transform import (
     GRADE_BUCKETS,
     GRADE_LABEL,
     LIQUOR_COUNT_FT,
+    CANNABIS_SCHOOL_FT,
+    CANNABIS_WORSHIP_FT,
+    CANNABIS_SOURCES,
     SW_BUFFER_FT,
     SW_LIST_FT,
     accept_geosearch,
@@ -613,6 +617,15 @@ def main(argv=None) -> int:
     for pid, fid, ft in spatial.pairs_within(sw_con, page_pts,
                                              [(f["id"], f["lon"], f["lat"]) for f in facs], SW_LIST_FT):
         sw_near.setdefault(pid, []).append((fac_by_id[fid], ft))
+    # Cannabis Law §72(6): schools within 500 ft (a) and houses of worship within 200 ft (b), for
+    # pages with a cannabis record only. Same straight-line, building-point method.
+    cann_pages = [p for p in page_pts if any(r["source"] in CANNABIS_SOURCES for r in addrs[p[0]]["records"])]
+    cann_near: dict[str, list] = {}
+    for pid, fid, ft in spatial.pairs_within(sw_con, cann_pages,
+                                             [(f["id"], f["lon"], f["lat"]) for f in facs], CANNABIS_SCHOOL_FT):
+        f = fac_by_id[fid]
+        if f["kind"] == "school" or (f["kind"] == "worship" and ft <= CANNABIS_WORSHIP_FT):
+            cann_near.setdefault(pid, []).append((f, ft))
     # Active on-premises liquor licenses (SLA class mapping: transform.is_on_premises_liquor),
     # rows for New York and Kings plus Queens (extra_liq), kept when inside the widened box. One "premises" =
     # one address page, or one street + ZIP key for licenses without a page.
@@ -774,8 +787,22 @@ def main(argv=None) -> int:
                     "rows": [{"name": r["name"], "street": r["street"], "code": r["code"],
                               "ft": round(ft), "aid": r["premises"] if r["premises"] in addrs else ""}
                              for r, ft in near_liq]}}
+        if any(r["source"] in CANNABIS_SOURCES for r in a["records"]):
+            cn = sorted(cann_near.get(a["id"], []), key=lambda p: (p[1], p[0]["id"]))
+            out["cannabis_sw"] = [{"kind": f["kind"], "name": f["name"], "type": f["type"],
+                                   "street": f["street"], "ft": round(ft),
+                                   "same_street": same_street(page_streets, f["street_name"]),
+                                   **({"note": f["note"]} if f["note"] else {})} for f, ft in cn]
         st = sw_stats[a["district"]]
         st["pages"] += 1
+        if "cannabis_sw" in out:
+            st["cannabis_pages"] = st.get("cannabis_pages", 0) + 1
+            st["cannabis_pages_with_school_within_500ft"] = (
+                st.get("cannabis_pages_with_school_within_500ft", 0)
+                + any(f["kind"] == "school" for f in out["cannabis_sw"]))
+            st["cannabis_pages_with_worship_within_200ft"] = (
+                st.get("cannabis_pages_with_worship_within_200ft", 0)
+                + any(f["kind"] == "worship" for f in out["cannabis_sw"]))
         st["pages_with_sw_within_200ft"] += bool(near_sw)
         st["pages_with_school"] += any(f["kind"] == "school" for f, _ in near_sw)
         st["pages_with_worship"] += any(f["kind"] == "worship" for f, _ in near_sw)
@@ -849,6 +876,8 @@ def main(argv=None) -> int:
         "sla_license": SLA_LICENSE,
         "schools_worship": {
             "rules": SLA_RULES,
+            "cannabis_rules": CANNABIS_RULES,
+            "cannabis_school_ft": CANNABIS_SCHOOL_FT, "cannabis_worship_ft": CANNABIS_WORSHIP_FT,
             "list_ft": SW_LIST_FT, "liquor_count_ft": LIQUOR_COUNT_FT, "buffer_ft": SW_BUFFER_FT,
             "bbox": [round(v, 6) for v in sw_box],
             "measure": "straight line between building points (address page point; FacDB facility "
