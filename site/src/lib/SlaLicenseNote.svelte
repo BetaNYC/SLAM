@@ -21,8 +21,14 @@
 		classes with a leading zero (<code>0370</code>); the pending and inactive datasets, SLA's class
 		sheet and LAMP write the same class without it (<code>370</code>). See <a href={S.classes.url}>{S.classes.label}</a>.
 	</p>
+	{#if Object.keys(S.lamp_query ?? {}).length}<p>
+		<strong>Open this license in LAMP.</strong> This link opens SLA's LAMP map on the license's own
+		record, found by its ID. It uses a setting inside LAMP's map that SLA could change; each SLAM
+		build checks that setting and leaves the link out if it no longer holds. It worked for an
+		active, a pending and an inactive license on 2026-11-05.
+	</p>{/if}
 	<p>
-		<strong>LAMP link.</strong> "Show on the SLA's LAMP map" opens SLA's LAMP map centered on the
+		<strong>LAMP map link.</strong> "Show on the SLA's LAMP map" opens SLA's LAMP map centered on the
 		City's address point for the building when SLAM matched the address, otherwise on the point in
 		SLA's open data, at zoom {S.lamp.level}. (The open data's points come from data.ny.gov's own
 		geocoding and can be blocks off for Queens addresses written without the hyphen; LAMP's own

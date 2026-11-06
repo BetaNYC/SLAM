@@ -58,6 +58,7 @@ from slam_pipeline.transform import (
     address_query,
     bbox_with_margin,
     board_311_slug,
+    verify_lamp_layers,
     check_columns,
     check_rows,
     count_by_type,
@@ -376,6 +377,18 @@ def main(argv=None) -> int:
     # count only. georeference is a Socrata point, so the box is within_box(field, NW lat,
     # NW lon, SE lat, SE lon) (https://dev.socrata.com/docs/functions/within_box.html).
     lsrc = SOURCES_BY_KEY["liquor_active"]
+    # LAMP's web map, to check the per-license link settings (#63). A failed fetch only drops
+    # the per-license links; the map-location links stay.
+    try:
+        lamp_webmap = load_or_fetch("lamp_webmap", args.offline, lambda: net.get_json(
+            SLA_LICENSE["lamp_records"]["webmap_data_url"]))
+    except (RuntimeError, OSError, SystemExit) as exc:
+        log("lamp_webmap_unavailable", error=str(exc))
+        lamp_webmap = None
+    if isinstance(lamp_webmap, dict) and "error" in lamp_webmap:  # ArcGIS errors come back as HTTP 200
+        log("lamp_webmap_error", error=str(lamp_webmap.get("error"))[:300])
+    lamp_query = verify_lamp_layers(lamp_webmap, SLA_LICENSE["lamp_records"]["layers"])
+    log("lamp_query_links", sources=sorted(lamp_query))
     extra_liq = load_or_fetch("liquor_active_extra_counties", args.offline, lambda: net.fetch_all(
         lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(license_box),
         order=lsrc.order, page_size=lsrc.page_size))
@@ -979,7 +992,7 @@ def main(argv=None) -> int:
                          "that lists the restaurant's own normalized address",
             "not_yet_inspected_rule": "inspection_date 1900-01-01 (dataset column description)",
         },
-        "sla_license": SLA_LICENSE,
+        "sla_license": {**SLA_LICENSE, "lamp_query": lamp_query},
         "schools_worship": {
             "rules": SLA_RULES,
             "cannabis_rules": CANNABIS_RULES,

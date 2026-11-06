@@ -447,6 +447,20 @@ def group_addresses(records: list[dict]) -> dict[str, dict]:
     return groups
 
 
+def verify_lamp_layers(webmap: dict | None, layers: dict) -> dict:
+    """LAMP per-license link settings that still hold (#63): {source: {"layer_id", "field"}} for
+    each configured layer whose id is in the web map's operational layers and whose URL ends with
+    "/<service>/FeatureServer/0". Anything else is dropped, so the site falls back to the map
+    location link instead of a link that opens nothing."""
+    by_id = {l.get("id"): (l.get("url") or "") for l in (webmap or {}).get("operationalLayers", [])}
+    out = {}
+    for source, cfg in layers.items():
+        url = by_id.get(cfg["layer_id"], "")
+        if url.rstrip("/").endswith(f"/{cfg['service']}/FeatureServer/0"):
+            out[source] = {"layer_id": cfg["layer_id"], "field": cfg["field"]}
+    return out
+
+
 def page_point(hit: dict, rec_lon: float | None, rec_lat: float | None) -> dict:
     """The point an address page is measured from.
 

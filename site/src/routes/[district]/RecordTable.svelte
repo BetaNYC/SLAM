@@ -1,10 +1,10 @@
 <script>
 	import { resolve } from '$app/paths';
-	import { addressLine, lampUrl } from '#lib/format.js';
+	import { addressLine, lampUrl, lampRecordUrl } from '#lib/format.js';
 
 	/** `lampLevel` set = SLA liquor rows (#63): show the license ID and a LAMP link.
-	 * @type {{rows: any[], caption: string, showClass?: boolean, empty?: string, lampLevel?: number}} */
-	let { rows, caption, showClass = true, empty = 'Nothing listed.', lampLevel } = $props();
+	 * @type {{rows: any[], caption: string, showClass?: boolean, empty?: string, lampLevel?: number, lampQuery?: any}} */
+	let { rows, caption, showClass = true, empty = 'Nothing listed.', lampLevel, lampQuery } = $props();
 	const sla = $derived(lampLevel != null);
 	const ncols = $derived(sla ? 6 : 5);
 </script>
@@ -42,7 +42,8 @@
 					<td class="nowrap">{#if r.date}<span class="muted">{r.date_label}</span><br />{r.date}{/if}</td>
 					{#if sla}
 						{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}
-						<td><code>{r.rid}</code><br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point, no LAMP link</span>{/if}</td>
+						{@const rec = lampRecordUrl(r.source, r.rid, lampQuery)}
+						<td><code>{r.rid}</code>{#if rec}<br /><a href={rec} aria-label="Open this license in LAMP: {r.name}, {r.rid}">Open this license in LAMP</a>{/if}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point, no LAMP link</span>{/if}</td>
 					{/if}
 				</tr>
 			{:else}

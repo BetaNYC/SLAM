@@ -632,6 +632,23 @@ responses.
   (BIN agreeing 99.4%), 311 91.9%.
 - Every build writes `site/static/data/review/unmatched-addresses.csv` (district, street, ZIP,
   status, GeoSearch's top hit, sources, record count) and its row count to the manifest.
+
+## Per-license LAMP links (#63)
+
+- LAMP is an Esri Web AppBuilder app; its documented `query` URL parameter opens one record:
+  `https://lamp.sla.ny.gov/?query=<layer id>,<field>,<value>`. The layer ids are internal to LAMP's
+  web map (item `66237abfc6dd4ded86c8f181647afd0c`), so every build reads that web map and keeps a
+  link only while its layer id still points to the expected service
+  (`transform.verify_lamp_layers`; manifest `sla_license.lamp_query`). Active: `18c59d3a27d-layer-12`
+  / `LicensePermitID`; pending: `18c5a02ff71-layer-11` / `ApplicationID`; inactive:
+  `18c5a031648-layer-12` / `LicensePermitID`.
+- Opened in a headless browser on 2026-11-05: an active (0370-22-104616), a pending
+  (NA-0081-26-116209) and an inactive (0505-23-024145) license each zoomed LAMP to that record and
+  showed its ID. Address pages and district lists now show "Open this license in LAMP" next to the
+  map-location link.
+- Still not available as open data: days and hours, and method of operation. Approval conditions
+  for contested applications are only in SLA's Full Board minutes (PDFs); the page says so and links
+  them. Asking SLA to publish them is on the outreach list.
 - Review fixes (2026-11-05): license rows are now pulled and re-placed with the City's address
   file within a box one mile wider than `sw_box` (`LICENSE_POINT_SLACK_FT = 5280`), so a license
   whose SLA point is wrong and outside the area but whose building is inside it is counted (Queens
@@ -645,3 +662,7 @@ responses.
   with an SLA record), never against a trusted point; a page placed at the nearest listed number does
   not pass its neighbor's point to records (`plon`) or to the 500-ft count. Citywide after the
   fixes: SLA 97.5%, DOHMH 98.6% (BIN agreeing 99.4%), 311 91.9%; SLAM still 1,291 of 1,303.
+- Review fixes (2026-11-05): an offline build reuses the cached web map, so the per-license check
+  is only as fresh as the last live build; an ArcGIS error body (served with HTTP 200) is logged
+  and drops the links. The LAMP-record paragraph shows only when the links exist. Not checked yet:
+  that the field names are still in each layer (the check covers layer id and service).

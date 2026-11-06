@@ -215,6 +215,20 @@ export function swName(f) {
 export const SLA_SOURCES = ['liquor_pending', 'liquor_active', 'liquor_inactive'];
 
 /**
+ * LAMP opened on one license's own record (#63), with the Web AppBuilder `query` URL parameter
+ * ("<layer id>,<field>,<value>"). `lampQuery` is the manifest's `sla_license.lamp_query`, which
+ * the build fills only for layer ids it found in LAMP's web map; without it there is no link.
+ * @param {string} source  liquor_active | liquor_pending | liquor_inactive
+ * @param {string | undefined} id  license or application ID
+ * @param {Record<string, {layer_id: string, field: string}> | undefined} lampQuery
+ */
+export function lampRecordUrl(source, id, lampQuery) {
+	const q = lampQuery?.[source];
+	if (!q || !id) return null;
+	return `https://lamp.sla.ny.gov/?query=${q.layer_id},${q.field},${encodeURIComponent(id)}`;
+}
+
+/**
  * BetaNYC's Boundaries Map with a pin at a point (#77). Boundaries Map reads ?lng=&lat= on load
  * (BetaNYC/nyc-boundaries frontend/src/stores.ts, selectedCoordinates) and lists every district
  * that contains the point (components/Sidebar/CoordinateDetails.svelte).
