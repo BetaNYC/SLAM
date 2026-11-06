@@ -452,8 +452,9 @@ Built 2026-11-04. The hours and method-of-operation half of #63 stays research.
 Spot check of merges: they are real multi-address buildings, e.g. `27 PARK PLACE` + `26 MURRAY ST`,
 `2 WORLD FINANCIAL CENTER` + `225 LIBERTY ST`, `8 WILSON AVE` 11206 + 11237.
 
-**`site/static/data/bin-index.json`** (about 57 KB): `{radius_m, bins: {BIN: page id}, points: [[page id, lon, lat], ...]}`.
-Loaded by the browser only when a suggestion is picked.
+**Lookup files** (`site/static/data/lookup/`, since #85; before that one `bin-index.json` of about
+57 KB): one BIN → page file per borough and one page-point file per district, loaded by the browser
+only when a suggestion is picked, and only the ones that pick needs. See "Address lookup that scales".
 
 **Site: the search box.** In the header of every page (`+layout.svelte`).
 - After 2 characters, debounced 250 ms, the browser calls GeoSearch `/v2/autocomplete?text=` (keyless)
@@ -729,7 +730,7 @@ one 404 and a redirect.
   about 9 KB and was already published for the map panel. One file per district stays the plan for
   the lookup data (#85).
 
-**Tests.** `site/tests/addressPage.test.js` (query parsing, id validation, links, every load state
+**Tests (#84).** `site/tests/addressPage.test.js` (query parsing, id validation, links, every load state
 with a fake `fetch`, the `404.html` forwarder run in `node:vm`, the built shell). Tests that read
 `build/address/<id>/index.html` now render `AddressView.svelte` with `svelte/server` from every real
 address file (`tests/helpers/`: Node module hooks compile `.svelte` and stand in for `$app/paths`).
@@ -738,4 +739,61 @@ Browser check, private headless Chromium against a server that answers like GitH
 map side panel → page → Back (same `#v=`), live search to a BIN page, nearest-page fallback
 (GeoSearch answer stubbed), unknown, invalid and missing ids, network error and retry, print, no
 JavaScript. 0 unexpected console errors.
+
+## Address lookup that scales (#85)
+
+The search box used to download the whole lookup, `bin-index.json` (every BIN → page and every page
+point), plus `districts.geojson`, on the first pick. Citywide that would be well over a megabyte for
+one search. The pipeline now writes `site/static/data/lookup/` (`pipeline/slam_pipeline/lookup.py`):
+
+- `bins-<b>.json`, `{"bins": {BIN: page id}}`, one per borough. A BIN's first digit is its borough
+  (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island). All five are written, empty or not,
+  so the browser never asks for a missing file.
+- `points-<district>.json`, `[[page id, lon, lat], ...]`, one per district.
+- `index.json`, `{radius_m, districts: {slug: {bbox, n}}}`: the bbox of each district's own page
+  points (some sit just across the district line).
+
+`locate()` in `site/src/lib/addressSearch.js` loads only what a pick needs, then resolves it exactly
+as before (`resolvePick`): a BIN with a page loads one borough file and stops; otherwise it loads
+`index.json` and the points files of the districts whose bbox, padded by the 30 m radius, contains
+the spot. `districts.geojson` is loaded only when nothing is on file, to say which district map to
+open. Files are fetched once per visit; a failed fetch is forgotten, so a retry fetches again.
+Stale lookup files and the old `bin-index.json` are moved to `pipeline/.cache/orphaned-lookup/`,
+never deleted.
+
+What one search downloads, measured in the browser 2026-11-05 (bytes, uncompressed; gzip about a
+quarter):
+
+| Search | before (#84) | after |
+|---|---|---|
+| BIN with a page (44 Wilson Ave) | 114,389 (`bin-index.json` + `districts.geojson`) | 10,510 (`bins-3.json`) |
+| Nearest page (BIN without a page, 10 m from one) | 114,389 | 29,631 (`bins-1`, `index`, `points-mn-cd1`) |
+| Nothing on file, inside a pilot district | 114,389 | 74,569 (`index`, `points-bk-cd4`, `districts.geojson`) |
+| Nothing on file, outside both | 114,389 | 57,161 (`bins-5`, `index`, `districts.geojson`) |
+
+The address's own data file (about 9 KB) is fetched by the address page after either.
+
+**Citywide projection** (25,000-30,000 pages; about 20 bytes per BIN entry and 33 per point today).
+The one-file design would be about 1.3-1.6 MB per search, plus all 59 district outlines. After the
+split:
+- a BIN hit is one borough file, about 0.1-0.2 MB;
+- a nearest-page fallback adds `index.json` (a few KB) and usually one or two district points
+  files, about 15-20 KB each.
+
+**Still to do:** the "nothing on file" step still loads every district outline. Citywide that file
+grows with 59 districts and will need its own split (for example one outline per district, chosen
+by the bboxes in `index.json`).
+
+**Tests.**
+- `pipeline/tests/test_lookup.py`: the borough split, all five files, points rounding, bbox, and a
+  bad BIN failing loud.
+- `site/tests/addressSearch.test.js` checks the built files: every BIN in its own borough file and
+  on its page, every point in its district's file and bbox, and the old file gone.
+- `locate` against the real built files records which files it loads: one for a BIN hit; bins,
+  index and one district for a nearby fallback; none for a far spot. It also gives the same answer
+  as resolving against everything at once.
+- `districtsNear` padding and `cachedLoader` (fetch once; retry after a failure).
+- Browser, private headless Chromium (30/30 checks, 0 console errors): live GeoSearch "44 Wilson
+  Ave" → its page loading only `bins-3.json`; nearest-page fallback; "nothing on file" inside BK CD 4
+  (map link) and outside both districts, with the downloads above.
 

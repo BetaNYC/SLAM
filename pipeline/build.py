@@ -22,7 +22,7 @@ from pathlib import Path
 
 import duckdb
 
-from slam_pipeline import net, padmatch, spatial
+from slam_pipeline import lookup, net, padmatch, spatial
 from slam_pipeline.net import log
 from slam_pipeline.sources import (
     COMPLAINTS_311_LOCATION_TYPES,
@@ -102,7 +102,7 @@ GEOCODE_MIN_INTERVAL = 0.25  # seconds between requests -> at most 4 req/s
 ADDRESS_GEOCODE_INTERVAL = 0.35  # address pages: serial, a little gentler still
 # The site's search box falls back to the nearest address page within this many metres
 # when the BIN it picked has no page (site/src/lib/addressSearch.js reads it from
-# bin-index.json). Small on purpose: on a dense block 25 m reaches the next building, but
+# lookup/index.json). Small on purpose: on a dense block 25 m reaches the next building, but
 # SLA points sit about 25 m from the PAD address point (44 Wilson Ave: 25 m), so 30 m it is;
 # the page then says it is the nearest page and how far away.
 NEAREST_PAGE_M = 30
@@ -933,14 +933,20 @@ def main(argv=None) -> int:
                       "n311": len(c_at.get(a["id"], [])),
                       "nrest": len(r_at.get(a["id"], []))})
     write_json(OUT / "address" / "index.json", index)
-    # The search box's lookup table (#59): BIN -> page id, plus every page point for the
-    # nearest-page fallback. Lives outside address/ so the orphan sweep below ignores it.
-    write_json(OUT / "bin-index.json", {
-        "radius_m": NEAREST_PAGE_M,
-        "bins": {a["bin"]: a["id"] for a in addrs.values() if a["bin"]},
-        "points": [[a["id"], round(a["lon"], 6), round(a["lat"], 6)]
-                   for a in addrs.values() if a["lon"] is not None],
-    })
+    # The search box's lookup files (#59), split by borough and district so a search loads only
+    # what it needs (#85; slam_pipeline/lookup.py). Outside address/ so the sweep below ignores them.
+    lookup_files = lookup.split_lookup(addrs.values(), NEAREST_PAGE_M)
+    for name, payload in lookup_files.items():
+        write_json(OUT / "lookup" / name, payload)
+    stale = [p for p in (OUT / "lookup").glob("*.json") if p.name not in lookup_files]
+    if (OUT / "bin-index.json").exists():
+        stale.append(OUT / "bin-index.json")  # the single file it replaced
+    if stale:
+        dest = CACHE / "orphaned-lookup" / started.strftime("%Y%m%dT%H%M%S")
+        dest.mkdir(parents=True, exist_ok=True)
+        for p in stale:
+            p.replace(dest / p.name)
+        log("stale_lookup_moved", count=len(stale), dest=str(dest))
     # Idempotency: address ids from an earlier run that no longer exist are moved
     # (not deleted) out of the site's static tree so they are not published.
     live = {f"{a['id']}.json" for a in index} | {"index.json"}
