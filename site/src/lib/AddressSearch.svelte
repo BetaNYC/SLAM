@@ -11,12 +11,14 @@
 	import {
 		DEBOUNCE_MS,
 		FETCH_OPTS,
+		DISTRICTS_FILE,
 		autocompleteUrl,
+		cachedLoader,
 		countMessage,
 		districtAt,
 		makeSequencer,
 		nextActive,
-		resolvePick,
+		locate,
 		searchUrl,
 		shouldQuery,
 		toSuggestions
@@ -49,17 +51,10 @@
 	let timer;
 	/** @type {AbortController | undefined} */
 	let inflight;
-	/** @type {Promise<[any, any]> | undefined} */
-	let lookups;
-
-	/** The site's own static lookup files, loaded once on first pick. */
-	function loadLookups() {
-		lookups ??= Promise.all([
-			fetch(asset('data/bin-index.json')).then((r) => r.json()),
-			fetch(asset('data/districts.geojson')).then((r) => r.json())
-		]);
-		return lookups;
-	}
+	// The site's own static lookup files, fetched only as a pick needs them (#85) and kept for the visit.
+	const load = cachedLoader((path) =>
+		fetch(asset(/** @type {any} */ (path))).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+	);
 
 	function close() {
 		open = false;
@@ -105,15 +100,15 @@
 		close();
 		options = [];
 		live = '';
-		let index, districts;
+		let where, districts;
 		try {
-			[index, districts] = await loadLookups();
+			where = await locate(s, load);
+			// The district outlines are needed only to say where "nothing on file" is.
+			if (where.kind === 'none') districts = await load(DISTRICTS_FILE);
 		} catch {
-			lookups = undefined;
 			result = { text: 'Could not load the address list. Try again.' };
 			return;
 		}
-		const where = resolvePick(s, index);
 		if (where.kind === 'page') {
 			result = null;
 			goto(addressHref(where.id));

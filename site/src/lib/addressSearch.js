@@ -72,7 +72,7 @@ export function distanceM(lon1, lat1, lon2, lat2) {
 }
 
 /**
- * Where a picked suggestion goes. `index` is the pipeline's static/data/bin-index.json:
+ * Where a picked suggestion goes, given the lookup data for it (see `locate`):
  * {radius_m, bins: {bin: pageId}, points: [[pageId, lon, lat], ...]}.
  * 1. The page for its BIN, if there is one.
  * 2. Otherwise the nearest page point within index.radius_m.
@@ -92,6 +92,63 @@ export function resolvePick(s, index) {
 	}
 	if (best !== null && bestM <= index.radius_m) return { kind: 'near', id: best, m: Math.round(bestM) };
 	return { kind: 'none' };
+}
+
+// The pipeline's split lookup files (#85, pipeline/slam_pipeline/lookup.py), under static/data/:
+export const LOOKUP_INDEX = 'data/lookup/index.json';
+/** One file per borough: a BIN's first digit is its borough. @param {string} bin */
+export const binsFile = (bin) => `data/lookup/bins-${bin[0]}.json`;
+/** @param {string} slug */
+export const pointsFile = (slug) => `data/lookup/points-${slug}.json`;
+export const DISTRICTS_FILE = 'data/districts.geojson';
+
+/**
+ * Districts whose page points could be within `radius_m` of the spot: the bbox of each district's
+ * points (from lookup/index.json), padded by the radius.
+ * @param {number} lon @param {number} lat
+ * @param {{radius_m: number, districts: Record<string, {bbox: number[]}>}} index
+ */
+export function districtsNear(lon, lat, index) {
+	const dLat = index.radius_m / 111320;
+	const dLon = index.radius_m / (111320 * Math.cos((lat * Math.PI) / 180));
+	return Object.entries(index.districts ?? {})
+		.filter(([, d]) => lon >= d.bbox[0] - dLon && lon <= d.bbox[2] + dLon && lat >= d.bbox[1] - dLat && lat <= d.bbox[3] + dLat)
+		.map(([slug]) => slug);
+}
+
+/**
+ * Load only the lookup files a pick needs, then resolve it (#85):
+ * - with a BIN: that borough's bins file; a hit ends there (one small file);
+ * - otherwise lookup/index.json, then the points file of each district near the spot.
+ * `load(path)` returns the parsed JSON (and should cache); it may throw.
+ * @param {Suggestion} s
+ * @param {(path: string) => Promise<any>} load
+ * @returns {Promise<{kind: 'page', id: string} | {kind: 'near', id: string, m: number} | {kind: 'none'}>}
+ */
+export async function locate(s, load) {
+	if (s.bin) {
+		const { bins } = await load(binsFile(s.bin));
+		if (bins?.[s.bin]) return { kind: 'page', id: bins[s.bin] };
+	}
+	const index = await load(LOOKUP_INDEX);
+	const files = await Promise.all(districtsNear(s.lon, s.lat, index).map((slug) => load(pointsFile(slug))));
+	return resolvePick({ ...s, bin: null }, { radius_m: index.radius_m, bins: {}, points: files.flat() });
+}
+
+/** A loader for `locate` that fetches each file once per page view and forgets failures, so a retry
+ * can fetch again. @param {(path: string) => Promise<any>} fetchJson */
+export function cachedLoader(fetchJson) {
+	/** @type {Map<string, Promise<any>>} */
+	const cache = new Map();
+	return (/** @type {string} */ path) => {
+		let p = cache.get(path);
+		if (!p) {
+			p = fetchJson(path);
+			cache.set(path, p);
+			p.catch(() => cache.delete(path));
+		}
+		return p;
+	};
 }
 
 /** Ray casting on one ring of [lon, lat] pairs.
