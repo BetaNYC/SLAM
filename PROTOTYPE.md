@@ -560,7 +560,12 @@ responses.
   lists Brooklyn 3 at that point while SLAM places the address's records in BK CD 4: a reminder
   that points on a boundary street can land on either side.
 
-## 311 window: 2022-01-01 through 2026-11-04 (Noel, 2026-11-05)
+## 311 window: 2022-01-01 to the newest data (Noel, 2026-11-05)
+
+- **Rolling since #90.** `v2` is the default branch (2026-11-05), so the nightly schedule in
+  `v2-deploy.yml` (10:17 UTC) runs, and `COMPLAINTS_311_END = None`: each build runs through the
+  newest complaint. The manifest's `through` says how far that is. The first build, below, was
+  fixed at 2026-11-04.
 
 - `COMPLAINTS_311_START = "2022-01-01"` (was 2024-01-01) and `COMPLAINTS_311_END = "2026-11-04"`
   (inclusive; the query uses `created_date < '2026-11-05'`; set it to `None` to run through the
