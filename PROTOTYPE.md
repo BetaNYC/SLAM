@@ -755,14 +755,17 @@ one search. The pipeline now writes `site/static/data/lookup/` (`pipeline/slam_p
   (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island). All five are written, empty or not,
   so the browser never asks for a missing file.
 - `points-<district>.json`, `[[page id, lon, lat], ...]`, one per district.
-- `index.json`, `{radius_m, districts: {slug: {bbox, n}}}`: the bbox of each district's own page
-  points (some sit just across the district line).
+- `index.json`, `{radius_m, districts: {slug: {bbox, n, area}}}`: `bbox` is of each district's own
+  page points (some sit just across the district line); `area` is of its outline (#104).
+- `outline-<district>.json`, one district's outline as a GeoJSON Feature (#104), coordinates rounded
+  to 6 decimals (about 10 cm) and not simplified, so boundary-street addresses land as before.
 
 `locate()` in `site/src/lib/addressSearch.js` loads only what a pick needs, then resolves it exactly
 as before (`resolvePick`): a BIN with a page loads one borough file and stops; otherwise it loads
 `index.json` and the points files of the districts whose bbox, padded by the 30 m radius, contains
-the spot. `districts.geojson` is loaded only when nothing is on file, to say which district map to
-open. Files are fetched once per visit; a failed fetch is forgotten, so a retry fetches again.
+the spot. When nothing is on file, `districtFor()` loads only the outlines whose `area` holds the
+spot (usually one, none outside every district) to say which district map to open (#104; before,
+it loaded every outline in `districts.geojson`, which the district map still uses). Files are fetched once per visit; a failed fetch is forgotten, so a retry fetches again.
 Stale lookup files and the old `bin-index.json` are moved to `pipeline/.cache/orphaned-lookup/`,
 never deleted.
 
@@ -773,8 +776,12 @@ quarter):
 |---|---|---|
 | BIN with a page (44 Wilson Ave) | 114,389 (`bin-index.json` + `districts.geojson`) | 10,510 (`bins-3.json`) |
 | Nearest page (BIN without a page, 10 m from one) | 114,389 | 29,631 (`bins-1`, `index`, `points-mn-cd1`) |
-| Nothing on file, inside a pilot district | 114,389 | 74,569 (`index`, `points-bk-cd4`, `districts.geojson`) |
-| Nothing on file, outside both | 114,389 | 57,161 (`bins-5`, `index`, `districts.geojson`) |
+| Nothing on file, inside a pilot district | 114,389 | 74,569 (`index`, `points-bk-cd4`, `districts.geojson`); after #104 about 22,600 (`index`, `points-bk-cd4`, `outline-bk-cd4`) |
+| Nothing on file, outside both | 114,389 | 57,161 (`bins-5`, `index`, `districts.geojson`); after #104 279 (`bins-5`, `index`) |
+
+The #104 figures are file sizes from the 2026-11-05 offline build, not a browser measurement:
+`index.json` 268, `outline-bk-cd4.json` 4,906, `outline-mn-cd1.json` 28,330, `points-bk-cd4.json`
+17,390.
 
 The address's own data file (about 9 KB) is fetched by the address page after either.
 
@@ -785,9 +792,8 @@ split:
 - a nearest-page fallback adds `index.json` (a few KB) and usually one or two district points
   files, about 15-20 KB each.
 
-**Still to do:** the "nothing on file" step still loads every district outline. Citywide that file
-grows with 59 districts and will need its own split (for example one outline per district, chosen
-by the bboxes in `index.json`).
+- a "nothing on file" search loads `index.json` (about 130 bytes per district, so 7-8 KB for 59)
+  and the one or two outlines whose bbox holds the spot (#104), not all 59.
 
 **Tests.**
 - `pipeline/tests/test_lookup.py`: the borough split, all five files, points rounding, bbox, and a

@@ -11,11 +11,10 @@
 	import {
 		DEBOUNCE_MS,
 		FETCH_OPTS,
-		DISTRICTS_FILE,
 		autocompleteUrl,
 		cachedLoader,
 		countMessage,
-		districtAt,
+		districtFor,
 		makeSequencer,
 		nextActive,
 		locate,
@@ -100,11 +99,11 @@
 		close();
 		options = [];
 		live = '';
-		let where, districts;
+		let where, slug = null;
 		try {
 			where = await locate(s, load);
-			// The district outlines are needed only to say where "nothing on file" is.
-			if (where.kind === 'none') districts = await load(DISTRICTS_FILE);
+			// Only "nothing on file" needs to know the district, and loads only its outline (#104).
+			if (where.kind === 'none') slug = await districtFor(s.lon, s.lat, load);
 		} catch {
 			result = { text: 'Could not load the address list. Try again.' };
 			return;
@@ -116,7 +115,6 @@
 			result = null;
 			goto(addressHref(where.id, { q: s.label, m: String(where.m) }));
 		} else {
-			const slug = districtAt(s.lon, s.lat, districts);
 			result = slug
 				? {
 						text: `Nothing on file here yet for ${s.label}.`,

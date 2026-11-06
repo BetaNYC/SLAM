@@ -100,7 +100,8 @@ export const LOOKUP_INDEX = 'data/lookup/index.json';
 export const binsFile = (bin) => `data/lookup/bins-${bin[0]}.json`;
 /** @param {string} slug */
 export const pointsFile = (slug) => `data/lookup/points-${slug}.json`;
-export const DISTRICTS_FILE = 'data/districts.geojson';
+/** One district's outline, loaded only to place a search that finds nothing (#104). @param {string} slug */
+export const outlineFile = (slug) => `data/lookup/outline-${slug}.json`;
 
 /**
  * Districts whose page points could be within `radius_m` of the spot: the bbox of each district's
@@ -112,7 +113,7 @@ export function districtsNear(lon, lat, index) {
 	const dLat = index.radius_m / 111320;
 	const dLon = index.radius_m / (111320 * Math.cos((lat * Math.PI) / 180));
 	return Object.entries(index.districts ?? {})
-		.filter(([, d]) => lon >= d.bbox[0] - dLon && lon <= d.bbox[2] + dLon && lat >= d.bbox[1] - dLat && lat <= d.bbox[3] + dLat)
+		.filter(([, d]) => d.bbox && lon >= d.bbox[0] - dLon && lon <= d.bbox[2] + dLon && lat >= d.bbox[1] - dLat && lat <= d.bbox[3] + dLat)
 		.map(([slug]) => slug);
 }
 
@@ -133,6 +134,30 @@ export async function locate(s, load) {
 	const index = await load(LOOKUP_INDEX);
 	const files = await Promise.all(districtsNear(s.lon, s.lat, index).map((slug) => load(pointsFile(slug))));
 	return resolvePick({ ...s, bin: null }, { radius_m: index.radius_m, bins: {}, points: files.flat() });
+}
+
+/**
+ * Districts whose outline's bbox (lookup/index.json `area`) holds the spot (#104).
+ * @param {number} lon @param {number} lat
+ * @param {{districts: Record<string, {area?: number[]}>}} index
+ */
+export function districtsCovering(lon, lat, index) {
+	return Object.entries(index.districts ?? {})
+		.filter(([, d]) => d.area && lon >= d.area[0] && lon <= d.area[2] && lat >= d.area[1] && lat <= d.area[3])
+		.map(([slug]) => slug);
+}
+
+/**
+ * Which district a spot is in, loading only the outlines whose bbox holds it (#104): usually one,
+ * none outside every district. Before #104 this loaded every outline (districts.geojson).
+ * @param {number} lon @param {number} lat
+ * @param {(path: string) => Promise<any>} load
+ * @returns {Promise<string | null>}
+ */
+export async function districtFor(lon, lat, load) {
+	const index = await load(LOOKUP_INDEX);
+	const features = await Promise.all(districtsCovering(lon, lat, index).map((slug) => load(outlineFile(slug))));
+	return districtAt(lon, lat, { features });
 }
 
 /** A loader for `locate` that fetches each file once per page view and forgets failures, so a retry
@@ -163,7 +188,7 @@ function inRing(x, y, ring) {
 	return inside;
 }
 
-/** Which pilot district a point falls in, from static/data/districts.geojson; null if none.
+/** Which district a point falls in, given GeoJSON features with `properties.slug`; null if none.
  * @param {number} lon @param {number} lat @param {any} districts */
 export function districtAt(lon, lat, districts) {
 	for (const f of districts?.features ?? []) {
