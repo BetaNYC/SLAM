@@ -689,6 +689,10 @@ LIQUOR_COUNT_FT = 500  # §64(7)(b): "within five hundred feet"
 # Margin around the districts' bounding box for the facility and license pulls. More than
 # LIQUOR_COUNT_FT, so nothing within 500 ft of a page near the district line is cut off.
 SW_BUFFER_FT = 600
+# How far beyond sw_box license rows are pulled and re-placed with the City's address file
+# (#96, review S2): SLA's generated points were 4,000-13,000 ft off for unhyphenated Queens
+# numbers in a 2026-11-05 check; one mile catches most of them.
+LICENSE_POINT_SLACK_FT = 5280
 # Cannabis Law §72(6) (read 2026-11-05 through the NYS Open Legislation API, text active
 # 2026-02-13): adult-use retail dispensaries "on the same street and within five hundred feet of a
 # building containing a school" (a) and "within two hundred feet of a building exclusively

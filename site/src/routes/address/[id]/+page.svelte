@@ -98,7 +98,7 @@
 					<td>{r.type}{#if SLA_SOURCES.includes(r.source)}<br /><span class="muted">Type {r.ltype ?? '?'} · Class {r.lclass ?? '?'}</span>{:else if r.cls && r.cls !== '/'}<br /><span class="muted">{r.cls}</span>{/if}</td>
 					<td>{r.status}</td>
 					<td class="nowrap">{#if r.date}{r.date_label} {r.date}{/if}{#if r.issued}<br /><span class="muted">First issued {r.issued}</span>{/if}</td>
-					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.lon, r.lat, lampLevel)}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
+					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
 				</tr>
 			{/each}
 		</tbody>

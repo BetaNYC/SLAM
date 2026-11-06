@@ -47,6 +47,7 @@ from slam_pipeline.transform import (
     GRADE_BUCKETS,
     GRADE_LABEL,
     LIQUOR_COUNT_FT,
+    LICENSE_POINT_SLACK_FT,
     CANNABIS_SCHOOL_FT,
     CANNABIS_WORSHIP_FT,
     CANNABIS_SOURCES,
@@ -226,7 +227,8 @@ def geocode_cannabis(records: list[dict], offline: bool) -> dict:
     return stats
 
 
-def geocode_addresses(groups: dict[str, dict], offline: bool) -> tuple[dict, dict]:
+def geocode_addresses(groups: dict[str, dict], offline: bool,
+                      pad: "padmatch.PadIndex | None" = None) -> tuple[dict, dict]:
     """Match every address group to a building. First the City's own address file in DuckDB
     (slam_pipeline/padmatch.py, BetaNYC/SLAM#86), then GeoSearch /v2/search for what the file
     cannot match (serial, polite, cached on disk). Returns (group id -> hit, stats)."""
@@ -235,8 +237,6 @@ def geocode_addresses(groups: dict[str, dict], offline: bool) -> tuple[dict, dic
              "not_in_cache_offline": 0, "matched": 0, "matched_with_bin": 0,
              "low_confidence": 0, "unmatched": 0, "matched_by_pad_file": 0,
              "matched_by_geosearch": 0, "pad_rules": {}}
-    pq = padmatch.ensure_pad(CACHE / "pad", offline, log=log)
-    pad = padmatch.PadIndex(pq) if pq else None
     if pad:
         stats["pad_file"] = {**json.loads((CACHE / "pad" / "pad.json").read_text()),
                              "version": pad.version, "rows": pad.rows}
@@ -326,6 +326,10 @@ def main(argv=None) -> int:
     dx = [c[0] for f in dgeo["features"] for c in _coords(f["geometry"])]
     dy = [c[1] for f in dgeo["features"] for c in _coords(f["geometry"])]
     sw_box = bbox_with_margin(dx, dy, SW_BUFFER_FT)
+    # SLA's open-data points can be up to a few thousand feet off (#96), so license rows are
+    # pulled and checked against the City's address file within a wider box, then kept only if
+    # the corrected point is inside sw_box. Points off by more than this are still missed.
+    license_box = bbox_with_margin(dx, dy, SW_BUFFER_FT + LICENSE_POINT_SLACK_FT)
 
     def in_box(lon, lat) -> bool:
         return lon is not None and sw_box[0] <= lon <= sw_box[2] and sw_box[1] <= lat <= sw_box[3]
@@ -366,7 +370,7 @@ def main(argv=None) -> int:
     # NW lon, SE lat, SE lon) (https://dev.socrata.com/docs/functions/within_box.html).
     lsrc = SOURCES_BY_KEY["liquor_active"]
     extra_liq = load_or_fetch("liquor_active_extra_counties", args.offline, lambda: net.fetch_all(
-        lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(sw_box),
+        lsrc.domain, lsrc.id, select=lsrc.fields, where=extra_county_where(license_box),
         order=lsrc.order, page_size=lsrc.page_size))
     check_rows("liquor_active_extra_counties", extra_liq, REQUIRED_IN_ROWS["liquor_active"])
     log("fetched", source="liquor_active_extra_counties", rows=len(extra_liq))
@@ -429,7 +433,9 @@ def main(argv=None) -> int:
 
     # ---- addresses: group by street + ZIP, geocode each group once, key pages on BIN (#59)
     groups = group_addresses(inside)
-    addr_geo, addr_geo_stats = geocode_addresses(groups, args.offline)
+    pad_pq = padmatch.ensure_pad(CACHE / "pad", args.offline, log=log)
+    pad = padmatch.PadIndex(pad_pq) if pad_pq else None
+    addr_geo, addr_geo_stats = geocode_addresses(groups, args.offline, pad)
     addrs, aid_remap = key_pages(groups, addr_geo)
     addr_geo_stats["pages"] = len(addrs)
     addr_geo_stats["pages_keyed_on_bin"] = sum(1 for a in addrs.values() if a["bin"])
@@ -445,6 +451,15 @@ def main(argv=None) -> int:
     # where GeoSearch puts them. Only a point so far out that a 500 ft circle around it leaves
     # the pulled box (measure_box) gets no proximity facts: "nothing nearby" there would be
     # false. The page says so instead.
+    # The City's point for each record on a matched page (#96). data.ny.gov generates SLA's
+    # `georeference` from the address text, and for Queens numbers written without the hyphen it
+    # lands blocks away (2026-11-05: 249 of 852 such licenses over 1,000 ft off; LAMP's own pins
+    # were 92-203 ft from the City's point in a 4-license check). Records keep their own lon/lat;
+    # plon/plat is what map dots, LAMP links and the 500 ft count use when present.
+    for a in addrs.values():
+        if a["point"]["source"] == "geosearch" and a["lon"] is not None:
+            for r in a["records"]:
+                r["plon"], r["plat"] = a["lon"], a["lat"]
     measure_box = bbox_with_margin(dx, dy, SW_BUFFER_FT - LIQUOR_COUNT_FT)
     con.execute("CREATE TABLE apts (id VARCHAR, lon DOUBLE, lat DOUBLE)")
     con.executemany("INSERT INTO apts VALUES (?, ?, ?)",
@@ -667,10 +682,35 @@ def main(argv=None) -> int:
     # rows for New York and Kings plus Queens (extra_liq), kept when inside the widened box. One "premises" =
     # one address page, or one street + ZIP key for licenses without a page.
     onprem = []
+    onprem_points = {"address_page": 0, "city_address_file": 0, "sla_point": 0}
+    def in_license_box(lon, lat) -> bool:
+        return (lon is not None and license_box[0] <= lon <= license_box[2]
+                and license_box[1] <= lat <= license_box[3])
+
     for row in raw["liquor_active"] + extra_liq:
         if not is_on_premises_liquor(row.get("type"), row.get("class")):
             continue
         r = normalize_record(lsrc, row)
+        page = addrs.get(aid_remap.get(r["aid"], r["aid"]))
+        on_page = bool(page and page["point"]["source"] == "geosearch" and page["lon"] is not None)
+        if not on_page and not in_license_box(r["lon"], r["lat"]):
+            continue
+        # Measure from the City's point (#96): the license's address page when it has a matched
+        # one; otherwise the City's address file for any row whose SLA point is within the wider
+        # license box (a wrong point outside sw_box can still belong to a building inside it).
+        if on_page:
+            r["lon"], r["lat"] = page["lon"], page["lat"]
+            onprem_points["address_page"] += 1
+        elif pad and r.get("lon") is not None:
+            boro = padmatch.BORO_DIGIT.get(str(row.get("premisescounty", "")).strip().upper())
+            hit = pad.lookup(r.get("street"), boro, r.get("zip"), (r["lon"], r["lat"])) if boro else None
+            if hit:
+                r["lon"], r["lat"] = hit["lon"], hit["lat"]
+                onprem_points["city_address_file"] += 1
+            else:
+                onprem_points["sla_point"] += 1
+        else:
+            onprem_points["sla_point"] += 1
         if not in_box(r["lon"], r["lat"]):
             continue
         r["premises"] = aid_remap.get(r["aid"], r["aid"]) or f"pt:{r['lon']:.5f},{r['lat']:.5f}"
@@ -703,7 +743,7 @@ def main(argv=None) -> int:
     def slim(r):
         keep = ("source", "rid", "name", "legal_name", "dba", "street", "street2", "city", "zip",
                 "type", "cls", "ltype", "lclass", "status", "date", "date_label", "issued",
-                "operational", "aid", "lon", "lat", "geocoded")
+                "operational", "aid", "lon", "lat", "plon", "plat", "geocoded")
         return {k: r[k] for k in keep if r.get(k) not in (None, "")}
 
     counts: dict[str, dict] = {}
@@ -755,7 +795,8 @@ def main(argv=None) -> int:
                             "o": round(ft)}}
             for f, ft in dfac]})
         feats = [{"type": "Feature", "geometry": {"type": "Point",
-                                                  "coordinates": [r["lon"], r["lat"]]},
+                                                  "coordinates": [r.get("plon", r["lon"]),
+                                                                  r.get("plat", r["lat"])]},
                   "properties": {"source": r["source"], "name": r["name"], "aid": r.get("aid", ""),
                                  "street": r.get("street", ""), "status": r.get("status", "")}}
                  for r in drecs if r.get("lon") is not None]
@@ -923,6 +964,8 @@ def main(argv=None) -> int:
             "axis_check_median_gap_ft": sw_axis_gap,
             "schools_fetched": len(schools), "worship_fetched": len(worship),
             "on_premises_licenses_in_box": len(onprem),
+            "on_premises_license_points": onprem_points,
+            "license_point_slack_ft": LICENSE_POINT_SLACK_FT,
             "on_premises_licenses_in_box_by_county": {
                 c: sum(1 for r in onprem if r["county"] == c)
                 for c in sorted({r["county"] for r in onprem})},
