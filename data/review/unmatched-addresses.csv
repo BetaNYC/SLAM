@@ -1,0 +1,13 @@
+district,street,zip,status,geosearch_top_hit,sources,records
+bk-cd4,181 SAINT NICOLAS AVENUE,11237,low_confidence,"181 ST MARK'S AVENUE, Brooklyn, NY, USA",liquor_active,1
+mn-cd1,110 CHAMBERS S,10007,low_confidence,"110 CHAMBERS STREET, New York, NY, USA",cannabis_retail,1
+mn-cd1,130 WILLIAMS ST,10038,low_confidence,"130 WILLIAMS PLACE, New York, NY, USA",liquor_inactive,1
+mn-cd1,133 Greenwich LLC,10006,low_confidence,"133 GREENWICH STREET, New York, NY, USA",liquor_active,1
+mn-cd1,16 16 1/2 DOVER STREET,10038,low_confidence,"16 1/2 DOVER STREET, New York, NY, USA",liquor_inactive,1
+mn-cd1,333C KING AVE GOVERNORS ISLAND,10004,unmatched,,liquor_inactive,1
+mn-cd1,416 clayton road,10004,low_confidence,"518 CLAYTON ROAD, New York, NY, USA",liquor_active;liquor_inactive,2
+mn-cd1,515 HAY RD,10004,low_confidence,"513D HAY ROAD, New York, NY, USA",liquor_inactive,1
+mn-cd1,62 66 THOMAS ST AKA137 41DUANE,10007,low_confidence,"66 THOMAS STREET, New York, NY, USA",liquor_inactive,1
+mn-cd1,825 Gresham Rd,10004,low_confidence,"920 GRESHAM ROAD, New York, NY, USA",liquor_active;liquor_pending,2
+mn-cd1,8789 GREENWICH STREET,10006,low_confidence,"37 GREENWICH STREET, New York, NY, USA",dining_out,1
+mn-cd1,GOVERNEUR LN SOUTH ST PIER 11,10007,low_confidence,"7430 PARK LA SOUTH, Woodhaven, NY, USA",liquor_active,4
