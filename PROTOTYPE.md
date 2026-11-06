@@ -18,7 +18,7 @@ uv run python build.py             # live fetch (anonymous, read-only)
 uv run python build.py --offline   # rebuild from pipeline/.cache/raw, no network
 uv run pytest -q                   # 90 tests against recorded real responses
 
-# 2. Site: static SvelteKit build (prerenders ~1,300 address pages)
+# 2. Site: static SvelteKit build (one address page for every address, #84)
 cd ../site
 npm install
 npm test                           # node --test, 76 tests (some read the built static/data and site/build)
@@ -434,7 +434,7 @@ Built 2026-11-04. The hours and method-of-operation half of #63 stays research.
    **low confidence** (GeoSearch answered, nothing passed) or **unmatched** (no features).
 4. Matched groups are keyed on PAD's BIN (`properties.addendum.pad.bin`). Placeholder "million BINs"
    (`x000000`, e.g. Brooklyn Bridge Park → 3000000) are never keys. Groups with the same BIN become one
-   page, whose id **is** the BIN (`/address/3071959/`). Everything else keeps its old 10-character id.
+   page, whose id **is** the BIN (`/address/?id=3071959`; before #84, `/address/3071959/`). Everything else keeps its old 10-character id.
    Nothing is dropped.
 5. The page shows the BIN and, when merged, every street + ZIP the sources used. 311 "at this address"
    now follows the merge.
@@ -458,7 +458,7 @@ Loaded by the browser only when a suggestion is picked.
 **Site: the search box.** In the header of every page (`+layout.svelte`).
 - After 2 characters, debounced 250 ms, the browser calls GeoSearch `/v2/autocomplete?text=` (keyless)
   and lists up to 5 suggestions. Out-of-order responses are dropped, as the GeoSearch docs warn.
-- Picking one opens `/address/<BIN>/`. If there is no page for that BIN, it opens the nearest page within
+- Picking one opens `/address/?id=<BIN>`. If there is no page for that BIN, it opens the nearest page within
   **30 m** (`NEAREST_PAGE_M` in `build.py`), and that page says "nearest page on file, about N m away".
   30 m because SLA's points sit about 25 m from PAD's address point (44 Wilson Ave). Otherwise the box
   says "Nothing on file here yet" with a link to the district map centered on that spot
@@ -487,7 +487,8 @@ responses.
 - **TLS.** uv-managed Pythons do not see the macOS keychain, so `net.py` uses `truststore`.
 - **SvelteKit 3.** No `svelte.config.js` (config lives in `vite.config.js`), `#lib` instead of `$lib`,
   `resolve()`/`asset()` from `$app/paths`. Data is read at build time in `+page.server.js` via
-  `src/lib/server/data.js`, and `entries()` lists every district and address to prerender.
+  `src/lib/server/data.js`, and `entries()` lists every district to prerender. Address pages are not
+  prerendered one by one any more (#84): see "One address page".
 
 ## About page and palette (#71, #72)
 
@@ -666,3 +667,75 @@ responses.
   is only as fresh as the last live build; an ArcGIS error body (served with HTTP 200) is logged
   and drops the links. The LAMP-record paragraph shows only when the links exist. Not checked yet:
   that the field names are still in each layer (the check covers layer id and service).
+## One address page (#84)
+
+Measured 2026-11-05 on the same data (1,105 address pages, two districts):
+
+| | before | after |
+|---|---|---|
+| `site/build` | 98.8 MB | 21.8 MB |
+| HTML files | 1,113 | 10 |
+| `build/address/` | 76 MB (1,105 prerendered pages, about 70 KB each) | 32 KB (one shell) |
+| Address data files (`data/address/<id>.json`, already published) | 9.8 MB, 8.9 KB each | unchanged |
+
+**Citywide projection** (25,000-30,000 addresses, #93): address files about 225-270 MB plus their
+list (`address/index.json`, about 3-4 MB); district pages and district data (about 3.8 MB per pilot
+district today; the pilots are busy districts, so 140-230 MB for 59, scaling by 311 volume or by
+district count); the app about 2 MB. **About 0.4-0.5 GB**, against roughly 2-2.6 GB with one HTML
+page per address and GitHub Pages' 1 GB limit.
+
+**Design: one page at `/address/?id=<id>`, old links forwarded by `404.html`.**
+- `src/routes/address/+page.svelte` is prerendered once, as a shell. In the browser it reads `id`
+  from the query string and fetches `data/address/<id>.json`, the same file the map side panel
+  already fetched (`MapPanel.svelte`). The page body is `AddressView.svelte`, the old page's markup
+  unchanged: every section, the print button and print styles, headings, tables with captions,
+  the approximate-distance note, Boundaries Map and LAMP links. `?q=&m=` from the search box still
+  shows the nearest-page note. A `#section` in a shared link is scrolled to once the data is in.
+- The parts that are the same on every address (the 500-foot rule's name and link, SLA class names,
+  the cannabis distances) come from the page's own build-time load, as before.
+- States: "Loading this address…" (`role=status`; a `<noscript>` note in the shell), "This address
+  isn't in SLAM" (no file, HTTP 404, or an id that is not a page id: only `[A-Za-z0-9_-]{1,40}` is
+  ever fetched), "No address was chosen" (no `id`), and a network or server error with a Try again
+  button (`role=alert`). Logic in `src/lib/addressPage.js`; links via `addressHref()` in
+  `src/lib/addressLink.js`.
+- **Old links** (`/address/<id>/`, shared, printed, bookmarked): GitHub Pages serves `404.html` for
+  any path with no file ([docs](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site)).
+  `site/static/404.html` is a plain page whose first script turns `/address/<id>/` into
+  `/address/?id=<id>`, keeping `?q=&m=` and `#hash`, with `location.replace` so Back skips it.
+  Any other unknown path gets a plain "Page not found". It is not SvelteKit's `fallback` page.
+
+**Why not adapter-static's `fallback` (an SPA route `/address/[id]` served by `404.html`).** The
+[adapter-static docs](https://svelte.dev/docs/kit/adapter-static) suggest `fallback: '404.html'` for
+GitHub Pages, and the [single-page apps docs](https://svelte.dev/docs/kit/single-page-apps) say a
+fallback route needs `ssr = false`. It would keep the old URLs as they are, but:
+- every address URL would answer **HTTP 404** forever, which link previews, crawlers and link
+  checkers read as a dead page;
+- the root layout reads the manifest in a server `load`, whose output SvelteKit writes next to
+  prerendered pages only, so a fallback route would need that load reworked (not tried);
+- every unknown path would boot the whole app.
+With the query-string page, the canonical address URL answers **200**; only old links pass through
+one 404 and a redirect.
+
+**Trade-offs, honestly.**
+- HTTP status: new URLs 200; old URLs 404, then forwarded in the browser.
+- Link previews and search engines: an address URL no longer carries the street in its HTML title;
+  previews show the generic shell. (The 1,105 prerendered pages did.)
+- No JavaScript: the address page cannot show an address. The shell says so and points to the
+  district pages, which still list every address as plain HTML. Old links without JavaScript show
+  the "Page not found" page with a link home.
+- Print: unchanged once the page has loaded (same component, same print CSS).
+- Per-address file, not one file per district: a district file would be 4-5 MB for the pilot
+  districts (the sum of their address files) to show one address, while the per-address file is
+  about 9 KB and was already published for the map panel. One file per district stays the plan for
+  the lookup data (#85).
+
+**Tests.** `site/tests/addressPage.test.js` (query parsing, id validation, links, every load state
+with a fake `fetch`, the `404.html` forwarder run in `node:vm`, the built shell). Tests that read
+`build/address/<id>/index.html` now render `AddressView.svelte` with `svelte/server` from every real
+address file (`tests/helpers/`: Node module hooks compile `.svelte` and stand in for `$app/paths`).
+Browser check, private headless Chromium against a server that answers like GitHub Pages
+(`404.html` with status 404): direct open, old link with `#health`, district list, nearby link,
+map side panel → page → Back (same `#v=`), live search to a BIN page, nearest-page fallback
+(GeoSearch answer stubbed), unknown, invalid and missing ids, network error and retry, print, no
+JavaScript. 0 unexpected console errors.
+

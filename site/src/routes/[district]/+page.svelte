@@ -1,5 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
+	import { addressHref } from '#lib/addressLink.js';
 	import RecordTable from './RecordTable.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
@@ -178,7 +179,7 @@
 					{#each rest as r (r.camis)}
 						<tr>
 							<td>{r.dba}<br /><span class="muted">CAMIS {r.camis}</span></td>
-							<td>{#if r.aid}<a href={resolve('/address/[id]', { id: r.aid })}>{r.street}</a>{:else}{r.street}<br /><span class="muted">not on an address page</span>{/if}</td>
+							<td>{#if r.aid}<a href={addressHref(r.aid)}>{r.street}</a>{:else}{r.street}<br /><span class="muted">not on an address page</span>{/if}</td>
 							<td>{r.grade}</td>
 							<td class="nowrap">{r.grade_date}</td>
 							<td class="nowrap">{r.last_inspected}</td>

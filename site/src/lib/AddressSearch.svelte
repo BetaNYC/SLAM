@@ -7,6 +7,7 @@
 	// Nothing typed or picked is stored: no localStorage, no cookies, fetches use no-store.
 	import { afterNavigate, goto } from '$app/navigation';
 	import { asset, resolve } from '$app/paths';
+	import { addressHref } from '#lib/addressLink.js';
 	import {
 		DEBOUNCE_MS,
 		FETCH_OPTS,
@@ -115,11 +116,10 @@
 		const where = resolvePick(s, index);
 		if (where.kind === 'page') {
 			result = null;
-			goto(resolve('/address/[id]', { id: where.id }));
+			goto(addressHref(where.id));
 		} else if (where.kind === 'near') {
 			result = null;
-			const q = new URLSearchParams({ q: s.label, m: String(where.m) });
-			goto(`${resolve('/address/[id]', { id: where.id })}/?${q}`);
+			goto(addressHref(where.id, { q: s.label, m: String(where.m) }));
 		} else {
 			const slug = districtAt(s.lon, s.lat, districts);
 			result = slug
