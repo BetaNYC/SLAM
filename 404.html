@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Page not found — SLAM v2 prototype</title>
+<script>
+// GitHub Pages serves this file, with HTTP status 404, for any path that has no file
+// (docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site).
+// Until #84 every address had its own page at /address/<id>/. Those links are shared and printed,
+// so this forwards them to the one address page, /address/?id=<id>, keeping ?q=&m= and the #hash.
+// location.replace keeps this 404 out of the Back history. Tested in site/tests/addressPage.test.js.
+(function (w) {
+	function legacyAddressTarget(pathname, search, hash) {
+		// Also /address/<id>/index.html, which some tools write out (code review nit 7). The site is
+		// served at the domain root (slam.beta.nyc); a project-path deploy would need a base prefix.
+		var m = /^\/address\/([A-Za-z0-9_-]{1,40})\/?(?:index\.html)?$/.exec(pathname);
+		if (!m) return null;
+		var rest = new URLSearchParams(search);
+		rest.delete('id');
+		var tail = rest.toString();
+		return '/address/?id=' + encodeURIComponent(m[1]) + (tail ? '&' + tail : '') + (hash || '');
+	}
+	w.slamLegacyAddressTarget = legacyAddressTarget;
+	var target = legacyAddressTarget(w.location.pathname, w.location.search, w.location.hash);
+	if (target) w.location.replace(target);
+})(window);
+</script>
+<style>
+	body { font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #414141; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
+	a { color: #2359a8; }
+</style>
+</head>
+<body>
+<main>
+	<h1>Page not found</h1>
+	<p>There is no page at this address on SLAM, the SLA Mapper.</p>
+	<p>An old link to an address page? Those open automatically when JavaScript is on. Otherwise, start from the
+		<a href="/">district list</a> and use its address lists.</p>
+</main>
+</body>
+</html>
