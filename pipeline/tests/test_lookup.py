@@ -35,3 +35,30 @@ def test_index_has_radius_and_bbox_of_each_districts_points():
 def test_bin_without_a_borough_digit_fails_loud():
     with pytest.raises(ValueError):
         split_lookup([{"id": "x", "bin": "0123456", "district": "mn-cd1", "lon": 0, "lat": 0}], 30)
+
+
+# #104: one outline file per district, and its bbox in the index.
+SQUARE = {"type": "Polygon", "coordinates": [[[-74.0200001, 40.70], [-74.00, 40.70], [-74.00, 40.7200004],
+                                              [-74.0200001, 40.70]]]}
+MULTI = {"type": "MultiPolygon", "coordinates": [[[[-73.95, 40.69], [-73.90, 40.69], [-73.90, 40.71],
+                                                   [-73.95, 40.69]]]]}
+
+
+def test_outline_files_rounded_exact_and_area_in_index():
+    out = split_lookup(PAGES, 30, {"mn-cd1": SQUARE, "bk-cd4": MULTI, "qn-cd1": SQUARE})
+    f = out["outline-mn-cd1.json"]
+    assert f["properties"] == {"slug": "mn-cd1"} and f["geometry"]["type"] == "Polygon"
+    assert f["geometry"]["coordinates"][0][0] == [-74.02, 40.7]  # rounded, not simplified
+    assert len(f["geometry"]["coordinates"][0]) == 4
+    idx = out["index.json"]["districts"]
+    assert idx["mn-cd1"]["area"] == [-74.02, 40.7, -74.0, 40.72]
+    assert idx["mn-cd1"]["bbox"] == [-74.012346, 40.701234, -74.01, 40.71]  # points bbox kept
+    assert idx["bk-cd4"]["area"] == [-73.95, 40.69, -73.9, 40.71]
+    # a district with an outline and no page points is still listed, so a miss there is placed
+    assert idx["qn-cd1"] == {"n": 0, "area": [-74.02, 40.7, -74.0, 40.72]}
+    assert "points-qn-cd1.json" not in out
+
+
+def test_outline_that_is_not_a_polygon_fails_loud():
+    with pytest.raises(ValueError):
+        split_lookup(PAGES, 30, {"mn-cd1": {"type": "Point", "coordinates": [0, 0]}})

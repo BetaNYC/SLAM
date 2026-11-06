@@ -935,7 +935,9 @@ def main(argv=None) -> int:
     write_json(OUT / "address" / "index.json", index)
     # The search box's lookup files (#59), split by borough and district so a search loads only
     # what it needs (#85; slam_pipeline/lookup.py). Outside address/ so the sweep below ignores them.
-    lookup_files = lookup.split_lookup(addrs.values(), NEAREST_PAGE_M)
+    lookup_files = lookup.split_lookup(
+        addrs.values(), NEAREST_PAGE_M,
+        {by_cd[int(f["properties"]["boro_cd"])]: f["geometry"] for f in dgeo["features"]})
     for name, payload in lookup_files.items():
         write_json(OUT / "lookup" / name, payload)
     stale = [p for p in (OUT / "lookup").glob("*.json") if p.name not in lookup_files]

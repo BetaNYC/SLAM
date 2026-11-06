@@ -14,6 +14,8 @@ import {
 	realBin,
 	resolvePick,
 	locate,
+	districtFor,
+	districtsCovering,
 	cachedLoader,
 	districtsNear,
 	searchUrl,
@@ -83,11 +85,30 @@ test('districtAt uses the polygons, with holes', () => {
 	assert.equal(districtAt(11, 1, gj), null);
 });
 
-test('districtAt on the built districts.geojson finds 185 Greenwich in MN CD 1', () => {
+test('districtFor on the built outline files: one outline per miss, none outside every district (#104)', async () => {
+	const cases = [
+		[-74.011421, 40.711541, 'mn-cd1', ['data/lookup/index.json', 'data/lookup/outline-mn-cd1.json']], // 185 Greenwich
+		[-73.929618, 40.702633, 'bk-cd4', ['data/lookup/index.json', 'data/lookup/outline-bk-cd4.json']], // 44 Wilson Ave
+		[-74.15, 40.58, null, ['data/lookup/index.json']] // Staten Island: no outline loaded at all
+	];
+	for (const [lon, lat, want, files] of cases) {
+		const { asked, load } = realLoader();
+		assert.equal(await districtFor(lon, lat, load), want);
+		assert.deepEqual(asked, files);
+	}
+	// Upper East Side: may load an outline whose bbox reaches it, but is in no pilot district
+	assert.equal(await districtFor(-73.95, 40.78, realLoader().load), null);
+	// same answers as the full districts.geojson the map still uses
 	const d = JSON.parse(readFileSync('static/data/districts.geojson', 'utf8'));
-	assert.equal(districtAt(-74.011421, 40.711541, d), 'mn-cd1');
-	assert.equal(districtAt(-73.929618, 40.702633, d), 'bk-cd4');
-	assert.equal(districtAt(-73.95, 40.78, d), null, 'Upper East Side is outside the pilot');
+	for (const [lon, lat] of [[-74.011421, 40.711541], [-73.929618, 40.702633], [-73.95, 40.78], [-74.15, 40.58]]) {
+		assert.equal(await districtFor(lon, lat, realLoader().load), districtAt(lon, lat, d));
+	}
+});
+
+test('districtsCovering uses the outline bbox, and skips districts without one', () => {
+	const index = { districts: { a: { area: [-74, 40.7, -73.99, 40.71], bbox: [0, 0, 0, 0] }, b: { bbox: [-74, 40.7, -73.99, 40.71] } } };
+	assert.deepEqual(districtsCovering(-73.995, 40.705, index), ['a']);
+	assert.deepEqual(districtsCovering(-73.98, 40.705, index), []);
 });
 
 test('nextActive: arrows wrap, nothing to move through stays -1', () => {
