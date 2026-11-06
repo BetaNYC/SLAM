@@ -1,5 +1,6 @@
 <script>
 	import { resolve } from '$app/paths';
+	import { addressHref } from '#lib/addressLink.js';
 	import { addressLine, lampUrl, lampRecordUrl } from '#lib/format.js';
 
 	/** `lampLevel` set = SLA liquor rows (#63): show the license ID and a LAMP link.
@@ -32,7 +33,7 @@
 							>{/if}
 					</td>
 					<td>
-						{#if r.aid}<a href={resolve('/address/[id]', { id: r.aid })}>{addressLine(r)}</a>{:else}{addressLine(
+						{#if r.aid}<a href={addressHref(r.aid)}>{addressLine(r)}</a>{:else}{addressLine(
 								r
 							)}{/if}
 						{#if !r.lon}<br /><span class="muted">(not mapped)</span>{/if}

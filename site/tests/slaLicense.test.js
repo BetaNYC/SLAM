@@ -1,5 +1,6 @@
 // SLA license record (#63): LAMP link, license ID and class, where hours live. node --test.
 import { test } from 'node:test';
+import { renderAddress } from './helpers/addressView.js';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { lampUrl, SLA_SOURCES } from '../src/lib/format.js';
@@ -28,7 +29,7 @@ test('lampUrl keeps the zoom level it is given', () => {
 
 test('query= links only through lampRecordUrl, and no verdict words in the license code', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/routes/address/[id]/+page.svelte', 'src/lib/format.js']) {
+	for (const f of ['src/lib/SlaLicenseNote.svelte', 'src/routes/[district]/RecordTable.svelte', 'src/routes/address/AddressView.svelte', 'src/lib/format.js']) {
 		const s = readFileSync(f, 'utf8');
 		assert.equal(s.match(verdict), null, f);
 		// #63: the only per-license LAMP URL is built by lampRecordUrl from the checked manifest settings.
@@ -63,12 +64,13 @@ test('built data: every SLA record on an address page has its type, class and ID
 	assert.ok(withPoint === n, `with a LAMP link: ${withPoint} of ${n}`);
 });
 
-test('built site: an address page links LAMP at the City point for the building and the Full Board page', { skip: !existsSync('build/address') }, () => {
-	const idx = JSON.parse(readFileSync('static/data/bin-index.json', 'utf8'));
-	const id = idx.bins['3071959']; // 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616)
-	const html = readFileSync(`build/address/${id}/index.html`, 'utf8').replace(/\s+/g, ' ');
+test('an address page links LAMP at the City point for the building and the Full Board page', async () => {
+	// 44 Wilson Ave, Brooklyn (GOLDSOUNDS, 0370-22-104616), found by license ID so the test does
+	// not depend on the lookup file layout (bin-index.json before #85, lookup/ after).
+	const f = readdirSync('static/data/address').find((n) => n !== 'index.json' && readFileSync(`static/data/address/${n}`, 'utf8').includes('"0370-22-104616"'));
+	const a = JSON.parse(readFileSync(`static/data/address/${f}`, 'utf8'));
+	const html = (await renderAddress(a)).replace(/\s+/g, ' ');
 	// #96: centered on the City's address point for the building (the page point), not SLA's.
-	const a = JSON.parse(readFileSync(`static/data/address/${id}.json`, 'utf8'));
 	const r5 = (v) => String(Number(v.toFixed(5)));
 	assert.equal(a.point.source, 'geosearch');
 	assert.ok(html.includes(`https://lamp.sla.ny.gov/?center=${r5(a.lon)},${r5(a.lat)}&amp;level=18`));

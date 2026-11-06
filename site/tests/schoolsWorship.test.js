@@ -35,7 +35,7 @@ test('popupSW builds text nodes, never HTML', () => {
 // "permitted" is left out: the street-events dataset is called "NYC Permitted Event Information".
 test('no verdict words in the address page, the map page or the rule data', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	for (const f of ['src/routes/address/[id]/+page.svelte', 'src/routes/[district]/map/+page.svelte', 'src/routes/rules/+page.svelte', 'src/lib/format.js', 'src/lib/popupSW.js']) {
+	for (const f of ['src/routes/address/AddressView.svelte', 'src/routes/address/+page.svelte', 'static/404.html', 'src/routes/[district]/map/+page.svelte', 'src/routes/rules/+page.svelte', 'src/lib/format.js', 'src/lib/popupSW.js']) {
 		const m = readFileSync(f, 'utf8').match(verdict);
 		assert.equal(m, null, `${f}: ${m?.[0]}`);
 	}
@@ -125,8 +125,8 @@ test('map layer and list view hold the same schools and worship points (the map 
 });
 
 test('the full statute text is on /rules only, not on every address page', () => {
-	const addr = readFileSync('src/routes/address/[id]/+page.svelte', 'utf8');
-	const server = readFileSync('src/routes/address/[id]/+page.server.js', 'utf8');
+	const addr = readFileSync('src/routes/address/AddressView.svelte', 'utf8');
+	const server = readFileSync('src/routes/address/+page.server.js', 'utf8');
 	assert.doesNotMatch(addr, /rule\.(lead|a|b|c)\b/);
 	assert.match(server, /rule = \{ law: rules\.law, url: rules\.url \}/);
 	assert.match(addr, /resolve\('\/rules'/);
