@@ -46,10 +46,10 @@ LICENSE_COUNT_EXTRA_COUNTIES = ("Queens", "QUEENS")
 # One line to change the window. created_date is a floating timestamp; SoQL compares it
 # to an ISO date string. 2010-2019 is a separate dataset (76ig-c548), not used here.
 COMPLAINTS_311_START = "2022-01-01"  # Noel, 2026-11-05 (was 2024-01-01)
-# Last day included (Noel, 2026-11-05: "2022-01-01 through 2026-11-04"). The query uses
-# created_date < the next day, so every complaint on the end date is kept. Set to None to run
-# through the newest data.
-COMPLAINTS_311_END = "2026-11-04"
+# Last day included, or None to run through the newest data. None since #90 (Noel, 2026-11-05):
+# the nightly build keeps the window current. It was "2026-11-04" for the first build. With a
+# date, the query uses created_date < the next day, so every complaint on that date is kept.
+COMPLAINTS_311_END = None
 COMPLAINTS_311_END_EXCLUSIVE = (
     (_dt.date.fromisoformat(COMPLAINTS_311_END) + _dt.timedelta(days=1)).isoformat()
     if COMPLAINTS_311_END else None)
