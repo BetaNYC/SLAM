@@ -44,12 +44,19 @@ _EXTRA = {
     "SO": "S", "NO": "N",
     "SAINT": "ST", "FT": "FORT", "MT": "MOUNT",
     "EXTENSION": "EXT", "EXTN": "EXT",
+    # Misspellings seen in SLA leftovers, 2026-11-05 (#95).
+    "HGWY": "HWY", "HIGWAY": "HWY", "PKW": "PKWY", "PRKWY": "PKWY", "AVEUE": "AVE", "AVENE": "AVE",
+    "AVNEUE": "AVE", "BOULEARD": "BLVD", "BOULVARD": "BLVD", "BLVRD": "BLVD", "STEET": "ST",
 }
 # Extra folding for place names (PAD's named places with no house number, e.g. "JFK
 # INTERNATIONAL ARPRT", "TAVERN ON THE GREEN"). Applied to both sides.
 _PLACE = {"AIRPORT": "ARPRT", "ARPT": "ARPRT", "AIRPRT": "ARPRT", "INT'L": "INTERNATIONAL",
           "INTL": "INTERNATIONAL", "TERM": "TERMINAL", "CTR": "CENTER", "CNTR": "CENTER",
           "LAGUARDIA": "LA GUARDIA", "UNIV": "UNIVERSITY", "PK": "PARK", "THE": ""}
+# Street words after which a trailing ordinal is a floor, not a street ("25 BROADWAY 9TH").
+_FLOOR_AFTER = {"ST", "STREET", "AVE", "AVENUE", "BLVD", "BOULEVARD", "RD", "ROAD", "PL", "PLACE",
+                "DR", "DRIVE", "LN", "LANE", "CT", "COURT", "SLIP", "BROADWAY", "BOWERY", "PLZ",
+                "PLAZA", "PKWY", "PARKWAY", "HWY", "SQ", "TER", "WAY"}
 _BARE_TYPES = {"ST", "AVE", "BLVD", "PL", "RD", "DR", "LN", "PLZ", "PKWY", "SQ", "TER", "CT",
                "HWY", "EXPY", "TPKE", "WAY", "CIR", "CRES", "N", "S", "E", "W"}
 _WORDNUM = {"ONE": "1", "TWO": "2", "THREE": "3", "FOUR": "4", "FIVE": "5", "SIX": "6",
@@ -102,11 +109,29 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             seen.add((num, sk))
             out.append((num, sk, rule))
 
+    # AKA written without spaces: "120 BROADWAY A/K/A15 NASSAU ST", "AKA251VESEYST".
+    raw = re.sub(r"\s*(A/K/A|AKA)(?=\d)", r" \1 ", raw)
     texts = [(raw, "as written")]
+    # Floor text, tried as an extra reading so the original always stays first (review S4):
+    # "50 HUDSON YARDS 7TH FL" -> "50 HUDSON YARDS"; a bare floor number after a street word,
+    # "25 BROADWAY 9TH", "32 OLD SLIP 2ND" -- but never "200 WEST 42ND" (42ND is the street).
+    floor = re.sub(r"\s+\d+(?:ST|ND|RD|TH)?(?:\s*(?:AND|&|-|,)\s*\d+(?:ST|ND|RD|TH)?)*"
+                   r"\s+(?:FL|FLR|FLRS|FLOOR|FLOORS)\b.*$", "", raw)
+    m_floor = re.match(r"^(.*\b([A-Z]+))\s+\d+(?:ST|ND|RD|TH)$", floor)
+    if m_floor and m_floor.group(2) in _FLOOR_AFTER:
+        floor = m_floor.group(1)
+    if floor != raw:
+        texts.append((floor, "floor text removed"))
+        raw = floor  # the cuts below work on the text without floor words
     # Trailing text after " - ", "(", "#": "1185 BROADWAY- ZAYTINYA", "210 W 55 ST (ENTIRE BLDG)".
-    cut = re.split(r"\s*-\s+(?=[A-Z])|\s+-\s*|\s*\(|\s+#", raw)[0].strip()
+    cut = re.split(r"\s*-\s+(?=[A-Z])|\s+-\s*|(?<=[A-Z]{2})-(?=[A-Z]{3})|\s*\(|\s+#", raw)[0].strip()
     if cut and cut != raw:
         texts.append((cut, "trailing text removed"))
+    # A corner or place note after " AT ", " BETWEEN ", or a slash that is not a fraction:
+    # "80 COLUMBUS CIRCLE AT 60TH ST", "89 EAST 42ND ST/MAIN CONCOURSE" (#95).
+    cut2 = re.split(r"\s+(?:AT|BETWEEN|BTWN|BET|CORNER OF|COR)\s+|(?<!\d)/|/(?!\d)", raw)[0].strip()
+    if cut2 and cut2 != raw and re.match(r"^\d", cut2):
+        texts.append((cut2, "text after AT or a slash removed"))
     # Unit text after a comma or a dash: "55-48 METROPOLITAN AVE, 1ST FL".
     if "," in raw:
         texts.append((raw.split(",")[0].strip(), "text before the comma"))
@@ -129,6 +154,32 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             add(m0.group(1), m0.group(2), base_rule)
         # Other readings of the house number, most specific first.
         pats = [
+            # A Queens number with a range on the end: 29-12-14 23RD AVE -> 29-12 (#95)
+            (r"^(\d{1,3}-\d{1,3})-\d{1,3}\s+(.*)$",
+             lambda m: [(m.group(1), m.group(2), "first of a hyphenated range")]),
+            # A letter written apart: 92-15 B 37TH AVE -> 92-15B, then 92-15 (#95)
+            # N, S, E and W are never stray letters: they are part of the street (W BROADWAY).
+            (r"^(\d{1,3}-\d{1,3})\s+([A-DF-MO-RT-VX-Z])\s+(?=\S*\d|[A-Z]{2})(.*)$",
+             lambda m: [(m.group(1) + m.group(2), m.group(3), "letter written apart"),
+                        (m.group(1), m.group(3), "letter written apart")]),
+            # Three numbers: Queens 136 20 30 ROOSEVELT -> 136-20; elsewhere a range,
+            # 446 448 450 HUDSON ST -> 446 (#95)
+            # (The third number must not be a numbered street: "126 12 101 AVE" is 126-12 101 Ave.)
+            (r"^(\d{1,3})\s+(\d{1,3}[A-Z]?)\s+\d{1,3}[A-Z]?\s+"
+             r"(?!(?:AVE|AVENUE|ST|STREET|RD|ROAD|PL|PLACE|DR|DRIVE|LN|LANE|CT|COURT|TER|TERRACE|BLVD|BOULEVARD)\b)"
+             r"(?=\D|\d+(?:ST|ND|RD|TH)\b)(.*)$",
+             lambda m: ([(f"{m.group(1)}-{m.group(2)}", m.group(3), "Queens number without the hyphen")]
+                        if boro == "4" else [])
+                       + [(m.group(1), m.group(3), "first number of a range")]),
+            # Queens: two numbers then a numbered street: 126 12 101 AVE -> 126-12 101 AVE
+            (r"^(\d{1,3})\s+(\d{1,3}[A-Z]?)\s+(\d+(?:ST|ND|RD|TH)?\s+[A-Z].*)$" if boro == "4" else r"(?!)",
+             lambda m: [(f"{m.group(1)}-{m.group(2)}", m.group(3), "Queens number without the hyphen")]),
+            (r"^(\d{2,5})(?:\s+\d{2,5}){2,}\s+(.*)$",
+             lambda m: [(m.group(1), m.group(2), "first number of a range")]),
+            # A letter written apart from a plain number: 169 B GARDNER AVENUE -> 169B, 169
+            (r"^(\d+)\s+([A-DF-MO-RT-VX-Z])\s+(?=[A-Z]{2}|\d+(?:ST|ND|RD|TH)\b)(.*)$",
+             lambda m: [(m.group(1) + m.group(2), m.group(3), "letter written apart"),
+                        (m.group(1), m.group(3), "letter written apart")]),
             # A repeated Queens range: 47-31 47-33 JUNCTION BLVD -> 47-31
             (r"^(\d{1,3}-\d{1,3}[A-Z]?)\s+\d{1,3}-\d{1,3}[A-Z]?\s+(.*)$",
              lambda m: [(m.group(1), m.group(2), "first of two Queens numbers")]),
@@ -137,7 +188,8 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
              lambda m: [(f"{m.group(1)}-{m.group(2)}{m.group(3)}", m.group(4), "")]
                        + ([(f"{m.group(1)}-{m.group(2)}", m.group(4), "number without its letter")]
                           if m.group(3) else [])
-                       + ([(m.group(1), m.group(4), "first number of a range"),
+                       + ([(m.group(1) + m.group(2) + m.group(3), m.group(4), "hyphen removed outside Queens"),
+                           (m.group(1), m.group(4), "first number of a range"),
                            (m.group(2), m.group(4), "second number of a range")] if boro != "4" else [])),
             # Fractions: 216 1/2 GREENE AVE (the file has "216 1/2"), else the whole number
             (r"^(\d+)\s+(1/2)\s+(.*)$", lambda m: [(m.group(1) + " 1/2", m.group(3), "half number"),
@@ -150,7 +202,9 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
             # Two numbers with a space: in Queens a hyphenated number (104 30 -> 104-30),
             # elsewhere a range (237 243 AVENUE U -> 237).
             (r"^(\d{1,3})\s+(\d{1,3}[A-Z]?)\s+(.*)$",
-             lambda m: ([(m.group(1) + "-" + m.group(2), m.group(3), "Queens number without the hyphen")]
+             lambda m: ([(m.group(1) + "-" + m.group(2), m.group(3), "Queens number without the hyphen"),
+                         (m.group(1) + "-" + re.sub(r"[A-Z]$", "", m.group(2)), m.group(3),
+                          "Queens number without the hyphen")]
                         if boro == "4" else [])
                        + [(m.group(1), m.group(3), "first number of a range"),
                           (m.group(2), m.group(3), "second number of a range")]),
@@ -172,12 +226,14 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
     # ("233 BUTLER ST GROUND FL EAST" -> "233 BUTLER ST"). Only after every other reading.
     for num, sk, rule in list(out):
         toks = sk.split()
-        idx = [i for i, t in enumerate(toks) if t in _BARE_TYPES - {"N", "S", "E", "W"}]
-        if idx and idx[-1] < len(toks) - 1 and idx[-1] > 0:
-            short = " ".join(toks[: idx[-1] + 1])
-            if (num, short) not in seen:
-                seen.add((num, short))
-                out.append((num, short, "words after the street type removed"))
+        idx = [i for i, t in enumerate(toks) if t in _BARE_TYPES - {"N", "S", "E", "W"} and i > 0]
+        # Try the first street-type word first ("LINDEN BLVD ST 3" -> "LINDEN BLVD"), then the last.
+        for i in dict.fromkeys(idx[:1] + idx[-1:]):
+            if i < len(toks) - 1:
+                short = " ".join(toks[: i + 1])
+                if (num, short) not in seen:
+                    seen.add((num, short))
+                    out.append((num, short, "words after the street type removed"))
     return out
 
 
@@ -187,9 +243,12 @@ def candidates(text: str | None, boro: str) -> list[tuple[str, str, str]]:
 # 2026-11-05 on SLA licenses: "21 37 BROADWAY" (21-37 Broadway, Queens) read as a range
 # matched 21 Broadway, Manhattan, 44,844 ft from SLA's point.
 RISKY_RULES = ("first number of a range", "second number of a range", "first of a slash range",
+               "hyphen removed outside Queens", "nearest listed house number", "street name completed",
+               "letter written apart",
                "named place", "borough from the ZIP", "words after the street type removed",
                "first of two addresses", "second of two addresses")
 RISKY_MAX_FT = 1000
+NEAREST_NUMBER_MAX = 6  # house numbers; same side of the street (same parity)
 
 
 def feet_between(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -215,9 +274,16 @@ class PadIndex:
         self.con.execute("CREATE TABLE smap (street VARCHAR, sk VARCHAR)")
         self.con.executemany("INSERT INTO smap VALUES (?, ?)", [[s, street_key(s)] for s in streets])
         self.con.execute("""CREATE TABLE padk AS
-            SELECT p.num, m.sk, substr(p.bbl, 1, 1) AS b, p.bin, p.bbl, p.zipcode, p.lon, p.lat, p.street
+            SELECT p.num, m.sk, replace(m.sk, ' ', '') AS skn, substr(p.bbl, 1, 1) AS b, p.bin, p.bbl,
+                   p.zipcode, p.lon, p.lat, p.street
             FROM pad p JOIN smap m USING (street)""")
         self.con.execute("CREATE INDEX padk_ix ON padk (num, sk, b)")
+        self.con.execute("CREATE INDEX padk_skn ON padk (num, skn, b)")
+        self.con.execute("CREATE INDEX padk_sk_b ON padk (sk, b)")
+        # Each ZIP's borough: the borough most of its addresses are in (#95).
+        self.zip_boro = dict(self.con.execute("""
+            SELECT zipcode, arg_max(b, n) FROM (SELECT zipcode, b, count(*) AS n FROM padk GROUP BY 1, 2)
+            GROUP BY 1""").fetchall())
         places = parquet.with_name("places.parquet")
         self.con.execute("CREATE TABLE places (pk VARCHAR, b VARCHAR, name VARCHAR, bin VARCHAR, bbl VARCHAR, zipcode VARCHAR, lon DOUBLE, lat DOUBLE)")
         if places.exists():
@@ -229,7 +295,7 @@ class PadIndex:
         self.rows = self.con.execute("SELECT count(*) FROM pad").fetchone()[0]
 
     def lookup(self, text: str | None, boro: str, zipcode: str | None = None,
-               near: tuple[float, float] | None = None) -> dict | None:
+               near: tuple[float, float] | None = None, near_reliable: bool = False) -> dict | None:
         """First reading in `candidates` order that the file knows, in the given borough. Then,
         if a ZIP is given, the same readings in any borough with that ZIP (sources sometimes
         file an address under a neighboring county). Then PAD's named places. With several rows,
@@ -239,9 +305,21 @@ class PadIndex:
         def ok(hit: dict | None) -> bool:
             if not hit:
                 return False
-            if near and _risky(hit["rule"]):
-                return feet_between(near, (hit["lon"], hit["lat"])) <= RISKY_MAX_FT
-            return True
+            if not _risky(hit["rule"]):
+                return True
+            # A risky reading must agree with something the record says about itself: its own
+            # point within RISKY_MAX_FT, or (when a source's point is unreliable, as data.ny.gov's
+            # is for odd address text) the same ZIP. With neither to check, it is accepted. The
+            # nearest-number rule always needs the point (#95).
+            if near and feet_between(near, (hit["lon"], hit["lat"])) <= RISKY_MAX_FT:
+                return True
+            if "nearest listed house number" in hit["rule"] or "leading words only" in hit["rule"]:
+                return False
+            if near and near_reliable:  # far from a point we trust: no ZIP excuse (review S1)
+                return False
+            if re.fullmatch(r"\d{5}", z):
+                return hit.get("zip") == z
+            return not near
 
         cands = candidates(text, boro)
         z = (zipcode or "")[:5]
@@ -251,15 +329,75 @@ class PadIndex:
                 [num, sk, boro]).fetchall()
             if rows and ok(hit := self._hit(num, rows, z, rule)):
                 return hit
+        # The street written as one word or two: "CROSSBAY BLVD" / "CROSS BAY BOULEVARD" (#95).
+        for num, sk, rule in cands:
+            rows = self.con.execute(
+                "SELECT bin, bbl, zipcode, lon, lat, street FROM padk WHERE num = ? AND skn = ? AND b = ?",
+                [num, sk.replace(" ", ""), boro]).fetchall()
+            if rows and ok(hit := self._hit(num, rows, z, f"{rule}; street spacing ignored")):
+                return hit
         if re.fullmatch(r"\d{5}", z):
+            # The ZIP's own borough, with that borough's readings (a Queens number filed under
+            # Kings gets the Queens hyphen reading), then any borough with that ZIP.
+            zb = self.zip_boro.get(z)
+            if zb and zb != boro:
+                for num, sk, rule in candidates(text, zb):
+                    rows = self.con.execute(
+                        "SELECT bin, bbl, zipcode, lon, lat, street FROM padk WHERE num = ? AND sk = ? AND b = ?",
+                        [num, sk, zb]).fetchall()
+                    if rows and ok(hit := self._hit(num, rows, z, f"{rule}; borough from the ZIP")):
+                        return hit
             for num, sk, rule in cands:
                 rows = self.con.execute(
                     "SELECT bin, bbl, zipcode, lon, lat, street FROM padk WHERE num = ? AND sk = ? AND zipcode = ?",
                     [num, sk, z]).fetchall()
                 if rows and ok(hit := self._hit(num, rows, z, f"{rule}; borough from the ZIP")):
                     return hit
+        # A street name missing its ending: "2269 ADAM CLAYTON POWELL" -> the one street in this
+        # borough whose name starts that way and has that number (#95).
+        for num, sk, rule in cands[:3]:
+            if len(sk) < 4:  # too short to complete safely ("E", "AVE U")
+                continue
+            rows = self.con.execute(
+                "SELECT bin, bbl, zipcode, lon, lat, street, sk FROM padk WHERE num = ? AND b = ? AND sk LIKE ?",
+                [num, boro, sk + " %"]).fetchall()
+            if not rows and len(sk) >= 5 and " " not in sk:  # a cut-off name: "381 BROADW"
+                rows = self.con.execute(
+                    "SELECT bin, bbl, zipcode, lon, lat, street, sk FROM padk WHERE num = ? AND b = ? AND sk LIKE ?",
+                    [num, boro, sk + "%"]).fetchall()
+            if rows and len({r[6] for r in rows}) == 1:
+                if ok(hit := self._hit(num, [r[:6] for r in rows], z, f"{rule}; street name completed")):
+                    return hit
         hit = self.place(text, boro, z)
-        return hit if ok(hit) else None
+        if ok(hit):
+            return hit
+        return self.nearest_number(cands, boro, z, near)
+
+    def nearest_number(self, cands, boro: str, z: str, near) -> dict | None:
+        """Last resort, point only: a house number the City does not list (311 "804 E TREMONT
+        AVE", between 803 and 805) gets the nearest listed number on the same side of the same
+        street, at most NEAREST_NUMBER_MAX away. It returns no BIN or BBL, because the record may
+        be a different building, and it needs the record's own point to agree (RISKY_MAX_FT)."""
+        if not near or not cands:
+            return None
+        num, sk, rule = cands[0]
+        if not re.fullmatch(r"\d+", num):
+            return None
+        n = int(num)
+        rows = self.con.execute(
+            """SELECT num, lon, lat, zipcode, street FROM padk
+               WHERE sk = ? AND b = ? AND regexp_full_match(num, '\\d+')
+                 AND abs(CAST(num AS INTEGER) - ?) BETWEEN 1 AND ? AND CAST(num AS INTEGER) % 2 = ? % 2""",
+            [sk, boro, n, NEAREST_NUMBER_MAX, n]).fetchall()
+        if not rows:
+            return None
+        rows.sort(key=lambda r: (abs(int(r[0]) - n), r[3] != z, int(r[0])))
+        rn, lon, lat, zz, street = rows[0]
+        if feet_between(near, (lon, lat)) > RISKY_MAX_FT:
+            return None
+        return {"status": "matched", "source": "pad", "bin": None, "bbl": None, "zip": zz,
+                "lon": float(lon), "lat": float(lat), "label": f"{num} {street} (near {rn})",
+                "confidence": 0.5, "rule": "nearest listed house number (point only)", "bins": []}
 
     def place(self, text: str | None, boro: str, z: str = "") -> dict | None:
         """PAD's named places: the longest leading run of words (at least two) that names a
@@ -272,9 +410,10 @@ class PadIndex:
             if rows:
                 rows.sort(key=lambda r: (r[2] != z, real_bin(r[0]) is None, r[0] or ""))
                 b, bbl, zz, lon, lat, name = rows[0]
+                rule = "named place" if n == len(toks) else "named place (leading words only)"
                 return {"status": "matched", "source": "pad", "bin": real_bin(b), "bbl": bbl, "zip": zz,
                         "lon": float(lon), "lat": float(lat), "label": name, "confidence": 1.0,
-                        "rule": "named place", "bins": sorted({r[0] for r in rows if real_bin(r[0])})}
+                        "rule": rule, "bins": sorted({r[0] for r in rows if real_bin(r[0])})}
         return None
 
     def _hit(self, num: str, rows: list, z: str, rule: str) -> dict:

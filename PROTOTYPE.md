@@ -609,9 +609,39 @@ responses.
 - Effect, same data, before → after: licenses in the box 2,293 → 2,283; pages with 3 or more other
   addresses within about 500 ft: MN CD 1 514 → 514, BK CD 4 254 → 253; 499 pages show a different
   count, mostly by 1 to 3, because both ends of each distance now come from the same source.
+
+## Address matching: more readings and a review list (#95)
+
+- New readings in `padmatch.candidates` (each tagged with its rule): Queens numbers with a range on
+  the end (`29-12-14`), three-part Queens numbers (`136 20 30 ROOSEVELT`, `126 12 101 AVE`), a
+  letter written apart (`92-15 B`, `169 B GARDNER`), ranges of three or four numbers, a Brooklyn
+  number written with a hyphen (`65-02 18TH AVE` → 6502), text after " AT " or a slash, floor text
+  (`7TH FL`, `1ST AND 2ND FLRS`, a bare `9TH` at the end), AKA without spaces (`A/K/A15`),
+  street-type misspellings (`HGWY`, `PKW`, `AVEUE`), and the first street-type word when cutting
+  trailing words.
+- New lookups in `PadIndex.lookup`: the street with spaces ignored (`CROSSBAY`), the ZIP's own
+  borough with that borough's readings, a street name missing its ending or cut off
+  (`ADAM CLAYTON POWELL`, `300 WYCKOFF`, `381 BROADW`) when exactly one street fits, and, last,
+  the nearest listed house number on the same side of the street (point only: no BIN or BBL; the
+  page says so).
+- Safety: a risky reading must land within 1,000 ft of the record's own point **or** in the
+  record's ZIP; the nearest-number rule and place names matched on their first words only always
+  need the point.
+- SLAM, same data: 1,269 → **1,291 of 1,303** address groups matched; low confidence 33 → 11;
+  pages keyed on a BIN 1,056 → 1,061. Citywide test (no points for 311): SLA 97.3%, DOHMH 98.7%
+  (BIN agreeing 99.4%), 311 91.9%.
+- Every build writes `site/static/data/review/unmatched-addresses.csv` (district, street, ZIP,
+  status, GeoSearch's top hit, sources, record count) and its row count to the manifest.
 - Review fixes (2026-11-05): license rows are now pulled and re-placed with the City's address
   file within a box one mile wider than `sw_box` (`LICENSE_POINT_SLACK_FT = 5280`), so a license
   whose SLA point is wrong and outside the area but whose building is inside it is counted (Queens
   rows fetched 334 → 619; licenses in the box 2,283 → 2,290; measured from: 466 address page,
   2,918 City file, 43 SLA point). Points off by more than a mile are still missed. The LAMP note now
   says which comparison its numbers come from.
+- Review fixes (2026-11-05): a letter written apart never drops N, S, E or W (`100 W BROADWAY` had
+  matched 100 Broadway) and is now a risky reading; floor text is an extra reading, never a
+  replacement, and a trailing ordinal is a floor only after a street word (`200 WEST 42ND` stays
+  the street); the same-ZIP acceptance applies only when the record's point is not trusted (a group
+  with an SLA record), never against a trusted point; a page placed at the nearest listed number does
+  not pass its neighbor's point to records (`plon`) or to the 500-ft count. Citywide after the
+  fixes: SLA 97.5%, DOHMH 98.6% (BIN agreeing 99.4%), 311 91.9%; SLAM still 1,291 of 1,303.
