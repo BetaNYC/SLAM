@@ -1,7 +1,7 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, boundariesUrl } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, boundariesUrl, statusLabel } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
@@ -92,7 +92,7 @@
 					<td>{r.name}{#if r.dba && r.legal_name && r.dba !== r.legal_name}<br /><span class="muted">{r.legal_name}</span>{/if}
 						{#if r.street2}<br /><span class="muted">{addressLine(r)}</span>{/if}</td>
 					<td>{r.type}{#if SLA_SOURCES.includes(r.source)}<br /><span class="muted">Type {r.ltype ?? '?'} · Class {r.lclass ?? '?'}</span>{:else if r.cls && r.cls !== '/'}<br /><span class="muted">{r.cls}</span>{/if}</td>
-					<td>{r.status}</td>
+					<td>{statusLabel(r)}</td>
 					<td class="nowrap">{#if r.date}{r.date_label} {r.date}{/if}{#if r.issued}<br /><span class="muted">First issued {r.issued}</span>{/if}</td>
 					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}{@const rec = lampRecordUrl(r.source, r.rid, lampQuery)}{#if rec}<br /><a href={rec} aria-label="Open this license in LAMP: {r.name}, {r.rid}">Open this license in LAMP</a>{/if}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
 				</tr>
@@ -123,7 +123,7 @@
 						<td>{n.m} m</td>
 						<td>
 							{#each n.records as r, i (i)}
-								<div><span class="muted">{SOURCE_SHORT[r.source]}:</span> {r.name}{r.status ? ` (${r.status})` : ''}</div>
+								<div><span class="muted">{SOURCE_SHORT[r.source]}:</span> {r.name}{r.status ? ` (${statusLabel(r)})` : ''}</div>
 							{/each}
 						</td>
 					</tr>

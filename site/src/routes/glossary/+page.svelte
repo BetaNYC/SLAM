@@ -126,6 +126,20 @@
 		<dt id="ocm">OCM (Office of Cannabis Management)</dt>
 		<dd>The New York State agency that licenses cannabis businesses, including adult-use retail dispensaries.</dd>
 
+		<dt id="cannabis-in-process">In process (cannabis)</dt>
+		<dd>
+			SLAM shows "In process (not yet issued)" when OCM's license status for a row is "In-Process".
+			The rows come from OCM's Current OCM Licenses dataset on data.ny.gov (jskf-tt3q). OCM says that
+			dataset lists licensees and "applicants who have obtained proximity protection for their
+			proposed adult-use retail and medical dispensaries." So an In-Process row is an applicant with
+			proximity protection for a proposed location. It is not a license yet. SLAM repeats OCM's
+			status; it does not say whether a license will be issued. Cannabis applications without
+			proximity protection are not in any open dataset. A community board hears about those through
+			the applicant's own notice, under
+			<a href="https://www.nysenate.gov/legislation/laws/CAN/76">Cannabis Law §76</a> (see
+			<a href="#cannabis-notice">Community board notice</a>).
+		</dd>
+
 		<dt id="dining-out">Dining Out NYC</dt>
 		<dd>
 			The City's outdoor dining program, run by the Department of Transportation (DOT). It licenses

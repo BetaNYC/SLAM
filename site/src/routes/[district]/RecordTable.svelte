@@ -1,7 +1,7 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
-	import { addressLine, lampUrl, lampRecordUrl } from '#lib/format.js';
+	import { addressLine, lampUrl, lampRecordUrl, statusLabel } from '#lib/format.js';
 
 	/** `lampLevel` set = SLA liquor rows (#63): show the license ID and a LAMP link.
 	 * @type {{rows: any[], caption: string, showClass?: boolean, empty?: string, lampLevel?: number, lampQuery?: any}} */
@@ -39,7 +39,7 @@
 						{#if !r.lon}<br /><span class="muted">(not mapped)</span>{/if}
 					</td>
 					<td>{r.type}{#if sla}<br /><span class="muted">Type {r.ltype ?? '?'} · Class {r.lclass ?? '?'}</span>{:else if showClass && r.cls && r.cls !== '/'}<br /><span class="muted">{r.cls}</span>{/if}</td>
-					<td>{r.status}{#if r.operational}<br /><span class="muted">{r.operational}</span>{/if}</td>
+					<td>{statusLabel(r)}{#if r.operational}<br /><span class="muted">{r.operational}</span>{/if}</td>
 					<td class="nowrap">{#if r.date}<span class="muted">{r.date_label}</span><br />{r.date}{/if}</td>
 					{#if sla}
 						{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}

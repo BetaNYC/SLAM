@@ -262,3 +262,35 @@ export function lampUrl(lon, lat, level = 18) {
 	const r = (/** @type {number} */ v) => String(Number(v.toFixed(5)));
 	return `https://lamp.sla.ny.gov/?center=${r(lon)},${r(lat)}&level=${level}`;
 }
+
+/**
+ * OCM's `license_status` value for a cannabis applicant that is not yet licensed (#110). Current
+ * OCM Licenses (data.ny.gov jskf-tt3q) includes "applicants who have obtained proximity
+ * protection for their proposed adult-use retail and medical dispensaries" (its own description,
+ * read 2026-11-07); those rows carry this status. The value is matched exactly as OCM writes it.
+ */
+export const CANNABIS_IN_PROCESS = 'In-Process';
+export const CANNABIS_IN_PROCESS_LABEL = 'In process (not yet issued)';
+
+/** True for an OCM license row whose `license_status` is In-Process. @param {any} r */
+export function isCannabisInProcess(r) {
+	return r?.source === 'cannabis_license' && r.status === CANNABIS_IN_PROCESS;
+}
+
+/**
+ * The status to show for a record: the source's own status, except an OCM In-Process row, which
+ * is spelled out as not yet issued. It says what OCM's status field says, nothing more.
+ * @param {any} r
+ */
+export function statusLabel(r) {
+	return isCannabisInProcess(r) ? CANNABIS_IN_PROCESS_LABEL : (r?.status ?? '');
+}
+
+/**
+ * Split cannabis rows into In-Process applicants and everything else, each in its original order,
+ * so the not-yet-issued rows can be listed first, like pending liquor applications.
+ * @param {any[]} rows
+ */
+export function splitCannabisInProcess(rows) {
+	return { inProcess: rows.filter(isCannabisInProcess), other: rows.filter((r) => !isCannabisInProcess(r)) };
+}
