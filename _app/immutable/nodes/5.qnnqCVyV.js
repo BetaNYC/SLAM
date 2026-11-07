@@ -33,7 +33,7 @@ import{$ as e,B as t,C as n,D as r,H as i,L as a,M as o,Q as s,R as c,T as l,U a
 		REQUIRED."</p> <h3 class="svelte-cwls5q">November 2026: SLAM v2</h3> <p class="svelte-cwls5q">SLAM v2 is a rebuild with no hosted database and no API keys in the browser
 		(<a>#56</a>). A small program downloads the data from NYC Open Data and
 		data.ny.gov, places each record in today's community district lines, and saves it as web pages
-		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. A nightly automatic update will start when this prototype becomes the main version. It brings back
+		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. It is also rebuilt every night. It brings back
 		what boards used in the first SLAM (<a>#58</a>). It is a prototype: it is live
 		at slam.beta.nyc, and we are testing it with two pilot districts, Manhattan Community District 1
 		and Brooklyn Community District 4.</p></section> <section aria-labelledby="ai-h" class="svelte-cwls5q"><h2 id="ai-h">How we used AI tools</h2> <p class="svelte-cwls5q">We are telling you this under <a href="https://beta.nyc/about/ai-policy">BetaNYC's AI policy</a>.</p> <p class="svelte-cwls5q"><strong>Writing code.</strong> BetaNYC staff built SLAM v2 with the help of Claude, an AI coding
