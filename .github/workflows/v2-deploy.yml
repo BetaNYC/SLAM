@@ -1,7 +1,6 @@
 # SLAM v2: rebuild the data from NYC and NYS open data, test, and publish to slam.beta.nyc.
 # Runs on every push to v2, by hand (Actions tab > Run workflow), and nightly.
-# Note: GitHub only runs `schedule` from the default branch (main). Until v2 is the
-# default branch or merged into main, the nightly run does not fire; push and manual runs do.
+# Note: GitHub only runs `schedule` from the default branch, which is v2.
 # No secrets: every source SLAM v2 reads is open and keyless.
 name: SLAM v2 build and deploy
 
