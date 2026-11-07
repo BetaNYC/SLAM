@@ -6,7 +6,7 @@ SLAM, the SLA Mapper, puts the open data a New York City community board looks u
 - **On the site:** an About page (sources, history, how we used AI tools) and a Glossary of every term and calculation.
 - **Detailed build notes:** [`PROTOTYPE.md`](PROTOTYPE.md), section by section, with the numbers from each run.
 - **Plans and work:** [epic #56](https://github.com/BetaNYC/SLAM/issues/56), [what v1 had, #58](https://github.com/BetaNYC/SLAM/issues/58), [citywide, #93](https://github.com/BetaNYC/SLAM/issues/93).
-- **The first SLAM (2018-2023)** lives on the `main` branch, along with its leftover files in this branch (`src/`, `public/`, the root `package.json`). It ran on Carto, which is gone; v2 is `pipeline/` and `site/`.
+- **The first SLAM (2018-2023)** lives on the `main` branch (`v2` is now the default branch), along with its leftover files in this branch (`src/`, `public/`, the root `package.json`). It ran on Carto, which is gone; v2 is `pipeline/` and `site/`.
 
 ## How it works
 
@@ -58,7 +58,30 @@ cd build && python3 -m http.server 4173 --bind 127.0.0.1
 
 ## Updating the data
 
-The workflow runs on every push to `v2`, by hand from the Actions tab, and nightly at 10:17 UTC. GitHub runs scheduled workflows only from the repository's default branch, so the nightly run starts when `v2` becomes the default branch (#90).
+The workflow (`.github/workflows/v2-deploy.yml`) rebuilds and publishes the site on every push to `v2`, by hand from the Actions tab, and nightly at 10:17 UTC (about 5 to 6 am in New York). `v2` is the default branch, so the nightly run is on: it has run every morning since 2026-11-06 (#90). It needs no secrets; every source is open and keyless.
+
+## Data sources
+
+Every dataset is read from its portal's own API, and its fields are checked against that portal's own column list (`pipeline/slam_pipeline/sources.py`).
+
+| What | Dataset | ID |
+|---|---|---|
+| Liquor license applications | SLA Pending Licenses (data.ny.gov) | `f8i8-k2gm` |
+| Liquor licenses | SLA Active Licenses (data.ny.gov) | `9s3h-dpkz` |
+| Past liquor licenses | SLA Inactive Licenses (data.ny.gov) | `6dg3-2z7i` |
+| Registered cannabis retail dealers | NYS Registered Retail Dealers of Adult-use Cannabis Products (data.ny.gov) | `gttd-5u6y` |
+| Cannabis licenses (and applicants with proximity protection) | Current OCM Licenses (data.ny.gov) | `jskf-tt3q` |
+| Outdoor dining | Dining Out NYC Locations (NYC Open Data) | `fpeh-f7ci` |
+| Street events | NYC Permitted Event Information (NYC Open Data) | `tvpp-9vvx` |
+| 311 complaints | 311 Service Requests from 2020 to Present (NYC Open Data) | `erm2-nwe9` |
+| Health inspections | DOHMH New York City Restaurant Inspection Results (NYC Open Data) | `43nn-pn8j` |
+| Certificates of occupancy | DOB NOW: Certificate of Occupancy (NYC Open Data) | `pkdm-hqz6` |
+| Schools (K-12) | Facilities Database (NYC Open Data) | `ji82-xba5` |
+| Houses of worship | PLUTO, building classes M1-M4 and M9 (NYC Open Data) | `64uk-42ks` |
+| Community districts | Community Districts (NYC Open Data) | `5crt-au7u` |
+| Addresses | City Planning's Property Address Directory, as normalized by NYC Planning Labs | [CSV](https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/latest/labs-geosearch-pad-normalized.csv) |
+
+Each license links to its record on SLA's [LAMP](https://lamp.sla.ny.gov/) map.
 
 ## Contributing
 
@@ -66,4 +89,8 @@ Open an issue or a pull request against `v2`. Write facts, not verdicts: the sit
 
 ## License and credit
 
-GNU General Public License v3.0 (see [`LICENSE`](LICENSE)). A [BetaNYC](https://beta.nyc) prototype. Not an official City of New York product. Built with the help of Claude, an AI coding assistant; see the site's About page for how.
+GNU General Public License v3.0 (see [`LICENSE`](LICENSE)). A [BetaNYC](https://beta.nyc) prototype. Not an official City of New York product.
+
+Lindsay Poirier of BetaNYC built the first SLAM in 2018, with and for community boards, on Carto.js and Chart.js. Zhi Keng He rebuilt it in Svelte in 2020. The site's About page tells the full history, issue by issue.
+
+SLAM v2 was built by BetaNYC staff with the help of Claude, an AI coding assistant; see the site's About page for how.
