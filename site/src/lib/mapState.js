@@ -11,8 +11,27 @@
 
 export const PREFS_KEY = 'slam.map.v1';
 /** Extra layer keys besides the record sources. */
-export const EXTRA_KEYS = ['c311', 'sw'];
+export const EXTRA_KEYS = ['c311', 'sw', 'rings_liquor', 'rings_cannabis'];
+/**
+ * Keys an earlier build wrote, and what they mean now. `rings` was one toggle for every distance
+ * ring (#111, first preview); it is now one toggle per license group, so an old `rings` turns both
+ * on and the map looks as it did when that link or choice was saved.
+ * @type {Record<string, string[]>}
+ */
+export const LEGACY_KEYS = { rings: ['rings_liquor', 'rings_cannabis'] };
 export const C311_MODE_KEYS = ['stacks', 'sized', 'dots'];
+
+/**
+ * Layer keys from a hash or saved choices: legacy keys expanded, unknown keys dropped, no repeats.
+ * @param {unknown[]} keys @param {string[]} known
+ * @returns {string[]}
+ */
+export function knownKeys(keys, known) {
+	/** @type {string[]} */
+	const out = [];
+	for (const k of keys) for (const x of typeof k === 'string' ? (LEGACY_KEYS[k] ?? [k]) : []) if (known.includes(x) && !out.includes(x)) out.push(x);
+	return out;
+}
 
 /**
  * @typedef {{z: number, lat: number, lon: number}} View
@@ -36,7 +55,7 @@ export function parseHash(hash, known) {
 		if (z >= 8 && z <= 22 && Math.abs(lat - 40.7) < 1 && Math.abs(lon + 74) < 1) view = { z, lat, lon };
 	}
 	const onRaw = p.get('on');
-	const on = onRaw === null ? null : onRaw.split(',').filter((k) => known.includes(k));
+	const on = onRaw === null ? null : knownKeys(onRaw.split(','), known);
 	const c = p.get('c311');
 	const sel = p.get('sel');
 	return {
@@ -74,7 +93,7 @@ export function loadPrefs(storage, known) {
 		const o = JSON.parse(raw);
 		if (!Array.isArray(o?.on)) return null;
 		return {
-			on: o.on.filter((/** @type {any} */ k) => known.includes(k)),
+			on: knownKeys(o.on, known),
 			c311: C311_MODE_KEYS.includes(o.c311) ? o.c311 : null,
 			open: o.open !== false // the Layers box; open unless the user closed it (#77)
 		};

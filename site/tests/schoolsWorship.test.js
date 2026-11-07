@@ -35,7 +35,7 @@ test('popupSW builds text nodes, never HTML', () => {
 // "permitted" is left out: the street-events dataset is called "NYC Permitted Event Information".
 test('no verdict words in the address page, the map page or the rule data', () => {
 	const verdict = /\b(violat\w*|meets?|eligib\w*|allowed|complian\w*|prohibit\w*|illegal|legal to)\b/i;
-	for (const f of ['src/routes/address/AddressView.svelte', 'src/routes/address/+page.svelte', 'static/404.html', 'src/routes/[district]/map/+page.svelte', 'src/routes/rules/+page.svelte', 'src/lib/format.js', 'src/lib/popupSW.js']) {
+	for (const f of ['src/routes/address/AddressView.svelte', 'src/routes/address/+page.svelte', 'static/404.html', 'src/routes/[district]/map/+page.svelte', 'src/routes/rules/+page.svelte', 'src/lib/format.js', 'src/lib/popupSW.js', 'src/lib/rings.js']) {
 		const m = readFileSync(f, 'utf8').match(verdict);
 		assert.equal(m, null, `${f}: ${m?.[0]}`);
 	}
