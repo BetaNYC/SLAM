@@ -30,6 +30,10 @@ Tested citywide on 2026-11-05: 97.2% of active liquor licenses, 98.5% of restaur
 
 The laws SLAM quotes (ABC Law §64(7) for liquor, Cannabis Law §72(6) for cannabis) measure from entrance to entrance. SLAM has no entrances: it measures straight lines between building points, so every distance on the site is approximate and says so.
 
+### Asking the portals politely
+
+The pipeline asks NYC Open Data and data.ny.gov one question at a time, at least 2 seconds apart, waits longer when a portal says it is busy (HTTP 429 or 503, honoring `Retry-After`), and retries a few times before it gives up (`pipeline/slam_pipeline/net.py`, #106). It needs no key. If `SOCRATA_APP_TOKEN` is set, it is sent as `X-App-Token` to those two portals only.
+
 ## Run it
 
 Requirements: uv (Python 3.11 to 3.15) and Node 22.17 or newer.
