@@ -38,9 +38,10 @@
 
 <h1>About SLAM</h1>
 <p class="lede">
-	SLAM, short for "SLA Mapper," shows what is licensed, pending and permitted around an address in a
-	community district. It was built for community boards, to help them review liquor license
-	applications.
+	SLAM, the Street License and Activity Map, shows what is licensed, pending and permitted around an
+	address in a community district. It was built for community boards, to help them review liquor
+	license applications. It began in 2018 as the SLA Mapper, named for the State Liquor Authority; the
+	new name covers what it shows now.
 </p>
 
 <nav class="toc" aria-label="On this page">
