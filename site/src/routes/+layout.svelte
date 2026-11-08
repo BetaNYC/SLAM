@@ -2,6 +2,8 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
+	import { startAnalytics } from '#lib/analytics.js';
 	import { fmtStamp } from '#lib/format.js';
 	import AddressSearch from '#lib/AddressSearch.svelte';
 	import './app.css';
@@ -11,6 +13,20 @@
 	const m = $derived(data.manifest);
 	/** @param {string} id */
 	const current = (id) => (page.route.id === id ? 'page' : undefined);
+
+	// Traffic measurement (README, "Traffic measurement"; About, "What we measure about visits"):
+	// one cleaned page view on the first load and on each client-side navigation, only on
+	// slam.beta.nyc. No address, search, coordinates or fragment ever reaches Google.
+	afterNavigate((nav) => {
+		const send = startAnalytics(window);
+		if (!send || !nav.to) return;
+		// The base path ('' at slam.beta.nyc). $app/paths has no `base` export in SvelteKit 3, and
+		// resolve() can be relative, so it is made absolute against the page first.
+		const base = new URL(resolve('/', {}), window.location.href).pathname.replace(/\/$/, '');
+		// A change of the #hash alone (the map's view, an in-page link) is not a new page.
+		if (nav.from && nav.from.url.pathname === nav.to.url.pathname && nav.from.url.search === nav.to.url.search) return;
+		send({ href: nav.to.url.href, title: document.title, referrer: nav.from ? nav.from.url.href : document.referrer, base });
+	});
 </script>
 
 <svelte:head>
