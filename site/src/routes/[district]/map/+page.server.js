@@ -10,5 +10,7 @@ export function load({ params }) {
 	const manifest = readData('manifest.json');
 	const district = manifest.districts[params.district];
 	if (!district) error(404, 'Unknown district');
-	return { slug: params.district, district, sw_buffer_ft: manifest.schools_worship.buffer_ft };
+	const { buffer_ft, list_ft, cannabis_school_ft, cannabis_worship_ft } = manifest.schools_worship;
+	// Ring radii for #111 are the manifest's own, the same numbers the address and rules pages use.
+	return { slug: params.district, district, sw_buffer_ft: buffer_ft, ring_ft: { list_ft, cannabis_school_ft, cannabis_worship_ft } };
 }

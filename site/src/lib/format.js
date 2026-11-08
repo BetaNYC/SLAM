@@ -25,17 +25,32 @@ export const SOURCE_SHORT = {
 	complaints_311: '311 complaints'
 };
 
-/** Colors chosen for >= 3:1 contrast against the light basemap. */
+/**
+ * Map and badge colors per record source. One palette with the 311 groups (C311_GROUPS), the
+ * schools and worship points (SW_COLOR) and the distance rings (RING_COLOR in #lib/rings.js),
+ * checked together in tests/mapPalette.test.js (#111 color revision, 2026-11-07): every pair that
+ * can be on the map at once is at least CIEDE2000 15 apart, and look-alike marks stay apart under
+ * simulated protanopia, deuteranopia and tritanopia too. Groups share a hue family: liquor is
+ * blue and violet (active is BetaNYC Blue), cannabis is green, 311 is warm. Record colors carry
+ * white badge text, so each is >= 4.5:1 against white.
+ */
 /** @type {Record<string, string>} */
 export const SOURCE_COLOR = {
-	liquor_pending: '#c2410c',
+	liquor_pending: '#5a0393',
 	liquor_active: '#2359a8', // BetaNYC Blue
-	liquor_inactive: '#6b7280',
-	cannabis_retail: '#15803d',
-	cannabis_license: '#4d7c0f',
-	dining_out: '#7e22ce',
-	complaints_311: '#d97706'
+	liquor_inactive: '#74758b',
+	cannabis_retail: '#578313',
+	cannabis_license: '#2b5b37',
+	dining_out: '#bd1b64',
+	complaints_311: '#c06e39' // the 311 "noise" color, the group's first
 };
+
+/**
+ * Record sources drawn as an open circle (white center, colored edge) on the map, a shape cue as
+ * well as color: pending and active liquor are both in the liquor family and are the one pair
+ * that stays close under red-green color blindness.
+ */
+export const SOURCE_HOLLOW = ['liquor_pending'];
 
 /**
  * 311 complaint groups on the map, in v1's order (#73). v1 colored its bar/club/restaurant layer
@@ -45,10 +60,10 @@ export const SOURCE_COLOR = {
  * @type {{key: string, types: string[], label: string, color: string}[]}
  */
 export const C311_GROUPS = [
-	{ key: 'noise', types: ['Noise - Commercial'], label: 'Noise (commercial)', color: '#d97706' },
-	{ key: 'drinking', types: ['Drinking'], label: 'Drinking', color: '#b91c1c' },
-	{ key: 'dining', types: ['Outdoor Dining'], label: 'Outdoor dining', color: '#854d0e' },
-	{ key: 'other', types: [], label: 'Other (health, smoking and more)', color: '#57534e' }
+	{ key: 'noise', types: ['Noise - Commercial'], label: 'Noise (commercial)', color: '#c06e39' },
+	{ key: 'drinking', types: ['Drinking'], label: 'Drinking', color: '#b71a03' },
+	{ key: 'dining', types: ['Outdoor Dining'], label: 'Outdoor dining', color: '#583321' },
+	{ key: 'other', types: [], label: 'Other (health, smoking and more)', color: '#617876' }
 ];
 
 /** @param {string | undefined} type  a 311 complaint_type */
@@ -187,9 +202,12 @@ export const GRADE_LABEL = {
 // does not call a place of worship (M3 is "Parsonage, Rectory", M4 "Convents").
 export const SW_KIND = { school: 'School', worship: 'House of worship', religious: 'Other religious property' };
 
-/** Map colors, >= 3:1 against the light basemap. */
+/**
+ * Map colors, >= 3:1 against the light basemap. School is BetaNYC Dark Gray (bnyc-dark-gray).
+ * Checked with the rest of the palette in tests/mapPalette.test.js.
+ */
 /** @type {Record<string, string>} */
-export const SW_COLOR = { school: '#0f766e', worship: '#9d174d', religious: '#6d28d9' };
+export const SW_COLOR = { school: '#414141', worship: '#c75bd3', religious: '#918267' };
 
 /**
  * The "same street" cell. `true` / `false` / `null` from the pipeline's `same_street`. False only

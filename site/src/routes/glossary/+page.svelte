@@ -1,6 +1,7 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { fmtStamp, GRADE_LABEL, sameStreetLabel } from '#lib/format.js';
+	import { groupRingSpecs, ringLegendText, LICENSE_GROUPS, RING_SHARED_LINE, RING_COLOR_NOTE, RING_LAYER_NAME, RING_NOTE, RING_NO_LIQUOR_500, RING_LIST_NOTE } from '#lib/rings.js';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
@@ -9,6 +10,7 @@
 	const nearbyFt = $derived(Math.round((m.nearby_m * 3.28084) / 10) * 10);
 	const about = resolve('/about', {});
 	const rules = resolve('/rules', {});
+	const groupRings = $derived(LICENSE_GROUPS.map((g) => ({ g, rings: groupRingSpecs(data.ring_ft, g.key) })));
 </script>
 
 <svelte:head><title>Glossary — SLAM v2 prototype</title></svelte:head>
@@ -301,6 +303,29 @@
 			Cannabis Control Board decides. In both cases the community board's opinion becomes part of the
 			record (see Community board notice). SLAM lists what is nearby and how far away it is. It does not
 			make that decision.
+		</dd>
+
+		<dt id="distance-rings">{RING_LAYER_NAME}</dt>
+		<dd>
+			A map layer that draws a circle around each school and house of worship point. The map's
+			Layers box is grouped by license type, and each group has its own {RING_LAYER_NAME} toggle,
+			that draws only that law's rings. The liquor rings are on when the map first opens; the cannabis rings start off. {RING_COLOR_NOTE}
+			<ul>
+				{#each groupRings as { g, rings } (g.key)}
+					<li>
+						{g.label}:
+						<ul>
+							{#each rings as r (r.key)}
+								<li>{ringLegendText(r)}</li>
+							{/each}
+						</ul>
+						{#if g.key === 'liquor'}{RING_NO_LIQUOR_500}{/if}
+					</li>
+				{/each}
+			</ul>
+			With both on, a ring the two laws share is drawn once, as {RING_SHARED_LINE}, and its label
+			names both laws. Other
+			religious property has no ring. {RING_NOTE} {RING_LIST_NOTE}
 		</dd>
 	</dl>
 </section>
