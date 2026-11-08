@@ -23,10 +23,11 @@ from slam_pipeline import districts as _districts
 NYC = "data.cityofnewyork.us"
 NYS = "data.ny.gov"
 
-# The districts SLAM builds today: the two pilots. `boro_cd` is the field on NYC 5crt-au7u.
+# The districts SLAM builds today: the two pilots, plus Brooklyn CD 9 on its board's request
+# (#124, Noel 2026-11-08: boards are added as they ask, not citywide yet). `boro_cd` is the field on NYC 5crt-au7u.
 # Every entry comes from districts.info(), so a Joint Interest Area (#87) is added the same way
 # as a community district: put its boro_cd in PILOT_BORO_CDS. Turning on more districts is #92.
-PILOT_BORO_CDS = (101, 304)
+PILOT_BORO_CDS = (101, 304, 309)
 DISTRICTS = {_districts.slug(c): _districts.info(c) for c in PILOT_BORO_CDS}
 
 DISTRICT_SOURCE = {
@@ -99,7 +100,7 @@ SCHOOL_NOTES = {
         "address, not to the school.",
 }
 
-# DOHMH 43nn-pn8j community_board text for the two districts ('101', '304').
+# DOHMH 43nn-pn8j community_board text for the built districts ('101', '304', ...).
 RESTAURANT_BOARDS = tuple(str(d["boro_cd"]) for d in DISTRICTS.values())
 
 
@@ -208,7 +209,7 @@ SOURCES: list[Source] = [
                 "license_type", "license_status", "license_issue_date", "license_expiration_date",
                 "latitude", "longitude", "council_district", "community_board", "bin", "bbl",
                 "ct2020", "nta2020", "location"],
-        where="community_board in (101,304)",
+        where="community_board in (" + ",".join(str(d["boro_cd"]) for d in DISTRICTS.values()) + ")",
         order="business_legal_name",
         lat_lon=("latitude", "longitude"),
     ),

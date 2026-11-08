@@ -178,8 +178,8 @@
 		data.ny.gov, places each record in today's community district lines, and saves it as web pages
 		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. It is also rebuilt every night. It brings back
 		what boards used in the first SLAM (<a href={issue(58)}>#58</a>). It is a prototype: it is live
-		at slam.beta.nyc, and we are testing it with two pilot districts, Manhattan Community District 1
-		and Brooklyn Community District 4. An address on a district line is listed in both districts
+		at slam.beta.nyc, and we are testing it with three districts: Manhattan Community District 1,
+		Brooklyn Community District 4 and Brooklyn Community District 9. An address on a district line is listed in both districts
 		(<a href={issue(88)}>#88</a>), and the pipeline knows the 12 Joint Interest Areas, the parks and
 		airports outside every community district, so each can be listed as its own district when SLAM
 		covers the whole city (<a href={issue(87)}>#87</a>, <a href={issue(93)}>#93</a>).
