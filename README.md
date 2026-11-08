@@ -11,7 +11,7 @@ SLAM, the Street License and Activity Map, puts the open data a New York City co
 
 ## How it works
 
-A small Python program (`pipeline/`) downloads open data, places every record in today's community district lines with DuckDB spatial, groups records by building, finds what is near each address, and writes plain JSON and GeoJSON files. A SvelteKit site (`site/`) turns those files into static pages. Address pages are one page, `/address/?id=<id>`, that loads that address's JSON file in the browser, so the site does not grow by one HTML page per address; old `/address/<id>/` links are forwarded by `site/static/404.html` (#84). There is no database server and no API key. GitHub Actions rebuilds and publishes it to GitHub Pages (`.github/workflows/v2-deploy.yml`).
+A small Python program (`pipeline/`) downloads open data, places every record in today's community district lines with DuckDB spatial (see "District lines" below), groups records by building, finds what is near each address, and writes plain JSON and GeoJSON files. A SvelteKit site (`site/`) turns those files into static pages. Address pages are one page, `/address/?id=<id>`, that loads that address's JSON file in the browser, so the site does not grow by one HTML page per address; old `/address/<id>/` links are forwarded by `site/static/404.html` (#84). There is no database server and no API key. GitHub Actions rebuilds and publishes it to GitHub Pages (`.github/workflows/v2-deploy.yml`).
 
 | Layer | Tools |
 |---|---|
@@ -26,6 +26,12 @@ A small Python program (`pipeline/`) downloads open data, places every record in
 Every address is matched to a building (BIN), a tax lot (BBL) and a map point with **the City's own address file**: NYC Planning Labs' normalized copy of City Planning's Property Address Directory (PAD), the same file the GeoSearch service is built from. The pipeline downloads it once per release, keeps it as Parquet, and matches in DuckDB (`pipeline/slam_pipeline/padmatch.py`). It also tries the common ways addresses are written: Queens numbers without the hyphen (`104 30` for `104-30`), ranges, half numbers, "AKA" addresses, trailing text, the borough taken from the ZIP, and named places. Readings that could land on the wrong building must be within 1,000 ft of the record's own map point. Only what the file cannot match is sent to [GeoSearch](https://geosearch.planninglabs.nyc), slowly and cached.
 
 Tested citywide on 2026-11-05: 97.2% of active liquor licenses, 98.5% of restaurant inspection addresses (agreeing with the Health Department's own BIN 99.4% of the time) and 91.9% of 311 addresses (agreeing with 311's own BBL 99.3% of the time). Details in `PROTOTYPE.md`, "Address matching with the City's own address file".
+
+### District lines
+
+City Planning's Community Districts dataset (`5crt-au7u`) has 71 rows: the 59 community districts and 12 Joint Interest Areas (large parks, airports and similar places outside every community district). As in BetaNYC's BoardStat v2, any `boro_cd` above its borough's highest district (`MAX_CD = {1: 12, 2: 12, 3: 18, 4: 14, 5: 3}`) is a Joint Interest Area and is listed as its own district (#87; `pipeline/slam_pipeline/districts.py`). Which districts are built is `PILOT_BORO_CDS` in `pipeline/slam_pipeline/sources.py`: still the two pilots.
+
+An address whose City point is within 100 ft of another district's line (`BOUNDARY_FT`) is listed in every district on that line that SLAM builds, and its page says, for example, "On the line between Brooklyn CD 3 and CD 4". Its records, map dots and counts are in each of those districts (#88). 100 ft, not half a street width, because the City's point sits inside the lot: 906 Broadway, Brooklyn is 92 ft from the CD 4 line. The reasoning and the numbers are in `districts.py`.
 
 ### Distances are approximate
 

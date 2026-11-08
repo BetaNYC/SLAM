@@ -49,13 +49,39 @@
 			SLAM numbers districts the way the Department of City Planning does. The first digit is the
 			borough (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island) and the last two are the
 			district. So 101 is Manhattan Community District 1 and 304 is Brooklyn Community District 4.
+			A number above the borough's highest district is a <a href="#jia">Joint Interest Area</a>.
 		</dd>
 
 		<dt id="placed">Placed in a district</dt>
 		<dd>
 			SLAM takes each record's map point and checks which community district line it falls inside.
 			This is called a point-in-polygon check: "which shape is this dot inside?" The lines come from
-			City Planning's Community Districts dataset.
+			City Planning's Community Districts dataset. An address right on a line can be in two districts
+			(see <a href="#on-a-line">On a district line</a>).
+		</dd>
+
+		<dt id="on-a-line">On a district line (listed in both districts)</dt>
+		<dd>
+			District lines mostly run down the middle of a street, so the buildings on each side are in
+			different districts. When the City's address point for a building is within
+			{m.district_lines?.boundary_ft ?? 100} feet of another district's line, SLAM lists the address in both
+			districts, and its page says so, for example "On the line between Brooklyn CD 3 and CD 4". Its
+			records, its dots on the map and the district counts include it in each of those districts.
+			The distance is {m.district_lines?.boundary_ft ?? 100} feet, not just half a street, because the
+			City's point sits inside the lot, not at the curb: 906 Broadway in Brooklyn, on the line between
+			CD 3 and CD 4, is 92 feet from the CD 4 line. This prototype covers only some districts, so a page
+			can name a district on the line that SLAM does not show yet.
+		</dd>
+
+		<dt id="jia">Joint Interest Area</dt>
+		<dd>
+			City Planning's Community Districts dataset has {m.citywide_districts?.community_districts ?? 59}
+			community districts and {m.citywide_districts?.joint_interest_areas ?? 12} Joint Interest Areas:
+			large parks, airports and similar places that are not part of any community district and have no
+			community board of their own. They are numbered like districts, with a number above the borough's
+			highest district (for example 164 in Manhattan and 355 in Brooklyn). SLAM lists each one as its
+			own district, the way BetaNYC's BoardStat does. Airport bars and park concessions can hold liquor
+			licenses.
 		</dd>
 
 		<dt id="address-page">Address page</dt>

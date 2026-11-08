@@ -18,16 +18,16 @@ import datetime as _dt
 
 from dataclasses import dataclass, field
 
+from slam_pipeline import districts as _districts
+
 NYC = "data.cityofnewyork.us"
 NYS = "data.ny.gov"
 
-# The two prototype districts. `boro_cd` is the field on NYC 5crt-au7u.
-DISTRICTS = {
-    "mn-cd1": {"boro_cd": 101, "label": "Manhattan Community District 1", "short": "MN CD 1",
-               "borough": "Manhattan", "cb": 1},
-    "bk-cd4": {"boro_cd": 304, "label": "Brooklyn Community District 4", "short": "BK CD 4",
-               "borough": "Brooklyn", "cb": 4},
-}
+# The districts SLAM builds today: the two pilots. `boro_cd` is the field on NYC 5crt-au7u.
+# Every entry comes from districts.info(), so a Joint Interest Area (#87) is added the same way
+# as a community district: put its boro_cd in PILOT_BORO_CDS. Turning on more districts is #92.
+PILOT_BORO_CDS = (101, 304)
+DISTRICTS = {_districts.slug(c): _districts.info(c) for c in PILOT_BORO_CDS}
 
 DISTRICT_SOURCE = {
     "key": "districts",

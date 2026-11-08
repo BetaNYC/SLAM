@@ -13,6 +13,7 @@ DuckDB spatial docs: https://duckdb.org/docs/stable/core_extensions/spatial/func
 
 from __future__ import annotations
 
+import json
 import statistics
 
 import duckdb
@@ -82,3 +83,44 @@ def pairs_within(con, a: list[tuple[str, float, float]], b: list[tuple[str, floa
          WHERE ST_Distance(ST_Point(_a.x, _a.y), ST_Point(_b.x, _b.y)) <= {feet}
          ORDER BY _a.id, ft, _b.id
     """).fetchall()]
+
+
+def load_districts(con, features: list[dict], slug_of) -> None:
+    """Make the `districts_all` table (slug, boro_cd, geom in WGS 84, as the dataset publishes
+    it) and `districts_sp` (the same outlines in EPSG:2263 feet, with their bounding boxes for a
+    cheap prefilter). `features` are GeoJSON features of NYC 5crt-au7u; `slug_of(boro_cd)`
+    names each one (districts.slug)."""
+    con.execute("CREATE OR REPLACE TABLE districts_all (slug VARCHAR, boro_cd INT, geom GEOMETRY)")
+    for f in features:
+        cd = int(f["properties"]["boro_cd"])
+        con.execute("INSERT INTO districts_all VALUES (?, ?, ST_GeomFromGeoJSON(?))",
+                    [slug_of(cd), cd, json.dumps(f["geometry"])])
+    con.execute(f"""
+        CREATE OR REPLACE TABLE districts_sp AS
+        SELECT slug, g AS geom, ST_XMin(g) AS x0, ST_YMin(g) AS y0, ST_XMax(g) AS x1, ST_YMax(g) AS y1
+          FROM (SELECT slug, ST_Transform(geom, '{WGS84}', '{STATE_PLANE}', always_xy := true) AS g
+                  FROM districts_all)
+    """)
+
+
+def districts_near(con, pts: list[tuple[str, float, float]], feet: float) -> dict[str, list[tuple[str, float]]]:
+    """For each (id, lon, lat): every district whose outline is within `feet` of the point,
+    as [(slug, feet from the line)], nearest first. A district the point is inside is 0 ft.
+    Needs `districts_sp` (load_districts). Points with no district within `feet` are left out."""
+    if not pts:
+        return {}
+    xy = project(con, [(lo, la) for _, lo, la in pts])
+    con.execute("CREATE OR REPLACE TEMP TABLE _dn (id VARCHAR, x DOUBLE, y DOUBLE)")
+    con.executemany("INSERT INTO _dn VALUES (?, ?, ?)",
+                    [[p[0], x, y] for p, (x, y) in zip(pts, xy, strict=True)])
+    out: dict[str, list[tuple[str, float]]] = {}
+    for pid, slug, ft in con.execute(f"""
+        SELECT p.id, d.slug, ST_Distance(d.geom, ST_Point(p.x, p.y)) AS ft
+          FROM _dn p JOIN districts_sp d
+            ON p.x BETWEEN d.x0 - {feet} AND d.x1 + {feet}
+           AND p.y BETWEEN d.y0 - {feet} AND d.y1 + {feet}
+         WHERE ST_DWithin(d.geom, ST_Point(p.x, p.y), {feet})
+         ORDER BY p.id, ft, d.slug
+    """).fetchall():
+        out.setdefault(pid, []).append((slug, ft))
+    return out
