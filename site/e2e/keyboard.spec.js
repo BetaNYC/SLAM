@@ -51,6 +51,8 @@ test('keyboard: map page, from the top to the Layers box, Reset and a layer', as
 test('keyboard: the side panel takes focus and its Close button works', async ({ page }) => {
 	await page.goto(`${map.path}#sel=${busiestAddress()}`);
 	await ready(page, map);
+	// Wait for the address to load: the "Loading…" heading is replaced by the real one.
+	await expect(page.locator('#panel-h')).not.toHaveText('Loading…');
 	await expect(page.locator('#panel-h')).toBeFocused();
 	await page.keyboard.press('Shift+Tab');
 	await expect(page.getByRole('button', { name: 'Close details' })).toBeFocused();

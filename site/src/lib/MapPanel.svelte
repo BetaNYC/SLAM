@@ -39,8 +39,17 @@
 	// Move focus to the panel's heading when something new is selected, for keyboard and screen-reader users.
 	$effect(() => {
 		void sel;
-		void a;
 		heading?.focus();
+	});
+	// When "Loading…" is swapped for the real heading, the focused element is removed and focus falls
+	// back to the page. Put it on the new heading, but only then: never pull focus from a control the
+	// person has already moved to (#53).
+	$effect(() => {
+		void a;
+		void loading;
+		void error;
+		const h = heading;
+		if (h && (document.activeElement === document.body || document.activeElement === null)) h.focus();
 	});
 
 	/** Top 311 complaint types at the address, all years. */
