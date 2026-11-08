@@ -1,0 +1,852 @@
+{
+ "recorded": "2026-11-07",
+ "how": "SoQL $group via slam_pipeline.net.fetch_all",
+ "erm2-nwe9 community_board (created_date >= 2026-01-01)": [
+  {
+   "community_board": "01 BRONX",
+   "count": "44029"
+  },
+  {
+   "community_board": "01 BROOKLYN",
+   "count": "88224"
+  },
+  {
+   "community_board": "01 MANHATTAN",
+   "count": "31446"
+  },
+  {
+   "community_board": "01 QUEENS",
+   "count": "88663"
+  },
+  {
+   "community_board": "01 STATEN ISLAND",
+   "count": "59116"
+  },
+  {
+   "community_board": "02 BRONX",
+   "count": "25159"
+  },
+  {
+   "community_board": "02 BROOKLYN",
+   "count": "71729"
+  },
+  {
+   "community_board": "02 MANHATTAN",
+   "count": "41401"
+  },
+  {
+   "community_board": "02 QUEENS",
+   "count": "58519"
+  },
+  {
+   "community_board": "02 STATEN ISLAND",
+   "count": "38580"
+  },
+  {
+   "community_board": "03 BRONX",
+   "count": "52746"
+  },
+  {
+   "community_board": "03 BROOKLYN",
+   "count": "68734"
+  },
+  {
+   "community_board": "03 MANHATTAN",
+   "count": "63280"
+  },
+  {
+   "community_board": "03 QUEENS",
+   "count": "57129"
+  },
+  {
+   "community_board": "03 STATEN ISLAND",
+   "count": "43823"
+  },
+  {
+   "community_board": "04 BRONX",
+   "count": "80918"
+  },
+  {
+   "community_board": "04 BROOKLYN",
+   "count": "51630"
+  },
+  {
+   "community_board": "04 MANHATTAN",
+   "count": "50902"
+  },
+  {
+   "community_board": "04 QUEENS",
+   "count": "41721"
+  },
+  {
+   "community_board": "05 BRONX",
+   "count": "78935"
+  },
+  {
+   "community_board": "05 BROOKLYN",
+   "count": "85031"
+  },
+  {
+   "community_board": "05 MANHATTAN",
+   "count": "52674"
+  },
+  {
+   "community_board": "05 QUEENS",
+   "count": "73482"
+  },
+  {
+   "community_board": "06 BRONX",
+   "count": "46696"
+  },
+  {
+   "community_board": "06 BROOKLYN",
+   "count": "51549"
+  },
+  {
+   "community_board": "06 MANHATTAN",
+   "count": "35901"
+  },
+  {
+   "community_board": "06 QUEENS",
+   "count": "35213"
+  },
+  {
+   "community_board": "07 BRONX",
+   "count": "71093"
+  },
+  {
+   "community_board": "07 BROOKLYN",
+   "count": "41071"
+  },
+  {
+   "community_board": "07 MANHATTAN",
+   "count": "56205"
+  },
+  {
+   "community_board": "07 QUEENS",
+   "count": "75716"
+  },
+  {
+   "community_board": "08 BRONX",
+   "count": "50110"
+  },
+  {
+   "community_board": "08 BROOKLYN",
+   "count": "54206"
+  },
+  {
+   "community_board": "08 MANHATTAN",
+   "count": "45816"
+  },
+  {
+   "community_board": "08 QUEENS",
+   "count": "63528"
+  },
+  {
+   "community_board": "09 BRONX",
+   "count": "61499"
+  },
+  {
+   "community_board": "09 BROOKLYN",
+   "count": "49908"
+  },
+  {
+   "community_board": "09 MANHATTAN",
+   "count": "50198"
+  },
+  {
+   "community_board": "09 QUEENS",
+   "count": "59579"
+  },
+  {
+   "community_board": "0 Unspecified",
+   "count": "3704"
+  },
+  {
+   "community_board": "10 BRONX",
+   "count": "40348"
+  },
+  {
+   "community_board": "10 BROOKLYN",
+   "count": "47954"
+  },
+  {
+   "community_board": "10 MANHATTAN",
+   "count": "71437"
+  },
+  {
+   "community_board": "10 QUEENS",
+   "count": "61548"
+  },
+  {
+   "community_board": "11 BRONX",
+   "count": "46612"
+  },
+  {
+   "community_board": "11 BROOKLYN",
+   "count": "72019"
+  },
+  {
+   "community_board": "11 MANHATTAN",
+   "count": "47844"
+  },
+  {
+   "community_board": "11 QUEENS",
+   "count": "31813"
+  },
+  {
+   "community_board": "12 BRONX",
+   "count": "71775"
+  },
+  {
+   "community_board": "12 BROOKLYN",
+   "count": "51910"
+  },
+  {
+   "community_board": "12 MANHATTAN",
+   "count": "99660"
+  },
+  {
+   "community_board": "12 QUEENS",
+   "count": "85693"
+  },
+  {
+   "community_board": "13 BROOKLYN",
+   "count": "31130"
+  },
+  {
+   "community_board": "13 QUEENS",
+   "count": "51951"
+  },
+  {
+   "community_board": "14 BROOKLYN",
+   "count": "72125"
+  },
+  {
+   "community_board": "14 QUEENS",
+   "count": "37133"
+  },
+  {
+   "community_board": "15 BROOKLYN",
+   "count": "58391"
+  },
+  {
+   "community_board": "16 BROOKLYN",
+   "count": "35242"
+  },
+  {
+   "community_board": "17 BROOKLYN",
+   "count": "65577"
+  },
+  {
+   "community_board": "18 BROOKLYN",
+   "count": "52676"
+  },
+  {
+   "community_board": "26 BRONX",
+   "count": "713"
+  },
+  {
+   "community_board": "27 BRONX",
+   "count": "215"
+  },
+  {
+   "community_board": "28 BRONX",
+   "count": "332"
+  },
+  {
+   "community_board": "55 BROOKLYN",
+   "count": "1952"
+  },
+  {
+   "community_board": "56 BROOKLYN",
+   "count": "166"
+  },
+  {
+   "community_board": "64 MANHATTAN",
+   "count": "2434"
+  },
+  {
+   "community_board": "80 QUEENS",
+   "count": "1446"
+  },
+  {
+   "community_board": "81 QUEENS",
+   "count": "1300"
+  },
+  {
+   "community_board": "82 QUEENS",
+   "count": "740"
+  },
+  {
+   "community_board": "83 QUEENS",
+   "count": "4075"
+  },
+  {
+   "community_board": "84 QUEENS",
+   "count": "96"
+  },
+  {
+   "community_board": "95 STATEN ISLAND",
+   "count": "304"
+  },
+  {
+   "community_board": "Unspecified BRONX",
+   "count": "6706"
+  },
+  {
+   "community_board": "Unspecified BROOKLYN",
+   "count": "12188"
+  },
+  {
+   "community_board": "Unspecified MANHATTAN",
+   "count": "11869"
+  },
+  {
+   "community_board": "Unspecified QUEENS",
+   "count": "13203"
+  },
+  {
+   "community_board": "Unspecified STATEN ISLAND",
+   "count": "1444"
+  }
+ ],
+ "43nn-pn8j community_board": [
+  {
+   "community_board": "101",
+   "count": "7993"
+  },
+  {
+   "community_board": "102",
+   "count": "13024"
+  },
+  {
+   "community_board": "103",
+   "count": "14535"
+  },
+  {
+   "community_board": "104",
+   "count": "11399"
+  },
+  {
+   "community_board": "105",
+   "count": "23522"
+  },
+  {
+   "community_board": "106",
+   "count": "8780"
+  },
+  {
+   "community_board": "107",
+   "count": "6159"
+  },
+  {
+   "community_board": "108",
+   "count": "8448"
+  },
+  {
+   "community_board": "109",
+   "count": "2891"
+  },
+  {
+   "community_board": "110",
+   "count": "2254"
+  },
+  {
+   "community_board": "111",
+   "count": "3195"
+  },
+  {
+   "community_board": "112",
+   "count": "4654"
+  },
+  {
+   "community_board": "164",
+   "count": "32"
+  },
+  {
+   "community_board": "201",
+   "count": "2600"
+  },
+  {
+   "community_board": "202",
+   "count": "1310"
+  },
+  {
+   "community_board": "203",
+   "count": "895"
+  },
+  {
+   "community_board": "204",
+   "count": "2375"
+  },
+  {
+   "community_board": "205",
+   "count": "2113"
+  },
+  {
+   "community_board": "206",
+   "count": "2220"
+  },
+  {
+   "community_board": "207",
+   "count": "2405"
+  },
+  {
+   "community_board": "208",
+   "count": "2139"
+  },
+  {
+   "community_board": "209",
+   "count": "2663"
+  },
+  {
+   "community_board": "210",
+   "count": "2917"
+  },
+  {
+   "community_board": "211",
+   "count": "2453"
+  },
+  {
+   "community_board": "212",
+   "count": "2829"
+  },
+  {
+   "community_board": "226",
+   "count": "8"
+  },
+  {
+   "community_board": "227",
+   "count": "55"
+  },
+  {
+   "community_board": "228",
+   "count": "19"
+  },
+  {
+   "community_board": "301",
+   "count": "10104"
+  },
+  {
+   "community_board": "302",
+   "count": "7201"
+  },
+  {
+   "community_board": "303",
+   "count": "4597"
+  },
+  {
+   "community_board": "304",
+   "count": "4072"
+  },
+  {
+   "community_board": "305",
+   "count": "2736"
+  },
+  {
+   "community_board": "306",
+   "count": "5965"
+  },
+  {
+   "community_board": "307",
+   "count": "5114"
+  },
+  {
+   "community_board": "308",
+   "count": "3273"
+  },
+  {
+   "community_board": "309",
+   "count": "2260"
+  },
+  {
+   "community_board": "310",
+   "count": "4317"
+  },
+  {
+   "community_board": "311",
+   "count": "4827"
+  },
+  {
+   "community_board": "312",
+   "count": "3002"
+  },
+  {
+   "community_board": "313",
+   "count": "1692"
+  },
+  {
+   "community_board": "314",
+   "count": "3639"
+  },
+  {
+   "community_board": "315",
+   "count": "4019"
+  },
+  {
+   "community_board": "316",
+   "count": "1169"
+  },
+  {
+   "community_board": "317",
+   "count": "2997"
+  },
+  {
+   "community_board": "318",
+   "count": "3196"
+  },
+  {
+   "community_board": "355",
+   "count": "55"
+  },
+  {
+   "community_board": "401",
+   "count": "9252"
+  },
+  {
+   "community_board": "402",
+   "count": "6816"
+  },
+  {
+   "community_board": "403",
+   "count": "6469"
+  },
+  {
+   "community_board": "404",
+   "count": "6312"
+  },
+  {
+   "community_board": "405",
+   "count": "4655"
+  },
+  {
+   "community_board": "406",
+   "count": "3319"
+  },
+  {
+   "community_board": "407",
+   "count": "12290"
+  },
+  {
+   "community_board": "408",
+   "count": "2982"
+  },
+  {
+   "community_board": "409",
+   "count": "3502"
+  },
+  {
+   "community_board": "410",
+   "count": "3532"
+  },
+  {
+   "community_board": "411",
+   "count": "3272"
+  },
+  {
+   "community_board": "412",
+   "count": "5446"
+  },
+  {
+   "community_board": "413",
+   "count": "3505"
+  },
+  {
+   "community_board": "414",
+   "count": "1182"
+  },
+  {
+   "community_board": "480",
+   "count": "17"
+  },
+  {
+   "community_board": "481",
+   "count": "50"
+  },
+  {
+   "community_board": "482",
+   "count": "5"
+  },
+  {
+   "community_board": "483",
+   "count": "246"
+  },
+  {
+   "community_board": "501",
+   "count": "4072"
+  },
+  {
+   "community_board": "502",
+   "count": "3087"
+  },
+  {
+   "community_board": "503",
+   "count": "2169"
+  },
+  {
+   "community_board": "595",
+   "count": "5"
+  }
+ ],
+ "fpeh-f7ci community_board": [
+  {
+   "community_board": "101",
+   "count": "70"
+  },
+  {
+   "community_board": "102",
+   "count": "457"
+  },
+  {
+   "community_board": "103",
+   "count": "212"
+  },
+  {
+   "community_board": "104",
+   "count": "125"
+  },
+  {
+   "community_board": "105",
+   "count": "165"
+  },
+  {
+   "community_board": "106",
+   "count": "100"
+  },
+  {
+   "community_board": "107",
+   "count": "198"
+  },
+  {
+   "community_board": "108",
+   "count": "202"
+  },
+  {
+   "community_board": "109",
+   "count": "32"
+  },
+  {
+   "community_board": "110",
+   "count": "33"
+  },
+  {
+   "community_board": "111",
+   "count": "9"
+  },
+  {
+   "community_board": "112",
+   "count": "24"
+  },
+  {
+   "community_board": "201",
+   "count": "6"
+  },
+  {
+   "community_board": "202",
+   "count": "3"
+  },
+  {
+   "community_board": "204",
+   "count": "8"
+  },
+  {
+   "community_board": "205",
+   "count": "2"
+  },
+  {
+   "community_board": "206",
+   "count": "12"
+  },
+  {
+   "community_board": "207",
+   "count": "1"
+  },
+  {
+   "community_board": "208",
+   "count": "9"
+  },
+  {
+   "community_board": "209",
+   "count": "1"
+  },
+  {
+   "community_board": "210",
+   "count": "15"
+  },
+  {
+   "community_board": "211",
+   "count": "5"
+  },
+  {
+   "community_board": "212",
+   "count": "4"
+  },
+  {
+   "community_board": "301",
+   "count": "208"
+  },
+  {
+   "community_board": "302",
+   "count": "121"
+  },
+  {
+   "community_board": "303",
+   "count": "26"
+  },
+  {
+   "community_board": "304",
+   "count": "28"
+  },
+  {
+   "community_board": "305",
+   "count": "1"
+  },
+  {
+   "community_board": "306",
+   "count": "110"
+  },
+  {
+   "community_board": "307",
+   "count": "15"
+  },
+  {
+   "community_board": "308",
+   "count": "47"
+  },
+  {
+   "community_board": "309",
+   "count": "7"
+  },
+  {
+   "community_board": "310",
+   "count": "19"
+  },
+  {
+   "community_board": "311",
+   "count": "8"
+  },
+  {
+   "community_board": "312",
+   "count": "1"
+  },
+  {
+   "community_board": "313",
+   "count": "5"
+  },
+  {
+   "community_board": "314",
+   "count": "9"
+  },
+  {
+   "community_board": "315",
+   "count": "17"
+  },
+  {
+   "community_board": "316",
+   "count": "1"
+  },
+  {
+   "community_board": "317",
+   "count": "2"
+  },
+  {
+   "community_board": "318",
+   "count": "3"
+  },
+  {
+   "community_board": "401",
+   "count": "107"
+  },
+  {
+   "community_board": "402",
+   "count": "44"
+  },
+  {
+   "community_board": "403",
+   "count": "14"
+  },
+  {
+   "community_board": "404",
+   "count": "3"
+  },
+  {
+   "community_board": "405",
+   "count": "10"
+  },
+  {
+   "community_board": "406",
+   "count": "21"
+  },
+  {
+   "community_board": "407",
+   "count": "4"
+  },
+  {
+   "community_board": "408",
+   "count": "1"
+  },
+  {
+   "community_board": "409",
+   "count": "1"
+  },
+  {
+   "community_board": "411",
+   "count": "10"
+  },
+  {
+   "community_board": "413",
+   "count": "1"
+  },
+  {
+   "community_board": "501",
+   "count": "1"
+  },
+  {
+   "community_board": "502",
+   "count": "1"
+  }
+ ],
+ "tvpp-9vvx event_borough, community_board (like 64/55/80/95/26)": [
+  {
+   "event_borough": "Bronx",
+   "community_board": "26,",
+   "count": "179"
+  },
+  {
+   "event_borough": "Brooklyn",
+   "community_board": "2, 55, 8,",
+   "count": "1"
+  },
+  {
+   "event_borough": "Brooklyn",
+   "community_board": "55,",
+   "count": "167"
+  },
+  {
+   "event_borough": "Brooklyn",
+   "community_board": "55, 8, 9,",
+   "count": "1"
+  },
+  {
+   "event_borough": "Brooklyn",
+   "community_board": "55, 9,",
+   "count": "3"
+  },
+  {
+   "event_borough": "Manhattan",
+   "community_board": "64,",
+   "count": "421"
+  },
+  {
+   "event_borough": "Manhattan",
+   "community_board": "64, 8,",
+   "count": "5"
+  },
+  {
+   "event_borough": "Staten Island",
+   "community_board": "95,",
+   "count": "14"
+  }
+ ]
+}

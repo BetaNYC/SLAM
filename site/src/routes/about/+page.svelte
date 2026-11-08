@@ -11,8 +11,8 @@
 
 	/** What each dataset is used for on this site. Keys match pipeline/slam_pipeline/sources.py. */
 	/** @type {Record<string, string>} */
-	const USED_FOR = {
-		districts: 'Community district boundaries. A record is in a district when its point falls inside the line.',
+	const USED_FOR = $derived({
+		districts: 'Community district and Joint Interest Area boundaries. A record is in a district when its point falls inside the line; an address whose City point is within ' + (m.district_lines?.boundary_ft ?? 100) + ' feet of a line is listed in both districts.',
 		liquor_pending: 'Liquor license applications SLA has received and not yet decided.',
 		liquor_active: 'Liquor licenses in effect now, with the dates and IDs SLA publishes for each. SLA publishes no hours or method of operation.',
 		liquor_inactive: 'Liquor licenses that have ended (shown on request).',
@@ -25,7 +25,7 @@
 		co_dobnow: 'Certificates of occupancy filed in DOB NOW.',
 		schools: 'Schools (K-12), for the 200-foot distance list.',
 		worship: 'Houses of worship and other religious property, for the 200-foot distance list.'
-	};
+	});
 
 	const GH = 'https://github.com/BetaNYC/SLAM';
 	/** @param {number} n */
@@ -178,7 +178,10 @@
 		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. It is also rebuilt every night. It brings back
 		what boards used in the first SLAM (<a href={issue(58)}>#58</a>). It is a prototype: it is live
 		at slam.beta.nyc, and we are testing it with two pilot districts, Manhattan Community District 1
-		and Brooklyn Community District 4.
+		and Brooklyn Community District 4. An address on a district line is listed in both districts
+		(<a href={issue(88)}>#88</a>), and the pipeline knows the 12 Joint Interest Areas, the parks and
+		airports outside every community district, so each can be listed as its own district when SLAM
+		covers the whole city (<a href={issue(87)}>#87</a>, <a href={issue(93)}>#93</a>).
 	</p>
 </section>
 

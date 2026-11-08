@@ -8,7 +8,7 @@ districts; several MB citywide). Now, under ``site/static/data/lookup/``:
   a BIN needs exactly one of these. All five are written, empty or not, so the browser never asks
   for a file that does not exist.
 - ``points-<district>.json``: ``[[page id, lon, lat], ...]`` for one district, for the nearest-page
-  fallback.
+  fallback. A page on a district line (#88) is in the file of every district it is listed in.
 - ``index.json``: ``{"radius_m", "districts": {slug: {"bbox": [min lon, min lat, max lon, max lat],
   "n"}}}``. The bbox is of the district's own page points (some sit just outside the district line),
   so the browser loads only the points files whose bbox, padded by the radius, contains the spot.
@@ -44,7 +44,7 @@ def split_lookup(pages, radius_m: int, outlines: dict | None = None) -> dict[str
     """File name (relative to lookup/) -> JSON payload.
 
     ``pages`` is an iterable of dicts with ``id``, ``bin`` (a real BIN or falsy), ``district``,
-    ``lon`` and ``lat`` (None when the page has no point). ``outlines`` maps a district slug to
+    optionally ``listed_in`` (every district the page is listed in, #88), ``lon`` and ``lat`` (None when the page has no point). ``outlines`` maps a district slug to
     its GeoJSON geometry (Polygon or MultiPolygon).
     """
     bins: dict[str, dict[str, str]] = {b: {} for b in BOROUGHS}
@@ -56,8 +56,8 @@ def split_lookup(pages, radius_m: int, outlines: dict | None = None) -> dict[str
                 raise ValueError(f"BIN {b} on page {p['id']} does not start with a borough digit")
             bins[b[0]][b] = p["id"]
         if p.get("lon") is not None:
-            points.setdefault(p["district"], []).append(
-                [p["id"], round(p["lon"], 6), round(p["lat"], 6)])
+            for slug in p.get("listed_in") or [p["district"]]:
+                points.setdefault(slug, []).append([p["id"], round(p["lon"], 6), round(p["lat"], 6)])
     out: dict[str, object] = {f"bins-{b}.json": {"bins": m} for b, m in bins.items()}
     districts = {}
     for slug, pts in sorted(points.items()):

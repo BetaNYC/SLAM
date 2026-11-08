@@ -7,6 +7,7 @@
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
+	import { districtLine, joinAnd } from '#lib/districtLine.js';
 
 	// The body of the one address page (#84). The page (+page.svelte) fetches the address's data
 	// in the browser and passes it in; this component only renders it.
@@ -45,6 +46,10 @@
 	// "See on map" (#118): the district map at this address, with the rings that fit its records.
 	const mapHref = $derived(mapLinkFor(a, Object.keys(m.districts), (d) => resolve('/[district]/map', { district: d })));
 	const mapNote = $derived(mapLinkNote(mapLinkState(a).groups));
+	// On a district line (#88): listed in every district on the line that SLAM covers.
+	const line = $derived(districtLine(a, m.districts));
+	const lineFt = $derived(m.district_lines?.boundary_ft);
+	const glossaryLine = resolve('/glossary', {}) + '#on-a-line';
 </script>
 
 <p class="no-print">
@@ -69,7 +74,13 @@
 {#if a.listed_as?.length > 1}
 	<p class="muted">The sources list this building as: {a.listed_as.join('; ')}.</p>
 {/if}
-{#if pt.outside_districts && !pt.measured}
+{#if line}
+	<p class="note" role="note"><strong>{line.note}.</strong> The City's address point for this building is
+		within {lineFt} feet of the line, so SLAM lists it in each of those districts{#if line.notBuilt.length}.
+		{joinAnd(line.notBuilt)} {line.notBuilt.length > 1 ? 'are' : 'is'} not in this prototype yet, so for now it is listed only in{:else}:{/if}
+		{#each line.listed as d, i (d.slug)}{#if i > 0}{i === line.listed.length - 1 ? ' and ' : ', '}{/if}<a href={resolve('/[district]', { district: d.slug })}>{d.label}</a>{/each}.
+		Distances are measured from the City's address point. <a href={glossaryLine}>What this means</a></p>
+{:else if pt.outside_districts && !pt.measured}
 	<p class="note" role="note">The City's address point for this building is outside both prototype
 		districts and outside the area this prototype pulls data for. The licensing records place it in
 		{district.label}, so it is listed here as published, but SLAM does not show what is nearby: the
