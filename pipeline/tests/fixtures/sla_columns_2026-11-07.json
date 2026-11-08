@@ -1,0 +1,351 @@
+{
+ "_note": "Column metadata read on 2026-11-07 from https://data.ny.gov/api/views/<id>.json through slam_pipeline.net.view_metadata (#63). fieldName, name, dataTypeName and description, unchanged. Computed-region columns left out.",
+ "9s3h-dpkz": {
+  "name": "Current Liquor Authority Active Licenses",
+  "rowsUpdatedAt": 1794101700,
+  "columns": [
+   {
+    "fieldName": "licensepermitid",
+    "name": "License Permit ID",
+    "dataTypeName": "text",
+    "description": "Unique Serial Number for the licensee"
+   },
+   {
+    "fieldName": "premisescounty",
+    "name": "Premises County",
+    "dataTypeName": "text",
+    "description": "County License is located"
+   },
+   {
+    "fieldName": "type",
+    "name": "Type",
+    "dataTypeName": "number",
+    "description": "1 or 2 character alpha code of license type"
+   },
+   {
+    "fieldName": "class",
+    "name": "Class",
+    "dataTypeName": "text",
+    "description": "3 digit numeric code of license type "
+   },
+   {
+    "fieldName": "description",
+    "name": "Description",
+    "dataTypeName": "text",
+    "description": "Type of License"
+   },
+   {
+    "fieldName": "legalname",
+    "name": "LegalName",
+    "dataTypeName": "text",
+    "description": "Corporate Name of Licensee"
+   },
+   {
+    "fieldName": "dba",
+    "name": "DBA",
+    "dataTypeName": "text",
+    "description": "Doing Business As"
+   },
+   {
+    "fieldName": "actualaddressofpremises",
+    "name": "Actual Address Of Premises",
+    "dataTypeName": "text",
+    "description": "Address of licensed premise"
+   },
+   {
+    "fieldName": "additionaladdressinformation",
+    "name": "Additional Address Information",
+    "dataTypeName": "text",
+    "description": "Additional address information"
+   },
+   {
+    "fieldName": "city",
+    "name": "City",
+    "dataTypeName": "text",
+    "description": "City of licensed premise"
+   },
+   {
+    "fieldName": "statename",
+    "name": "State Name",
+    "dataTypeName": "text",
+    "description": "State of licensed premise"
+   },
+   {
+    "fieldName": "zipcode",
+    "name": "Zip Code",
+    "dataTypeName": "text",
+    "description": "Zip code of licensed premise"
+   },
+   {
+    "fieldName": "originalissuedate",
+    "name": "Original Issue Date",
+    "dataTypeName": "calendar_date",
+    "description": "Date license was issued"
+   },
+   {
+    "fieldName": "lastissuedate",
+    "name": "Last Issue Date",
+    "dataTypeName": "calendar_date",
+    "description": "Renewal Date"
+   },
+   {
+    "fieldName": "effectivedate",
+    "name": "Effective Date",
+    "dataTypeName": "calendar_date",
+    "description": "Effective Date"
+   },
+   {
+    "fieldName": "expirationdate",
+    "name": "Expiration Date",
+    "dataTypeName": "calendar_date",
+    "description": "Date of Expiration"
+   },
+   {
+    "fieldName": "parentlicenseid",
+    "name": "Parent License ID",
+    "dataTypeName": "text",
+    "description": "Parent License ID"
+   },
+   {
+    "fieldName": "legacyserialnumber",
+    "name": "Legacy Serial Number",
+    "dataTypeName": "text",
+    "description": "Previous Serial Number"
+   },
+   {
+    "fieldName": "akaaddress",
+    "name": "AKA Address",
+    "dataTypeName": "text",
+    "description": "AKA Address"
+   },
+   {
+    "fieldName": "georeference",
+    "name": "Georeference",
+    "dataTypeName": "point",
+    "description": "Open Data platform-generated geocoding information from supplied address components. Point-type location is the centroid of the address components provided and does not reflect a specific address if the street address component is not provided. Point-type location is supplied in \"POINT (<geocoded longitude> <geocoded latitude>)\" format."
+   }
+  ]
+ },
+ "f8i8-k2gm": {
+  "name": "Current SLA Pending Licenses",
+  "rowsUpdatedAt": 1794101560,
+  "columns": [
+   {
+    "fieldName": "application_id",
+    "name": "Application ID",
+    "dataTypeName": "text",
+    "description": "Unique Serial Number for the Applicant"
+   },
+   {
+    "fieldName": "premises_county",
+    "name": "Premises County",
+    "dataTypeName": "text",
+    "description": "County License is located"
+   },
+   {
+    "fieldName": "type",
+    "name": "Type",
+    "dataTypeName": "text",
+    "description": "1 or 2 character alpha code of license type"
+   },
+   {
+    "fieldName": "class",
+    "name": "Class",
+    "dataTypeName": "text",
+    "description": "3 digit numeric code of license type "
+   },
+   {
+    "fieldName": "description",
+    "name": "Description",
+    "dataTypeName": "text",
+    "description": "Type of License"
+   },
+   {
+    "fieldName": "legalname",
+    "name": "LegalName",
+    "dataTypeName": "text",
+    "description": "Corporate Name of Licensee"
+   },
+   {
+    "fieldName": "dba",
+    "name": "DBA",
+    "dataTypeName": "text",
+    "description": "Doing Business As"
+   },
+   {
+    "fieldName": "actual_address_of_premises",
+    "name": "Actual Address Of Premises",
+    "dataTypeName": "text",
+    "description": "Address of licensed premise"
+   },
+   {
+    "fieldName": "additional_address_information",
+    "name": "Additional Address Information",
+    "dataTypeName": "text",
+    "description": "Additional address information"
+   },
+   {
+    "fieldName": "city",
+    "name": "City",
+    "dataTypeName": "text",
+    "description": "City of licensed premise"
+   },
+   {
+    "fieldName": "state_name",
+    "name": "State Name",
+    "dataTypeName": "text",
+    "description": "State of licensed premise"
+   },
+   {
+    "fieldName": "zip_code",
+    "name": "Zip Code",
+    "dataTypeName": "text",
+    "description": "Zip code of licensed premise"
+   },
+   {
+    "fieldName": "received_date",
+    "name": "Received Date",
+    "dataTypeName": "calendar_date",
+    "description": "Date application was received"
+   },
+   {
+    "fieldName": "status",
+    "name": "Status",
+    "dataTypeName": "text",
+    "description": "Status of Application"
+   },
+   {
+    "fieldName": "aka_address",
+    "name": "AKA Address",
+    "dataTypeName": "text",
+    "description": "AKA Address"
+   },
+   {
+    "fieldName": "georeference",
+    "name": "Georeference",
+    "dataTypeName": "point",
+    "description": "Open Data platform-generated geocoding information from supplied address components. Point-type location is the centroid of the address components provided and does not reflect a specific address if the street address component is not provided. Point-type location is supplied in \"POINT (<geocoded longitude> <geocoded latitude>)\" format."
+   }
+  ]
+ },
+ "6dg3-2z7i": {
+  "name": "Current SLA Inactive Licenses",
+  "rowsUpdatedAt": 1794101880,
+  "columns": [
+   {
+    "fieldName": "license_permit_id",
+    "name": "License Permit ID",
+    "dataTypeName": "text",
+    "description": "Unique Serial Number for the licensee"
+   },
+   {
+    "fieldName": "premises_county",
+    "name": "Premises County",
+    "dataTypeName": "text",
+    "description": "County License is located"
+   },
+   {
+    "fieldName": "type",
+    "name": "Type",
+    "dataTypeName": "number",
+    "description": "    1 or 2 character alpha code of license type"
+   },
+   {
+    "fieldName": "class",
+    "name": "Class",
+    "dataTypeName": "number",
+    "description": "3 digit numeric code of license type "
+   },
+   {
+    "fieldName": "description",
+    "name": "Description",
+    "dataTypeName": "text",
+    "description": "Type of License"
+   },
+   {
+    "fieldName": "legalname",
+    "name": "LegalName",
+    "dataTypeName": "text",
+    "description": "Corporate Name of Licensee"
+   },
+   {
+    "fieldName": "dba",
+    "name": "DBA",
+    "dataTypeName": "text",
+    "description": "Doing Business As"
+   },
+   {
+    "fieldName": "actual_address_of_premises",
+    "name": "Actual Address Of Premises",
+    "dataTypeName": "text",
+    "description": "Address of licensed premise"
+   },
+   {
+    "fieldName": "additional_address_information",
+    "name": "Additional Address Information",
+    "dataTypeName": "text",
+    "description": "Additional address information"
+   },
+   {
+    "fieldName": "city",
+    "name": "City",
+    "dataTypeName": "text",
+    "description": "City of licensed premise"
+   },
+   {
+    "fieldName": "state_name",
+    "name": "State Name",
+    "dataTypeName": "text",
+    "description": "State of licensed premise"
+   },
+   {
+    "fieldName": "zip_code",
+    "name": "Zip Code",
+    "dataTypeName": "text",
+    "description": "Zip code of licensed premise"
+   },
+   {
+    "fieldName": "original_issue_date",
+    "name": "Original Issue Date",
+    "dataTypeName": "calendar_date",
+    "description": "Date license was issued"
+   },
+   {
+    "fieldName": "last_issue_date",
+    "name": "Last Issue Date",
+    "dataTypeName": "calendar_date",
+    "description": "Renewal Date"
+   },
+   {
+    "fieldName": "effective_date",
+    "name": "Effective Date",
+    "dataTypeName": "calendar_date",
+    "description": "Effective Date"
+   },
+   {
+    "fieldName": "expiration_date",
+    "name": "Expiration Date",
+    "dataTypeName": "calendar_date",
+    "description": "Date of Expiration"
+   },
+   {
+    "fieldName": "legacy_serial_number",
+    "name": "Legacy_Serial_Number",
+    "dataTypeName": "number",
+    "description": "Previous Serial Number"
+   },
+   {
+    "fieldName": "aka_address",
+    "name": "AKA Address",
+    "dataTypeName": "text",
+    "description": "AKA Address"
+   },
+   {
+    "fieldName": "georeference",
+    "name": "Georeference",
+    "dataTypeName": "point",
+    "description": "Open Data platform-generated geocoding information from supplied address components. Point-type location is the centroid of the address components provided and does not reflect a specific address if the street address component is not provided. Point-type location is supplied in \"POINT (<geocoded longitude> <geocoded latitude>)\" format."
+   }
+  ]
+ }
+}

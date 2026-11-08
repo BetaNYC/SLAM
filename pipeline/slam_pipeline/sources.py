@@ -386,12 +386,32 @@ SLA_RULES = {
 SLA_LICENSE = {
     "fields": {
         "liquor_active": {"id": "licensepermitid", "type": "type", "class": "class",
-                          "description": "description", "point": "georeference"},
+                          "description": "description", "point": "georeference",
+                          "renewed": "lastissuedate", "effective": "effectivedate",
+                          "legacy_id": "legacyserialnumber", "parent_id": "parentlicenseid",
+                          "aka": "akaaddress"},
         "liquor_inactive": {"id": "license_permit_id", "type": "type", "class": "class",
-                            "description": "description", "point": "georeference"},
+                            "description": "description", "point": "georeference",
+                            "renewed": "last_issue_date", "effective": "effective_date",
+                            "legacy_id": "legacy_serial_number", "aka": "aka_address"},
         "liquor_pending": {"id": "application_id", "type": "type", "class": "class",
-                           "description": "description", "point": "georeference"},
+                           "description": "description", "point": "georeference",
+                           "aka": "aka_address"},
     },
+    # The rest of each license's published record, shown on the address page (#63, columns
+    # re-read 2026-11-07, tests/fixtures/sla_columns_2026-11-07.json). Keys are the record keys
+    # above; `name` and `description` are the datasets' own, word for word. Date keys are
+    # trimmed to YYYY-MM-DD. Pending applications publish only `aka` of these.
+    "record": {
+        "renewed": {"name": "Last Issue Date", "description": "Renewal Date", "date": True},
+        "effective": {"name": "Effective Date", "description": "Effective Date", "date": True},
+        "legacy_id": {"name": "Legacy Serial Number", "description": "Previous Serial Number"},
+        "parent_id": {"name": "Parent License ID", "description": "Parent License ID"},
+        "aka": {"name": "AKA Address", "description": "AKA Address"},
+    },
+    # Words in a column name or description that would mean hours or method of operation. None of
+    # the three datasets has one (2026-11-04, re-checked 2026-11-07); a test keeps that true.
+    "not_published": ["hour", "method", "operation", "stipulat", "condition"],
     # Column descriptions, word for word ("License Permit ID" / "Application ID").
     "id_description": {"liquor_active": "Unique Serial Number for the licensee",
                        "liquor_inactive": "Unique Serial Number for the licensee",

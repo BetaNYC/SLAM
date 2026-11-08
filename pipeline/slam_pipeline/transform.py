@@ -8,7 +8,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from .sources import Source
+from .sources import SLA_LICENSE, Source
 
 # ---------------------------------------------------------------- checks
 
@@ -146,6 +146,21 @@ def _clean(v) -> str:
     return "" if s.upper() in _NULLISH else s
 
 
+def sla_record_extras(key: str, row: dict) -> dict:
+    """The rest of an SLA license's published record (#63): renewal and effective dates, legacy
+    serial number, parent license ID and AKA address, for the columns that dataset has. Column
+    names come from SLA_LICENSE["fields"]; nothing is added that the row does not carry."""
+    cols = SLA_LICENSE["fields"][key]
+    out = {}
+    for name, spec in SLA_LICENSE["record"].items():
+        col = cols.get(name)
+        if col is None:
+            continue
+        v = row.get(col)
+        out[name] = _d(v) if spec.get("date") and isinstance(v, str) else v
+    return out
+
+
 def normalize_record(src: Source, row: dict) -> dict:
     """Map a raw row into the common record shape used by the site."""
     lon, lat = _point(row, src)
@@ -200,6 +215,8 @@ def normalize_record(src: Source, row: dict) -> dict:
                    bbl=row.get("bbl"))
     else:
         raise ValueError(f"no normalizer for {k}")
+    if k in SLA_LICENSE["fields"]:
+        rec.update(sla_record_extras(k, row))
     rec = {kk: _clean(v) for kk, v in rec.items()}
     rec["source"] = k
     rec["name"] = rec.get("dba") or rec.get("legal_name") or "(no name)"

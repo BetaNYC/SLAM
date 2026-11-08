@@ -86,7 +86,7 @@ Every dataset is read from its portal's own API, and its fields are checked agai
 | Community districts | Community Districts (NYC Open Data) | `5crt-au7u` |
 | Addresses | City Planning's Property Address Directory, as normalized by NYC Planning Labs | [CSV](https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/latest/labs-geosearch-pad-normalized.csv) |
 
-Each license links to its record on SLA's [LAMP](https://lamp.sla.ny.gov/) map.
+Each license links to its record on SLA's [LAMP](https://lamp.sla.ny.gov/) map. An address page shows every date and ID the three SLA datasets publish for a license (first issued, last issued, effective and expiration dates; legacy serial number; parent license; AKA address). None of the three publishes hours or method of operation (column lists checked 2026-11-07, [#63](https://github.com/BetaNYC/SLAM/issues/63)), and SLAM does not copy them from other pages; a test fails if the State adds such a column.
 
 ## Contributing
 

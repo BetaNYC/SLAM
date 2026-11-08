@@ -768,6 +768,59 @@ def test_sla_license_keeps_raw_type_and_class_and_the_georeference_point():
     assert pend["ltype"] and pend["lclass"]
 
 
+def test_sla_record_columns_are_the_datasets_own_word_for_word():
+    """Every extra field shown (#63) is selected, and its name and description are the State's
+    own, from the column metadata read on 2026-11-07."""
+    from slam_pipeline.sources import SLA_LICENSE
+    meta = load("sla_columns_2026-11-07.json")
+    for key, names in SLA_LICENSE["fields"].items():
+        src = SOURCES_BY_KEY[key]
+        cols = {c["fieldName"]: c for c in meta[src.id]["columns"]}
+        for rec_key, spec in SLA_LICENSE["record"].items():
+            col = names.get(rec_key)
+            if col is None:
+                continue
+            assert col in src.fields, (key, col)
+            assert cols[col]["name"].replace("_", " ") == spec["name"], (key, col)
+            assert cols[col]["description"].strip() == spec["description"], (key, col)
+            assert (cols[col]["dataTypeName"] == "calendar_date") == bool(spec.get("date")), col
+    # Pending applications publish no renewal, effective, legacy or parent column.
+    assert set(SLA_LICENSE["fields"]["liquor_pending"]) & set(SLA_LICENSE["record"]) == {"aka"}
+
+
+def test_no_sla_dataset_publishes_hours_or_method_of_operation():
+    """#63 finding: none of the three SLA datasets has hours or method of operation. If the State
+    adds one, this fails, so the site can show it instead of saying it is not published."""
+    from slam_pipeline.sources import SLA_LICENSE
+    meta = load("sla_columns_2026-11-07.json")
+    for key in SLA_LICENSE["fields"]:
+        for c in meta[SOURCES_BY_KEY[key].id]["columns"]:
+            text = f'{c["fieldName"]} {c["name"]} {c["description"] or ""}'.lower()
+            for word in SLA_LICENSE["not_published"]:
+                assert word not in text, (key, c["fieldName"], word)
+
+
+def test_sla_record_extras_from_real_rows():
+    rows = load("sla_44_wilson_rows.json")
+    act = normalize_record(SOURCES_BY_KEY["liquor_active"], rows["liquor_active"][0])
+    assert (act["issued"], act["renewed"], act["effective"]) == ("2026-01-13", "2026-01-13", "2026-02-01")
+    assert act["legacy_id"] == "1289433"
+    assert act["parent_id"] == "" and act["aka"] == ""  # not in the row -> empty, then dropped by slim
+    old = normalize_record(SOURCES_BY_KEY["liquor_inactive"], rows["liquor_inactive"][0])
+    assert (old["renewed"], old["effective"], old["legacy_id"]) == ("2013-02-08", "2013-02-08", "1267853")
+    assert "parent_id" not in old  # the inactive dataset has no parent license column
+    bar = next(x["row"] for x in load("sla_rows_page_points.json")
+               if x["row"].get("licensepermitid") == "0340-26-151065-01")
+    r = normalize_record(SOURCES_BY_KEY["liquor_active"], bar)
+    assert r["type"] == "Additional Bar" and r["parent_id"] == "0340-26-151065"
+    pend = normalize_record(SOURCES_BY_KEY["liquor_pending"], load("sla_pending_sample.json")[1])
+    assert "renewed" not in pend and "legacy_id" not in pend and "aka" in pend
+    # Other sources get none of these keys.
+    from slam_pipeline.sources import SLA_LICENSE
+    ocm = normalize_record(SOURCES_BY_KEY["cannabis_license"], load("ocm_licenses_sample.json")[0])
+    assert not set(SLA_LICENSE["record"]) & set(ocm)
+
+
 # ---------------------------------------------------------------- cannabis siting (Cannabis Law §72(6))
 
 def test_cannabis_distances_follow_cannabis_law_72_6():

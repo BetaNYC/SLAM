@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
 	import { mapLinkFor, mapLinkState, mapLinkNote } from '#lib/mapLink.js';
-	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, boundariesUrl, statusLabel } from '#lib/format.js';
+	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, slaRecordLines, boundariesUrl, statusLabel } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 	import CountTable311 from '#lib/CountTable311.svelte';
@@ -98,11 +98,12 @@
 				<tr>
 					<td><span class="badge" style="background:{SOURCE_COLOR[r.source]}">{SOURCE_SHORT[r.source]}</span></td>
 					<td>{r.name}{#if r.dba && r.legal_name && r.dba !== r.legal_name}<br /><span class="muted">{r.legal_name}</span>{/if}
-						{#if r.street2}<br /><span class="muted">{addressLine(r)}</span>{/if}</td>
+						{#if r.street2}<br /><span class="muted">{addressLine(r)}</span>{/if}
+						{#each slaRecordLines(r, ['aka']) as x (x.key)}<br /><span class="muted">{x.label}: {x.value}</span>{/each}</td>
 					<td>{r.type}{#if SLA_SOURCES.includes(r.source)}<br /><span class="muted">Type {r.ltype ?? '?'} · Class {r.lclass ?? '?'}</span>{:else if r.cls && r.cls !== '/'}<br /><span class="muted">{r.cls}</span>{/if}</td>
 					<td>{statusLabel(r)}</td>
-					<td class="nowrap">{#if r.date}{r.date_label} {r.date}{/if}{#if r.issued}<br /><span class="muted">First issued {r.issued}</span>{/if}</td>
-					<td><code>{r.rid}</code>{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}{@const rec = lampRecordUrl(r.source, r.rid, lampQuery)}{#if rec}<br /><a href={rec} aria-label="Open this license in LAMP: {r.name}, {r.rid}">Open this license in LAMP</a>{/if}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
+					<td class="nowrap">{#if r.date}{r.date_label} {r.date}{/if}{#if r.issued}<br /><span class="muted">First issued {r.issued}</span>{/if}{#each slaRecordLines(r, ['renewed', 'effective']) as x (x.key)}<br /><span class="muted">{x.label} {x.value}</span>{/each}</td>
+					<td><code>{r.rid}</code>{#each slaRecordLines(r, ['legacy_id', 'parent_id']) as x (x.key)}<br /><span class="muted">{x.label} <code>{x.value}</code></span>{/each}{#if SLA_SOURCES.includes(r.source)}{@const lamp = lampUrl(r.plon ?? r.lon, r.plat ?? r.lat, lampLevel)}{@const rec = lampRecordUrl(r.source, r.rid, lampQuery)}{#if rec}<br /><a href={rec} aria-label="Open this license in LAMP: {r.name}, {r.rid}">Open this license in LAMP</a>{/if}<br />{#if lamp}<a href={lamp} aria-label="Show on the SLA's LAMP map: {r.name}, {r.rid}">Show on the SLA's LAMP map</a>{:else}<span class="muted">No point in the SLA data, so no LAMP link</span>{/if}{/if}</td>
 				</tr>
 			{/each}
 		</tbody>
