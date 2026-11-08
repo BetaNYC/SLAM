@@ -40,22 +40,22 @@ function fakeStorage() {
 
 test('liquor only: liquor layers present, schools and worship, liquor rings', () => {
 	const h = hashOf(mapLinkFor(addr(['liquor_pending', 'liquor_active', 'liquor_inactive']), DISTRICTS));
-	assert.deepEqual(h.on, ['liquor_pending', 'liquor_active', 'sw', 'rings_liquor']);
-	assert.deepEqual(hashOf(mapLinkFor(addr(['liquor_active']), DISTRICTS)).on, ['liquor_active', 'sw', 'rings_liquor']);
-	assert.deepEqual(hashOf(mapLinkFor(addr(['liquor_pending']), DISTRICTS)).on, ['liquor_pending', 'sw', 'rings_liquor']);
+	assert.deepEqual(h.on, ['liquor_pending', 'liquor_active', 'c311', 'sw', 'rings_liquor']);
+	assert.deepEqual(hashOf(mapLinkFor(addr(['liquor_active']), DISTRICTS)).on, ['liquor_active', 'c311', 'sw', 'rings_liquor']);
+	assert.deepEqual(hashOf(mapLinkFor(addr(['liquor_pending']), DISTRICTS)).on, ['liquor_pending', 'c311', 'sw', 'rings_liquor']);
 });
 
 test('cannabis only, including a license that is only In-Process: cannabis layers and cannabis rings', () => {
 	const inProcess = addr([]);
 	inProcess.records = [{ source: 'cannabis_license', status: 'In-Process' }];
-	assert.deepEqual(hashOf(mapLinkFor(inProcess, DISTRICTS)).on, ['cannabis_license', 'sw', 'rings_cannabis']);
-	assert.deepEqual(hashOf(mapLinkFor(addr(['cannabis_retail']), DISTRICTS)).on, ['cannabis_retail', 'sw', 'rings_cannabis']);
-	assert.deepEqual(hashOf(mapLinkFor(addr(['cannabis_retail', 'cannabis_license']), DISTRICTS)).on, ['cannabis_retail', 'cannabis_license', 'sw', 'rings_cannabis']);
+	assert.deepEqual(hashOf(mapLinkFor(inProcess, DISTRICTS)).on, ['cannabis_license', 'c311', 'sw', 'rings_cannabis']);
+	assert.deepEqual(hashOf(mapLinkFor(addr(['cannabis_retail']), DISTRICTS)).on, ['cannabis_retail', 'c311', 'sw', 'rings_cannabis']);
+	assert.deepEqual(hashOf(mapLinkFor(addr(['cannabis_retail', 'cannabis_license']), DISTRICTS)).on, ['cannabis_retail', 'cannabis_license', 'c311', 'sw', 'rings_cannabis']);
 });
 
 test('both: both groups\' layers and both rings', () => {
 	const h = hashOf(mapLinkFor(addr(['cannabis_retail', 'liquor_active', 'liquor_inactive']), DISTRICTS));
-	assert.deepEqual(h.on, ['liquor_active', 'cannabis_retail', 'sw', 'rings_liquor', 'rings_cannabis']);
+	assert.deepEqual(h.on, ['liquor_active', 'cannabis_retail', 'c311', 'sw', 'rings_liquor', 'rings_cannabis']);
 	assert.deepEqual(mapLinkState(addr(['cannabis_license', 'liquor_pending'])).groups, ['liquor', 'cannabis']);
 });
 
@@ -76,7 +76,7 @@ test('neither (inactive liquor only, Dining Out only, nothing): no layer list, s
 test('the link: district map path, address point at street zoom, address selected; round-trips through parseHash', () => {
 	const a = addr(['liquor_pending']);
 	const href = mapLinkFor(a, DISTRICTS);
-	assert.equal(href, '/mn-cd1/map/#v=17.00/40.71154/-74.01142&on=liquor_pending,sw,rings_liquor&sel=1000001');
+	assert.equal(href, '/mn-cd1/map/#v=17.00/40.71154/-74.01142&on=liquor_pending,c311,sw,rings_liquor&sel=1000001');
 	const h = hashOf(href);
 	assert.deepEqual(h.view, { z: ADDRESS_ZOOM, lat: 40.71154, lon: -74.01142 });
 	assert.equal(h.sel, a.id);
@@ -115,13 +115,13 @@ test('no link without a usable point or outside the pilot districts', () => {
 test('built data: the link is on address pages in each district, with the right rings', async () => {
 	const cases = [
 		// 185 Greenwich St (Manhattan CB1): pending, active and inactive liquor.
-		['1089309', '185 Greenwich St', 'mn-cd1', ['liquor_pending', 'liquor_active', 'sw', 'rings_liquor'], 'liquor distance rings on'],
+		['1089309', '185 Greenwich St', 'mn-cd1', ['liquor_pending', 'liquor_active', 'c311', 'sw', 'rings_liquor'], 'liquor distance rings on'],
 		// 44 Wilson Ave (Brooklyn CB4): active and inactive liquor.
-		['3071959', '44 WILSON AVE', 'bk-cd4', ['liquor_active', 'sw', 'rings_liquor'], 'liquor distance rings on'],
+		['3071959', '44 WILSON AVE', 'bk-cd4', ['liquor_active', 'c311', 'sw', 'rings_liquor'], 'liquor distance rings on'],
 		// 412 Knickerbocker Ave (Brooklyn CB4): one cannabis license, In-Process.
-		['3074784', '412 Knickerbocker Ave', 'bk-cd4', ['cannabis_license', 'sw', 'rings_cannabis'], 'cannabis distance rings on'],
+		['3074784', '412 Knickerbocker Ave', 'bk-cd4', ['cannabis_license', 'c311', 'sw', 'rings_cannabis'], 'cannabis distance rings on'],
 		// 111 Fulton St (Manhattan CB1): cannabis and liquor.
-		['1001263', '111 FULTON ST', 'mn-cd1', ['liquor_active', 'cannabis_retail', 'sw', 'rings_liquor', 'rings_cannabis'], 'liquor and cannabis distance rings on']
+		['1001263', '111 FULTON ST', 'mn-cd1', ['liquor_active', 'cannabis_retail', 'c311', 'sw', 'rings_liquor', 'rings_cannabis'], 'liquor and cannabis distance rings on']
 	];
 	for (const [id, street, slug, on, note] of cases) {
 		const a = readAddress(/** @type {string} */ (id));
@@ -169,8 +169,8 @@ test('a link with layers does not overwrite saved choices until the person chang
 	assert.deepEqual(loadPrefs(storage, KNOWN)?.on, ['dining_out', 'c311']);
 	// The person turns something on: from then on the map saves as before.
 	gate.touch();
-	if (gate.open) storePrefs(storage, { on: ['cannabis_license', 'sw', 'rings_cannabis', 'dining_out'], c311: 'stacks', open: true });
-	assert.deepEqual(loadPrefs(storage, KNOWN)?.on, ['cannabis_license', 'sw', 'rings_cannabis', 'dining_out']);
+	if (gate.open) storePrefs(storage, { on: ['cannabis_license', 'c311', 'sw', 'rings_cannabis', 'dining_out'], c311: 'stacks', open: true });
+	assert.deepEqual(loadPrefs(storage, KNOWN)?.on, ['cannabis_license', 'c311', 'sw', 'rings_cannabis', 'dining_out']);
 	// A load without layers in the link saves straight away, as before #118.
 	assert.equal(prefsGate(null).open, true);
 	assert.equal(prefsGate(parseHash('#v=17/40.7/-74', KNOWN).on).open, true);

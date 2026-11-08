@@ -26,8 +26,9 @@ export const RING_LAYERS = Object.freeze({
 });
 
 /**
- * The map state for an address: its point and zoom, the record layers that fit the rings, schools
- * and houses of worship, and the matching ring toggles. `on` is null when nothing at the address
+ * The map state for an address: its point and zoom, the record layers that fit the rings, 311
+ * complaints (on in the map's defaults too; Noel, 2026-11-07), schools and houses of worship, and
+ * the matching ring toggles. `on` is null when nothing at the address
  * calls for rings, so the map keeps the person's saved layers or the defaults.
  * @param {{id: string, lat: number, lon: number, records: {source: string}[]}} a an address/<id>.json file
  * @returns {{view: {z: number, lat: number, lon: number}, on: string[] | null, sel: string, groups: ('liquor' | 'cannabis')[]}}
@@ -45,7 +46,7 @@ export function mapLinkState(a) {
 		layers.push(...here);
 		groups.push(key);
 	}
-	const on = groups.length ? [...layers, 'sw', ...LICENSE_GROUPS.filter((g) => groups.includes(/** @type {any} */ (g.key))).map((g) => g.ringKey)] : null;
+	const on = groups.length ? [...layers, 'c311', 'sw', ...LICENSE_GROUPS.filter((g) => groups.includes(/** @type {any} */ (g.key))).map((g) => g.ringKey)] : null;
 	return { view: { z: ADDRESS_ZOOM, lat: a.lat, lon: a.lon }, on, sel: a.id, groups };
 }
 
