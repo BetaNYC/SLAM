@@ -61,12 +61,13 @@ def test_labels_and_slugs():
 
 
 def test_pilot_districts_are_unchanged():
-    assert PILOT_BORO_CDS == (101, 304)
+    assert PILOT_BORO_CDS == (101, 304, 309)
     assert {s: (d["label"], d["short"], d["borough"], d["cb"]) for s, d in DISTRICTS.items()} == {
         "mn-cd1": ("Manhattan Community District 1", "MN CD 1", "Manhattan", 1),
-        "bk-cd4": ("Brooklyn Community District 4", "BK CD 4", "Brooklyn", 4)}
-    assert COMPLAINTS_311_BOARDS == ("01 MANHATTAN", "04 BROOKLYN")
-    assert RESTAURANT_BOARDS == ("101", "304")
+        "bk-cd4": ("Brooklyn Community District 4", "BK CD 4", "Brooklyn", 4),
+        "bk-cd9": ("Brooklyn Community District 9", "BK CD 9", "Brooklyn", 9)}
+    assert COMPLAINTS_311_BOARDS == ("01 MANHATTAN", "04 BROOKLYN", "09 BROOKLYN")
+    assert RESTAURANT_BOARDS == ("101", "304", "309")
 
 
 def test_jia_board_text_matches_how_each_dataset_writes_it():
