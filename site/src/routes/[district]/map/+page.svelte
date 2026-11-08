@@ -6,7 +6,7 @@
 	import { resolve, asset } from '$app/paths';
 	import { replaceState } from '$app/navigation';
 	import MapPanel from '#lib/MapPanel.svelte';
-	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, MAP_DEFAULTS, EXTRA_KEYS } from '#lib/mapState.js';
+	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, prefsGate, MAP_DEFAULTS, EXTRA_KEYS } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SOURCE_HOLLOW, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
 		import { C311_MODES, STACK_CAP, STACK_STEP_PX, c311DotPaint, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
@@ -68,6 +68,8 @@
 	/** The Layers box is an accordion; its open state is remembered (#77). */
 	let layersOpen = $state(MAP_DEFAULTS.open);
 	const KNOWN = [...LAYERS, ...EXTRA_KEYS];
+	/** Layers from a link are shown, not saved, until the person changes something (#118). */
+	let gate = prefsGate(null);
 
 	/** Layer keys that are on, for the URL and saved preferences. */
 	function onKeys() {
@@ -81,7 +83,7 @@
 		const on = onKeys();
 		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng }, on, c311: mode311, sel: sel?.aid ?? null });
 		if (window.location.hash.slice(1) !== hash) replaceState(`${window.location.pathname}${window.location.search}#${hash}`, {});
-		storePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
+		if (gate.open) storePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
 	}
 
 	/**
@@ -112,6 +114,7 @@
 		// Restore layers and the 311 style: URL hash first, then saved choices, then defaults (#75).
 		const hs = parseHash(window.location.hash, KNOWN);
 		const prefs = loadPrefs(window.localStorage, KNOWN);
+		gate = prefsGate(hs.on);
 		const on = hs.on ?? prefs?.on;
 		if (on) setToggles(on);
 		mode311 = hs.c311 ?? prefs?.c311 ?? mode311;
@@ -269,6 +272,7 @@
 	 * and selection but carries the default layers. No reload.
 	 */
 	async function resetLayers() {
+		gate.touch();
 		setToggles(MAP_DEFAULTS.on);
 		mode311 = MAP_DEFAULTS.c311;
 		clearPrefs(window.localStorage);
@@ -582,9 +586,10 @@
 <h1>Map: {data.district.label}</h1>
 <p><a class="btn secondary" href={resolve('/[district]', { district: data.slug })}>View as list</a></p>
 
-<details class="layers-acc" open={layersOpen} ontoggle={(e) => { layersOpen = e.currentTarget.open; writeState(); }}>
+<details class="layers-acc" open={layersOpen} ontoggle={(e) => { if (e.currentTarget.open !== layersOpen) gate.touch(); layersOpen = e.currentTarget.open; writeState(); }}>
 	<summary>Layers <span class="muted">({onKeys().length} on{show311 ? `, 311 as ${C311_MODES.find((x) => x.key === mode311)?.label.toLowerCase()}` : ''})</span></summary>
-<fieldset class="layers">
+<!-- Any change in the box is the person's own; capture runs before the control's handler saves (#118). -->
+<fieldset class="layers" onchangecapture={() => gate.touch()}>
 	<legend>Layers</legend>
 	<p class="reset-row">
 		<button type="button" class="btn secondary reset" onclick={resetLayers} aria-describedby="reset-hint">Reset to default</button>

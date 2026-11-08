@@ -6,7 +6,8 @@
  *   so Back from an address page lands on the same view, and a view can be shared as a link.
  * - Layer choices (not the view) are also remembered in localStorage for the next visit.
  *
- * Order on load: URL hash, then saved preferences, then MAP_DEFAULTS.
+ * Order on load: URL hash, then saved preferences, then MAP_DEFAULTS. Layers that came from the
+ * hash are not saved until the person changes something (prefsGate, #118).
  * "Reset to default" (#114) puts MAP_DEFAULTS back, forgets the saved choices and keeps the view.
  */
 
@@ -112,14 +113,15 @@ export function parseHash(hash, known) {
 
 /**
  * Write the hash (no leading #). Commas and slashes are kept readable.
- * @param {{view: View, on: string[], c311: string, sel?: string | null}} s
+ * `on` and `c311` may be left out (null): a link that carries only a view and a selection, so the
+ * map keeps the person's saved layers or the defaults (#118). An empty `on` list is different: it
+ * means every layer off.
+ * @param {{view: View, on?: string[] | null, c311?: string | null, sel?: string | null}} s
  */
 export function buildHash(s) {
-	const parts = [
-		`v=${s.view.z.toFixed(2)}/${s.view.lat.toFixed(5)}/${s.view.lon.toFixed(5)}`,
-		`on=${s.on.join(',')}`,
-		`c311=${s.c311}`
-	];
+	const parts = [`v=${s.view.z.toFixed(2)}/${s.view.lat.toFixed(5)}/${s.view.lon.toFixed(5)}`];
+	if (s.on) parts.push(`on=${s.on.join(',')}`);
+	if (s.c311) parts.push(`c311=${s.c311}`);
 	if (s.sel) parts.push(`sel=${s.sel}`);
 	return parts.join('&');
 }
@@ -156,6 +158,27 @@ export function savePrefs(storage, prefs) {
 	} catch {
 		// Storage can be full or blocked; preferences are a convenience, not required.
 	}
+}
+
+/**
+ * Whether the map may save layer choices yet (#118). A link that carries layers (from "See on map"
+ * on an address page, or one someone shared) shows those layers without saving them, so it does
+ * not replace the person's own choices. Saving starts once they change something in the Layers box
+ * or press "Reset to default". A load without layers in the link saves as before.
+ * @param {string[] | null} hashOn  parseHash(...).on for the link the map opened with
+ */
+export function prefsGate(hashOn) {
+	let open = hashOn === null;
+	return {
+		/** True once the map may save. */
+		get open() {
+			return open;
+		},
+		/** The person changed something on the map. */
+		touch() {
+			open = true;
+		}
+	};
 }
 
 /**

@@ -1,6 +1,7 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
+	import { mapLinkFor, mapLinkState, mapLinkNote } from '#lib/mapLink.js';
 	import { SOURCE_LABEL, SOURCE_SHORT, SOURCE_COLOR, addressLine, coBisUrl, abcEatsUrl, DOB_NOW_PORTAL, GRADE_LABEL, fmtStamp, SW_KIND, sameStreetLabel, swName, SLA_SOURCES, lampUrl, lampRecordUrl, boundariesUrl, statusLabel } from '#lib/format.js';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
 	import DistanceNote from '#lib/DistanceNote.svelte';
@@ -41,6 +42,9 @@
 	const cosrc = $derived(m.sources.co_dobnow);
 	const coUrl = $derived(coBisUrl(a.co?.bin));
 	const c311Start = $derived(m.complaints_311.start);
+	// "See on map" (#118): the district map at this address, with the rings that fit its records.
+	const mapHref = $derived(mapLinkFor(a, Object.keys(m.districts), (d) => resolve('/[district]/map', { district: d })));
+	const mapNote = $derived(mapLinkNote(mapLinkState(a).groups));
 </script>
 
 <p class="no-print">
@@ -50,6 +54,10 @@
 
 <h1>{a.street}</h1>
 <p class="muted">{a.city} {a.zip} · {district.label} · {#if a.co?.bin}Building (BIN) <code>{a.co.bin}</code>{:else}No BIN found{/if}</p>
+{#if mapHref}
+	<p class="no-print see-on-map"><a href={mapHref}>See {a.street} on the map</a>
+		<span class="muted">({mapNote})</span></p>
+{/if}
 {#if boundariesUrl(a.lon, a.lat)}
 	<p class="no-print"><a href={boundariesUrl(a.lon, a.lat)}>See every district this address is in on Boundaries Map</a>
 		<span class="muted">(BetaNYC's map of NYC's political and administrative districts)</span></p>
