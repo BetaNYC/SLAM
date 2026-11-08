@@ -1,4 +1,5 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
 	import { addressLine, lampUrl, lampRecordUrl, statusLabel } from '#lib/format.js';
@@ -10,7 +11,7 @@
 	const ncols = $derived(sla ? 6 : 5);
 </script>
 
-<div class="table-scroll">
+<div class="table-scroll" use:scrollRegion>
 	<table>
 		<caption>{caption} <span class="muted">({rows.length})</span></caption>
 		<thead>

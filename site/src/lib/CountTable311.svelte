@@ -1,4 +1,5 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	import { yearHeaders, yearTotals } from '#lib/format.js';
 
 	/** @type {{rows: {type: string, by_year: Record<string, number>, total: number}[], years: number[], through: string, caption: string}} */
@@ -7,7 +8,7 @@
 	const totals = $derived(yearTotals(rows, years));
 </script>
 
-<div class="table-scroll">
+<div class="table-scroll" use:scrollRegion>
 	<table>
 		<caption>{caption}</caption>
 		<thead>

@@ -6,7 +6,7 @@
 	import { resolve, asset } from '$app/paths';
 	import { replaceState } from '$app/navigation';
 	import MapPanel from '#lib/MapPanel.svelte';
-	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, prefsGate, MAP_DEFAULTS, EXTRA_KEYS } from '#lib/mapState.js';
+	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, prefsGate, MAP_DEFAULTS, EXTRA_KEYS, initialLayersOpen, NARROW_QUERY } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SOURCE_HOLLOW, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
 		import { C311_MODES, STACK_CAP, STACK_STEP_PX, c311DotPaint, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
@@ -118,7 +118,7 @@
 		const on = hs.on ?? prefs?.on;
 		if (on) setToggles(on);
 		mode311 = hs.c311 ?? prefs?.c311 ?? mode311;
-		if (prefs) layersOpen = prefs.open;
+		layersOpen = initialLayersOpen(prefs, window.matchMedia?.(NARROW_QUERY).matches ?? false);
 		(async () => {
 			const [{ Map, NavigationControl, setWorkerUrl, Popup: P, Marker }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
@@ -673,6 +673,7 @@
 	view, layers and selection in its web address, so Back returns you here; your layer choices are also
 	remembered in this browser for next time. "Reset to default" at the top of the Layers box turns the
 	layers back to how the map first opens, forgets the saved choices and keeps the view.
+	On a phone, the Layers box starts closed so the map fits on the first screen; select Layers to open it.
 	Colors follow the Layers box groups: liquor layers are blue, violet and gray (pending applications are open
 	circles), cannabis layers are green, Dining Out is raspberry, and 311 complaints are orange, red, brown
 	and gray-green.

@@ -53,6 +53,8 @@ npm install
 npm test
 npm run check
 npm run build                      # writes site/build/
+npx playwright install chromium    # once per machine
+npm run test:a11y                  # axe, keyboard and phone-size checks on site/build/ (#53)
 
 # 3. Look at it
 cd build && python3 -m http.server 4173 --bind 127.0.0.1
@@ -64,6 +66,8 @@ cd build && python3 -m http.server 4173 --bind 127.0.0.1
 ## Updating the data
 
 The workflow (`.github/workflows/v2-deploy.yml`) rebuilds and publishes the site on every push to `v2`, by hand from the Actions tab, and nightly at 10:17 UTC (about 5 to 6 am in New York). `v2` is the default branch, so the nightly run is on: it has run every morning since 2026-11-06 (#90). It needs no secrets; every source is open and keyless.
+
+Every pull request to `v2` runs the site tests and the accessibility checks (`.github/workflows/v2-site-a11y.yml`) on the data last published to `gh-pages`. The checks are axe-core against WCAG 2.0, 2.1 and 2.2 A and AA on the home, district, address, map, About, Glossary and Rules pages, at desktop size and at 360 x 800 and 390 x 844; keyboard use of the map page; and phone layout. Any serious or critical axe violation fails the run, and the deploy workflow runs the same checks before it publishes.
 
 ## Data sources
 

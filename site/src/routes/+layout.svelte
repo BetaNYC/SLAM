@@ -28,7 +28,8 @@
 		<a href={resolve('/rules', {})} aria-current={current('/rules')}>Rules</a>
 	</nav>
 </header>
-<div class="subbar no-print">
+<!-- A named section, so the date line sits in a landmark like the rest of the page (#53, axe "region"). -->
+<section class="subbar no-print" aria-label="Find an address and data date">
 	<div class="wrap">
 		<AddressSearch />
 		<p class="updated">
@@ -37,7 +38,7 @@
 			<time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>.
 		</p>
 	</div>
-</div>
+</section>
 
 <main id="main" class="wrap">
 	{@render children()}
