@@ -233,6 +233,29 @@ export function swName(f) {
 export const SLA_SOURCES = ['liquor_pending', 'liquor_active', 'liquor_inactive'];
 
 /**
+ * Labels for the rest of an SLA license's published record on the address page (#63). The keys
+ * are the pipeline's record keys (sources.py SLA_LICENSE.record); each label is the dataset's
+ * own column name in plain words. "Renewal" is the State's description of Last Issue Date.
+ */
+export const SLA_RECORD_LABEL = /** @type {Record<string, string>} */ ({
+	renewed: 'Last issued (renewal)',
+	effective: 'Effective',
+	legacy_id: 'Legacy serial number',
+	parent_id: 'Parent license',
+	aka: 'AKA address'
+});
+
+/**
+ * The extra SLA fields a record carries, in the order given, skipping empty ones.
+ * @param {Record<string, any>} r  an address-page record
+ * @param {string[]} keys  e.g. ['renewed', 'effective']
+ * @returns {{key: string, label: string, value: string}[]}
+ */
+export function slaRecordLines(r, keys) {
+	return keys.filter((k) => r?.[k]).map((k) => ({ key: k, label: SLA_RECORD_LABEL[k], value: String(r[k]) }));
+}
+
+/**
  * LAMP opened on one license's own record (#63), with the Web AppBuilder `query` URL parameter
  * ("<layer id>,<field>,<value>"). `lampQuery` is the manifest's `sla_license.lamp_query`, which
  * the build fills only for layer ids it found in LAMP's web map; without it there is no link.

@@ -14,7 +14,7 @@
 	const USED_FOR = {
 		districts: 'Community district boundaries. A record is in a district when its point falls inside the line.',
 		liquor_pending: 'Liquor license applications SLA has received and not yet decided.',
-		liquor_active: 'Liquor licenses in effect now.',
+		liquor_active: 'Liquor licenses in effect now, with the dates and IDs SLA publishes for each. SLA publishes no hours or method of operation.',
 		liquor_inactive: 'Liquor licenses that have ended (shown on request).',
 		cannabis_retail: 'Registered adult-use cannabis retail dealers.',
 		cannabis_license: 'Cannabis licenses from the Office of Cannabis Management, plus applicants that hold proximity protection for a proposed dispensary.',

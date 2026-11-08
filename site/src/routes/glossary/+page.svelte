@@ -125,6 +125,25 @@
 			publishes the full list as an Excel file (linked on the <a href={about}>About page</a>).
 		</dd>
 
+		<dt id="license-dates">License dates and IDs</dt>
+		<dd>
+			An address page shows every date and ID SLA publishes for a license. <em>First issued</em> is
+			when the license was first issued. <em>Last issued (renewal)</em> is SLA's "Last Issue Date",
+			which SLA describes as the renewal date. <em>Effective</em> and <em>Expires</em> are SLA's
+			effective and expiration dates. The <em>legacy serial number</em> is SLA's previous serial
+			number for the license. <em>Parent license</em> is SLA's "Parent License ID"; in SLA's active
+			list on 2026-11-07 it was filled in only for additional bar permits, and names another license. An <em>AKA address</em> is another address SLA lists for the place. Pending applications
+			have no issue dates; SLAM shows the date SLA received them.
+		</dd>
+
+		<dt id="hours">Hours and method of operation</dt>
+		<dd>
+			SLA does not publish a license's hours or method of operation as open data, and its LAMP map
+			did not show them when we checked. Conditions SLA's Board sets on a contested application,
+			such as closing hours, appear in the minutes of its Full Board meetings. Each address page links SLA's event calendar, which links the minutes once they are posted.
+			SLAM does not copy them.
+		</dd>
+
 		<dt id="ocm">OCM (Office of Cannabis Management)</dt>
 		<dd>The New York State agency that licenses cannabis businesses, including adult-use retail dispensaries.</dd>
 

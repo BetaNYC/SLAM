@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { renderAddress } from './helpers/addressView.js';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { lampUrl, SLA_SOURCES } from '../src/lib/format.js';
+import { lampUrl, SLA_SOURCES, slaRecordLines, SLA_RECORD_LABEL } from '../src/lib/format.js';
 
 test('lampUrl puts longitude first, as Esri center=x,y expects', () => {
 	// OL'DAYS, 73 Warren St (0240-24-104108): georeference [-74.01011, 40.71513]
@@ -76,7 +76,13 @@ test('an address page links LAMP at the City point for the building and the Full
 	assert.ok(html.includes(`https://lamp.sla.ny.gov/?center=${r5(a.lon)},${r5(a.lat)}&amp;level=18`));
 	assert.ok(!html.includes('https://lamp.sla.ny.gov/?center=-73.92944,40.70281&amp;level=18'));
 	assert.ok(html.includes('https://sla.ny.gov/full-board-meetings'));
-	assert.ok(html.includes('does not include method of operation or hours'));
+	assert.ok(html.includes('The State does not publish them'));
+	assert.ok(html.includes('has a column for method of operation or hours'));
+	// The rest of the published record (#63): renewal and effective dates, legacy serial number.
+	assert.ok(html.includes('Last issued (renewal) 2026-01-13'), 'renewal date');
+	assert.ok(html.includes('Effective 2026-02-01'), 'effective date');
+	assert.ok(html.includes('Legacy serial number <code>1289433</code>'), 'legacy serial');
+	assert.ok(html.includes('<code>lastissuedate</code>') && html.includes('described as "Renewal Date"'), 'note names the column');
 	// #63: one per-license link per SLA record, built from the manifest's checked layer settings.
 	const q = JSON.parse(readFileSync('static/data/manifest.json', 'utf8')).sla_license.lamp_query;
 	// Every build has LAMP's web map (live or cached), so all three must be there (review S5).
@@ -93,4 +99,45 @@ test('lampRecordUrl: one license, only with a checked layer setting', async () =
 	assert.equal(lampRecordUrl('liquor_inactive', '0505-23-024145', q), null); // not verified -> no link
 	assert.equal(lampRecordUrl('liquor_active', '', q), null);
 	assert.equal(lampRecordUrl('liquor_active', 'x', undefined), null);
+});
+
+
+test('slaRecordLines: labeled, in the order asked, empty values skipped', () => {
+	const r = { renewed: '2026-01-13', effective: '', legacy_id: '1289433', parent_id: '0340-26-151065' };
+	assert.deepEqual(slaRecordLines(r, ['renewed', 'effective']), [{ key: 'renewed', label: 'Last issued (renewal)', value: '2026-01-13' }]);
+	assert.deepEqual(slaRecordLines(r, ['parent_id', 'legacy_id']).map((x) => x.label), ['Parent license', 'Legacy serial number']);
+	assert.deepEqual(slaRecordLines({}, ['aka']), []);
+	// Every key the pipeline sends (manifest sla_license.record) has a label.
+	const m = JSON.parse(readFileSync('static/data/manifest.json', 'utf8'));
+	assert.deepEqual(Object.keys(m.sla_license.record).sort(), Object.keys(SLA_RECORD_LABEL).sort());
+});
+
+test('built data: the full SLA record is on address pages only, and a parent license shows', async () => {
+	let parent = null;
+	let renewed = 0;
+	for (const f of readdirSync('static/data/address')) {
+		if (f === 'index.json') continue;
+		const a = JSON.parse(readFileSync(`static/data/address/${f}`, 'utf8'));
+		for (const r of a.records) {
+			if (!SLA_SOURCES.includes(r.source)) assert.ok(!('renewed' in r || 'legacy_id' in r || 'parent_id' in r || 'aka' in r), `${f} ${r.source}`);
+			if (r.source === 'liquor_pending') assert.ok(!('renewed' in r || 'legacy_id' in r), `${f} ${r.rid}`);
+			if (r.renewed) renewed++;
+			if (r.parent_id && !parent) parent = { a, r };
+		}
+	}
+	assert.ok(renewed > 1000, `records with a renewal date: ${renewed}`);
+	assert.ok(parent, 'some address page has a parent license');
+	const html = (await renderAddress(parent.a)).replace(/\s+/g, ' ');
+	assert.ok(html.includes(`Parent license <code>${parent.r.parent_id}</code>`));
+	// District lists keep their old shape (no extra fields), so their files do not grow.
+	const m = JSON.parse(readFileSync('static/data/manifest.json', 'utf8'));
+	let checked = 0;
+	for (const slug of Object.keys(m.districts)) {
+		for (const f of readdirSync(`static/data/${slug}`).filter((n) => n.endsWith('.json'))) {
+			const txt = readFileSync(`static/data/${slug}/${f}`, 'utf8');
+			assert.ok(!txt.includes('"renewed"') && !txt.includes('"legacy_id"'), `${slug}/${f}`);
+			checked++;
+		}
+	}
+	assert.ok(checked > 0, 'district files checked');
 });

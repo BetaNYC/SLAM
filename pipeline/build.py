@@ -781,11 +781,15 @@ def main(argv=None) -> int:
     events = [normalize_event(r) for r in raw["street_events"]]
 
     # ---- outputs
-    def slim(r):
-        keep = ("source", "rid", "name", "legal_name", "dba", "street", "street2", "city", "zip",
-                "type", "cls", "ltype", "lclass", "status", "date", "date_label", "issued",
-                "operational", "aid", "lon", "lat", "plon", "plat", "geocoded")
-        return {k: r[k] for k in keep if r.get(k) not in (None, "")}
+    keep = ("source", "rid", "name", "legal_name", "dba", "street", "street2", "city", "zip",
+            "type", "cls", "ltype", "lclass", "status", "date", "date_label", "issued",
+            "operational", "aid", "lon", "lat", "plon", "plat", "geocoded")
+    # The rest of each SLA license's record goes on address pages only (#63), so the district
+    # lists stay the size they were.
+    keep_full = keep + tuple(SLA_LICENSE["record"])
+
+    def slim(r, full=False):
+        return {k: r[k] for k in (keep_full if full else keep) if r.get(k) not in (None, "")}
 
     counts: dict[str, dict] = {}
     for slug, d in DISTRICTS.items():
@@ -869,7 +873,7 @@ def main(argv=None) -> int:
     co_pages_with_records = 0
     for a in addrs.values():
         out = {k: v for k, v in a.items() if k != "keys"}
-        out["records"] = [slim(r) for r in a["records"]]
+        out["records"] = [slim(r, full=True) for r in a["records"]]
         out["nearby"] = [{"id": b, "m": m, "street": addrs[b]["street"],
                           "records": [{k: r[k] for k in ("source", "name", "type", "status")
                                       if r.get(k)} for r in addrs[b]["records"]]}

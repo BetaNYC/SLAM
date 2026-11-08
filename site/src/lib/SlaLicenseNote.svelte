@@ -1,10 +1,12 @@
 <script>
-	import { fmtStamp } from '#lib/format.js';
+	import { fmtStamp, SLA_RECORD_LABEL } from '#lib/format.js';
 
 	/** What the SLA license columns mean and where hours and conditions live (#63). Facts only.
 	 * @type {{manifest: any, keys: string[]}} */
 	let { manifest, keys } = $props();
 	const S = $derived(manifest.sla_license);
+	// The extra columns (#63) that at least one of the datasets on this page publishes.
+	const recordKeys = $derived(Object.keys(S.record ?? {}).filter((rk) => keys.some((k) => S.fields[k][rk])));
 	const ID_LABEL = /** @type {Record<string, string>} */ ({
 		liquor_active: 'active',
 		liquor_inactive: 'inactive',
@@ -20,6 +22,15 @@
 		the dataset has them; the words are <code>description</code>. The active-license dataset writes
 		classes with a leading zero (<code>0370</code>); the pending and inactive datasets, SLA's class
 		sheet and LAMP write the same class without it (<code>370</code>). See <a href={S.classes.url}>{S.classes.label}</a>.
+	</p>
+	<p>
+		<strong>Dates and other IDs.</strong> Each is a column of SLA's open data, shown as published
+		when the license has a value. {#each recordKeys as rk, i (rk)}{SLA_RECORD_LABEL[rk]} is
+		{#each keys.filter((k) => S.fields[k][rk]) as k, j (k)}<code>{S.fields[k][rk]}</code>{j < keys.filter((k) => S.fields[k][rk]).length - 1 ? ', ' : ''}{/each}
+		("{S.record[rk].name}"{S.record[rk].description !== S.record[rk].name ? `, described as "${S.record[rk].description}"` : ''}){i < recordKeys.length - 1 ? '; ' : '.'}{/each}
+		Pending applications have none of these except the AKA address; the inactive-license dataset
+		has no parent license column. In the active list on 2026-11-07, the parent license ID was
+		filled in only for additional bar permits (all 1,842 of them), and names another license.
 	</p>
 	{#if Object.keys(S.lamp_query ?? {}).length}<p>
 		<strong>Open this license in LAMP.</strong> This link opens SLA's LAMP map on the license's own
@@ -45,8 +56,10 @@
 		SLAM's geocode. A license with no point has no link.
 	</p>
 	<p>
-		<strong>Hours and method of operation.</strong> The SLA open data does not include method of
-		operation or hours, and neither did the LAMP popup when we checked. Approval conditions for contested applications, which can include closing
+		<strong>Hours and method of operation.</strong> The State does not publish them. None of SLA's
+		three open datasets (active, pending and inactive licenses) has a column for method of
+		operation or hours (column lists checked on 2026-11-07), and neither did the LAMP popup when we
+		checked (2026-11-04). SLAM does not copy them from other pages. Approval conditions for contested applications, which can include closing
 		hours and community board stipulations, appear in the minutes of SLA's
 		<a href={S.full_board.url}>Full Board meetings</a>; each meeting's page in the
 		<a href={S.event_calendar.url}>{S.event_calendar.label}</a> links its minutes once they are posted
