@@ -6,7 +6,7 @@
 	import { resolve, asset } from '$app/paths';
 	import { replaceState } from '$app/navigation';
 	import MapPanel from '#lib/MapPanel.svelte';
-	import { parseHash, buildHash, loadPrefs, savePrefs, EXTRA_KEYS } from '#lib/mapState.js';
+	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, MAP_DEFAULTS, EXTRA_KEYS } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SOURCE_HOLLOW, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
 		import { C311_MODES, STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
@@ -20,24 +20,19 @@
 	/** The dark edge around each record dot: 5.8:1 on the City's park green, 5.9:1 on its water blue. */
 	const DOT_EDGE = '#1f2937';
 	const LAYERS = ['liquor_pending', 'liquor_active', 'liquor_inactive', 'cannabis_retail', 'cannabis_license', 'dining_out'];
+	/** How the map first opens, from the one list of defaults that "Reset to default" also uses (#114). */
+	const INITIAL = layerToggles(MAP_DEFAULTS.on, LAYERS, LICENSE_GROUPS);
 	/** @type {Record<string, boolean>} */
-	let visible = $state({
-		liquor_pending: true,
-		liquor_active: false,
-		liquor_inactive: false,
-		cannabis_retail: false,
-		cannabis_license: false,
-		dining_out: false
-	});
+	let visible = $state({ ...INITIAL.visible });
 	/** @type {Record<string, number>} */
 	let counts = $state({});
 	let status = $state('Loading map…');
-	// 311 complaints: ON by default (Noel, 2026-11-07), fetched when the map loads.
-	let show311 = $state(true);
+	// 311 complaints: ON by default (MAP_DEFAULTS), fetched when the map loads.
+	let show311 = $state(INITIAL.show311);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let state311 = 'idle';
 	/** How 311 complaints are drawn: stacked chips, sized circles or plain dots (#29, compare). */
-	let mode311 = $state('stacks');
+	let mode311 = $state(MAP_DEFAULTS.c311);
 	/** Label font for 311 counts; each basemap serves its own fonts. */
 	let labelFont = ['Source Sans Pro Bold'];
 	const STACK_LAYERS = Array.from({ length: STACK_CAP }, (_, i) => `c311-stack-${i}`);
@@ -47,16 +42,15 @@
 		stacks: [...STACK_LAYERS, 'c311-stack-label'],
 		sized: ['c311-sized', 'c311-sized-label']
 	};
-	// Schools and houses of worship (#60): OFF by default, fetched on first switch-on.
-	let showSW = $state(true);
+	// Schools and houses of worship (#60): ON by default (MAP_DEFAULTS), fetched when the map loads.
+	let showSW = $state(INITIAL.showSW);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateSW = 'idle';
 	/** @type {Promise<any> | null} The district's schools-worship.geojson, fetched once for points and rings. */
 	let swData = null;
 	// Distance rings around schools and houses of worship (#111): one toggle per license group, each
-	// drawing only its own law's rings; both OFF by default, built on first switch-on.
-	/** @type {{liquor: boolean, cannabis: boolean}} */
-	let ringsOn = $state({ liquor: true, cannabis: false });
+	// drawing only its own law's rings; liquor on and cannabis off by default (MAP_DEFAULTS), built when first on.
+	let ringsOn = $state(/** @type {{liquor: boolean, cannabis: boolean}} */ ({ ...INITIAL.ringsOn }));
 	const anyRings = $derived(ringsOn.liquor || ringsOn.cannabis);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateRings = 'idle';
@@ -72,7 +66,7 @@
 	/** What the side panel shows (#75). @type {{aid?: string, kind: 'address' | 'c311' | 'c311point' | 'sw', props?: any} | null} */
 	let sel = $state(null);
 	/** The Layers box is an accordion; its open state is remembered (#77). */
-	let layersOpen = $state(true);
+	let layersOpen = $state(MAP_DEFAULTS.open);
 	const KNOWN = [...LAYERS, ...EXTRA_KEYS];
 
 	/** Layer keys that are on, for the URL and saved preferences. */
@@ -87,7 +81,7 @@
 		const on = onKeys();
 		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng }, on, c311: mode311, sel: sel?.aid ?? null });
 		if (window.location.hash.slice(1) !== hash) replaceState(`${window.location.pathname}${window.location.search}#${hash}`, {});
-		savePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
+		storePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
 	}
 
 	/**
@@ -119,12 +113,7 @@
 		const hs = parseHash(window.location.hash, KNOWN);
 		const prefs = loadPrefs(window.localStorage, KNOWN);
 		const on = hs.on ?? prefs?.on;
-		if (on) {
-			for (const k of LAYERS) visible[k] = on.includes(k);
-			show311 = on.includes('c311');
-			showSW = on.includes('sw');
-			for (const g of LICENSE_GROUPS) ringsOn[g.key] = on.includes(g.ringKey);
-		}
+		if (on) setToggles(on);
 		mode311 = hs.c311 ?? prefs?.c311 ?? mode311;
 		if (prefs) layersOpen = prefs.open;
 		(async () => {
@@ -257,6 +246,40 @@
 			map?.remove();
 		};
 	});
+
+	/**
+	 * Set every layer toggle from a list of layer keys that are on (the page's state only; the map
+	 * catches up through the toggle functions).
+	 * @param {readonly string[]} on
+	 */
+	function setToggles(on) {
+		const t = layerToggles(on, LAYERS, LICENSE_GROUPS);
+		for (const k of LAYERS) visible[k] = t.visible[k];
+		show311 = t.show311;
+		showSW = t.showSW;
+		for (const g of LICENSE_GROUPS) ringsOn[g.key] = t.ringsOn[g.key];
+	}
+
+	const RESET_STATUS = 'Layers reset to default.';
+
+	/**
+	 * "Reset to default" (#114): every layer toggle, both ring toggles, 311 and its style back to
+	 * MAP_DEFAULTS, drawn on the map by the same toggle functions the checkboxes use (a default-on
+	 * layer not yet loaded loads now). The saved choices are forgotten, and the hash keeps the view
+	 * and selection but carries the default layers. No reload.
+	 */
+	async function resetLayers() {
+		setToggles(MAP_DEFAULTS.on);
+		mode311 = MAP_DEFAULTS.c311;
+		clearPrefs(window.localStorage);
+		for (const k of LAYERS) toggle(k);
+		await Promise.all([toggle311(), toggleSW(), toggleRings()]);
+		writeState();
+		// Clear first so pressing it twice is announced twice.
+		status = '';
+		await tick();
+		status = RESET_STATUS;
+	}
 
 	/** After a basemap swap, set every overlay's visibility from the checkboxes again. */
 	function reapplyVisibility() {
@@ -563,6 +586,10 @@
 	<summary>Layers <span class="muted">({onKeys().length} on{show311 ? `, 311 as ${C311_MODES.find((x) => x.key === mode311)?.label.toLowerCase()}` : ''})</span></summary>
 <fieldset class="layers">
 	<legend>Layers</legend>
+	<p class="reset-row">
+		<button type="button" class="btn secondary reset" onclick={resetLayers} aria-describedby="reset-hint">Reset to default</button>
+		<span id="reset-hint" class="sr-only">Turns layers back to how the map first opens.</span>
+	</p>
 	{#snippet layerBox(/** @type {string} */ k)}
 		<label>
 			<input type="checkbox" bind:checked={visible[k]} onchange={() => toggle(k)} />
@@ -639,7 +666,8 @@
 	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting any point shows its details in a
 	panel beside the map (under it on a phone), with a link to its full address page. The map keeps your
 	view, layers and selection in its web address, so Back returns you here; your layer choices are also
-	remembered in this browser for next time.
+	remembered in this browser for next time. "Reset to default" at the top of the Layers box turns the
+	layers back to how the map first opens, forgets the saved choices and keeps the view.
 	Colors follow the Layers box groups: liquor layers are blue, violet and gray (pending applications are open
 	circles), cannabis layers are green, Dining Out is raspberry, and 311 complaints are orange, red, brown
 	and gray-green.
@@ -675,6 +703,9 @@
 	.layers .group > label:not(.all) { padding-left: 1.6rem; }
 	.layers .group .legend-rings, .layers .group .rings-note { padding-left: 3.2rem; }
 	.layers .group label > span:last-child, .legend-rings li > span:last-child, .rings-note { overflow-wrap: anywhere; min-width: 0; }
+	/* Reset to default (#114): a plain secondary button at the top of the box, at least 24px tall. */
+	.reset-row { width: 100%; margin: 0; }
+	.layers .reset { min-height: 2rem; padding: 0.3rem 0.8rem; font-size: 0.9rem; }
 	.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 	.mode311 { border: 0; padding: 0 0 0 1.6rem; margin: 0; width: 100%; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.9rem; }
 	.mode311 legend { font-weight: 600; padding: 0; float: left; margin-right: 0.5rem; }

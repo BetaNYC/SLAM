@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { ringSpecs, groupRingSpecs, ringSharedNote, ringLegendText, ringLine, LICENSE_GROUPS, RING_COLOR, RING_COLOR_NOTE, RING_SHARED_LINE, ringFeatures, ringLabel, ringMapText, circle, destination, ftToM, FT_TO_M, RING_STEPS, RING_LAYER_NAME, RING_NOTE, RING_NO_LIQUOR_500, RING_LIST_NOTE } from '../src/lib/rings.js';
 import { haversineM } from './helpers/haversine.js';
-import { EXTRA_KEYS, LEGACY_KEYS, parseHash, buildHash, loadPrefs, savePrefs } from '../src/lib/mapState.js';
+import { EXTRA_KEYS, LEGACY_KEYS, MAP_DEFAULTS, layerToggles, parseHash, buildHash, loadPrefs, savePrefs } from '../src/lib/mapState.js';
 import { SW_COLOR } from '../src/lib/format.js';
 
 const manifest = JSON.parse(readFileSync('static/data/manifest.json', 'utf8'));
@@ -219,8 +219,12 @@ test('two ring toggles with their own state keys; liquor rings start on, cannabi
 	assert.ok(EXTRA_KEYS.includes('rings_liquor') && EXTRA_KEYS.includes('rings_cannabis'));
 	assert.ok(!EXTRA_KEYS.includes('rings'), 'the one-toggle key is retired');
 	const src = readFileSync(MAP, 'utf8');
-	assert.match(src, /let ringsOn = \$state\(\{ liquor: true, cannabis: false \}\);/);
-	assert.match(src, /for \(const g of LICENSE_GROUPS\) ringsOn\[g\.key\] = on\.includes\(g\.ringKey\);/);
+	// Defaults from MAP_DEFAULTS (#114); a hash or saved choice sets each group's toggle from its own key.
+	assert.deepEqual(layerToggles(MAP_DEFAULTS.on, [], LICENSE_GROUPS).ringsOn, { liquor: true, cannabis: false });
+	assert.deepEqual(layerToggles(['rings_cannabis'], [], LICENSE_GROUPS).ringsOn, { liquor: false, cannabis: true });
+	assert.match(src, /let ringsOn = \$state\([^\n]*INITIAL\.ringsOn/);
+	assert.match(src, /for \(const g of LICENSE_GROUPS\) ringsOn\[g\.key\] = t\.ringsOn\[g\.key\];/);
+	assert.match(readFileSync('src/lib/mapState.js', 'utf8'), /\[g\.key, on\.includes\(g\.ringKey\)\]/);
 	assert.match(src, /LICENSE_GROUPS\.filter\(\(g\) => ringsOn\[g\.key\]\)\.map\(\(g\) => g\.ringKey\)/);
 	assert.equal(parseHash('', KNOWN).on, null); // no hash: page defaults
 });
@@ -368,14 +372,19 @@ test('built glossary and map explain the per-type rings in the same words', { sk
 });
 
 test('map defaults (Noel, 2026-11-07): pending liquor, liquor rings, 311, schools and worship on; the rest off', () => {
+	// Written once in MAP_DEFAULTS (#114) and read by the page's initial state and its reset button.
 	const src = readFileSync(MAP, 'utf8');
-	const block = src.match(/let visible = \$state\(\{([^}]*)\}\);/);
-	assert.ok(block, 'visible defaults block');
-	const on = Object.fromEntries([...block[1].matchAll(/(\w+): (true|false)/g)].map((m) => [m[1], m[2] === 'true']));
-	assert.deepEqual(on, { liquor_pending: true, liquor_active: false, liquor_inactive: false, cannabis_retail: false, cannabis_license: false, dining_out: false });
-	assert.match(src, /let show311 = \$state\(true\);/);
-	assert.match(src, /let showSW = \$state\(true\);/);
-	assert.match(src, /let ringsOn = \$state\(\{ liquor: true, cannabis: false \}\);/);
+	const LAYERS = JSON.parse(src.match(/const LAYERS = (\[[^\]]*\]);/)?.[1].replaceAll("'", '"') ?? 'null');
+	assert.deepEqual(layerToggles(MAP_DEFAULTS.on, LAYERS, LICENSE_GROUPS), {
+		visible: { liquor_pending: true, liquor_active: false, liquor_inactive: false, cannabis_retail: false, cannabis_license: false, dining_out: false },
+		show311: true,
+		showSW: true,
+		ringsOn: { liquor: true, cannabis: false }
+	});
+	assert.match(src, /const INITIAL = layerToggles\(MAP_DEFAULTS\.on, LAYERS, LICENSE_GROUPS\);/);
+	assert.match(src, /let show311 = \$state\(INITIAL\.show311\);/);
+	assert.match(src, /let showSW = \$state\(INITIAL\.showSW\);/);
+	assert.match(src, /let ringsOn = \$state\([^\n]*INITIAL\.ringsOn/);
 	// Default-on layers still load when the map is ready.
 	assert.match(src, /if \(show311\) toggle311\(\);/);
 	assert.match(src, /if \(showSW\) toggleSW\(\);/);
