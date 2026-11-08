@@ -6,7 +6,8 @@
  *   so Back from an address page lands on the same view, and a view can be shared as a link.
  * - Layer choices (not the view) are also remembered in localStorage for the next visit.
  *
- * Order on load: URL hash, then saved preferences, then the page's defaults.
+ * Order on load: URL hash, then saved preferences, then MAP_DEFAULTS.
+ * "Reset to default" (#114) puts MAP_DEFAULTS back, forgets the saved choices and keeps the view.
  */
 
 export const PREFS_KEY = 'slam.map.v1';
@@ -20,6 +21,49 @@ export const EXTRA_KEYS = ['c311', 'sw', 'rings_liquor', 'rings_cannabis'];
  */
 export const LEGACY_KEYS = { rings: ['rings_liquor', 'rings_cannabis'] };
 export const C311_MODE_KEYS = ['stacks', 'sized', 'dots'];
+
+/**
+ * How the map first opens (Noel, 2026-11-07, #113), written once and used both for the first load
+ * and by the Layers box's "Reset to default" button (#114), so the two cannot drift apart:
+ * pending liquor applications, the liquor distance rings, 311 complaints as stacked chips, and
+ * schools and houses of worship on; every other layer off; the Layers box open.
+ * @type {Readonly<{on: readonly string[], c311: string, open: boolean}>}
+ */
+export const MAP_DEFAULTS = Object.freeze({
+	on: Object.freeze(['liquor_pending', 'c311', 'sw', 'rings_liquor']),
+	c311: 'stacks',
+	open: true
+});
+
+/**
+ * Every toggle in the Layers box, from a list of layer keys that are on.
+ * @param {readonly string[]} on  layer keys, as in the hash or saved choices
+ * @param {readonly string[]} layers  the record layers the page draws
+ * @param {readonly {key: string, ringKey: string}[]} groups  the license groups (#lib/rings.js LICENSE_GROUPS)
+ * @returns {{visible: Record<string, boolean>, show311: boolean, showSW: boolean, ringsOn: Record<string, boolean>}}
+ */
+export function layerToggles(on, layers, groups) {
+	return {
+		visible: Object.fromEntries(layers.map((k) => [k, on.includes(k)])),
+		show311: on.includes('c311'),
+		showSW: on.includes('sw'),
+		ringsOn: Object.fromEntries(groups.map((g) => [g.key, on.includes(g.ringKey)]))
+	};
+}
+
+/**
+ * True when these choices are the defaults (same layers in any order, same 311 style, box open).
+ * @param {{on: readonly string[], c311: string | null, open?: boolean}} prefs
+ */
+export function isDefaultPrefs(prefs) {
+	const on = new Set(prefs.on);
+	return (
+		on.size === MAP_DEFAULTS.on.length &&
+		MAP_DEFAULTS.on.every((k) => on.has(k)) &&
+		prefs.c311 === MAP_DEFAULTS.c311 &&
+		prefs.open !== false
+	);
+}
 
 /**
  * Layer keys from a hash or saved choices: legacy keys expanded, unknown keys dropped, no repeats.
@@ -112,4 +156,28 @@ export function savePrefs(storage, prefs) {
 	} catch {
 		// Storage can be full or blocked; preferences are a convenience, not required.
 	}
+}
+
+/**
+ * Forget the saved layer choices: removes only SLAM's own key. Never throws.
+ * @param {Storage | undefined} storage
+ */
+export function clearPrefs(storage) {
+	try {
+		storage?.removeItem(PREFS_KEY);
+	} catch {
+		// Blocked storage: nothing was saved there either.
+	}
+}
+
+/**
+ * Save choices that differ from the defaults; forget them when they match (#114). A browser that
+ * has nothing saved follows the defaults, so a later change to the defaults reaches it, and a
+ * reset stays reset while the map keeps writing its state on every pan and toggle.
+ * @param {Storage | undefined} storage
+ * @param {{on: string[], c311: string, open?: boolean}} prefs
+ */
+export function storePrefs(storage, prefs) {
+	if (isDefaultPrefs(prefs)) clearPrefs(storage);
+	else savePrefs(storage, prefs);
 }
