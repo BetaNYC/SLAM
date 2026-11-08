@@ -153,7 +153,7 @@ test('reset keeps the view and selection in the link but carries the default lay
 });
 
 test('the button: a real, keyboard-reachable button in the Layers box, plain secondary style, announced', () => {
-	const fieldset = src.slice(src.indexOf('<fieldset class="layers">'), src.indexOf('</details>'));
+	const fieldset = src.slice(src.indexOf('<fieldset class="layers"'), src.indexOf('</details>'));
 	const m = fieldset.match(/<button([^>]*)>([^<]*)<\/button>/);
 	assert.ok(m, 'a <button> inside the Layers fieldset');
 	const [, attrs, label] = m;

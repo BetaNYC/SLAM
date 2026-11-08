@@ -191,7 +191,7 @@ test('the words match the colors: About this map, the ring note and the legends'
 	assert.equal(RING_COLOR_NOTE, "A ring's color and line say which law: liquor rings are solid navy lines, cannabis rings are dashed green lines.");
 	assert.ok(lch(RING_COLOR.liquor)[0] < 0.35 && lch(RING_COLOR.liquor)[2] > 240 && lch(RING_COLOR.liquor)[2] < 290, 'liquor ring is navy');
 	// Every legend swatch reads its color from the palette constants, none typed in.
-	const legend = mapSrc.slice(mapSrc.indexOf('<fieldset class="layers">'), mapSrc.indexOf('</details>'));
+	const legend = mapSrc.slice(mapSrc.indexOf('<fieldset class="layers"'), mapSrc.indexOf('</details>'));
 	assert.doesNotMatch(legend, /#[0-9a-f]{6}/i, 'no typed hex in the Layers box');
 	for (const re of [/--c:\{SOURCE_COLOR\[k\]\}/, /--c:\{g\.color\}/, /--c:\{SW_COLOR\.school\}/, /border-color:\{RING_COLOR\[g\.key\]\}/]) assert.match(legend, re);
 });
