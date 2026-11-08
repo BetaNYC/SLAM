@@ -215,14 +215,14 @@ const KNOWN = ['liquor_pending', 'liquor_active', 'liquor_inactive', 'cannabis_r
 /** @param {Record<string, string>} store */
 const memStorage = (store) => /** @type {any} */ ({ getItem: (/** @type {string} */ k) => store[k] ?? null, setItem: (/** @type {string} */ k, /** @type {string} */ v) => (store[k] = v) });
 
-test('two ring toggles, both off by default, with their own state keys', () => {
+test('two ring toggles with their own state keys; liquor rings start on, cannabis rings off', () => {
 	assert.ok(EXTRA_KEYS.includes('rings_liquor') && EXTRA_KEYS.includes('rings_cannabis'));
 	assert.ok(!EXTRA_KEYS.includes('rings'), 'the one-toggle key is retired');
 	const src = readFileSync(MAP, 'utf8');
-	assert.match(src, /let ringsOn = \$state\(\{ liquor: false, cannabis: false \}\);/);
+	assert.match(src, /let ringsOn = \$state\(\{ liquor: true, cannabis: false \}\);/);
 	assert.match(src, /for \(const g of LICENSE_GROUPS\) ringsOn\[g\.key\] = on\.includes\(g\.ringKey\);/);
 	assert.match(src, /LICENSE_GROUPS\.filter\(\(g\) => ringsOn\[g\.key\]\)\.map\(\(g\) => g\.ringKey\)/);
-	assert.equal(parseHash('', KNOWN).on, null); // no hash: page defaults, rings off
+	assert.equal(parseHash('', KNOWN).on, null); // no hash: page defaults
 });
 
 test('ring state keys round-trip through the URL hash and saved preferences, each on its own', () => {
@@ -365,4 +365,19 @@ test('built glossary and map explain the per-type rings in the same words', { sk
 	assert.deepEqual(labels.slice(0, 5), ['Layers', 'Liquor (SLA)', 'Liquor,', 'Cannabis (OCM)', 'Cannabis,']);
 	// The accessible name keeps its space: "Liquor, Distance rings (approximate)".
 	for (const grp of LICENSE_GROUPS) assert.match(page, new RegExp(`${grp.short}, </span>(<!---->)?${RING_LAYER_NAME.replace(/[()]/g, '\\$&')}`), grp.short);
+});
+
+test('map defaults (Noel, 2026-11-07): pending liquor, liquor rings, 311, schools and worship on; the rest off', () => {
+	const src = readFileSync(MAP, 'utf8');
+	const block = src.match(/let visible = \$state\(\{([^}]*)\}\);/);
+	assert.ok(block, 'visible defaults block');
+	const on = Object.fromEntries([...block[1].matchAll(/(\w+): (true|false)/g)].map((m) => [m[1], m[2] === 'true']));
+	assert.deepEqual(on, { liquor_pending: true, liquor_active: false, liquor_inactive: false, cannabis_retail: false, cannabis_license: false, dining_out: false });
+	assert.match(src, /let show311 = \$state\(true\);/);
+	assert.match(src, /let showSW = \$state\(true\);/);
+	assert.match(src, /let ringsOn = \$state\(\{ liquor: true, cannabis: false \}\);/);
+	// Default-on layers still load when the map is ready.
+	assert.match(src, /if \(show311\) toggle311\(\);/);
+	assert.match(src, /if \(showSW\) toggleSW\(\);/);
+	assert.match(src, /if \(anyRings\) toggleRings\(\);/);
 });

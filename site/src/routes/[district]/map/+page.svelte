@@ -23,17 +23,17 @@
 	/** @type {Record<string, boolean>} */
 	let visible = $state({
 		liquor_pending: true,
-		liquor_active: true,
+		liquor_active: false,
 		liquor_inactive: false,
-		cannabis_retail: true,
-		cannabis_license: true,
-		dining_out: true
+		cannabis_retail: false,
+		cannabis_license: false,
+		dining_out: false
 	});
 	/** @type {Record<string, number>} */
 	let counts = $state({});
 	let status = $state('Loading map…');
-	// 311 complaints: dense, so OFF by default and fetched only when first switched on.
-	let show311 = $state(false);
+	// 311 complaints: ON by default (Noel, 2026-11-07), fetched when the map loads.
+	let show311 = $state(true);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let state311 = 'idle';
 	/** How 311 complaints are drawn: stacked chips, sized circles or plain dots (#29, compare). */
@@ -48,7 +48,7 @@
 		sized: ['c311-sized', 'c311-sized-label']
 	};
 	// Schools and houses of worship (#60): OFF by default, fetched on first switch-on.
-	let showSW = $state(false);
+	let showSW = $state(true);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateSW = 'idle';
 	/** @type {Promise<any> | null} The district's schools-worship.geojson, fetched once for points and rings. */
@@ -56,7 +56,7 @@
 	// Distance rings around schools and houses of worship (#111): one toggle per license group, each
 	// drawing only its own law's rings; both OFF by default, built on first switch-on.
 	/** @type {{liquor: boolean, cannabis: boolean}} */
-	let ringsOn = $state({ liquor: false, cannabis: false });
+	let ringsOn = $state({ liquor: true, cannabis: false });
 	const anyRings = $derived(ringsOn.liquor || ringsOn.cannabis);
 	/** @type {'idle' | 'loading' | 'ready'} */
 	let stateRings = 'idle';
@@ -630,7 +630,9 @@
 </div>
 <details class="map-about">
 	<summary>About this map</summary>
-<p class="note">311 complaints are off by default because they are dense. They are colored by type, based on
+<p class="note">When the map first opens, it shows pending liquor applications, the liquor distance rings, 311
+	complaints, and the schools and houses of worship the rings are drawn around. Every other layer is in the
+	Layers box. 311 complaints are colored by type, based on
 	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
 	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
 	stops at {STACK_CAP} chips and shows the total above it. "Circles sized by count" draws one circle
@@ -641,11 +643,11 @@
 	Colors follow the Layers box groups: liquor layers are blue, violet and gray (pending applications are open
 	circles), cannabis layers are green, Dining Out is raspberry, and 311 complaints are orange, red, brown
 	and gray-green.
-	Schools (dark gray), houses of worship (light purple) and other religious property (tan) are off by default;
-	selecting one shows its name, type and address in the panel. Schools come from the City's Facilities Database; houses
+	Schools (dark gray), houses of worship (light purple) and other religious property (tan)
+	show where the rings are drawn from; selecting one shows its name, type and address in the panel. Schools come from the City's Facilities Database; houses
 	of worship are PLUTO tax lots in building class M1, and other religious property is class M2, M3, M4 or M9
 	(PLUTO has no names). The layers are grouped by license type, and each group has its own
-	{RING_LAYER_NAME}, off by default, showing only that law's rings. {RING_COLOR_NOTE}
+	{RING_LAYER_NAME}, showing only that law's rings (the liquor rings start on, the cannabis rings start off). {RING_COLOR_NOTE}
 	{#each LICENSE_GROUPS as g (g.key)}{g.label}: {GROUP_RINGS[g.key].map(ringLegendText).join('; ')}. {/each}
 	With both on, a ring the two laws share is drawn once, as {RING_SHARED_LINE}, and its label names both laws. Other religious
 	property has no ring. {RING_NOTE} {RING_NO_LIQUOR_500} {RING_LIST_NOTE} Street events have no coordinates in the source and are not on the map.

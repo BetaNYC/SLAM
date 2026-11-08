@@ -295,7 +295,7 @@
 		<dd>
 			A map layer that draws a circle around each school and house of worship point. The map's
 			Layers box is grouped by license type, and each group has its own {RING_LAYER_NAME} toggle,
-			off by default, that draws only that law's rings. {RING_COLOR_NOTE}
+			that draws only that law's rings. The liquor rings are on when the map first opens; the cannabis rings start off. {RING_COLOR_NOTE}
 			<ul>
 				{#each groupRings as { g, rings } (g.key)}
 					<li>
