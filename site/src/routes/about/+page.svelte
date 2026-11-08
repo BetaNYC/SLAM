@@ -1,4 +1,5 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	import { resolve } from '$app/paths';
 	import { fmtStamp } from '#lib/format.js';
 
@@ -67,7 +68,7 @@
 	</p>
 
 	<h3 id="open-data">Open data</h3>
-	<div class="table-scroll">
+	<div class="table-scroll" use:scrollRegion>
 		<table>
 			<caption>Datasets SLAM reads, and when each was last updated at its source</caption>
 			<thead>

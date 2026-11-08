@@ -31,5 +31,7 @@ pipeline/.pytest_cache/
 pipeline/.ruff_cache/
 **/__pycache__/
 site/static/data/
+site/test-results/
+site/playwright-report/
 site/build/
 site/.svelte-kit/

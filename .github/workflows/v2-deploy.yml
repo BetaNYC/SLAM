@@ -72,6 +72,14 @@ jobs:
           npm run build
           touch build/.nojekyll
 
+      # axe-core, keyboard and phone-size checks on the built site (#53). Any serious or
+      # critical axe violation fails the run before anything is published.
+      - name: Accessibility tests
+        working-directory: site
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:a11y
+
       - name: Publish to gh-pages (slam.beta.nyc)
         uses: peaceiris/actions-gh-pages@v4
         with:

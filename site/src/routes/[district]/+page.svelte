@@ -1,4 +1,5 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
 	import RecordTable from './RecordTable.svelte';
@@ -154,7 +155,7 @@
 			{C.recent.length}, and the filter and CSV apply to that list. The full set is at the source.
 		</p>
 	{:else if tab === 'health'}
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Restaurants by current health grade ({R.total})</caption>
 				<thead><tr><th scope="col">Current grade</th><th scope="col">Restaurants</th></tr></thead>
@@ -172,7 +173,7 @@
 				{#each R.buckets as b (b.bucket)}<option value={b.bucket}>{b.bucket} ({b.n})</option>{/each}
 			</select>
 		</label>
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Restaurants <span class="muted">({rest.length} rows)</span></caption>
 				<thead>
@@ -209,7 +210,7 @@
 			prototype shares their BIN or lists their street address within about {data.manifest.address_geocode.nearest_page_m} m.
 		</p>
 	{:else if tab === 'sw'}
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Schools, houses of worship and other religious property in or near this district <span class="muted">({swRows.length} rows)</span></caption>
 				<thead>
@@ -243,7 +244,7 @@
 		</p>
 	{:else}
 		<label class="no-print"><input type="checkbox" bind:checked={showSports} /> Include youth and adult sports permits</label>
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Permitted events (approved permits only) <span class="muted">({events.length} rows)</span></caption>
 				<thead>

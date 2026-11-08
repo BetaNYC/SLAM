@@ -27,7 +27,8 @@ export const C311_MODE_KEYS = ['stacks', 'sized', 'dots'];
  * How the map first opens (Noel, 2026-11-07, #113), written once and used both for the first load
  * and by the Layers box's "Reset to default" button (#114), so the two cannot drift apart:
  * pending liquor applications, the liquor distance rings, 311 complaints as stacked chips, and
- * schools and houses of worship on; every other layer off; the Layers box open.
+ * schools and houses of worship on; every other layer off; the Layers box open (closed on a
+ * phone: initialLayersOpen, #53).
  * @type {Readonly<{on: readonly string[], c311: string, open: boolean}>}
  */
 export const MAP_DEFAULTS = Object.freeze({
@@ -35,6 +36,20 @@ export const MAP_DEFAULTS = Object.freeze({
 	c311: 'stacks',
 	open: true
 });
+
+/** Below this width the Layers box starts closed, so the map is on screen when the page opens (#53). */
+export const NARROW_QUERY = '(max-width: 40rem)';
+
+/**
+ * Whether the Layers box starts open: the person's saved choice, else open on a wide screen and
+ * closed on a phone, where the open box pushes the map below the first screen.
+ * @param {{open: boolean} | null | undefined} prefs
+ * @param {boolean} narrow
+ */
+export function initialLayersOpen(prefs, narrow) {
+	if (prefs) return prefs.open;
+	return narrow ? false : MAP_DEFAULTS.open;
+}
 
 /**
  * Every toggle in the Layers box, from a list of layer keys that are on.
