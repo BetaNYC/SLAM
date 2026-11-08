@@ -1,0 +1,57 @@
+# SLAM v2: site tests and accessibility checks on every pull request to v2 (#53).
+# The site is built from the data last published to gh-pages, so a pull request does not run the
+# pipeline's live download. The deploy workflow runs the same checks on fresh data before publishing.
+name: SLAM v2 site and accessibility checks
+
+on:
+  pull_request:
+    branches: [v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: slam-v2-a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-a11y:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Data from the last published site
+        run: |
+          git fetch --no-tags --depth 1 origin gh-pages
+          mkdir -p site/static
+          git archive origin/gh-pages data | tar -x -C site/static
+
+      - name: Site tests and build
+        working-directory: site
+        run: |
+          npm ci
+          npm test
+          npm run check
+          npm run build
+
+      - name: Accessibility tests (axe, keyboard, phone sizes)
+        working-directory: site
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:a11y
+
+      - name: Keep the Playwright report when a check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: site/test-results/
+          retention-days: 7

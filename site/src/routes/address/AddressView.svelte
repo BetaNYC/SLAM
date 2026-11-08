@@ -1,4 +1,5 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	import { resolve } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
 	import { mapLinkFor, mapLinkState, mapLinkNote } from '#lib/mapLink.js';
@@ -92,7 +93,7 @@
 {/if}
 
 <h2>At this address ({a.records.length})</h2>
-<div class="table-scroll">
+<div class="table-scroll" use:scrollRegion={'Records at this address'}>
 	<table>
 		<thead>
 			<tr>
@@ -127,7 +128,7 @@
 
 <h2>Nearby, within about {m.nearby_m} m ({a.nearby.length} addresses)</h2>
 {#if a.nearby.length}
-	<div class="table-scroll">
+	<div class="table-scroll" use:scrollRegion={'Nearby addresses'}>
 		<table>
 			<thead>
 				<tr>
@@ -166,7 +167,7 @@
 <h2 id="sw">Schools and houses of worship nearby</h2>
 <DistanceNote />
 {#if near.length}
-	<div class="table-scroll">
+	<div class="table-scroll" use:scrollRegion>
 		<table>
 			<caption>Schools, houses of worship and other religious property within about {sw.list_ft} ft of this address, building point to building point, nearest first ({near.length})</caption>
 			<thead>
@@ -206,7 +207,7 @@
 {#if liq.licenses}
 	<details id="sw-liq-list" bind:open={liqOpen}>
 		<summary>List of the {liq.licenses} license{liq.licenses === 1 ? '' : 's'}</summary>
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Active on-premises liquor licenses within about {sw.liquor_count_ft} ft, nearest first</caption>
 				<thead><tr><th scope="col">Name</th><th scope="col">Address</th><th scope="col">SLA class</th><th scope="col">Approx. distance</th></tr></thead>
@@ -234,7 +235,7 @@
 		{#if pt.measured === false}Not measured for this address (see the note at the top).{/if}
 	</p>
 	{#if cann.length}
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>Schools within about {sw.cannabis.school_ft} ft and houses of worship within about {sw.cannabis.worship_ft} ft, building point to building point, nearest first ({cann.length})</caption>
 				<thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Approx. distance</th><th scope="col">Same street?</th></tr></thead>
@@ -284,7 +285,7 @@
 {/if}
 <h3>311 complaints nearby, within about {m.nearby_m} m ({a.c311_near.n})</h3>
 {#if a.c311_near.n}
-	<div class="table-scroll">
+	<div class="table-scroll" use:scrollRegion>
 		<table>
 			<caption>311 complaints within about {m.nearby_m} m, not counting this address, by type</caption>
 			<thead><tr><th scope="col">Complaint type</th><th scope="col">Count</th></tr></thead>
@@ -319,7 +320,7 @@
 				<p><strong>No grade yet.</strong> Last inspected {r.last_inspected} ({r.n_inspections} inspection{r.n_inspections === 1 ? '' : 's'}, none graded).</p>
 			{/if}
 			{#if r.history.length}
-				<div class="table-scroll">
+				<div class="table-scroll" use:scrollRegion>
 					<table>
 						<caption>Grade history for {r.dba}, newest first ({r.history.length} graded inspection{r.history.length === 1 ? '' : 's'})</caption>
 						<thead><tr><th scope="col">Inspection date</th><th scope="col">Grade</th><th scope="col">Grade date</th><th scope="col">Score</th><th scope="col">Inspection type</th></tr></thead>
@@ -357,7 +358,7 @@
 		{a.co.bin} in the <a href={DOB_NOW_PORTAL}>DOB NOW public portal</a> (its search has no direct link).
 	</p>
 	{#if a.co.records.length}
-		<div class="table-scroll">
+		<div class="table-scroll" use:scrollRegion>
 			<table>
 				<caption>DOB NOW certificates of occupancy for BIN {a.co.bin} ({a.co.records.length})</caption>
 				<thead><tr><th scope="col">Issued</th><th scope="col">Application number</th><th scope="col">CO record number</th><th scope="col">Filing type</th><th scope="col">Job type</th><th scope="col">Filing sequence</th></tr></thead>

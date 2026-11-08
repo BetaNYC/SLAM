@@ -1,9 +1,10 @@
 <script>
+	import { scrollRegion } from '#lib/scrollRegion.js';
 	/** @type {{rows: {rid: string, date: string, type: string, descriptor?: string, street?: string, zip?: string, agency?: string, status?: string}[], caption: string}} */
 	let { rows, caption } = $props();
 </script>
 
-<div class="table-scroll">
+<div class="table-scroll" use:scrollRegion>
 	<table>
 		<caption>{caption} <span class="muted">({rows.length})</span></caption>
 		<thead>
