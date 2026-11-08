@@ -3,7 +3,7 @@
 	// summary of its page (fetched from the same static file the page uses) and a link to the page.
 	import { resolve, asset } from '$app/paths';
 	import { addressHref } from '#lib/addressLink.js';
-	import { SOURCE_SHORT, SOURCE_COLOR, GRADE_LABEL, SW_KIND, swName, c311Group, boundariesUrl } from '#lib/format.js';
+	import { SOURCE_SHORT, SOURCE_COLOR, GRADE_LABEL, SW_KIND, swName, c311Group, boundariesUrl, statusLabel } from '#lib/format.js';
 	import DistanceNote from '#lib/DistanceNote.svelte';
 
 	/**
@@ -73,7 +73,7 @@
 					{#each a.records as r, i (r.source + (r.rid ?? '') + i)}
 						<li>
 							<span class="badge" style="background:{SOURCE_COLOR[r.source] ?? '#414141'}">{SOURCE_SHORT[r.source] ?? r.source}</span>
-							{r.name}{#if r.type}<span class="muted">{` · ${r.type}`}</span>{/if}{#if r.status}<span class="muted">{` · ${r.status}`}</span>{/if}
+							{r.name}{#if r.type}<span class="muted">{` · ${r.type}`}</span>{/if}{#if r.status}<span class="muted">{` · ${statusLabel(r)}`}</span>{/if}
 						</li>
 					{/each}
 				</ul>

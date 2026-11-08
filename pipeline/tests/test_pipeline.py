@@ -109,6 +109,20 @@ def test_normalize_ocm_row_without_coordinates():
     assert r["rid"] == "MM0306D" and r["lon"] is None and r["name"] == "Cannabist"
 
 
+def test_normalize_ocm_in_process_row_keeps_license_status():
+    # A real In-Process row from jskf-tt3q (pulled 2026-11-07): an applicant with proximity
+    # protection, so no license number and no issue date. The site's "not yet issued" label
+    # (#110) reads `status`, which must be OCM's own `license_status`, unchanged.
+    rows = load("ocm_licenses_sample.json")
+    row = next(x for x in rows if x["license_status"] == "In-Process")
+    r = normalize_record(SOURCES_BY_KEY["cannabis_license"], row)
+    assert r["status"] == "In-Process"
+    assert r["rid"] == "OCMRETL-2023-002086" and not r.get("license_number")
+    assert not r["date"]
+    for x in rows:
+        assert normalize_record(SOURCES_BY_KEY["cannabis_license"], x)["status"] == x["license_status"]
+
+
 def test_address_normalization_groups_variants():
     assert normalize_address("185 Greenwich Street.") == normalize_address("185 GREENWICH ST")
     assert normalize_address("100 North 3rd Street") == "100 N 3 ST"

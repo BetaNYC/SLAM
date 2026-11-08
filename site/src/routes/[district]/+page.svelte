@@ -5,7 +5,7 @@
 	import CountTable311 from '#lib/CountTable311.svelte';
 	import Complaints311Table from '#lib/Complaints311Table.svelte';
 	import SlaLicenseNote from '#lib/SlaLicenseNote.svelte';
-	import { toCsv, downloadText, fmtStamp, SW_KIND, swName } from '#lib/format.js';
+	import { toCsv, downloadText, fmtStamp, SW_KIND, swName, splitCannabisInProcess } from '#lib/format.js';
 
 	/** @type {{data: any}} */
 	let { data } = $props();
@@ -39,7 +39,9 @@
 	const pending = $derived(filt(L.liquor_pending));
 	const active = $derived(filt(L.liquor_active));
 	const inactive = $derived(filt(L.liquor_inactive));
-	const cannabis = $derived(filt([...L.cannabis_retail, ...L.cannabis_license]));
+	// OCM In-Process applicants first, like pending liquor applications (#110)
+	const cannabisSplit = $derived(splitCannabisInProcess(filt([...L.cannabis_retail, ...L.cannabis_license])));
+	const cannabis = $derived([...cannabisSplit.inProcess, ...cannabisSplit.other]);
 	const dining = $derived(filt(L.dining_out));
 	const events = $derived(filt(L.street_events.filter((/** @type {any} */ e) => showSports || !e.sport)));
 	const C = $derived(L.complaints_311);
@@ -120,11 +122,18 @@
 		<SlaLicenseNote manifest={data.manifest} keys={showInactive ? ['liquor_pending', 'liquor_active', 'liquor_inactive'] : ['liquor_pending', 'liquor_active']} />
 		<p class="note">No "new this week" badge yet: the prototype keeps no history between runs.</p>
 	{:else if tab === 'cannabis'}
-		<RecordTable rows={cannabis} caption="Cannabis (OCM retail dealers and licenses)" showClass={false} />
+		<RecordTable rows={cannabisSplit.inProcess} caption="In process, not yet issued (OCM)" showClass={false} />
+		<RecordTable rows={cannabisSplit.other} caption="Cannabis retail dealers and licenses (OCM)" showClass={false} />
+		<p class="note">
+			"In process (not yet issued)" means OCM's license status for the row is "In-Process". These
+			are applicants with proximity protection for a proposed dispensary. SLAM shows OCM's status as
+			written; it does not say whether a license will be issued. Applications without proximity
+			protection are not in any open dataset. See
+			<a href="{resolve('/glossary', {})}#cannabis-in-process">In process (cannabis)</a> in the Glossary.
+		</p>
 		<p class="note">
 			OCM license rows have no coordinates in the source; they are geocoded with NYC GeoSearch and
-			shown only when the match is exact. Licenses with status "In-Process" are the closest thing to
-			pending cannabis data in these datasets.
+			shown only when the match is exact.
 		</p>
 	{:else if tab === 'dining'}
 		<RecordTable rows={dining} caption="Dining Out NYC locations" showClass={false} />
