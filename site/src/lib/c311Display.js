@@ -12,7 +12,7 @@
  *
  * Pure functions on the points-311.geojson FeatureCollection (properties d, t, s, aid).
  */
-import { C311_GROUPS, c311Group } from './format.js';
+import { C311_GROUPS, c311Group, c311ColorExpr } from './format.js';
 
 export const C311_MODES = [
 	{ key: 'stacks', label: 'Stacked chips (like the first SLAM)' },
@@ -21,6 +21,38 @@ export const C311_MODES = [
 ];
 export const STACK_CAP = 12;
 export const STACK_STEP_PX = 3;
+
+/**
+ * How the "dots" mode draws each complaint (#116). Solid, with a thin dark edge like the record
+ * dots: at 70% opacity and no edge, noise and other dots came out at 2.3 to 2.5:1 on the City
+ * basemap's land, under the 3:1 that WCAG 2.2 SC 1.4.11 asks of graphical objects. The fill
+ * carries the contrast on land; the edge carries it on park green and water blue, where no
+ * warm 311 color can. The edge stays a full 1 px at every zoom (thinner strokes are
+ * anti-aliased toward the basemap and lose the edge on the darker park fields); dense blocks stay
+ * readable because the dot itself shrinks when zoomed out, so the dots do not merge into a blob.
+ * `radius` is [zoom, px] stops, interpolated linearly and held flat beyond the ends.
+ */
+export const C311_DOT = {
+	edge: '#1f2937',
+	edgeWidth: 1,
+	opacity: 1,
+	radius: /** @type {[number, number][]} */ ([
+		[11, 1.75],
+		[13, 2.25],
+		[16, 3]
+	])
+};
+
+/** MapLibre paint for the "dots" mode. */
+export function c311DotPaint() {
+	return {
+		'circle-radius': ['interpolate', ['linear'], ['zoom'], ...C311_DOT.radius.flat()],
+		'circle-color': c311ColorExpr(),
+		'circle-opacity': C311_DOT.opacity,
+		'circle-stroke-color': C311_DOT.edge,
+		'circle-stroke-width': C311_DOT.edgeWidth
+	};
+}
 
 /** Same point = same coordinates to 6 decimals (about 10 cm), as written by build.py. */
 /** @param {number[]} c */

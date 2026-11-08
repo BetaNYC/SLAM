@@ -8,7 +8,7 @@
 	import MapPanel from '#lib/MapPanel.svelte';
 	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, MAP_DEFAULTS, EXTRA_KEYS } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SOURCE_HOLLOW, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
-		import { C311_MODES, STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
+		import { C311_MODES, STACK_CAP, STACK_STEP_PX, c311DotPaint, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import { ringSpecs, groupRingSpecs, ringFeatures, ringLegendText, ringLine, ringSharedNote, LICENSE_GROUPS, RING_COLOR, RING_SHARED_LINE, RING_COLOR_NOTE, RING_LAYER_NAME, RING_NOTE, RING_NO_LIQUOR_500, RING_LIST_NOTE } from '#lib/rings.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
@@ -355,7 +355,7 @@
 					type: 'circle',
 					source: 'c311',
 					layout: { visibility: vis('dots') },
-					paint: { 'circle-radius': 3, 'circle-color': c311ColorExpr(), 'circle-opacity': 0.7 }
+					paint: c311DotPaint()
 				},
 				below
 			);
@@ -711,7 +711,7 @@
 	.mode311 legend { font-weight: 600; padding: 0; float: left; margin-right: 0.5rem; }
 	.legend311 { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; margin: 0; padding: 0 0 0 1.6rem; font-size: 0.85rem; width: 100%; }
 	.legend311 li { display: inline-flex; align-items: center; gap: 0.35rem; }
-	.swatch.small { width: 0.55rem; height: 0.55rem; opacity: 0.7; }
+	.swatch.small { width: 0.55rem; height: 0.55rem; }
 	.ring-swatch { width: 0.85rem; height: 0.85rem; border-radius: 50%; display: inline-block; border: 2px solid; background: transparent; box-sizing: border-box; }
 	.ring-swatch.dashed { border-style: dashed; }
 	.legend-rings { list-style: none; display: flex; flex-direction: column; gap: 0.2rem; margin: 0; padding: 0 0 0 1.6rem; font-size: 0.85rem; width: 100%; }

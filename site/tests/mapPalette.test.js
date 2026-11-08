@@ -6,7 +6,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { SOURCE_COLOR, SOURCE_HOLLOW, C311_GROUPS, SW_COLOR } from '../src/lib/format.js';
 import { RING_COLOR, RING_COLOR_NOTE, LICENSE_GROUPS } from '../src/lib/rings.js';
-import { ciede2000, deltaE, contrast, simulate, hexToOklch, hexToLab, VISIONS, CVD_MATRICES } from './helpers/colorMetrics.js';
+import { ciede2000, deltaE, contrast, simulate, hexToOklch, hexToLab, over, VISIONS, CVD_MATRICES } from './helpers/colorMetrics.js';
+import { C311_DOT, c311DotPaint } from '../src/lib/c311Display.js';
 
 const MAP = 'src/routes/[district]/map/+page.svelte';
 const mapSrc = readFileSync(MAP, 'utf8');
@@ -193,4 +194,68 @@ test('the words match the colors: About this map, the ring note and the legends'
 	const legend = mapSrc.slice(mapSrc.indexOf('<fieldset class="layers">'), mapSrc.indexOf('</details>'));
 	assert.doesNotMatch(legend, /#[0-9a-f]{6}/i, 'no typed hex in the Layers box');
 	for (const re of [/--c:\{SOURCE_COLOR\[k\]\}/, /--c:\{g\.color\}/, /--c:\{SW_COLOR\.school\}/, /border-color:\{RING_COLOR\[g\.key\]\}/]) assert.match(legend, re);
+});
+
+/**
+ * Every surface a 311 dot can sit on, land and park and water, on both basemaps (#116). City values
+ * are read from the City style fixture itself; OpenFreeMap's from its "liberty" style
+ * (https://tiles.openfreemap.org/styles/liberty, read 2026-11-07): "background" #f8f4f0, "park"
+ * #d8e8c8 at fill-opacity 0.7, "water" rgb(158,189,255).
+ */
+const cityStyle = JSON.parse(readFileSync(new URL('./fixtures/city_basemap_root.json', import.meta.url), 'utf8'));
+/** @param {string} id */
+const cityFill = (id) => {
+	const l = cityStyle.layers.find((/** @type {any} */ x) => x.id === id);
+	assert.ok(l, `City style layer ${id}`);
+	return /** @type {string} */ (l.paint['fill-color']);
+};
+const DOT_SURFACES = {
+	city_land: cityFill('Land/Land_NYC'),
+	city_roadbed: cityFill('Roadbeds/Roadbed/0'),
+	city_park: cityFill('Parks/Park Boundary'),
+	city_sports_field: cityFill('Parks/Soccer Field'),
+	city_water: cityFill('Inland Hydrography'),
+	city_ocean: cityFill('Ocean'),
+	openfreemap_background: '#f8f4f0',
+	openfreemap_park: over('#d8e8c8', 0.7, '#f8f4f0'),
+	openfreemap_water: '#9ebdff'
+};
+/** Land-like surfaces, where the dot's own color must stand out, not only its edge. */
+const DOT_LAND = ['city_land', 'city_roadbed', 'openfreemap_background', 'openfreemap_park'];
+
+test('311 dots as drawn (#116): solid fill on land, dark edge everywhere, each >= 3:1 against both basemaps', (t) => {
+	const paint = c311DotPaint();
+	assert.equal(paint['circle-opacity'], C311_DOT.opacity);
+	assert.equal(paint['circle-stroke-color'], C311_DOT.edge);
+	assert.equal(paint['circle-stroke-width'], C311_DOT.edgeWidth);
+	// A stroke under 1 px is anti-aliased toward the basemap: model it as that much coverage.
+	const edgeAlpha = Math.min(1, C311_DOT.edgeWidth);
+	for (const g of C311_GROUPS) {
+		const cells = [];
+		for (const [s, bg] of Object.entries(DOT_SURFACES)) {
+			const fill = contrast(over(g.color, C311_DOT.opacity, bg), bg);
+			const edge = contrast(over(C311_DOT.edge, edgeAlpha, bg), bg);
+			cells.push(`${s} fill ${fill.toFixed(2)} edge ${edge.toFixed(2)}`);
+			assert.ok(edge >= 3, `${g.key} edge on ${s}: ${edge.toFixed(2)}`);
+			if (DOT_LAND.includes(s)) assert.ok(fill >= 3, `${g.key} ${g.color} fill on ${s}: ${fill.toFixed(2)}`);
+		}
+		t.diagnostic(`${g.key}: ${cells.join('; ')}`);
+	}
+});
+
+test('311 dots (#116): the regression, and dense blocks stay dots, not a blob', () => {
+	// What #116 found: 70% opacity, no edge. Noise and other fell under 3:1 on City land.
+	const was = (/** @type {string} */ c) => contrast(over(c, 0.7, DOT_SURFACES.city_land), DOT_SURFACES.city_land);
+	assert.ok(was(C311_GROUPS.find((g) => g.key === 'noise').color) < 3);
+	assert.ok(C311_DOT.opacity === 1 && C311_DOT.edgeWidth >= 1);
+	// Radius grows with zoom, and zoomed out the whole dot (fill plus edge) is no wider than the old
+	// 6 px dot, so a dense block does not fill in.
+	const r = C311_DOT.radius;
+	for (let i = 1; i < r.length; i++) assert.ok(r[i][0] > r[i - 1][0] && r[i][1] > r[i - 1][1], 'zoom and radius both increase');
+	assert.ok(2 * (r[0][1] + C311_DOT.edgeWidth) <= 6, 'zoomed-out dot no wider than before');
+	assert.deepEqual(c311DotPaint()['circle-radius'], ['interpolate', ['linear'], ['zoom'], ...r.flat()]);
+	// The page draws the dots with this paint, and the legend swatch is solid like the dots.
+	assert.match(mapSrc, /id: 'complaints_311',[\s\S]{0,160}paint: c311DotPaint\(\)/);
+	assert.doesNotMatch(mapSrc, /'circle-opacity': 0\.7/);
+	assert.doesNotMatch(mapSrc, /\.swatch\.small \{[^}]*opacity/);
 });
