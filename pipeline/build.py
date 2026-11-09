@@ -34,6 +34,7 @@ from slam_pipeline.sources import (
     COMPLAINTS_311_END,
     DISTRICT_SOURCE,
     DISTRICTS,
+    COUNTY_NAMES,
     LICENSE_COUNT_EXTRA_COUNTIES,
     PLACE_OF_WORSHIP_CLASSES,
     SCHOOL_NOTES,
@@ -802,7 +803,7 @@ def main(argv=None) -> int:
         if f["kind"] == "school" or (f["kind"] == "worship" and ft <= CANNABIS_WORSHIP_FT):
             cann_near.setdefault(pid, []).append((f, ft))
     # Active on-premises liquor licenses (SLA class mapping: transform.is_on_premises_liquor),
-    # rows for New York and Kings plus Queens (extra_liq), kept when inside the widened box. One "premises" =
+    # rows for COUNTY_NAMES plus Queens (extra_liq), kept when inside the widened box. One "premises" =
     # one address page, or one street + ZIP key for licenses without a page.
     onprem = []
     onprem_points = {"address_page": 0, "city_address_file": 0, "sla_point": 0}
@@ -1109,7 +1110,7 @@ def main(argv=None) -> int:
             "on_premises_licenses_in_box_by_county": {
                 c: sum(1 for r in onprem if r["county"] == c)
                 for c in sorted({r["county"] for r in onprem})},
-            "license_counties": ["New York", "Kings", *LICENSE_COUNT_EXTRA_COUNTIES],
+            "license_counties": [*COUNTY_NAMES, *LICENSE_COUNT_EXTRA_COUNTIES],
             "extra_county_rows_fetched": len(extra_liq),
             "on_premises_classes": dict(sorted(liquor_classes.items())),
             "by_district": sw_stats,

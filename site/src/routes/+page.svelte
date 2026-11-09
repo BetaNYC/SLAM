@@ -33,7 +33,7 @@
 </ul>
 
 <p class="muted">
-	Data updated <time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>. Only three districts
+	Data updated <time datetime={m.data_fetched}>{fmtStamp(m.data_fetched)}</time>. Only six districts
 	are in this prototype. Maps use the City's own street basemap, from NYC's Office of Technology and
 	Innovation, when it is available.
 </p>

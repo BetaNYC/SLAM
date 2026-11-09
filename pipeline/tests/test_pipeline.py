@@ -218,7 +218,8 @@ def test_311_query_uses_configured_window_and_location_types():
     assert COMPLAINTS_311_END is None and "created_date <" not in w
     assert ("(location_type in ('Club/Bar/Restaurant','Restaurant/Bar/Deli/Bakery')"
             " OR complaint_type in ('Outdoor Dining'))") in w
-    assert "community_board in ('01 MANHATTAN','04 BROOKLYN','09 BROOKLYN')" in w
+    assert ("community_board in ('01 MANHATTAN','06 MANHATTAN','02 BRONX','01 BROOKLYN',"
+            "'04 BROOKLYN','09 BROOKLYN')") in w
 
 
 def test_311_selects_only_minimal_fields():
@@ -401,11 +402,15 @@ def rests():
 def test_inspection_source_filters_on_the_two_boards():
     s = SOURCES_BY_KEY["restaurant_inspections"]
     assert s.id == "43nn-pn8j"
-    assert s.where == "community_board in ('101','304','309')"
+    assert s.where == "community_board in ('101','106','202','301','304','309')"
     co = SOURCES_BY_KEY["co_dobnow"]
-    assert co.id == "pkdm-hqz6" and co.where == "community_board in (101,304,309)"
+    assert co.id == "pkdm-hqz6" and co.where == "community_board in (101,106,202,301,304,309)"
     # Dining Out filters on the same district list, not a hard-coded pair (#124).
-    assert SOURCES_BY_KEY["dining_out"].where == "community_board in (101,304,309)"
+    assert SOURCES_BY_KEY["dining_out"].where == "community_board in (101,106,202,301,304,309)"
+    # County filters carry the Bronx, in each dataset's own spelling (#126).
+    assert SOURCES_BY_KEY["liquor_active"].where == "premisescounty in ('New York','Kings','Bronx')"
+    assert SOURCES_BY_KEY["cannabis_retail"].where == "physical_county in ('NEW YORK','KINGS','BRONX')"
+    assert SOURCES_BY_KEY["street_events"].where == "event_borough in ('Bronx','Brooklyn','Manhattan')"
 
 
 def test_one_row_per_violation_reduces_to_one_per_inspection(rests):

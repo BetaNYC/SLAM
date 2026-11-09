@@ -23,11 +23,11 @@ from slam_pipeline import districts as _districts
 NYC = "data.cityofnewyork.us"
 NYS = "data.ny.gov"
 
-# The districts SLAM builds today: the two pilots, plus Brooklyn CD 9 on its board's request
-# (#124, Noel 2026-11-08: boards are added as they ask, not citywide yet). `boro_cd` is the field on NYC 5crt-au7u.
+# The districts SLAM builds today: the two pilots (101, 304), plus boards added on request
+# (Noel 2026-11-08: boards are added as they ask, not citywide yet): BK 9 (#124); BK 1, MN 6, BX 2 (#126). `boro_cd` is the field on NYC 5crt-au7u.
 # Every entry comes from districts.info(), so a Joint Interest Area (#87) is added the same way
 # as a community district: put its boro_cd in PILOT_BORO_CDS. Turning on more districts is #92.
-PILOT_BORO_CDS = (101, 304, 309)
+PILOT_BORO_CDS = (101, 106, 202, 301, 304, 309)
 DISTRICTS = {_districts.slug(c): _districts.info(c) for c in PILOT_BORO_CDS}
 
 DISTRICT_SOURCE = {
@@ -37,7 +37,10 @@ DISTRICT_SOURCE = {
     "fields": ["boro_cd", "the_geom"],
 }
 
-COUNTIES = "('New York','Kings')"  # SLA / OCM spell counties this way (checked via $group)
+# SLA / OCM spell counties this way (checked via $group). "Bronx" checked 2026-11-08 on f8i8-k2gm,
+# 9s3h-dpkz, 6dg3-2z7i (plus 1 inactive row spelled "BRONX", left out like other casings) and jskf-tt3q.
+COUNTY_NAMES = ("New York", "Kings", "Bronx")
+COUNTIES = "(" + ",".join(f"'{c}'" for c in COUNTY_NAMES) + ")"
 # Extra counties for the 500-foot license count only (QA of #66): BK CD 4 borders Ridgewood,
 # Queens. Spelled as SLA does in 9s3h-dpkz premisescounty, checked via $group on 2026-11-04:
 # "Queens" 5,300 rows, "QUEENS" 1 row. Pulled only inside the widened box (build.py).
@@ -181,8 +184,9 @@ SOURCES: list[Source] = [
         fields=["external_tpid", "legal_name", "dba_name", "ocm_license_number", "physical_county",
                 "physical_address", "physical_city", "physical_state", "physical_zip",
                 "georeference"],
-        # This dataset spells counties in upper case (checked via $group on physical_county).
-        where="physical_county in ('NEW YORK','KINGS')",
+        # This dataset spells counties in upper case (checked via $group on physical_county;
+        # "BRONX" checked 2026-11-08).
+        where="physical_county in (" + ",".join(f"'{c.upper()}'" for c in COUNTY_NAMES) + ")",
         order="external_tpid",
         has_point="georeference",
     ),
@@ -221,7 +225,9 @@ SOURCES: list[Source] = [
         fields=["event_id", "event_name", "start_date_time", "end_date_time", "event_agency",
                 "event_type", "event_borough", "event_location", "event_street_side",
                 "street_closure_type", "community_board", "police_precinct", "cemsid"],
-        where="event_borough in ('Manhattan','Brooklyn')",
+        # event_borough spellings checked via $group 2026-11-08: Bronx, Brooklyn, Manhattan, Queens,
+        # Staten Island, the same names as districts.BOROUGHS.
+        where="event_borough in (" + ",".join(sorted({f"'{d['borough']}'" for d in DISTRICTS.values()})) + ")",
         order="event_id",
         notes="No coordinates; community_board is a comma list like '01,' or '04, 05,'.",
     ),

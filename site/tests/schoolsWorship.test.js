@@ -63,7 +63,8 @@ test('built data: distances stay inside their radius, sorted, and exclude the pa
 		const ft = a.sw.near.map((/** @type {any} */ n) => n.ft);
 		assert.ok(ft.every((/** @type {number} */ d) => d <= sw.list_ft), f);
 		assert.deepEqual(ft, [...ft].sort((x, y) => x - y), f);
-		withNear += a.sw.near.length > 0;
+		// by_district counts a page in every district it is listed in (#88), so a line page counts twice.
+		withNear += a.sw.near.length > 0 ? (a.listed_in?.length ?? 1) : 0;
 		const liq = a.sw.liq;
 		assert.equal(liq.licenses, liq.rows.length, f);
 		assert.ok(liq.premises <= liq.licenses, f);
@@ -94,14 +95,14 @@ test('page points: GeoSearch when matched, records otherwise; far-off pages are 
 	const a = JSON.parse(readFileSync('static/data/address/1087575.json', 'utf8'));
 	const near = a.nearby.find((/** @type {any} */ n) => n.id === '1083705');
 	assert.ok(near && near.m > 40 && near.m < 65, String(near?.m));
-	// 7 WEST 51ST ST: GeoSearch puts it in Midtown, outside the pulled area. Kept as published,
-	// with no proximity facts.
+	// 7 WEST 51ST ST: GeoSearch puts it in Midtown, outside every built district. Kept as published.
+	// Whether it is measured depends on the pulled area: with MN CD 6 built (#126) the area reaches
+	// Midtown. When it is not measured, it carries no proximity facts.
 	const w = JSON.parse(readFileSync('static/data/address/1034514.json', 'utf8'));
 	assert.equal(w.district, 'mn-cd1');
 	assert.equal(w.point.outside_districts, true);
-	assert.equal(w.point.measured, false);
 	assert.ok(w.lat > 40.75);
-	assert.equal(w.nearby.length + w.sw.near.length + w.sw.liq.licenses + w.c311_near.n, 0);
+	if (!w.point.measured) assert.equal(w.nearby.length + w.sw.near.length + w.sw.liq.licenses + w.c311_near.n, 0);
 });
 
 test('500-ft count includes Queens: 894 Wyckoff Ave counts the licenses across the county line', () => {
