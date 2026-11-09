@@ -2,7 +2,7 @@
 
 SLAM, the Street License and Activity Map, puts the open data a New York City community board looks up for a liquor license application in one place: State Liquor Authority licenses and applications, cannabis licenses, outdoor dining, permitted street events, 311 complaints, health inspections, certificates of occupancy, and nearby schools and houses of worship. It shows facts as the City and State publish them; it does not decide whether a law or rule applies.
 
-- **Live:** https://slam.beta.nyc (a prototype covering Manhattan Community District 1 and Brooklyn Community Districts 4 and 9)
+- **Live:** https://slam.beta.nyc (a prototype covering Manhattan Community Districts 1 and 6, Bronx Community District 2, and Brooklyn Community Districts 1, 4 and 9)
 - **On the site:** an About page (sources, history, how we used AI tools) and a Glossary of every term and calculation.
 - **Detailed build notes:** [`PROTOTYPE.md`](PROTOTYPE.md), section by section, with the numbers from each run.
 - **Plans and work:** [epic #56](https://github.com/BetaNYC/SLAM/issues/56), [what v1 had, #58](https://github.com/BetaNYC/SLAM/issues/58), [citywide, #93](https://github.com/BetaNYC/SLAM/issues/93).
@@ -29,7 +29,7 @@ Tested citywide on 2026-11-05: 97.2% of active liquor licenses, 98.5% of restaur
 
 ### District lines
 
-City Planning's Community Districts dataset (`5crt-au7u`) has 71 rows: the 59 community districts and 12 Joint Interest Areas (large parks, airports and similar places outside every community district). As in BetaNYC's BoardStat v2, any `boro_cd` above its borough's highest district (`MAX_CD = {1: 12, 2: 12, 3: 18, 4: 14, 5: 3}`) is a Joint Interest Area and is listed as its own district (#87; `pipeline/slam_pipeline/districts.py`). Which districts are built is `PILOT_BORO_CDS` in `pipeline/slam_pipeline/sources.py`: the two pilots plus Brooklyn CD 9, added on its board's request (#124).
+City Planning's Community Districts dataset (`5crt-au7u`) has 71 rows: the 59 community districts and 12 Joint Interest Areas (large parks, airports and similar places outside every community district). As in BetaNYC's BoardStat v2, any `boro_cd` above its borough's highest district (`MAX_CD = {1: 12, 2: 12, 3: 18, 4: 14, 5: 3}`) is a Joint Interest Area and is listed as its own district (#87; `pipeline/slam_pipeline/districts.py`). Which districts are built is `PILOT_BORO_CDS` in `pipeline/slam_pipeline/sources.py`: the two pilots plus boards added on request: Brooklyn CD 9 (#124); Brooklyn CD 1, Manhattan CD 6 and Bronx CD 2 (#126).
 
 An address whose City point is within 100 ft of another district's line (`BOUNDARY_FT`) is listed in every district on that line that SLAM builds, and its page says, for example, "On the line between Brooklyn CD 3 and CD 4". Its records, map dots and counts are in each of those districts (#88). 100 ft, not half a street width, because the City's point sits inside the lot: 906 Broadway, Brooklyn is 92 ft from the CD 4 line. The reasoning and the numbers are in `districts.py`.
 

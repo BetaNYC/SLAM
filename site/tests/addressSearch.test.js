@@ -88,7 +88,8 @@ test('districtAt uses the polygons, with holes', () => {
 test('districtFor on the built outline files: one outline per miss, none outside every district (#104)', async () => {
 	const cases = [
 		[-74.011421, 40.711541, 'mn-cd1', ['data/lookup/index.json', 'data/lookup/outline-mn-cd1.json']], // 185 Greenwich
-		[-73.929618, 40.702633, 'bk-cd4', ['data/lookup/index.json', 'data/lookup/outline-bk-cd4.json']], // 44 Wilson Ave
+		// 44 Wilson Ave: BK CD 1's outline box also reaches it (#126), so that outline is read and missed first
+		[-73.929618, 40.702633, 'bk-cd4', ['data/lookup/index.json', 'data/lookup/outline-bk-cd1.json', 'data/lookup/outline-bk-cd4.json']],
 		[-74.15, 40.58, null, ['data/lookup/index.json']] // Staten Island: no outline loaded at all
 	];
 	for (const [lon, lat, want, files] of cases) {
@@ -160,7 +161,9 @@ test('built lookup files: every BIN and point names a real address page, in the 
 		assert.equal(pts.length, /** @type {any} */ (d).n);
 		const [x0, y0, x1, y1] = /** @type {any} */ (d).bbox;
 		for (const [id, lon, lat] of pts) {
-			assert.equal(pages.get(id)?.district, slug, id);
+			// A page on a line between two built districts is in each one's points file (#88).
+			const p = pages.get(id);
+			assert.ok((p?.listed_in ?? [p?.district]).includes(slug), id);
 			assert.ok(lon >= x0 && lon <= x1 && lat >= y0 && lat <= y1, `${id} inside its bbox`);
 			nPts++;
 		}
