@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Only this site's own files load. connect-src allows www.beta.nyc for sending answers
+     (when sending is switched on in review-core.js). No analytics, fonts or other third parties. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; connect-src 'self' https://www.beta.nyc; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="robots" content="noindex" />
+<title>Check the State's cannabis records — SLAM community review</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="review.css" />
+<script type="module" src="review.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the review</a>
+<header class="site">
+	<a class="brand" href="/">SLAM</a>
+	<span class="tag">Community review (draft)</span>
+</header>
+
+<main id="main" class="wrap">
+	<p id="status" class="status" role="status" aria-live="polite"></p>
+
+	<noscript><p class="note">This page needs JavaScript to show the records.</p></noscript>
+
+	<section id="intro" hidden aria-labelledby="intro-h">
+		<h1 id="intro-h" tabindex="-1">Help check the State's cannabis records</h1>
+		<p>BetaNYC is turning New York State's Cannabis Control Board documents into open data. A computer read the State's PDFs. Some readings need a person to look. You will see a small picture of a page from the State's PDF and what the computer read from it. Tell us whether they match.</p>
+		<p id="batch-line" class="batch-line"></p>
+
+		<h2>How to check an item</h2>
+		<ul class="guide">
+			<li><strong>Matches</strong>: the picture inside the red box shows exactly what we read. Every letter, number and word is the same. Capital letters and punctuation count.</li>
+			<li><strong>Doesn't match</strong>: anything is different: a letter, a number, a missing or extra word. If you can, type what the picture shows.</li>
+			<li><strong>Can't tell</strong>: the picture is unclear, cut off, or the red box is around the wrong thing.</li>
+		</ul>
+		<h3>Examples</h3>
+		<ul class="guide">
+			<li>We read "Adult-Use Cul@vator License" and the picture shows "Adult-Use Cultivator License". That <strong>doesn't match</strong>. Type "Adult-Use Cultivator License".</li>
+			<li>We read "Business address: (none found)" and the letter gives an address. That <strong>doesn't match</strong>. Type the address the letter gives.</li>
+			<li>A word breaks onto a second line inside the box. That is fine; it can still match.</li>
+		</ul>
+		<p class="note">Your answers are suggestions only. BetaNYC staff look at every suggestion and make the decision. Your answers stay in this browser until you choose to send or download them.</p>
+		<p><button id="start" class="primary" type="button">Start</button></p>
+		<p><button id="other-batch" class="link-button" type="button">Give me a different batch</button></p>
+	</section>
+
+	<section id="item" hidden aria-labelledby="item-h">
+		<p class="progress-line"><span id="progress-text"></span>
+			<progress id="progress" max="1" value="0" aria-labelledby="progress-text"></progress></p>
+		<h1 id="item-h" tabindex="-1"></h1>
+		<figure class="page-image">
+			<div id="image-box" class="image-box" tabindex="0" role="region" aria-label="Picture of the page (scrolls when larger)">
+				<img id="item-img" alt="" />
+			</div>
+			<figcaption>
+				<button id="zoom" type="button" class="link-button" aria-pressed="false">Show larger</button>
+				· <a id="pdf-link" target="_blank" rel="noopener noreferrer"></a>
+			</figcaption>
+		</figure>
+		<h2 class="read-h">What we read</h2>
+		<p id="value-read" class="value-read"></p>
+		<form id="answer-form" novalidate>
+			<fieldset class="choices">
+				<legend id="question"></legend>
+				<label class="choice"><input type="radio" name="choice" value="matches" /> Matches</label>
+				<label class="choice"><input type="radio" name="choice" value="does_not_match" /> Doesn't match</label>
+				<label class="choice"><input type="radio" name="choice" value="cant_tell" /> Can't tell</label>
+			</fieldset>
+			<p class="field">
+				<label for="page-value">What the page shows (optional)</label>
+				<input id="page-value" type="text" maxlength="300" autocomplete="off" />
+			</p>
+			<p class="field">
+				<label for="note">Note (optional)</label>
+				<textarea id="note" maxlength="500" rows="2"></textarea>
+			</p>
+		</form>
+		<p class="nav">
+			<button id="back" type="button">Back</button>
+			<button id="next" class="primary" type="button">Next</button>
+		</p>
+	</section>
+
+	<section id="finish" hidden aria-labelledby="finish-h">
+		<h1 id="finish-h" tabindex="-1">Thank you</h1>
+		<p id="answered-line"></p>
+		<form id="send-form" novalidate>
+			<h2>About you (optional)</h2>
+			<p class="muted">You do not have to tell us who you are. If you do, only BetaNYC staff see it.</p>
+			<p class="field">
+				<label for="contact-name">Your name (optional)</label>
+				<input id="contact-name" type="text" maxlength="100" autocomplete="name" />
+			</p>
+			<p class="field">
+				<label for="contact-email">Your email (optional)</label>
+				<input id="contact-email" type="email" maxlength="200" autocomplete="email" />
+			</p>
+			<p class="field check">
+				<input id="credit-ok" type="checkbox" />
+				<label for="credit-ok">BetaNYC may thank me by name for helping (optional)</label>
+			</p>
+			<p class="hp" aria-hidden="true">
+				<label for="website">Leave this empty</label>
+				<input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+			</p>
+			<p id="send-help" class="note"></p>
+			<p class="nav">
+				<button id="send" class="primary" type="button" hidden>Send my answers</button>
+				<button id="download" class="primary" type="button">Download my answers</button>
+			</p>
+		</form>
+		<p class="nav">
+			<button id="review-again" type="button">Go back to the items</button>
+			<button id="clear" type="button">Clear my answers from this browser</button>
+		</p>
+	</section>
+</main>
+<footer class="site wrap">
+	<p>Pictures are cut from the State's own PDFs, published by the New York State Office of Cannabis Management. A <a href="https://beta.nyc">BetaNYC</a> prototype; not an official City or State product.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,283 @@
+// Community review page (slam.beta.nyc/review/). Vanilla JS, no third-party code.
+// Every piece of data is written with textContent or attributes; never innerHTML
+// (tests/communityReview.test.js checks this file for it).
+import {
+	ENDPOINT,
+	buildRequestBody,
+	checkData,
+	downloadName,
+	randomBatch,
+	storageKey,
+	validBatch
+} from './review-core.js';
+
+const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
+
+/** @type {Map<string, any>} */
+let items = new Map();
+/** @type {{batch_id: string, item_ids: string[]}[]} */
+let batches = [];
+/** @type {{batch_id: string, item_ids: string[]} | null} */
+let batch = null;
+/** @type {{answers: Record<string, {choice?: string, page_value?: string, note?: string}>, pos: number}} */
+let state = { answers: {}, pos: 0 };
+
+function say(/** @type {string} */ msg) {
+	$('status').textContent = msg;
+}
+
+function show(/** @type {'intro' | 'item' | 'finish'} */ which) {
+	for (const id of ['intro', 'item', 'finish']) $(id).hidden = id !== which;
+	const h = $(`${which}-h`);
+	h.focus();
+}
+
+function load() {
+	if (!batch) return;
+	try {
+		const raw = localStorage.getItem(storageKey(batch.batch_id));
+		const s = raw ? JSON.parse(raw) : null;
+		if (s && typeof s === 'object' && s.answers && typeof s.answers === 'object') {
+			state = { answers: s.answers, pos: Number.isInteger(s.pos) ? s.pos : 0 };
+			return;
+		}
+	} catch {
+		/* storage off or unreadable: start fresh */
+	}
+	state = { answers: {}, pos: 0 };
+}
+
+function save() {
+	if (!batch) return;
+	try {
+		localStorage.setItem(storageKey(batch.batch_id), JSON.stringify(state));
+	} catch {
+		say('This browser is not saving answers. Finish the batch before you close the page.');
+	}
+}
+
+function answeredCount() {
+	if (!batch) return 0;
+	return batch.item_ids.filter((id) => state.answers[id]?.choice).length;
+}
+
+function chooseBatch(/** @type {string | null} */ param) {
+	const found = validBatch(param, batches);
+	if (param && !found) say(`We could not find batch "${param.slice(0, 40)}", so here is another one.`);
+	const rand = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+	batch = found ?? randomBatch(batches, rand);
+	const url = new URL(location.href);
+	url.searchParams.set('batch', batch.batch_id);
+	history.replaceState(null, '', url.pathname + url.search);
+	load();
+	const n = batch.item_ids.length;
+	const done = answeredCount();
+	$('batch-line').textContent =
+		`Batch ${batch.batch_id}: ${n} items, about ${Math.max(5, Math.round(n / 2))} minutes.` +
+		(done ? ` You have answered ${done} so far.` : '');
+	$('start').textContent = done ? 'Continue' : 'Start';
+}
+
+function readForm() {
+	if (!batch) return;
+	const id = batch.item_ids[state.pos];
+	const checked = /** @type {HTMLInputElement | null} */ (document.querySelector('input[name=choice]:checked'));
+	const pv = /** @type {HTMLInputElement} */ ($('page-value')).value;
+	const note = /** @type {HTMLTextAreaElement} */ ($('note')).value;
+	if (checked || pv || note) state.answers[id] = { choice: checked?.value, page_value: pv, note };
+	save();
+	$('progress-text').textContent = `Item ${state.pos + 1} of ${batch.item_ids.length} (${answeredCount()} answered)`;
+}
+
+function renderItem() {
+	if (!batch) return;
+	const n = batch.item_ids.length;
+	state.pos = Math.min(Math.max(state.pos, 0), n - 1);
+	const it = items.get(batch.item_ids[state.pos]);
+	$('progress-text').textContent = `Item ${state.pos + 1} of ${n} (${answeredCount()} answered)`;
+	const bar = /** @type {HTMLProgressElement} */ ($('progress'));
+	bar.max = n;
+	bar.value = state.pos + 1;
+	$('item-h').textContent = it.field_label;
+	const img = /** @type {HTMLImageElement} */ ($('item-img'));
+	img.src = it.image;
+	img.alt = `Part of page ${it.pdf_page} of the State's PDF. The part to check is inside the red box.`;
+	const link = /** @type {HTMLAnchorElement} */ ($('pdf-link'));
+	link.href = it.source_pdf_url;
+	link.textContent = `Open the State's PDF (page ${it.pdf_page}, opens in a new tab)`;
+	$('value-read').textContent = it.value_read;
+	$('question').textContent = it.question;
+	const a = state.answers[it.item_id] ?? {};
+	for (const r of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('input[name=choice]'))) {
+		r.checked = r.value === a.choice;
+	}
+	/** @type {HTMLInputElement} */ ($('page-value')).value = a.page_value ?? '';
+	/** @type {HTMLTextAreaElement} */ ($('note')).value = a.note ?? '';
+	/** @type {HTMLButtonElement} */ ($('back')).disabled = state.pos === 0;
+	$('next').textContent = state.pos === n - 1 ? 'Finish' : 'Next';
+	save();
+}
+
+function renderFinish() {
+	if (!batch) return;
+	const n = batch.item_ids.length;
+	$('answered-line').textContent = `You answered ${answeredCount()} of ${n} items in batch ${batch.batch_id}.`;
+	const sending = ENDPOINT !== '';
+	$('send').hidden = !sending;
+	$('send-help').textContent = sending
+		? 'Sending shares your answers, and your name and email if you gave them, with BetaNYC staff.'
+		: 'Sending from this page is not switched on yet. Download your answers and keep the file; whoever invited you to help will tell you where to send it.';
+}
+
+function body() {
+	if (!batch) throw new Error('No batch.');
+	return buildRequestBody({
+		batchId: batch.batch_id,
+		itemIds: batch.item_ids,
+		answers: state.answers,
+		contact: {
+			name: /** @type {HTMLInputElement} */ ($('contact-name')).value,
+			email: /** @type {HTMLInputElement} */ ($('contact-email')).value
+		},
+		creditOk: /** @type {HTMLInputElement} */ ($('credit-ok')).checked,
+		website: /** @type {HTMLInputElement} */ ($('website')).value
+	});
+}
+
+function download() {
+	let b;
+	try {
+		b = body();
+	} catch (e) {
+		return say(/** @type {Error} */ (e).message);
+	}
+	const blob = new Blob([JSON.stringify(b, null, 2)], { type: 'application/json' });
+	const a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = downloadName(/** @type {any} */ (batch).batch_id);
+	document.body.append(a);
+	a.click();
+	a.remove();
+	setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+	say('Your answers file was downloaded.');
+}
+
+async function send() {
+	let b;
+	try {
+		b = body();
+	} catch (e) {
+		return say(/** @type {Error} */ (e).message);
+	}
+	const btn = /** @type {HTMLButtonElement} */ ($('send'));
+	btn.disabled = true;
+	say('Sending…');
+	try {
+		const res = await fetch(ENDPOINT, {
+			method: 'POST',
+			mode: 'cors',
+			credentials: 'omit',
+			cache: 'no-store',
+			referrerPolicy: 'no-referrer',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(b)
+		});
+		if (res.status === 201) say('Thank you. Your answers were sent.');
+		else if (res.status === 429) say('Too many answers are arriving right now. Nothing was sent. Please try again in a few minutes.');
+		else say('Something went wrong and your answers were not sent. They are still saved here. Try again later, or download them.');
+	} catch {
+		say('Your answers could not be sent (no connection?). They are still saved here. Try again later, or download them.');
+	} finally {
+		btn.disabled = false;
+	}
+}
+
+function wire() {
+	$('start').addEventListener('click', () => {
+		say('');
+		renderItem();
+		show('item');
+	});
+	$('other-batch').addEventListener('click', () => {
+		const others = batches.filter((b) => b.batch_id !== batch?.batch_id);
+		const rand = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+		chooseBatch(randomBatch(others, rand).batch_id);
+		say(`Now showing batch ${batch?.batch_id}.`);
+	});
+	$('back').addEventListener('click', () => {
+		readForm();
+		state.pos -= 1;
+		renderItem();
+		$('item-h').focus();
+	});
+	$('next').addEventListener('click', () => {
+		readForm();
+		if (!batch) return;
+		if (state.pos >= batch.item_ids.length - 1) {
+			renderFinish();
+			show('finish');
+			return;
+		}
+		state.pos += 1;
+		renderItem();
+		$('item-h').focus();
+	});
+	$('answer-form').addEventListener('change', readForm);
+	$('answer-form').addEventListener('submit', (e) => e.preventDefault());
+	$('send-form').addEventListener('submit', (e) => e.preventDefault());
+	$('zoom').addEventListener('click', () => {
+		const box = $('image-box');
+		const on = box.classList.toggle('larger');
+		$('zoom').setAttribute('aria-pressed', String(on));
+		$('zoom').textContent = on ? 'Fit to screen' : 'Show larger';
+	});
+	$('download').addEventListener('click', download);
+	$('send').addEventListener('click', send);
+	$('review-again').addEventListener('click', () => {
+		if (!batch) return;
+		state.pos = 0;
+		renderItem();
+		show('item');
+	});
+	$('clear').addEventListener('click', () => {
+		if (!batch || !confirm('Clear every answer for this batch from this browser?')) return;
+		try {
+			localStorage.removeItem(storageKey(batch.batch_id));
+		} catch {
+			/* nothing stored */
+		}
+		state = { answers: {}, pos: 0 };
+		chooseBatch(batch.batch_id);
+		show('intro');
+		say('Your answers for this batch were cleared from this browser.');
+	});
+}
+
+async function main() {
+	say('Loading…');
+	try {
+		const [i, b] = await Promise.all(
+			['items.json', 'batches.json'].map((f) =>
+				fetch(f, { credentials: 'same-origin' }).then((r) => {
+					if (!r.ok) throw new Error(f);
+					return r.json();
+				})
+			)
+		);
+		items = checkData(i, b);
+		batches = b;
+	} catch {
+		say('The review items could not be loaded. Please try again later.');
+		return;
+	}
+	if (!batches.length) {
+		say('There is nothing to review right now.');
+		return;
+	}
+	say('');
+	wire();
+	chooseBatch(new URLSearchParams(location.search).get('batch'));
+	$('intro').hidden = false;
+}
+
+main();

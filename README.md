@@ -98,6 +98,15 @@ Every dataset is read from its portal's own API, and its fields are checked agai
 
 Each license links to its record on SLA's [LAMP](https://lamp.sla.ny.gov/) map. An address page shows every date and ID the three SLA datasets publish for a license (first issued, last issued, effective and expiration dates; legacy serial number; parent license; AKA address). None of the three publishes hours or method of operation (column lists checked 2026-11-07, [#63](https://github.com/BetaNYC/SLAM/issues/63)), and SLAM does not copy them from other pages; a test fails if the State adds such a column.
 
+## Community review (draft)
+
+`/review/` (`site/static/review/`) is a standalone page where volunteers check what a computer read from New York State's Cannabis Control Board PDFs: one small picture of the page at a time, the value read, and three answers (Matches, Doesn't match, Can't tell). It is plain HTML, CSS and JavaScript copied into the build as-is; it does not touch the map, the pipeline or the SvelteKit app, and nothing links to it yet.
+
+- **Data:** `items.json`, `batches.json` and `img/*.webp` are exported from BetaNYC's workspace, where the cannabis decision trail dataset is tracked; each item is in two batches of about 20. Pictures are cut from the State's own PDFs. Business information only, as the State publishes it; e-mail addresses and phone numbers inside a picture are blacked out.
+- **Answers** stay in the browser (`localStorage`, per batch) until the volunteer downloads them or, once `ENDPOINT` in `review-core.js` is set, sends them. They are suggestions; BetaNYC staff decide. Contact fields are optional and never stored in the browser.
+- **Guarded:** a Content-Security-Policy allows only this site's files (plus `https://www.beta.nyc` for sending), no analytics or third-party scripts, no `innerHTML`, `?batch=` checked against `batches.json`.
+- **Tests:** `site/tests/communityReview.test.js` (request body, data shape, no `innerHTML`, CSP) and `site/e2e/review.spec.js` (axe on each screen, keyboard, the downloaded file, no requests to other sites).
+
 ## Contributing
 
 Open an issue or a pull request against `v2`. Write facts, not verdicts: the site never says a place "violates", "meets" or is "eligible" for anything (a test checks). Every number on a page should come from a named source with a date.
