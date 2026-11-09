@@ -3,10 +3,13 @@
 // (tests/communityReview.test.js checks this file for it).
 import {
 	ENDPOINT,
+	answersFingerprint,
 	buildRequestBody,
+	canSend,
 	checkData,
 	downloadName,
 	randomBatch,
+	retryAfterMessage,
 	storageKey,
 	validBatch
 } from './review-core.js';
@@ -19,8 +22,9 @@ let items = new Map();
 let batches = [];
 /** @type {{batch_id: string, item_ids: string[]} | null} */
 let batch = null;
-/** @type {{answers: Record<string, {choice?: string, page_value?: string, note?: string}>, pos: number}} */
-let state = { answers: {}, pos: 0 };
+/** @typedef {{at: string, fingerprint: string}} Sent */
+/** @type {{answers: Record<string, {choice?: string, page_value?: string, note?: string}>, pos: number, sent?: Sent | null}} */
+let state = { answers: {}, pos: 0, sent: null };
 
 function say(/** @type {string} */ msg) {
 	$('status').textContent = msg;
@@ -38,13 +42,14 @@ function load() {
 		const raw = localStorage.getItem(storageKey(batch.batch_id));
 		const s = raw ? JSON.parse(raw) : null;
 		if (s && typeof s === 'object' && s.answers && typeof s.answers === 'object') {
-			state = { answers: s.answers, pos: Number.isInteger(s.pos) ? s.pos : 0 };
+			const sent = s.sent && typeof s.sent.fingerprint === 'string' ? { at: String(s.sent.at ?? ''), fingerprint: s.sent.fingerprint } : null;
+			state = { answers: s.answers, pos: Number.isInteger(s.pos) ? s.pos : 0, sent };
 			return;
 		}
 	} catch {
 		/* storage off or unreadable: start fresh */
 	}
-	state = { answers: {}, pos: 0 };
+	state = { answers: {}, pos: 0, sent: null };
 }
 
 function save() {
@@ -118,12 +123,31 @@ function renderItem() {
 	save();
 }
 
+/** A batch other than the current one, for the "start another batch" link. */
+function anotherBatchHref() {
+	const others = batches.filter((b) => b.batch_id !== batch?.batch_id);
+	if (!others.length) return '?';
+	const rand = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+	return `?batch=${encodeURIComponent(randomBatch(others, rand).batch_id)}`;
+}
+
 function renderFinish() {
 	if (!batch) return;
 	const n = batch.item_ids.length;
 	$('answered-line').textContent = `You answered ${answeredCount()} of ${n} items in batch ${batch.batch_id}.`;
 	const sending = ENDPOINT !== '';
-	$('send').hidden = !sending;
+	const current = answersFingerprint(batch.item_ids, state.answers);
+	const sent = !!state.sent;
+	const allowed = sending && canSend(current, state.sent);
+	const btn = /** @type {HTMLButtonElement} */ ($('send'));
+	btn.hidden = !allowed;
+	btn.disabled = !allowed;
+	btn.textContent = sent ? 'Send again' : 'Send my answers';
+	$('sent-box').hidden = !(sending && sent);
+	$('sent-text').textContent = allowed
+		? 'Your answers for this batch were sent. You changed an answer since then; you can send again.'
+		: 'Thanks — your answers for this batch were sent.';
+	/** @type {HTMLAnchorElement} */ ($('another-batch')).href = anotherBatchHref();
 	$('send-help').textContent = sending
 		? 'Sending shares your answers, and your name and email if you gave them, with BetaNYC staff.'
 		: 'Sending from this page is not switched on yet. Download your answers and keep the file; whoever invited you to help will tell you where to send it.';
@@ -182,13 +206,20 @@ async function send() {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(b)
 		});
-		if (res.status === 201) say('Thank you. Your answers were sent.');
-		else if (res.status === 429) say('Too many answers are arriving right now. Nothing was sent. Please try again in a few minutes.');
+		if (res.status === 201) {
+			state.sent = { at: new Date().toISOString(), fingerprint: answersFingerprint(/** @type {any} */ (batch).item_ids, state.answers) };
+			save();
+			say('');
+			renderFinish();
+			$('sent-text').focus();
+			return;
+		} else if (res.status === 429) say(retryAfterMessage(res.headers.get('Retry-After')));
 		else say('Something went wrong and your answers were not sent. They are still saved here. Try again later, or download them.');
 	} catch {
 		say('Your answers could not be sent (no connection?). They are still saved here. Try again later, or download them.');
 	} finally {
-		btn.disabled = false;
+		// A visible button is usable again after a failure; after a send it is hidden and stays off.
+		btn.disabled = btn.hidden;
 	}
 }
 
@@ -246,14 +277,33 @@ function wire() {
 		} catch {
 			/* nothing stored */
 		}
-		state = { answers: {}, pos: 0 };
+		state = { answers: {}, pos: 0, sent: null };
 		chooseBatch(batch.batch_id);
 		show('intro');
 		say('Your answers for this batch were cleared from this browser.');
 	});
 }
 
+/**
+ * A meta Content-Security-Policy cannot set frame-ancestors, and GitHub Pages cannot send the
+ * header, so another site could put this page in a frame. When framed, show nothing to click.
+ * Reading window.top is allowed across origins; comparing it does not throw.
+ */
+function framed() {
+	let top = true;
+	try {
+		top = window.top === window.self;
+	} catch {
+		top = false;
+	}
+	if (top) return false;
+	for (const id of ['intro', 'item', 'finish']) $(id).hidden = true;
+	say('This page only works when opened directly. Open slam.beta.nyc/review/ in its own tab.');
+	return true;
+}
+
 async function main() {
+	if (framed()) return;
 	say('Loading…');
 	try {
 		const [i, b] = await Promise.all(

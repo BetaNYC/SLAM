@@ -68,13 +68,13 @@ export function storageKey(batchId) {
  */
 
 /**
- * The request body for the answers given so far, in the batch's item order.
- * Throws an Error with a plain-language message when the body would be invalid.
- * @param {{batchId: string, itemIds: string[], answers: Record<string, Answer>,
- *   contact?: Contact, creditOk?: boolean, website?: string}} input
+ * The answers that would be sent, in batch order: only items with a valid choice; optional
+ * text trimmed, cleaned and cut to the contract's limits, and left out when empty.
+ * @param {string[]} itemIds
+ * @param {Record<string, Answer>} answers
  */
-export function buildRequestBody({ batchId, itemIds, answers, contact = {}, creditOk = false, website = '' }) {
-	if (!BATCH_ID.test(batchId)) throw new Error('This batch name is not valid.');
+export function normalizeAnswers(itemIds, answers) {
+	/** @type {{item_id: string, choice: string, page_value?: string, note?: string}[]} */
 	const list = [];
 	for (const id of itemIds) {
 		const a = answers[id];
@@ -88,6 +88,61 @@ export function buildRequestBody({ batchId, itemIds, answers, contact = {}, cred
 		if (note) out.note = note;
 		list.push(out);
 	}
+	return list;
+}
+
+/**
+ * A fingerprint of the answers that would be sent, stored when a batch is sent so the page
+ * can tell whether anything changed since (and only then offer "Send again").
+ * @param {string[]} itemIds
+ * @param {Record<string, Answer>} answers
+ */
+export function answersFingerprint(itemIds, answers) {
+	return JSON.stringify(normalizeAnswers(itemIds, answers));
+}
+
+/**
+ * Whether Send should be offered: never with no answers; after a send, only once the answers
+ * differ from what was sent.
+ * @param {string} current  answersFingerprint now
+ * @param {{fingerprint?: string} | null | undefined} sent  what was stored after a send
+ */
+export function canSend(current, sent) {
+	if (current === '[]') return false;
+	return !sent || sent.fingerprint !== current;
+}
+
+/**
+ * Plain-language wait after a 429, from the Retry-After header (seconds or an HTTP date;
+ * RFC 9110 section 10.2.3). With no usable header, the endpoint's own window: an hour.
+ * @param {string | null} header
+ * @param {number} [now]  ms since epoch, for tests
+ */
+export function retryAfterMessage(header, now = Date.now()) {
+	let secs = NaN;
+	const h = (header ?? '').trim();
+	if (/^\d+$/.test(h)) secs = Number(h);
+	else if (h) {
+		const t = Date.parse(h);
+		if (!Number.isNaN(t)) secs = Math.max(0, Math.round((t - now) / 1000));
+	}
+	const head = 'Too many answers have been sent from here recently, so nothing was sent. Your answers are still saved in this browser.';
+	if (!Number.isFinite(secs)) return `${head} Please try again in about an hour.`;
+	const mins = Math.max(1, Math.ceil(secs / 60));
+	if (mins < 60) return `${head} Please try again in ${mins} minute${mins === 1 ? '' : 's'}.`;
+	const hours = Math.ceil(mins / 60);
+	return `${head} Please try again in ${hours === 1 ? 'about an hour' : `about ${hours} hours`}.`;
+}
+
+/**
+ * The request body for the answers given so far, in the batch's item order.
+ * Throws an Error with a plain-language message when the body would be invalid.
+ * @param {{batchId: string, itemIds: string[], answers: Record<string, Answer>,
+ *   contact?: Contact, creditOk?: boolean, website?: string}} input
+ */
+export function buildRequestBody({ batchId, itemIds, answers, contact = {}, creditOk = false, website = '' }) {
+	if (!BATCH_ID.test(batchId)) throw new Error('This batch name is not valid.');
+	const list = normalizeAnswers(itemIds, answers);
 	if (list.length === 0) throw new Error('Answer at least one item first.');
 	if (list.length > LIMITS.answers) throw new Error('Too many answers for one batch.');
 	const name = clean(contact.name, LIMITS.name);

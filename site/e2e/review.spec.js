@@ -116,3 +116,115 @@ test('answers survive a reload; an unknown batch falls back to a real one', asyn
 	expect(batches.map((/** @type {any} */ b) => b.batch_id)).toContain(shown);
 	await expect(page.locator('img[src="x"]')).toHaveCount(0);
 });
+
+// ---------------------------------------------------------------- sending (endpoint mocked)
+// ENDPOINT ships empty. These tests rewrite it in review-core.js as served, then answer the
+// endpoint with Playwright routes (https://playwright.dev/docs/network#modify-responses), so
+// nothing real is ever contacted. Responses follow the intake contract: 201 {"ok": true}, 429.
+const MOCK_ENDPOINT = 'https://www.beta.nyc/wp-json/betanyc-data/v1/report';
+// The endpoint must expose Retry-After to the page (Access-Control-Expose-Headers), or a
+// cross-origin fetch cannot read it and the page falls back to "about an hour".
+const CORS = { 'Access-Control-Allow-Origin': 'http://127.0.0.1:4173', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Expose-Headers': 'Retry-After' };
+
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {(n: number) => {status: number, headers?: Record<string, string>, body: string}} reply
+ */
+async function mockEndpoint(page, reply) {
+	/** @type {any[]} */
+	const posts = [];
+	await page.route('**/review/review-core.js', async (route) => {
+		const res = await route.fetch();
+		const body = (await res.text()).replace("export const ENDPOINT = '';", `export const ENDPOINT = '${MOCK_ENDPOINT}';`);
+		await route.fulfill({ response: res, body });
+	});
+	await page.route(MOCK_ENDPOINT, async (route) => {
+		const req = route.request();
+		if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+		posts.push({ body: req.postDataJSON() });
+		const r = reply(posts.length);
+		await route.fulfill({ status: r.status, headers: { ...CORS, 'Content-Type': 'application/json', ...(r.headers ?? {}) }, body: r.body });
+	});
+	return posts;
+}
+
+/** Press Next until the finish screen shows (Continue resumes where the person left off). */
+async function walkToFinish(/** @type {import('@playwright/test').Page} */ page) {
+	const finish = page.locator('#finish');
+	for (let i = 0; i < 60 && !(await finish.isVisible()); i++) await page.locator('#next').click();
+	await expect(page.getByRole('heading', { level: 1, name: 'Thank you' })).toBeVisible();
+}
+
+/** Answer the first item, then go to the finish screen. */
+async function answerAndFinish(/** @type {import('@playwright/test').Page} */ page, choice = 'Matches') {
+	await page.goto(`/review/?batch=${first.batch_id}`);
+	await page.getByRole('button', { name: /Start|Continue/ }).click();
+	await page.getByLabel(choice, { exact: true }).check();
+	await walkToFinish(page);
+}
+
+test('send: one POST, then Send is gone until an answer changes; "Send again" after a change', async ({ page }) => {
+	// Walks the whole batch twice (about 45 clicks) plus two axe scans.
+	test.setTimeout(90_000);
+	const posts = await mockEndpoint(page, () => ({ status: 201, body: '{"ok": true}' }));
+	await answerAndFinish(page);
+	await expect(page.getByRole('button', { name: 'Download my answers' })).toBeVisible();
+	expect(await blocking(page)).toEqual([]);
+	await page.getByRole('button', { name: 'Send my answers' }).click();
+	await expect(page.locator('#sent-text')).toHaveText('Thanks — your answers for this batch were sent.');
+	await expect(page.locator('#sent-text')).toBeFocused();
+	await expect(page.getByRole('button', { name: /Send/ })).toHaveCount(0);
+	const another = page.getByRole('link', { name: 'Start another batch' });
+	await expect(another).toHaveAttribute('href', /^\?batch=b\d\d$/);
+	expect(await another.getAttribute('href')).not.toBe(`?batch=${first.batch_id}`);
+	expect(await blocking(page)).toEqual([]);
+	expect(posts).toHaveLength(1);
+	expect(posts[0].body).toMatchObject({ schema: 'betanyc-data-issue/1', tool: 'slam', kind: 'review-answer', batch_id: first.batch_id });
+	expect(posts[0].body.answers).toEqual([{ item_id: first.item_ids[0], choice: 'matches' }]);
+
+	// Reloading keeps it marked as sent; going back without changing anything keeps Send hidden.
+	await page.reload();
+	await page.getByRole('button', { name: 'Continue' }).click();
+	await walkToFinish(page);
+	await expect(page.locator('#sent-text')).toHaveText('Thanks — your answers for this batch were sent.');
+	await expect(page.getByRole('button', { name: /Send/ })).toHaveCount(0);
+
+	// Change an answer: "Send again" appears, and sends the new answers.
+	await page.getByRole('button', { name: 'Go back to the items' }).click();
+	await page.getByLabel("Can't tell").check();
+	await walkToFinish(page);
+	await page.getByRole('button', { name: 'Send again' }).click();
+	await expect(page.locator('#sent-text')).toHaveText('Thanks — your answers for this batch were sent.');
+	expect(posts).toHaveLength(2);
+	expect(posts[1].body.answers).toEqual([{ item_id: first.item_ids[0], choice: 'cant_tell' }]);
+});
+
+test('send: a 429 says how long to wait from Retry-After, or an hour without it', async ({ page }) => {
+	const posts = await mockEndpoint(page, (n) => (n === 1 ? { status: 429, headers: { 'Retry-After': '1200' }, body: '{"ok": false}' } : { status: 429, body: '{"ok": false}' }));
+	await answerAndFinish(page);
+	await page.getByRole('button', { name: 'Send my answers' }).click();
+	await expect(page.getByRole('status')).toContainText('Please try again in 20 minutes.');
+	await expect(page.getByRole('status')).toContainText('nothing was sent');
+	await expect(page.getByRole('button', { name: 'Send my answers' })).toBeEnabled();
+	await expect(page.locator('#sent-box')).toBeHidden();
+	await page.getByRole('button', { name: 'Send my answers' }).click();
+	await expect(page.getByRole('status')).toContainText('Please try again in about an hour.');
+	await expect(page.getByRole('status')).not.toContainText('few minutes');
+	expect(posts).toHaveLength(2);
+});
+
+test('framed by another site: nothing to click, a plain message instead', async ({ page }) => {
+	// The guard reacts to any framing (window.top !== window.self), whatever the origin.
+	// Chromium's local network access checks block a test page on another origin from framing
+	// 127.0.0.1, so the framing page is mocked on the same server.
+	await page.route('http://127.0.0.1:4173/framer.html', (route) =>
+		route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>x</title><iframe title="framed" src="http://127.0.0.1:4173/review/?batch=b01" width="800" height="600"></iframe>' })
+	);
+	await page.goto('/framer.html');
+	const frame = page.frameLocator('iframe');
+	await expect(frame.getByRole('status')).toContainText('only works when opened directly');
+	await expect(frame.locator('#intro')).toBeHidden();
+	await expect(frame.locator('#item')).toBeHidden();
+	await expect(frame.locator('#finish')).toBeHidden();
+	await expect(frame.getByRole('button')).toHaveCount(0);
+});

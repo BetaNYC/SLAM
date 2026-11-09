@@ -9,8 +9,11 @@ import {
 	ENDPOINT,
 	buildRequestBody,
 	checkData,
+	answersFingerprint,
+	canSend,
 	clean,
 	randomBatch,
+	retryAfterMessage,
 	storageKey,
 	validBatch
 } from '../static/review/review-core.js';
@@ -160,4 +163,42 @@ test('no innerHTML/outerHTML/insertAdjacentHTML/document.write, no inline script
 	assert.match(csp, /connect-src 'self' https:\/\/www\.beta\.nyc(;|$)/);
 	assert.doesNotMatch(csp, /unsafe-|\*/);
 	assert.doesNotMatch(html, /googletagmanager|google-analytics|gtag\(/);
+});
+
+test('after a send, Send comes back only when an answer changes', () => {
+	const ids = ['R1', 'R2'];
+	assert.equal(canSend(answersFingerprint(ids, {}), null), false);
+	const answers = { R1: { choice: 'matches' } };
+	const fp = answersFingerprint(ids, answers);
+	assert.equal(canSend(fp, null), true);
+	const sent = { at: '2026-11-08T00:00:00Z', fingerprint: fp };
+	assert.equal(canSend(fp, sent), false);
+	// whitespace-only edits and text typed without a choice do not count as a change
+	assert.equal(canSend(answersFingerprint(ids, { R1: { choice: 'matches', note: '  ' }, R2: { note: 'x' } }), sent), false);
+	assert.equal(canSend(answersFingerprint(ids, { R1: { choice: 'cant_tell' } }), sent), true);
+	assert.equal(canSend(answersFingerprint(ids, { R1: { choice: 'matches' }, R2: { choice: 'matches' } }), sent), true);
+});
+
+test('429: the wait comes from Retry-After, else the endpoint window of an hour', () => {
+	const now = Date.parse('2026-11-08T12:00:00Z');
+	assert.match(retryAfterMessage(null, now), /try again in about an hour\.$/);
+	assert.match(retryAfterMessage('garbage', now), /about an hour/);
+	assert.match(retryAfterMessage('30', now), /in 1 minute\.$/);
+	assert.match(retryAfterMessage('600', now), /in 10 minutes\.$/);
+	assert.match(retryAfterMessage('3600', now), /about an hour\.$/);
+	assert.match(retryAfterMessage('7200', now), /about 2 hours\.$/);
+	assert.match(retryAfterMessage('Sun, 08 Nov 2026 12:20:00 GMT', now), /in 20 minutes\.$/);
+	for (const h of [null, '30', '3600']) {
+		assert.doesNotMatch(retryAfterMessage(h, now), /few minutes/);
+		assert.match(retryAfterMessage(h, now), /nothing was sent/);
+	}
+});
+
+test('review.js has the frame guard and the sent-state handling', () => {
+	const js = readFileSync(join(DIR, 'review.js'), 'utf8');
+	assert.match(js, /window\.top === window\.self/);
+	assert.match(js, /if \(framed\(\)\) return;/);
+	assert.match(js, /retryAfterMessage\(res\.headers\.get\('Retry-After'\)\)/);
+	assert.doesNotMatch(js, /few minutes/);
+	assert.match(js, /credentials: 'omit'/);
 });

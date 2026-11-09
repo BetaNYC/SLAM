@@ -35,6 +35,10 @@ h3 { font-size: 1rem; margin: 1rem 0 0.25rem; }
 .guide { padding-left: 1.2rem; }
 .guide li { margin: 0.35rem 0; }
 .batch-line { font-weight: 600; }
+.sent p { margin: 0.25rem 0; }
+#sent-text { font-weight: 600; }
+#sent-text:focus { outline: none; }
+#sent-text:focus-visible { outline: 3px solid #f59e0b; }
 
 button { font: inherit; min-height: 2.75rem; padding: 0.5rem 1rem; border: 2px solid var(--blue); border-radius: 4px; background: #fff; color: var(--blue); cursor: pointer; }
 button.primary { background: var(--blue); color: #fff; }
