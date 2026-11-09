@@ -86,10 +86,13 @@ test('districtAt uses the polygons, with holes', () => {
 });
 
 test('districtFor on the built outline files: one outline per miss, none outside every district (#104)', async () => {
+	// 44 Wilson Ave: once BK CD 1 is built (#126), its outline box also reaches it, so that outline
+	// is read and missed first. CI tests against the deployed data, which lags this branch, so ask the index.
+	const built = JSON.parse(readFileSync('static/data/lookup/index.json', 'utf8')).districts;
+	const wilson = ['data/lookup/index.json', ...(built['bk-cd1'] ? ['data/lookup/outline-bk-cd1.json'] : []), 'data/lookup/outline-bk-cd4.json'];
 	const cases = [
 		[-74.011421, 40.711541, 'mn-cd1', ['data/lookup/index.json', 'data/lookup/outline-mn-cd1.json']], // 185 Greenwich
-		// 44 Wilson Ave: BK CD 1's outline box also reaches it (#126), so that outline is read and missed first
-		[-73.929618, 40.702633, 'bk-cd4', ['data/lookup/index.json', 'data/lookup/outline-bk-cd1.json', 'data/lookup/outline-bk-cd4.json']],
+		[-73.929618, 40.702633, 'bk-cd4', wilson],
 		[-74.15, 40.58, null, ['data/lookup/index.json']] // Staten Island: no outline loaded at all
 	];
 	for (const [lon, lat, want, files] of cases) {
