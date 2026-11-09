@@ -82,7 +82,11 @@ test('keyboard only: answer an item, move on, and download a file that matches t
 	const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download my answers' }).click()]);
 	expect(dl.suggestedFilename()).toBe(`slam-review-cannabis-decision-trail-${first.batch_id}.json`);
 	const body = JSON.parse(readFileSync(/** @type {string} */ (await dl.path()), 'utf8'));
-	expect(Object.keys(body)).toEqual(['schema', 'tool', 'kind', 'page_url', 'website', 'credit_ok', 'contact', 'dataset', 'batch_id', 'answers']);
+	expect(Object.keys(body)).toEqual(['schema', 'tool', 'kind', 'page_url', 'website', 'credit_ok', 'client_id', 'contact', 'dataset', 'batch_id', 'answers']);
+	expect(body.client_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+	expect(await page.evaluate(() => localStorage.getItem('slam-review:client-id'))).toBe(body.client_id);
+	// never shown: not in the page's text or any attribute
+	expect(await page.evaluate((id) => document.documentElement.outerHTML.includes(id), body.client_id)).toBe(false);
 	expect(body).toMatchObject({
 		schema: 'betanyc-data-issue/1',
 		tool: 'slam',
@@ -197,6 +201,9 @@ test('send: one POST, then Send is gone until an answer changes; "Send again" af
 	await expect(page.locator('#sent-text')).toHaveText('Thanks — your answers for this batch were sent.');
 	expect(posts).toHaveLength(2);
 	expect(posts[1].body.answers).toEqual([{ item_id: first.item_ids[0], choice: 'cant_tell' }]);
+	// the same browser id on every send, kept across the reload
+	expect(posts[0].body.client_id).toMatch(/^[0-9a-f-]{36}$/);
+	expect(posts[1].body.client_id).toBe(posts[0].body.client_id);
 });
 
 test('send: a 429 says how long to wait from Retry-After, or an hour without it', async ({ page }) => {

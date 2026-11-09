@@ -19,6 +19,37 @@ export const BATCH_ID = /^[A-Za-z0-9_-]{1,64}$/;
 export const ITEM_ID = /^[A-Za-z0-9_.:-]{1,64}$/;
 export const IMAGE = /^img\/[A-Za-z0-9_.:-]{1,64}\.webp$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** client_id: a UUID from crypto.randomUUID() or 32 hex characters (contract amendment 2026-11-08). */
+export const CLIENT_ID = /^[A-Za-z0-9-]{16,64}$/;
+export const CLIENT_ID_KEY = 'slam-review:client-id';
+
+/**
+ * This browser's client_id: made once, kept in localStorage, never shown. It identifies a
+ * browser, not a person, so triage can keep only a browser's latest answers for a batch.
+ * Returns '' when the browser offers no secure random source.
+ * @param {{getItem(k: string): string | null, setItem(k: string, v: string): void} | null} storage
+ * @param {{randomUUID?: () => string, getRandomValues?: (a: Uint8Array) => Uint8Array} | undefined} cryptoObj
+ */
+export function getClientId(storage, cryptoObj) {
+	try {
+		const old = storage?.getItem(CLIENT_ID_KEY);
+		if (old && CLIENT_ID.test(old)) return old;
+	} catch {
+		/* storage off: make a new id for this page view */
+	}
+	let id = '';
+	if (typeof cryptoObj?.randomUUID === 'function') id = cryptoObj.randomUUID();
+	else if (typeof cryptoObj?.getRandomValues === 'function') {
+		id = Array.from(cryptoObj.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+	}
+	if (!CLIENT_ID.test(id)) return '';
+	try {
+		storage?.setItem(CLIENT_ID_KEY, id);
+	} catch {
+		/* not saved; still used for this page view */
+	}
+	return id;
+}
 
 /**
  * Trim and drop control characters except newline (the contract's normalization), then cut to
@@ -138,9 +169,9 @@ export function retryAfterMessage(header, now = Date.now()) {
  * The request body for the answers given so far, in the batch's item order.
  * Throws an Error with a plain-language message when the body would be invalid.
  * @param {{batchId: string, itemIds: string[], answers: Record<string, Answer>,
- *   contact?: Contact, creditOk?: boolean, website?: string}} input
+ *   contact?: Contact, creditOk?: boolean, website?: string, clientId?: string}} input
  */
-export function buildRequestBody({ batchId, itemIds, answers, contact = {}, creditOk = false, website = '' }) {
+export function buildRequestBody({ batchId, itemIds, answers, contact = {}, creditOk = false, website = '', clientId = '' }) {
 	if (!BATCH_ID.test(batchId)) throw new Error('This batch name is not valid.');
 	const list = normalizeAnswers(itemIds, answers);
 	if (list.length === 0) throw new Error('Answer at least one item first.');
@@ -157,6 +188,7 @@ export function buildRequestBody({ batchId, itemIds, answers, contact = {}, cred
 		website: String(website ?? ''),
 		credit_ok: creditOk === true
 	};
+	if (CLIENT_ID.test(clientId)) body.client_id = clientId;
 	if (name || email) {
 		/** @type {Contact} */
 		const c = {};

@@ -6,6 +6,7 @@ import {
 	answersFingerprint,
 	buildRequestBody,
 	canSend,
+	getClientId,
 	checkData,
 	downloadName,
 	randomBatch,
@@ -153,6 +154,21 @@ function renderFinish() {
 		: 'Sending from this page is not switched on yet. Download your answers and keep the file; whoever invited you to help will tell you where to send it.';
 }
 
+let cachedClientId = '';
+/** Made on first use and kept in localStorage; never displayed. */
+function clientId() {
+	if (!cachedClientId) {
+		let storage = null;
+		try {
+			storage = window.localStorage;
+		} catch {
+			/* storage blocked */
+		}
+		cachedClientId = getClientId(storage, window.crypto);
+	}
+	return cachedClientId;
+}
+
 function body() {
 	if (!batch) throw new Error('No batch.');
 	return buildRequestBody({
@@ -164,6 +180,7 @@ function body() {
 			email: /** @type {HTMLInputElement} */ ($('contact-email')).value
 		},
 		creditOk: /** @type {HTMLInputElement} */ ($('credit-ok')).checked,
+		clientId: clientId(),
 		website: /** @type {HTMLInputElement} */ ($('website')).value
 	});
 }

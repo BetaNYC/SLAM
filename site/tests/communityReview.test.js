@@ -12,6 +12,8 @@ import {
 	answersFingerprint,
 	canSend,
 	clean,
+	getClientId,
+	CLIENT_ID_KEY,
 	randomBatch,
 	retryAfterMessage,
 	storageKey,
@@ -19,7 +21,7 @@ import {
 } from '../static/review/review-core.js';
 
 const DIR = resolve('static/review');
-const TOP_KEYS = ['schema', 'tool', 'kind', 'page_url', 'website', 'credit_ok', 'contact', 'dataset', 'batch_id', 'answers'];
+const TOP_KEYS = ['schema', 'tool', 'kind', 'page_url', 'website', 'credit_ok', 'client_id', 'contact', 'dataset', 'batch_id', 'answers'];
 
 test('sending is off: ENDPOINT ships empty', () => {
 	assert.equal(ENDPOINT, '');
@@ -201,4 +203,38 @@ test('review.js has the frame guard and the sent-state handling', () => {
 	assert.match(js, /retryAfterMessage\(res\.headers\.get\('Retry-After'\)\)/);
 	assert.doesNotMatch(js, /few minutes/);
 	assert.match(js, /credentials: 'omit'/);
+});
+
+/** A stand-in for localStorage. */
+function store(/** @type {Record<string, string>} */ init = {}) {
+	const m = new Map(Object.entries(init));
+	return { m, getItem: (/** @type {string} */ k) => m.get(k) ?? null, setItem: (/** @type {string} */ k, /** @type {string} */ v) => void m.set(k, v) };
+}
+
+test('client_id: made once with randomUUID, kept, reused; hex fallback; refused when unusable', () => {
+	const st = store();
+	let calls = 0;
+	const c = { randomUUID: () => (calls++, '123e4567-e89b-42d3-a456-426614174000') };
+	assert.equal(getClientId(st, c), '123e4567-e89b-42d3-a456-426614174000');
+	assert.equal(st.m.get(CLIENT_ID_KEY), '123e4567-e89b-42d3-a456-426614174000');
+	assert.equal(getClientId(st, { randomUUID: () => 'other-other-other-other' }), '123e4567-e89b-42d3-a456-426614174000');
+	assert.equal(calls, 1);
+	const hex = getClientId(store(), { getRandomValues: (/** @type {Uint8Array} */ a) => a.fill(171) });
+	assert.equal(hex, 'ab'.repeat(16));
+	assert.equal(getClientId(store(), undefined), '');
+	// a tampered stored value is replaced, not sent
+	assert.equal(getClientId(store({ [CLIENT_ID_KEY]: '<script>' }), c), '123e4567-e89b-42d3-a456-426614174000');
+	// storage that throws still yields an id for this page view
+	const broken = { getItem: () => { throw new Error('off'); }, setItem: () => { throw new Error('off'); } };
+	assert.equal(getClientId(broken, c), '123e4567-e89b-42d3-a456-426614174000');
+});
+
+test('request body: client_id goes right after credit_ok, and only when valid', () => {
+	const base = { batchId: 'b01', itemIds: ['R1'], answers: { R1: { choice: 'matches' } } };
+	const b = buildRequestBody({ ...base, clientId: '123e4567-e89b-42d3-a456-426614174000', contact: { name: 'A' } });
+	assert.deepEqual(Object.keys(b), ['schema', 'tool', 'kind', 'page_url', 'website', 'credit_ok', 'client_id', 'contact', 'dataset', 'batch_id', 'answers']);
+	assert.equal(b.client_id, '123e4567-e89b-42d3-a456-426614174000');
+	assert.equal('client_id' in buildRequestBody({ ...base, clientId: 'short' }), false);
+	assert.equal('client_id' in buildRequestBody({ ...base, clientId: 'a b c d e f g h i j k' }), false);
+	assert.equal('client_id' in buildRequestBody(base), false);
 });
