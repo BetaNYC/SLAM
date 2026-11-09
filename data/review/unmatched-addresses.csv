@@ -1,9 +1,28 @@
 district,street,zip,status,geosearch_top_hit,sources,records
+bk-cd1,1 Messerole Ave,11222,low_confidence,"1 DEKALB AVENUE, Brooklyn, NY, USA",cannabis_license,1
+bk-cd1,1 TAVERN ON THE GREEN,10023,low_confidence,"TAVERN ON THE GREEN, New York, NY, USA",liquor_active,3
+bk-cd1,102A 102B Broadway,11249,low_confidence,"102 B'WAY, Brooklyn, NY, USA",liquor_pending,1
+bk-cd1,113 115 N 3RD AKA 186 BERRY ST,11211,low_confidence,"295 BERRY STREET, Brooklyn, NY, USA",liquor_active,1
+bk-cd1,285 289 KENT AVE AKA 31 S 2ND,11211,low_confidence,"289 KENT AVENUE, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd1,299301 GRAHAM AVENUE,11211,low_confidence,"565 GRAHAM AVENUE, Brooklyn, NY, USA",dining_out,1
+bk-cd1,402 12 MEEKER AVENUE,11222,low_confidence,"927 MEEKER AVENUE, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd1,41 43 45 S 3RD ST,11249,low_confidence,"45 SOUTH 3 STREET, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd1,413 BUSHWICH AVE,11206,low_confidence,"413 TUBMAN AVENUE, Brooklyn, NY, USA",liquor_active,1
+bk-cd1,52 N 11THST,11249,low_confidence,"52 NORTH ELLIOTT PLACE, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd1,63 65 GRAND ST,11211,low_confidence,"65 GRAND STREET, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd1,7 LEAF CLOVER 132 METROPOLITAN AVE,11249,low_confidence,"132 METROPOLITAN AVENUE, Brooklyn, NY, USA",cannabis_retail,1
 bk-cd4,181 SAINT NICOLAS AVENUE,11237,low_confidence,"181 ST MARK'S AVENUE, Brooklyn, NY, USA",liquor_active,1
 bk-cd9,347A 347B EMPIRE BLVD,11225,low_confidence,"347 EMPIRE BOULEVARD, Brooklyn, NY, USA",liquor_inactive,1
 bk-cd9,347A-347B Empire Blvd,11225,low_confidence,"347 EMPIRE BOULEVARD, Brooklyn, NY, USA",liquor_active,1
 bk-cd9,596 598 NEW YORK AVE,11225,low_confidence,"598 NEW YORK AVENUE, Brooklyn, NY, USA",liquor_active;liquor_inactive,2
 bk-cd9,65A-1 FENIMORE ST,11225,low_confidence,"171 FENIMORE STREET, Brooklyn, NY, USA",liquor_inactive,1
+bx-cd2,1016A WESTCHESTER AVE,10459,low_confidence,"2684 WESTCHESTER AVENUE, Bronx, NY, USA",liquor_inactive,1
+bx-cd2,1017 LEGGET AVE,10455,low_confidence,"1017 PENNYFIELD AVENUE, Bronx, NY, USA",liquor_inactive,1
+bx-cd2,1019 SIMPSON ST,10459,low_confidence,"1001 SIMPSON STREET, Bronx, NY, USA",liquor_inactive,1
+bx-cd2,625 WHITTER ST,10474,low_confidence,"625 COSTER STREET, Bronx, NY, USA",liquor_active,1
+bx-cd2,663 665 DAWSON AVE,10455,low_confidence,"665 DAWSON STREET, Bronx, NY, USA",liquor_inactive,1
+bx-cd2,770 HUNTS POINTS AVE,10474,low_confidence,"770 HUNTS POINT AVENUE, Bronx, NY, USA",liquor_inactive,1
+bx-cd2,933-A Avenue St John,10455,low_confidence,"82 REAR A A AVENUE, New York, NY, USA",liquor_active,1
 mn-cd1,110 CHAMBERS S,10007,low_confidence,"110 CHAMBERS STREET, New York, NY, USA",cannabis_retail,1
 mn-cd1,130 WILLIAMS ST,10038,low_confidence,"130 WILLIAMS PLACE, New York, NY, USA",liquor_inactive,1
 mn-cd1,133 Greenwich LLC,10006,low_confidence,"133 GREENWICH STREET, New York, NY, USA",liquor_active,1
@@ -15,3 +34,10 @@ mn-cd1,62 66 THOMAS ST AKA137 41DUANE,10007,low_confidence,"66 THOMAS STREET, Ne
 mn-cd1,825 Gresham Rd,10004,low_confidence,"920 GRESHAM ROAD, New York, NY, USA",liquor_active;liquor_pending,2
 mn-cd1,8789 GREENWICH STREET,10006,low_confidence,"37 GREENWICH STREET, New York, NY, USA",dining_out,1
 mn-cd1,GOVERNEUR LN SOUTH ST PIER 11,10007,low_confidence,"7430 PARK LA SOUTH, Woodhaven, NY, USA",liquor_active,4
+mn-cd6,1390 & 1/2 2ND AVE,10017,low_confidence,"1390 1/2 2 AVENUE, New York, NY, USA",liquor_inactive,1
+mn-cd6,25 WATERSIDE PL,10010,low_confidence,"25 WATERSIDE PLAZA, New York, NY, USA",liquor_active,1
+mn-cd6,2610 FDR DR,10010,low_confidence,"339 FDR DRIVE, New York, NY, USA",liquor_active,1
+mn-cd6,307 3RD AVE AKA 201 E 23RD ST,10010,low_confidence,"201 EAST 23 STREET, Brooklyn, NY, USA",liquor_inactive,1
+mn-cd6,645 E 2ND AVENUE,10016,low_confidence,"645 EAST 2 STREET, Brooklyn, NY, USA",liquor_inactive,1
+mn-cd6,719 2ND AVE-,10016,low_confidence,"719 2 AVENUE, New York, NY, USA",liquor_inactive,1
+mn-cd6,JOSEPH ABRAMOV 977 2ND AVE,10022,low_confidence,"977 2 AVENUE, New York, NY, USA",cannabis_retail,1
