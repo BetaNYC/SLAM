@@ -36,8 +36,8 @@ import{$ as e,E as t,G as n,H as r,N as i,O as a,Q as o,R as s,U as c,V as l,W a
 		data.ny.gov, places each record in today's community district lines, and saves it as web pages
 		and data files. It is hosted on GitHub Pages and is rebuilt from open data each time it is published. It is also rebuilt every night. It brings back
 		what boards used in the first SLAM (<a>#58</a>). It is a prototype: it is live
-		at slam.beta.nyc, and we are testing it with two pilot districts, Manhattan Community District 1
-		and Brooklyn Community District 4. An address on a district line is listed in both districts
+		at slam.beta.nyc, and we are testing it with three districts: Manhattan Community District 1,
+		Brooklyn Community District 4 and Brooklyn Community District 9. An address on a district line is listed in both districts
 		(<a>#88</a>), and the pipeline knows the 12 Joint Interest Areas, the parks and
 		airports outside every community district, so each can be listed as its own district when SLAM
 		covers the whole city (<a>#87</a>, <a>#93</a>).</p></section> <section aria-labelledby="ai-h" class="svelte-cwls5q"><h2 id="ai-h">How we used AI tools</h2> <p class="svelte-cwls5q">We are telling you this under <a href="https://beta.nyc/about/ai-policy">BetaNYC's AI policy</a>.</p> <p class="svelte-cwls5q"><strong>Writing code.</strong> BetaNYC staff built SLAM v2 with the help of Claude, an AI coding

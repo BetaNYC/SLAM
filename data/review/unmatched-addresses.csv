@@ -1,5 +1,9 @@
 district,street,zip,status,geosearch_top_hit,sources,records
 bk-cd4,181 SAINT NICOLAS AVENUE,11237,low_confidence,"181 ST MARK'S AVENUE, Brooklyn, NY, USA",liquor_active,1
+bk-cd9,347A 347B EMPIRE BLVD,11225,low_confidence,"347 EMPIRE BOULEVARD, Brooklyn, NY, USA",liquor_inactive,1
+bk-cd9,347A-347B Empire Blvd,11225,low_confidence,"347 EMPIRE BOULEVARD, Brooklyn, NY, USA",liquor_active,1
+bk-cd9,596 598 NEW YORK AVE,11225,low_confidence,"598 NEW YORK AVENUE, Brooklyn, NY, USA",liquor_active;liquor_inactive,2
+bk-cd9,65A-1 FENIMORE ST,11225,low_confidence,"171 FENIMORE STREET, Brooklyn, NY, USA",liquor_inactive,1
 mn-cd1,110 CHAMBERS S,10007,low_confidence,"110 CHAMBERS STREET, New York, NY, USA",cannabis_retail,1
 mn-cd1,130 WILLIAMS ST,10038,low_confidence,"130 WILLIAMS PLACE, New York, NY, USA",liquor_inactive,1
 mn-cd1,133 Greenwich LLC,10006,low_confidence,"133 GREENWICH STREET, New York, NY, USA",liquor_active,1
