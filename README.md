@@ -7,7 +7,7 @@ SLAM, the Street License and Activity Map, puts the open data a New York City co
 - **Detailed build notes:** [`PROTOTYPE.md`](PROTOTYPE.md), section by section, with the numbers from each run.
 - **Plans and work:** [epic #56](https://github.com/BetaNYC/SLAM/issues/56), [what v1 had, #58](https://github.com/BetaNYC/SLAM/issues/58), [citywide, #93](https://github.com/BetaNYC/SLAM/issues/93).
 - **The name:** SLAM began in 2018 as the SLA Mapper, named for the State Liquor Authority. In 2026 it became the Street License and Activity Map, because it now covers more than liquor licenses.
-- **The first SLAM (2018-2023)** lives on the `main` branch (`v2` is now the default branch), along with its leftover files in this branch (`src/`, `public/`, the root `package.json`). It ran on Carto, which is gone; v2 is `pipeline/` and `site/`.
+- **The first SLAM (2018-2023)** lives on the `main` branch (`v2` is now the default branch), Its old source (`src/`, `public/`) is kept in this branch for reference only; its build files were removed (#129). It ran on Carto, which is gone; v2 is `pipeline/` and `site/`.
 
 ## How it works
 
