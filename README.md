@@ -69,6 +69,27 @@ cd build && python3 -m http.server 4173 --bind 127.0.0.1
 
 `site/static/data/`, `site/build/` and `pipeline/.cache/` are not committed.
 
+## Traffic measurement (Google Analytics)
+
+The site adds the beta.nyc Google tag (`GT-MQ7Q7VP`) **only on `slam.beta.nyc`**: never on localhost, `vite preview`, the Playwright server or any other host. It works the way BoardStat 2.0 does, and the About page ("What we measure about visits") makes the same promise: Google never sees a street address, a search or coordinates. The code is `site/src/lib/analytics.js`, started from `afterNavigate` in `site/src/routes/+layout.svelte`.
+
+- Before the tag loads, and again before every page view, `page_location`, `page_referrer` and `page_title` are replaced with cleaned copies with `gtag('set', ...)`, so every event the tag sends uses them ([config reference](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)).
+  - **Every query parameter is dropped**: the address page's `?id=` (opaque, but it maps to a street address through the public data files) and its `?q=&m=` search note, and the map page's `?lon=&lat=`. The district stays, because it is in the path (`/mn-cd1/`).
+  - **The fragment is always dropped**: the map keeps its view (coordinates) and the selected address in the hash (`site/src/lib/mapState.js`).
+  - **Address pages** report as `/address/` with the fixed title `Address — SLAM v2 prototype`, because their real title is the street.
+  - Referrers from other sites are cut to their origin (`https://www.google.com/`).
+- The automatic page view is off (`send_page_view: false`). One cleaned `page_view` is sent by hand on the first load and on each client-side navigation. A change of the hash alone (the map moving, an in-page link) is not a page view.
+- SLAM sends no events of its own.
+- The address search sends what you type only to GeoSearch, with no referrer and no cookies (`site/src/lib/addressSearch.js`), and never to Google.
+
+**Settings only someone with access to the GA property can change.** These are Enhanced Measurement options on the beta.nyc web data stream ([Enhanced measurement events](https://support.google.com/analytics/answer/9216061)); code cannot turn them off:
+
+- **Page changes based on browser history events.** Google: "If Enhanced Measurement is enabled, Google Analytics will send page_view events based on browser history changes even if you set send_page_view: false. … To prevent page_view events from being sent due to history changes, you must also configure the Enhanced Measurement settings within your Google Analytics property" ([Measure pageviews](https://developers.google.com/analytics/devguides/collection/ga4/views?client_type=gtag)). It "listens for pushState, popState, and replaceState", which SvelteKit uses for every navigation and the map uses every time it moves. **Recommended: turn it off**, so the only page views are SLAM's cleaned ones, and the map is not counted as a page view each time it pans.
+- **Outbound clicks** report the address of a link to another site (`link_url`). Some SLAM links carry a location: Boundaries Map (`?lng=&lat=`), the SLA's LAMP map (`?center=`), DOB BIS (a building's BIN). **Recommended: turn it off for this stream**, or SLAM must change those links before the promise holds.
+- **Site search** fires on a `q` query parameter by default, and the address page's search note uses `?q=`. Turning it off, or renaming that parameter, keeps the search out of Google.
+
+Tests: `npm test` (`site/tests/analytics.test.js`) and `npm run test:a11y` (`site/e2e/analytics.spec.js`: on the test server no request goes to googletagmanager.com).
+
 ## Updating the data
 
 The workflow (`.github/workflows/v2-deploy.yml`) rebuilds and publishes the site on every push to `v2`, by hand from the Actions tab, and nightly at 10:17 UTC (about 5 to 6 am in New York). `v2` is the default branch, so the nightly run is on: it has run every morning since 2026-11-06 (#90). It needs no secrets; every source is open and keyless.

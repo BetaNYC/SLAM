@@ -48,6 +48,7 @@
 <nav class="toc" aria-label="On this page">
 	<ul>
 		<li><a href="#data-h">Where the data comes from</a></li>
+		<li><a href="#measure-h">What we measure about visits</a></li>
 		<li><a href="#history-h">History</a></li>
 		<li><a href="#ai-h">How we used AI tools</a></li>
 		<li><a href="#tools-h">Open-source tools</a></li>
@@ -99,7 +100,35 @@
 	</ul>
 	<p>
 		SLAM is a folder of web pages and data files. Nothing you type is sent anywhere except address
-		searches, which go to the City's GeoSearch service.
+		searches, which go to the City's GeoSearch service. No address you look up is sent to Google (see
+		<a href="#measure-h">What we measure about visits</a>).
+	</p>
+</section>
+
+<section aria-labelledby="measure-h">
+	<h2 id="measure-h">What we measure about visits</h2>
+	<p>
+		We want to know whether SLAM is useful, so we count visits with Google Analytics, through the same
+		Google tag the rest of beta.nyc uses. It tells us:
+	</p>
+	<ul>
+		<li>which SLAM pages and districts people look at, and that someone opened an address page (not which address);</li>
+		<li>the approximate area a visit comes from, worked out by Google from your internet address (IP address);</li>
+		<li>the kind of device and browser you use;</li>
+		<li>
+			whether you have been here before. Google Analytics sets cookies in your browser to tell returning
+			visitors apart. You can block or delete them in your browser settings.
+		</li>
+	</ul>
+	<p>
+		<strong>Addresses stay with you.</strong> The link to an address page carries a code for that address,
+		and the map's link carries its map position and the address you picked. We remove them before
+		anything is sent to Google. They are never part of what we measure. What you type into the search
+		box is never sent to Google at all.
+	</p>
+	<p>
+		We look at these numbers only in total, to decide what to improve. More detail is in BetaNYC's
+		<a href="https://www.beta.nyc/privacy-policy/">privacy policy</a>.
 	</p>
 </section>
 
