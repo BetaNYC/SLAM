@@ -1,0 +1,2532 @@
+[
+ {
+  "item_id": "09ea2489b152",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000288",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/09ea2489b152.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "500e2fe55dc7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000368",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/500e2fe55dc7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "52c026ebd4eb",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000423",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/52c026ebd4eb.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "18b736eb9375",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000840",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/18b736eb9375.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "4baf237e85c6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000649",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/4baf237e85c6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "55b66260acbc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000681",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/55b66260acbc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "87b81fbd120a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License or application number",
+  "value_read": "OCMCAURD-2022-000902",
+  "question": "Does the red-boxed row show this license or application number?",
+  "image": "img/87b81fbd120a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-100.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3c900bf55b83",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Town of Brunswick\nOpinion received: 2023-10-17\nLicense or application number: OCM-MICR-24-000066\nBusiness name: Budding Bliss\nBusiness address: 310 Bulson Rd Troy",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/3c900bf55b83.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-101_1.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "a3833a6edce9",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Town of Cortlandt\nOpinion received: 2023-11-01\nLicense or application number: OCM-CAURD-24-000104\nBusiness name: Kings Raw Property LLC\nBusiness address: 3006 E Main St Cortlandt",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/a3833a6edce9.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-101_1.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "559fa8e8ad84",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Town of Pound Ridge\nOpinion received: 2023-11-01\nLicense or application number: OCM-CAURD-24-000119\nBusiness name: SMMB, Inc\nBusiness address: 32 Westchester Ave Pound Ridge",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/559fa8e8ad84.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-101_1.pdf",
+  "pdf_page": 10
+ },
+ {
+  "item_id": "6dea579a9194",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Brooklyn Community Board 11\nOpinion received: 2023-11-17\nLicense or application number: OCMRETL-2023-001716\nBusiness name: Hudson Economics\nBusiness address: 1981 86th Street",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/6dea579a9194.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-101_1.pdf",
+  "pdf_page": 15
+ },
+ {
+  "item_id": "131e9d6b2e7d",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Manhattan Community Board 9\nOpinion received: 2023-11-27\nLicense or application number: OCM-RETL-24-000048\nBusiness name: Midnight Moon Inc\nBusiness address: 1536 Amsterdam Ave.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/131e9d6b2e7d.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-101_1.pdf",
+  "pdf_page": 20
+ },
+ {
+  "item_id": "9a8ecdf96a95",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-11-12\nSent to: City of Niagara Falls\nOpinion received: 2024-01-12\nLicense or application number: (none found)\nBusiness name: Carry-On Cannabis NY, LLC\nBusiness address: 8529 Niagara Falls Boulevard, Suite A",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/9a8ecdf96a95.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-109.pdf",
+  "pdf_page": 18
+ },
+ {
+  "item_id": "4c470a457e32",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: (none found)\nSent to: Bronx Community Board 2\nOpinion received: 2024-06-18\nLicense or application number: OCMRETL-2023-001345\nBusiness name: Garden Bliss LLC\nBusiness address: 1031 Southern Boulevard",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/4c470a457e32.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-109.pdf",
+  "pdf_page": 23
+ },
+ {
+  "item_id": "b69e0fafd653",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-11-12\nSent to: Staten Island Community Board 3\nOpinion received: 2024-05-31\nLicense or application number: OCM-CAURD-24-000169\nBusiness name: EASTERN HOLDINGS 88 LLC\nBusiness address: 4034 Hylan Blvd",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b69e0fafd653.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-113_0.pdf",
+  "pdf_page": 9
+ },
+ {
+  "item_id": "7738247249c1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-11-12\nSent to: Queens Community Board 9\nOpinion received: 2023-12-21\nLicense or application number: OCMRETL-2023-001433\nBusiness name: 10415 Jamaica LLC\nBusiness address: 104-15 Jamaica Avenue Richmond Hill",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/7738247249c1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-113_0.pdf",
+  "pdf_page": 11
+ },
+ {
+  "item_id": "0afa79a9e394",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: City of Rochester\nOpinion received: 2023-11-29\nLicense or application number: OCMRETL-2023-001981\nBusiness name: Benjamin E. Botach\nBusiness address: 35 Chestnut St.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/0afa79a9e394.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-113_0.pdf",
+  "pdf_page": 13
+ },
+ {
+  "item_id": "71273bdc33ec",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-12-10\nSent to: Manhattan Community Board 1\nOpinion received: 2023-12-28\nLicense or application number: OCMRETL-2023-001893\nBusiness name: Statis Holdings LLC\nBusiness address: 111 Fulton St.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/71273bdc33ec.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/12/ccb-resolution-2024-119.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "ba047ca96dff",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-12-10\nSent to: Manhattan Community Board 1\nOpinion received: 2023-12-28\nLicense or application number: OCMRETL-2023-001332\nBusiness name: Free Thinkers LLC\nBusiness address: 2 Coenties Slip New York",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/ba047ca96dff.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/12/ccb-resolution-2024-119.pdf",
+  "pdf_page": 10
+ },
+ {
+  "item_id": "2d500a16e9f2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-07-10\nSent to: Queens Community Board 10\nOpinion received: 2024-01-03\nLicense or application number: (none found)\nBusiness name: Vaporize Inc\nBusiness address: 124-20 Liberty Avenue Richmond Hill",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/2d500a16e9f2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/07/ccb-resolution-2024-81_0.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "6a841db3dfa9",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-07-10\nSent to: Brooklyn Community Board 10\nOpinion received: 2023-12-21\nLicense or application number: (none found)\nBusiness name: High of Brooklyn LLC\nBusiness address: 455 86th Street",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/6a841db3dfa9.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/07/ccb-resolution-2024-81_0.pdf",
+  "pdf_page": 10
+ },
+ {
+  "item_id": "1c264c0023d1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-08-06\nSent to: Queens Community Board 14\nOpinion received: 2023-11-29\nLicense or application number: (none found)\nBusiness name: Rockaway Moonshot, LLC\nBusiness address: 95-19 Rockaway Beach Blvd",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/1c264c0023d1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/08/ccb-resolution-2024-86_1.pdf",
+  "pdf_page": 9
+ },
+ {
+  "item_id": "18dd47c3589a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-08-06\nSent to: Village of Waverly\nOpinion received: 2023-10-31\nLicense or application number: (none found)\nBusiness name: NTNR Dispensary LLC\nBusiness address: 332 Broad St Waverly",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/18dd47c3589a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/08/ccb-resolution-2024-86_1.pdf",
+  "pdf_page": 11
+ },
+ {
+  "item_id": "e8d6440e86ce",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-08-06\nSent to: Queens Community Board 9\nOpinion received: 2023-12-21\nLicense or application number: (none found)\nBusiness name: Cannabis Creations Inc\nBusiness address: 119-26 Metropolitan Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e8d6440e86ce.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/08/ccb-resolution-2024-86_1.pdf",
+  "pdf_page": 13
+ },
+ {
+  "item_id": "8aced8a21757",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-08-06\nSent to: Queens Community Board 9\nOpinion received: 2023-12-21\nLicense or application number: (none found)\nBusiness name: Cannabis Creations Inc\nBusiness address: 119-26 Metropolitan Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/8aced8a21757.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/08/ccb-resolution-2024-86_1.pdf",
+  "pdf_page": 15
+ },
+ {
+  "item_id": "74aa3fb2f7f6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-09-10\nSent to: Brooklyn Community Board 13\nOpinion received: 2024-12-28\nLicense or application number: (none found)\nBusiness name: CBJ Retail LLC\nBusiness address: 1019 Surf Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/74aa3fb2f7f6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/09/ccb-resolution-2024-90_0.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "e2d1e40ca4c1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-09-10\nSent to: Manhattan Community Board 5\nOpinion received: 2023-07-17\nLicense or application number: OCM-CAURD-24-000049\nBusiness name: Gabriel Marin\nBusiness address: 958 6th Ave",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e2d1e40ca4c1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/09/ccb-resolution-2024-95_0.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "482fa19098c1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-09-10\nSent to: Town of Henrietta\nOpinion received: 2023-10-18\nLicense or application number: OCM-RETL-24-000079\nBusiness name: Misfits Dispensary R3 LLC\nBusiness address: 420 Jefferson Road",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/482fa19098c1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/09/ccb-resolution-2024-95_0.pdf",
+  "pdf_page": 15
+ },
+ {
+  "item_id": "3b03f3518063",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Queens Community Board 11\nOpinion received: 2024-02-12\nLicense or application number: OCMRETL-2023-001497\nBusiness name: JSE 26 Corp\nBusiness address: 245-02 Horace Harding Expy",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/3b03f3518063.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-99_1.pdf",
+  "pdf_page": 10
+ },
+ {
+  "item_id": "cba7309b26ab",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Queens Community Board 1\nOpinion received: 2023-11-22\nLicense or application number: OCMRETL-2023-001589\nBusiness name: SOSProServices (DBA Astoria Herb and Hive)\nBusiness address: 31-18 31st St Astoria",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/cba7309b26ab.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-99_1.pdf",
+  "pdf_page": 13
+ },
+ {
+  "item_id": "0f23273623a5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2024-10-10\nSent to: Queens Community Board 6\nOpinion received: 2024-02-12\nLicense or application number: OCMRETL-2023-002039\nBusiness name: 65-55 Woodhaven Licensing LLC\nBusiness address: 65-55 Woodhaven Boulevard Rego Park",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/0f23273623a5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/10/ccb-resolution-2024-99_1.pdf",
+  "pdf_page": 15
+ },
+ {
+  "item_id": "b5513f1a4516",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-02-14\nSent to: Bronx Community Board 6\nOpinion received: 2023-11-29\nLicense or application number: OCM-CAURD-24-000137\nBusiness name: Freshly Baked NYC d/b/a DNP-Z Inc\nBusiness address: 2375 Arthur Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b5513f1a4516.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/010-consideration-of-municipal-opinion-responses.pdf",
+  "pdf_page": 11
+ },
+ {
+  "item_id": "e40da5bdc4ee",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-02-14\nSent to: Manhattan Community Board 2\nOpinion received: 2023-12-01\nLicense or application number: OCM-CAURD-24-000132\nBusiness name: NC Accident Reports, LLC d/b/a Elevate Cannabis Soho\nBusiness address: 481 Broadway",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e40da5bdc4ee.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/010-consideration-of-municipal-opinion-responses.pdf",
+  "pdf_page": 13
+ },
+ {
+  "item_id": "dcd5488391cc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-02-14\nSent to: Bronx Community Board 9\nOpinion received: 2024-12-08\nLicense or application number: OCM-RETL-24-000185\nBusiness name: Satura Development Group\nBusiness address: 1561 Westchester Ave.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/dcd5488391cc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/010-consideration-of-municipal-opinion-responses.pdf",
+  "pdf_page": 15
+ },
+ {
+  "item_id": "e8d448c66416",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-04-24\nSent to: Bronx Community Board 1\nOpinion received: 2024-03-14\nLicense or application number: OCMMICR-2023-000135\nBusiness name: Milk Burgers Inc\nBusiness address: 148 Bruckner Blvd Bronx",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e8d448c66416.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/04/ccb-resolution-2025-26.pdf",
+  "pdf_page": 12
+ },
+ {
+  "item_id": "dc6e7329a63e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-04-24\nSent to: Staten Island Community Board 3\nOpinion received: 2024-11-01\nLicense or application number: OCMCAURD-2022-000560\nBusiness name: A Cannaful Life LLC\nBusiness address: 1547 Arthur Kill Road Staten Island",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/dc6e7329a63e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/04/ccb-resolution-2025-26.pdf",
+  "pdf_page": 14
+ },
+ {
+  "item_id": "50bad926b77e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-02-14\nSent to: Queens Community Board 11\nOpinion received: 2024-05-28\nLicense or application number: OCMCAURD-2022-000390\nBusiness name: Root 13, LLC\nBusiness address: 25306 Northern Blvd",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/50bad926b77e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-04.pdf",
+  "pdf_page": 9
+ },
+ {
+  "item_id": "c8f4f7c17fbc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-06-27\nSent to: City of Albany\nOpinion received: 2023-11-17\nLicense or application number: OCMRETL-2023-000681\nBusiness name: Sonirus Enterprises LLC\nBusiness address: 78 Southern Blvd Albany",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/c8f4f7c17fbc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/06/ccb-resolution-2025-42.pdf",
+  "pdf_page": 20
+ },
+ {
+  "item_id": "b63e66abd7ec",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-07-25\nSent to: Town of Brookhaven\nOpinion received: 2025-02-27\nLicense or application number: OCMRETL-2023-001808\nBusiness name: Small Leaf 79 LLC\nBusiness address: 2400 N. Ocean Ave.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b63e66abd7ec.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/07/ccb-resolution-2025-51_0.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "d122a72d4da3",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: (none found)\nLicense type: Adult-Use Distributor License\nBusiness name: Miss Perry Farms Processing Inc.",
+  "question": "This row has no number of its own. Does the red-boxed row show this license type and business name?",
+  "image": "img/d122a72d4da3.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/09/059-adult-use-applications-for-approval.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "8cd3fd455581",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-09-09\nSent to: Town of Babylon\nOpinion received: 2025-07-17\nLicense or application number: OCMMICR-2023-000446\nBusiness name: TW of NY Retail LLC\nBusiness address: 39-49 Allen Blvd.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/8cd3fd455581.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/09/059-adult-use-applications-for-approval.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "053489c87038",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-09-09\nSent to: City of Batavia\nOpinion received: 2025-07-02\nLicense or application number: OCMRETL-2023-001415\nBusiness name: Crystonio, LLC\nBusiness address: 230 W. Main Street Batavia",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/053489c87038.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/09/059-adult-use-applications-for-approval.pdf",
+  "pdf_page": 16
+ },
+ {
+  "item_id": "b556c9ed3fe4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-09-09\nSent to: Village of Hastings-on-Hudson\nOpinion received: 2023-10-12\nLicense or application number: OCMRETL-2023-000500\nBusiness name: The Highline Cannabis\nBusiness address: 45 Main St. Hastings-on-Hudson",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b556c9ed3fe4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/09/059-adult-use-applications-for-approval.pdf",
+  "pdf_page": 19
+ },
+ {
+  "item_id": "cf219f46a665",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2025-11-13\nSent to: Queens Community Board 4\nOpinion received: 2025-11-06\nLicense or application number: OCMRETL-2023-001215\nBusiness name: High Class Smokes Inc\nBusiness address: 8820 Roosevelt Ave",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/cf219f46a665.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/11/ccb-resolution-2025-77_1.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "10c0533fafec",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/10c0533fafec.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "17fce2b82ae1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/17fce2b82ae1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "51240546a368",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "TTT Extrac@ons No 2 LLC",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/51240546a368.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "93f03fc2d9c5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "Hi Inten@ons LLC",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/93f03fc2d9c5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "adf466154312",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/adf466154312.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "372bddb3d3b1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/372bddb3d3b1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "5f8e768c21a6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/5f8e768c21a6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "a7c00ff602a2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/a7c00ff602a2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "be7e0af757fc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "Green Mountain Exo@cs Processing LLC",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/be7e0af757fc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "f47bf1abacdf",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "License type",
+  "value_read": "Adult-Use Cul@vator License",
+  "question": "Does the red-boxed row show this license type, spelled exactly like this?",
+  "image": "img/f47bf1abacdf.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "b15c7aa7d1ff",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-02-05\nSent to: Queens Community Board 10\nOpinion received: 2025-01-07\nLicense or application number: OCMCAURDP-2024-000065\nBusiness name: Gaia Operations LLC\nBusiness address: 10412 Lefferts Blvd.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b15c7aa7d1ff.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-01.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "3b775df310da",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-03-05\nSent to: Manhattan Community Board 2\nOpinion received: 2025-11-21\nLicense or application number: OCMCAURDP-2024-000123\nBusiness name: Elise Pelka LLC d/b/a Flynnstoned Cannabis Company\nBusiness address: 388 West St.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/3b775df310da.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/03/ccb-resolution-2026-12.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "42919b3dc3d9",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-03-05\nSent to: Village of Warsaw\nOpinion received: 2026-01-14\nLicense or application number: OCM-RETL-24-000200\nBusiness name: Friends Vintage LLC\nBusiness address: 461-8 North Main Street",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/42919b3dc3d9.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/03/ccb-resolution-2026-13.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "e4ec35d53aa8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-04-02\nSent to: Bronx Community Board 10\nOpinion received: 2024-02-16\nLicense or application number: OCMRETL-2023-002224\nBusiness name: Melyne Inc.\nBusiness address: 3461 E. Tremont Ave.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e4ec35d53aa8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/04/ccb-resolution-2026-20_2.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3dd5cc3f8c51",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-04-02\nSent to: Town of Henrietta\nOpinion received: 2026-02-05\nLicense or application number: OCM-RETL-25-000328\nBusiness name: Astrid Holdings LLC\nBusiness address: 3300 West Henrietta Road",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/3dd5cc3f8c51.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/04/ccb-resolution-2026-21.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "b5dd9592930e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-04-02\nSent to: Brooklyn Community Board 13\nOpinion received: 2025-09-30\nLicense or application number: OCM-RETL-24-000019\nBusiness name: HighSential LLC\nBusiness address: 301 Brighton Beach Ave.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b5dd9592930e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/04/ccb-resolution-2026-22.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "fc460715cffa",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-05-07\nSent to: Manhattan Community Board Two\nOpinion received: (none found)\nLicense or application number: OCMRETL-2023-001155\nBusiness name: Upstate State Collective LLC\nBusiness address: 66 Jane St.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/fc460715cffa.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-26_0.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "35cf4914953a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "Cannabis Cousins Cul5va5on and Manufacturing, LLC",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/35cf4914953a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "5f2fca0c2abe",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "James H Garre] III Inc.",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/5f2fca0c2abe.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "7a2285c59705",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "S-Jam HandicraY Cannabis Co. Limited Liability Company",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/7a2285c59705.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "f586564304a4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "GiY Leaf 676 LLC",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/f586564304a4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "2d6096023f30",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-05-07\nSent to: Town of Riverhead\nOpinion received: (none found)\nLicense or application number: OCM-CAURD-24-000170\nBusiness name: Brian Stark Enterprises LLC\nBusiness address: 1086 Old Country Rd.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/2d6096023f30.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-29.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "b66ce0646b8e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-05-29\nSent to: Bronx Community Board Eight\nOpinion received: 2026-06-27\nLicense or application number: OCMCAURDP-2023-000137\nBusiness name: Empire Ex-Change LLC\nBusiness address: 574 W 235th St.",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/b66ce0646b8e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-33.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "e30cc50cf22d",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-05-29\nSent to: Staten Island Community Board Two\nOpinion received: (none found)\nLicense or application number: OCM-RETL-24-000114\nBusiness name: 960 Bloomingdale Road LLC\nBusiness address: 2059 Richmond Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/e30cc50cf22d.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-35.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "b6766fae5f92",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Business name",
+  "value_read": "PuV and Pump, L.L.C.",
+  "question": "Does the red-boxed row show this business name, spelled exactly like this?",
+  "image": "img/b6766fae5f92.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3826cad2cf1f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-08-06\nSent to: Queens Community Board Ten\nOpinion received: 2026-01-15\nLicense or application number: OCMRETL-2023-001011\nBusiness name: Krish Diya Corp.\nBusiness address: 92-06 Liberty Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/3826cad2cf1f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/08/ccb-resolution-2026-50_0.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "bc456ec30a97",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-08-06\nSent to: Brooklyn Community Board Seven\nOpinion received: 2025-12-03\nLicense or application number: OCMRETL-2023-001584\nBusiness name: City Dispensary, Inc.\nBusiness address: 4206 5th Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/bc456ec30a97.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/08/ccb-resolution-2026-50_0.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "6764bef4d637",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-08-06\nSent to: Brooklyn Community Board One\nOpinion received: 2025-11-21\nLicense or application number: OCMRETL-2023-001654\nBusiness name: Mikon LLC\nBusiness address: 38 Meserole Street",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/6764bef4d637.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/08/ccb-resolution-2026-50_0.pdf",
+  "pdf_page": 9
+ },
+ {
+  "item_id": "2ced582748fc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-08-06\nSent to: Queens Community Board Four\nOpinion received: 2024-01-17\nLicense or application number: OCMRETL-2023-001794\nBusiness name: Cream 4004 LLC\nBusiness address: 40-04 74th Street",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/2ced582748fc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/08/ccb-resolution-2026-50_0.pdf",
+  "pdf_page": 11
+ },
+ {
+  "item_id": "deefe84220a5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-08-06\nSent to: Queens Community Board 6\nOpinion received: (none found)\nLicense or application number: OCM-RETL-25-000373\nBusiness name: Times Square Shop Inc.\nBusiness address: 104-12 Metropolitan Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/deefe84220a5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/08/ccb-resolution-2026-51.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "f61a1fc7ce1c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-09-03\nSent to: Queens Community Board Nine\nOpinion received: 2026-04-20\nLicense or application number: OCMRETL-2023-001964\nBusiness name: Open Dove, LLC\nBusiness address: 119-07 Jamaica Avenue",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/f61a1fc7ce1c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/09/ccb-resolutioon-2026-59.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "f56d4ecdedab",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Letter details",
+  "value_read": "Letter date: 2026-10-01\nSent to: Staten Island Community Board Two\nOpinion received: 2026-04-22\nLicense or application number: OCMCAURDP-2026-000006\nBusiness name: Leafy Green, Inc.\nBusiness address: 250 Buel Ave., Unit 1A",
+  "question": "Does the letter inside the red box show these details? (\"(none found)\" means we found nothing for that line.)",
+  "image": "img/f56d4ecdedab.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/09/68-consideration-of-adult-use-applications-for-approval.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "9a53ca223988",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCMCULT-2023-000278\nLicense type: (none found)\nBusiness name: Gflower LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/9a53ca223988.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-109.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "595a2d310bd6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCMMICR-2023-000518\nLicense type: (none found)\nBusiness name: RETROZ LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/595a2d310bd6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/11/ccb-resolution-2024-109.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "f6ac9967f0ec",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCMPROC-2023-000285\nLicense type: Adult-Use Processor License\nBusiness name: Big Sky Ranch Holdings LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f6ac9967f0ec.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2024/04/ccb-resolution-adult-use-licenses-4-11-24.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "7dd41a354ab7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000159\nLicense type: Adult-Use Microbusiness License\nBusiness name: Pleasant View Harvest llc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7dd41a354ab7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/04/ccb-resolution-2025-28.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "14806d8958fe",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000171\nLicense type: Adult-Use Cultivator License\nBusiness name: urbanXtracts",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/14806d8958fe.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "1cf2c342e2aa",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000080\nLicense type: Adult-Use Cultivator License\nBusiness name: American Seed and Oil NY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1cf2c342e2aa.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "1e9de71023ee",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000145\nLicense type: Adult-Use Cultivator License\nBusiness name: Weaver Road Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1e9de71023ee.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "2fef1d8eb725",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000034\nLicense type: Adult-Use Cultivator License\nBusiness name: American Weed LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2fef1d8eb725.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "8f53801ea617",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000020\nLicense type: Adult-Use Cultivator License\nBusiness name: Descript LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8f53801ea617.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "ac3681efe737",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000175\nLicense type: Adult-Use Cultivator License\nBusiness name: Empire Hemp Co",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ac3681efe737.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "da761543d85e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000058\nLicense type: Adult-Use Cultivator License\nBusiness name: ReliefLeaf LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/da761543d85e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "eee091a24e7a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000034\nLicense type: Adult-Use Cultivator License\nBusiness name: American Weed LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/eee091a24e7a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "0e01fd0c9d58",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000089\nLicense type: Adult-Use Microbusiness License\nBusiness name: Michael D Warholic Jr",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0e01fd0c9d58.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "0e1f92910460",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000001\nLicense type: Adult-Use Microbusiness License\nBusiness name: Village Flower LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0e1f92910460.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "23a268e9bbeb",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000017\nLicense type: Adult-Use Microbusiness License\nBusiness name: LotusWorks Wellness Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/23a268e9bbeb.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "60bca0bc794f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000028\nLicense type: Adult-Use Microbusiness License\nBusiness name: Catskill Mountain Cannabis LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/60bca0bc794f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "8155321058ba",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000051\nLicense type: Adult-Use Distributor License\nBusiness name: Veterans Holdings Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8155321058ba.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "bcf63618e801",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000138\nLicense type: Adult-Use Distributor License\nBusiness name: E29 Labs Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/bcf63618e801.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "bf3077ed69fd",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000027\nLicense type: Adult-Use Distributor License\nBusiness name: Eco Leaf Logistics LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/bf3077ed69fd.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "c3069307effa",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000036\nLicense type: Adult-Use Distributor License\nBusiness name: Wepa Distributors llc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c3069307effa.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "d1a655d8c669",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000047\nLicense type: Adult-Use Distributor License\nBusiness name: SBCTC Production LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/d1a655d8c669.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "e68340f78061",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000030\nLicense type: Adult-Use Distributor License\nBusiness name: Reds Health LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/e68340f78061.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "efc13918bfce",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000020\nLicense type: Adult-Use Microbusiness License\nBusiness name: Highview Farms Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/efc13918bfce.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "f612d13b3708",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000027\nLicense type: Adult-Use Microbusiness License\nBusiness name: Green Tongue LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f612d13b3708.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "228442dcf963",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000131\nLicense type: Adult-Use Microbusiness License\nBusiness name: Grow 716 Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/228442dcf963.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "24133d267c50",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000164\nLicense type: Adult-Use Microbusiness License\nBusiness name: Bronx-Blenheim Benefit Corp.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/24133d267c50.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "2d79558137b2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000026\nLicense type: Adult-Use Processor License\nBusiness name: Reds Health LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2d79558137b2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "7d6883f338a7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000090\nLicense type: Adult-Use Microbusiness License\nBusiness name: Tap Root Family LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7d6883f338a7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "86b637471c49",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000106\nLicense type: Adult-Use Microbusiness License\nBusiness name: UpState Craft Cannabis LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/86b637471c49.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "b0ee5d89a722",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000099\nLicense type: Adult-Use Microbusiness License\nBusiness name: INDOGRO LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/b0ee5d89a722.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "1a5e2a221c5f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000164\nLicense type: Adult-Use Processor License\nBusiness name: HoneyPot AfterHours LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1a5e2a221c5f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "44d2ad603199",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000099\nLicense type: Adult-Use Processor License\nBusiness name: 2X Baked Llc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/44d2ad603199.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "5fa73ce43095",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000204\nLicense type: Adult-Use Processor License\nBusiness name: E29 Labs Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/5fa73ce43095.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "7b27ceab5ef5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000039\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Island Leaf, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7b27ceab5ef5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "7d1f12338b12",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000071\nLicense type: Adult-Use Processor License\nBusiness name: Sensa Laboratories LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7d1f12338b12.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "7e2c8b247cfc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000134\nLicense type: Adult-Use Processor License\nBusiness name: Cannacure NY INC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7e2c8b247cfc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "8ffcaccfaf6b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000050\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Hoosick Dispensary, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8ffcaccfaf6b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "aafd322cb147",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000118\nLicense type: Adult-Use Processor License\nBusiness name: MacGowan Ventures LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/aafd322cb147.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "ae767a5a80f8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000229\nLicense type: Adult-Use Processor License\nBusiness name: Adsomo Co",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ae767a5a80f8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "b56a38819b05",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000069\nLicense type: Adult-Use Processor License\nBusiness name: Veterans Holdings Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/b56a38819b05.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "f98aff9e5eb1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000081\nLicense type: Adult-Use Processor License\nBusiness name: NYHO Labs LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f98aff9e5eb1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "0bebc50fdc90",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000127\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: High of Brooklyn LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0bebc50fdc90.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "2185a88d974b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000014\nLicense type: Adult-Use Microbusiness License\nBusiness name: Olivia Malik",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2185a88d974b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "40c00844dfce",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000032\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: The Cannabis Spot Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/40c00844dfce.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "77da77ffe6f7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000156\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Dream Daze LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/77da77ffe6f7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "7c1d63a8cc44",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000209\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: SPS Enterprises LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7c1d63a8cc44.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "8d789c8853b1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000151\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Rockaway Moonshot LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8d789c8853b1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "ac59deb9f979",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000227\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Inside the Park Dispo, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ac59deb9f979.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/02/ccb-resolution-2025-05.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "673c47b97ed6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCMCAURDP-2025-000020\nLicense type: Conditional Adult-Use Retail Dispensary\nBusiness name: Cannabis Culture 1 LLC (dba Jackpot Daily)",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/673c47b97ed6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-68.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "65445667d3fc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000133\nLicense type: Adult-Use Cultivator License\nBusiness name: Java Sprouts LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/65445667d3fc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "8135418e86dc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-25-000193\nLicense type: Adult-Use Cultivator License\nBusiness name: Jack Bear Farm LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8135418e86dc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "c04b67830ddc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000163\nLicense type: Adult-Use Cultivator License\nBusiness name: Hempire Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c04b67830ddc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "e416a70a5aa5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000141\nLicense type: Adult-Use Cultivator License\nBusiness name: Stop 29 LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/e416a70a5aa5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "11343f97681f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000172\nLicense type: Adult-Use Cultivator License\nBusiness name: Honey & Gold Lifestyle LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/11343f97681f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "38a666cecdb5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000026\nLicense type: Adult-Use Cultivator License\nBusiness name: Earthborn Garden LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/38a666cecdb5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "572602b5eefb",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000187\nLicense type: Adult-Use Cultivator License\nBusiness name: HR BOTANICAL CULTIVATION LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/572602b5eefb.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "57bd2573aa38",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000288\nLicense type: Adult-Use Microbusiness License\nBusiness name: Christopher D Casacci",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/57bd2573aa38.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "b229d973e14a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000161\nLicense type: Adult-Use Microbusiness License\nBusiness name: Bossiee Budz LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/b229d973e14a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "cc23a03daa8f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000114\nLicense type: Adult-Use Microbusiness License\nBusiness name: Peregrine Toke LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/cc23a03daa8f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "fa363910a6a5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000184\nLicense type: Adult-Use Microbusiness License\nBusiness name: Flawless NY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/fa363910a6a5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "320f7deb8b07",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000085\nLicense type: Adult-Use Processor License\nBusiness name: Stop 30 LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/320f7deb8b07.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "4c9877d4f4ea",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000132\nLicense type: Adult-Use Microbusiness License\nBusiness name: Hazy Rafa LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4c9877d4f4ea.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "7c0d5b810487",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000294\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: IGAL CONSULTING INC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7c0d5b810487.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "a821d133872f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000183\nLicense type: Adult-Use Microbusiness License\nBusiness name: Growing Renaissance LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/a821d133872f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "ee34daafdb59",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000013\nLicense type: Adult-Use Microbusiness License\nBusiness name: Foggy Hill Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ee34daafdb59.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "f8cc5e71ba24",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000264\nLicense type: Adult-Use Microbusiness License\nBusiness name: Nickel City Wholesale Garden Supply",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f8cc5e71ba24.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "fa4c24dd28a7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000322\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: The Upscale Smoker LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/fa4c24dd28a7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "c1aa157c92aa",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RSCH-24-0003\nLicense type: Research License\nBusiness name: Daniela Vergara",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c1aa157c92aa.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/10/ccb-resolution-2025-69.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "757dd64a88ee",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCMRETL-2023-001412\nLicense type: AU Retail\nBusiness name: East End Ventures I LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/757dd64a88ee.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-87_0.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3d7d558ef730",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CAURD-24-000062\nLicense type: Conditional Adult-Use Retail Dispensary\nBusiness name: NYSE3AU-RETAIL INC (dba Silk Road NYC (formerly So Vapes & Accessories))",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3d7d558ef730.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-88.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "14beedacc504",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000277\nLicense type: Adult-Use Microbusiness License\nBusiness name: Puff Plaza LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/14beedacc504.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "2441145f177c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000181\nLicense type: Adult-Use Microbusiness License\nBusiness name: Stonewood Farm LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2441145f177c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "70dd428fbcea",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000303\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: 10613 Northern LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/70dd428fbcea.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "7991148ff23a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000242\nLicense type: Adult-Use Microbusiness License\nBusiness name: DANK VALLEY GROWERS LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7991148ff23a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "7f28f625aad0",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000322\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: The Upscale Smoker LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7f28f625aad0.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "0fbdddabe806",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000415\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: The Dispensary of CNY Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0fbdddabe806.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "2e294834308e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000171\nLicense type: Adult-Use Processor License\nBusiness name: Emerald Private Label Corp",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2e294834308e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "57d49f843863",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000096\nLicense type: Adult-Use Distributor License\nBusiness name: NOWAVE LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/57d49f843863.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "6f5da5b13b45",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000272\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: The Greener Mile LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/6f5da5b13b45.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "92f97bf0c133",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000020\nLicense type: Adult-Use Cul@vator License\nBusiness name: Descript LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/92f97bf0c133.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "d812b649984f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000181\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Cream Luxuries Astoria Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/d812b649984f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "da65b292c7d4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000093\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Oak Queens LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/da65b292c7d4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "074d4feed281",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000191\nLicense type: Adult-Use Processor License\nBusiness name: Gflower LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/074d4feed281.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "2d538b92d0fa",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000176\nLicense type: Adult-Use Microbusiness License\nBusiness name: Peconic Chronic INc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2d538b92d0fa.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "4a02468f6043",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000047\nLicense type: Adult-Use Processor License\nBusiness name: Omnium Health Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4a02468f6043.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "711c1675be64",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000031\nLicense type: Adult-Use Processor License\nBusiness name: Moby & Zeke LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/711c1675be64.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "c5887c921e58",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000285\nLicense type: Adult-Use Processor License\nBusiness name: CannafarmsNY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c5887c921e58.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "e5bcb48d5bdb",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000215\nLicense type: Adult-Use Processor License\nBusiness name: The High Priestess Wellness Co Incorporated",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/e5bcb48d5bdb.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "f94b6b28f8c8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000243\nLicense type: Adult-Use Microbusiness License\nBusiness name: Excelsior Legacy LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f94b6b28f8c8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2025/12/ccb-resolution-2025-89.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "14b4ff95bdd2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-25-000223\nLicense type: Adult-Use Cultivator License\nBusiness name: BAKED BY MARY JANE LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/14b4ff95bdd2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "1836b92debc8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-25-000202\nLicense type: Adult-Use Cultivator License\nBusiness name: Robert L Ellis",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1836b92debc8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "2239a9fa537a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000053\nLicense type: Adult-Use Cultivator License\nBusiness name: Empire Agricultural Services, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2239a9fa537a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "3dc43a50859c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-25-000220\nLicense type: Adult-Use Cultivator License\nBusiness name: S&S Cultivation INC.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3dc43a50859c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "4517c266fada",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000127\nLicense type: Adult-Use Cultivator License\nBusiness name: Plants You Can Feel LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4517c266fada.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "62b4fea0774c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000043\nLicense type: Adult-Use Distributor License\nBusiness name: Omnium Health Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/62b4fea0774c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "cbb92714077e",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000152\nLicense type: Adult-Use Cultivator License\nBusiness name: Lunulata LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/cbb92714077e.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 2
+ },
+ {
+  "item_id": "0ad3e4293c92",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000191\nLicense type: Adult-Use Distributor License\nBusiness name: The High Priestess Wellness Co Incorporated",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0ad3e4293c92.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "1ed1eec50331",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000034\nLicense type: Adult-Use Microbusiness License\nBusiness name: Rakim Hamilton LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1ed1eec50331.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "232ab0b6dde0",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000214\nLicense type: Adult-Use Distributor License\nBusiness name: CannafarmsNY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/232ab0b6dde0.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "8809c9206ef2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000154\nLicense type: Adult-Use Distributor License\nBusiness name: Lunu Distribution LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8809c9206ef2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "897832bcb7f2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000032\nLicense type: Adult-Use Microbusiness License\nBusiness name: New Roots Gardens LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/897832bcb7f2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "ab8d00182043",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000056\nLicense type: Adult-Use Microbusiness License\nBusiness name: Erie Side Farms, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ab8d00182043.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "c4d1e2923570",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000199\nLicense type: Adult-Use Distributor License\nBusiness name: TISSA LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c4d1e2923570.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "e4655e391abf",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000154\nLicense type: Adult-Use Distributor License\nBusiness name: Lunu Distribution LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/e4655e391abf.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "129fcafdaee0",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000125\nLicense type: Adult-Use Microbusiness License\nBusiness name: S-Jam Handicraft Cannabis Co. Limited Liability Company",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/129fcafdaee0.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3c9fe9c13c67",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000083\nLicense type: Adult-Use Microbusiness License\nBusiness name: Hop-n-Hemp Tea Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3c9fe9c13c67.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "4c89270de6bc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000135\nLicense type: Adult-Use Microbusiness License\nBusiness name: Goatwell Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4c89270de6bc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "5a749dcb0f62",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000178\nLicense type: Adult-Use Microbusiness License\nBusiness name: Dream Orchard LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/5a749dcb0f62.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "8eed1d731334",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000115\nLicense type: Adult-Use Microbusiness License\nBusiness name: Jeanette M Miller",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8eed1d731334.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "a69451a253e3",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000164\nLicense type: Adult-Use Microbusiness License\nBusiness name: Bronx-Blenheim Benefit Corp",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/a69451a253e3.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "2253bb1c10e4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000184\nLicense type: Adult-Use Microbusiness License\nBusiness name: Flawless NY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2253bb1c10e4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "3501ab4ea127",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000192\nLicense type: Adult-Use Microbusiness License\nBusiness name: NMG SERVICES INC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3501ab4ea127.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "3f0ce2fb347b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000238\nLicense type: Adult-Use Microbusiness License\nBusiness name: DAISEYS LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3f0ce2fb347b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 5
+ },
+ {
+  "item_id": "41d9313c92e8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000241\nLicense type: Adult-Use Microbusiness License\nBusiness name: Birch & Bloom LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/41d9313c92e8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "4757ccb524b6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000247\nLicense type: Adult-Use Microbusiness License\nBusiness name: Tartan Ridge Farm LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4757ccb524b6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "bbff11f9bd1f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000285\nLicense type: Adult-Use Microbusiness License\nBusiness name: Zwarte Creek Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/bbff11f9bd1f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "c3bda73f6710",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000277\nLicense type: Adult-Use Microbusiness License\nBusiness name: Puff Plaza LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c3bda73f6710.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "44e15127fab4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000179\nLicense type: Adult-Use Processor License\nBusiness name: Lunulata LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/44e15127fab4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "6d6993fd7493",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000300\nLicense type: Adult-Use Microbusiness License\nBusiness name: GRUB BUD LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/6d6993fd7493.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "7a25e886cf0f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000302\nLicense type: Adult-Use Microbusiness License\nBusiness name: FarmOn! Foundation, Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7a25e886cf0f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "89a07d3338e4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000117\nLicense type: Adult-Use Processor License\nBusiness name: Pre Emption Road Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/89a07d3338e4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "8a8914c5f24f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000310\nLicense type: Adult-Use Processor License\nBusiness name: TISSA LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8a8914c5f24f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "fbf0aee76b0d",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000253\nLicense type: Adult-Use Processor License\nBusiness name: Honest Pharmco Inc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/fbf0aee76b0d.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 7
+ },
+ {
+  "item_id": "7aa2fc231b7a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000314\nLicense type: Adult-Use Processor License\nBusiness name: Robert L Ellis",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7aa2fc231b7a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "954cf9c0aacd",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000314\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: 3 Guys Canna LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/954cf9c0aacd.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "9e3ac38e1815",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000406\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Green Galore LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/9e3ac38e1815.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "b20790816fc1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000315\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Joint Venture 1111 LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/b20790816fc1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/02/ccb-resolution-2026-02.pdf",
+  "pdf_page": 8
+ },
+ {
+  "item_id": "99bbb8dabce0",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000030\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Urban Pulse LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/99bbb8dabce0.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/04/ccb-resolution-2026-21.pdf",
+  "pdf_page": 6
+ },
+ {
+  "item_id": "026ae939d454",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000022\nLicense type: AU Retail\nBusiness name: 7420 Utrecht LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/026ae939d454.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/04/ccb-resolution-2026-22.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "0f27a724264f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000045\nLicense type: Adult-Use Processor License\nBusiness name: Tadt Services LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0f27a724264f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "2ab69611d10c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000117\nLicense type: Adult-Use Microbusiness License\nBusiness name: Fields of Dreams of NY LTD",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/2ab69611d10c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "3b6a41454397",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000040\nLicense type: Adult-Use Microbusiness License\nBusiness name: Harlem Blossoms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3b6a41454397.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "4463626d39e6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-26-000221\nLicense type: Adult-Use Distributor License\nBusiness name: NanoCann Independent Research LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4463626d39e6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "528c86d21e14",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000102\nLicense type: Adult-Use Microbusiness License\nBusiness name: Upstate Haze LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/528c86d21e14.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "5e022573b9d5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000191\nLicense type: Adult-Use Cul5vator License\nBusiness name: Samrah LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/5e022573b9d5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "6676b941b88c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000247\nLicense type: Adult-Use Processor License\nBusiness name: TT Enterprises 1 LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/6676b941b88c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "6d41edab221a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000015\nLicense type: Adult-Use Processor License\nBusiness name: Green Mountain Organics Processing LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/6d41edab221a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "7f17b4799ca4",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000129\nLicense type: Adult-Use Microbusiness License\nBusiness name: CalmUnity Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7f17b4799ca4.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "8c0a767a9ce8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000219\nLicense type: Adult-Use Microbusiness License\nBusiness name: Erik J Peterson",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8c0a767a9ce8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "8f173aba10e0",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000145\nLicense type: Adult-Use Microbusiness License\nBusiness name: Myrkanna, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8f173aba10e0.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "b9aec12652fe",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000098\nLicense type: Adult-Use Processor License\nBusiness name: Bohemia Manufacturer, Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/b9aec12652fe.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "c02f1bade9f2",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000193\nLicense type: Adult-Use Distributor License\nBusiness name: SHOKi Beverages Corp.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c02f1bade9f2.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "ccc49d27623c",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-25-000139\nLicense type: Adult-Use Distributor License\nBusiness name: Bohemia Manufacturer, Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ccc49d27623c.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "d485c0f4ef10",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000020\nLicense type: Adult-Use Processor License\nBusiness name: JRS Naturals",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/d485c0f4ef10.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "ea44abe88a52",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-DIST-24-000109\nLicense type: Adult-Use Distributor License\nBusiness name: McPike Family Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ea44abe88a52.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "1528da817a9b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-26-000475\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: GREEN FLOWER WELLNESS 7 LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1528da817a9b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "70adca660918",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000261\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: L A FFOCA LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/70adca660918.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/05/ccb-resolution-2026-27_0.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "060c49d2c886",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000134\nLicense type: Adult-Use Microbusiness License\nBusiness name: Grateful Valley Farm, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/060c49d2c886.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "0b0c5e1d4adc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000021\nLicense type: Adult-Use Microbusiness License\nBusiness name: NY Danksters LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/0b0c5e1d4adc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "20eae22ec87b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000138\nLicense type: Adult-Use Microbusiness License\nBusiness name: Orgaceuticals NY LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/20eae22ec87b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "26de5e0c0a20",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000053\nLicense type: Adult-Use Microbusiness License\nBusiness name: Amsterdam Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/26de5e0c0a20.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "28ecdd0ced66",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000165\nLicense type: Adult-Use Microbusiness License\nBusiness name: Weed Eater International llc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/28ecdd0ced66.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "3da08b081f23",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000022\nLicense type: Adult-Use Microbusiness License\nBusiness name: Roco Chuckles LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3da08b081f23.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "44a8bab8bff1",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-26-000243\nLicense type: Adult Use Cultivator\nBusiness name: CHECKOUT NUGG LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/44a8bab8bff1.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "602ef1ea965b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000104\nLicense type: Adult-Use Microbusiness License\nBusiness name: Northern Lights of Niagara, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/602ef1ea965b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "6388e28ba080",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-CULT-24-000075\nLicense type: Adult Use Cultivator\nBusiness name: Pre Emption Road Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/6388e28ba080.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "82593504df1b",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000143\nLicense type: Adult-Use Microbusiness License\nBusiness name: Taliaferro Farm Store LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/82593504df1b.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "ea1ec2cd6b95",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000127\nLicense type: Adult-Use Microbusiness License\nBusiness name: Growing Heart Greens LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ea1ec2cd6b95.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "ec714e3118bb",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000091\nLicense type: Adult-Use Microbusiness License\nBusiness name: Bunker's Hemp LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/ec714e3118bb.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 3
+ },
+ {
+  "item_id": "06472dc1c48d",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000238\nLicense type: Adult-Use Microbusiness License\nBusiness name: DAISEYS LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/06472dc1c48d.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "14c3d643fee5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000071\nLicense type: Adult Use Processor\nBusiness name: Sensa Laboratories, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/14c3d643fee5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "1528293523d5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000365\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Green Heights BK Inc.",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1528293523d5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "1faf47cc46c8",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000180\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: DTPFF Enterprises LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/1faf47cc46c8.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "36530716472a",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000323\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Copper City Bud LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/36530716472a.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "3f9402e508b7",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000248\nLicense type: Adult-Use Microbusiness License\nBusiness name: Innocence Cannabis LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/3f9402e508b7.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "403bd15b4a09",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000206\nLicense type: Adult-Use Microbusiness License\nBusiness name: The Peace King LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/403bd15b4a09.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "4e8f95120966",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000011\nLicense type: Adult Use Processor\nBusiness name: Opera Antefix 2 llc",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/4e8f95120966.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "62697accbf28",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000183\nLicense type: Adult-Use Microbusiness License\nBusiness name: Growing Renaissance LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/62697accbf28.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "7d493b058bb6",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-24-000190\nLicense type: Adult-Use Microbusiness License\nBusiness name: HempLocks, LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/7d493b058bb6.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "8413eb2cd855",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-25-000300\nLicense type: Adult Use Processor\nBusiness name: OUTTHEMIX LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/8413eb2cd855.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "88f58fef9a4d",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-25-000435\nLicense type: Adult-Use Retail Dispensary License\nBusiness name: Luminare LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/88f58fef9a4d.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "99fe6e90d222",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000245\nLicense type: Adult-Use Microbusiness License\nBusiness name: Janes Garden LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/99fe6e90d222.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "9d166a6cae7f",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-26-000321\nLicense type: Adult-Use Microbusiness License\nBusiness name: Hollis T Fitch",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/9d166a6cae7f.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "c4c335741260",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000115\nLicense type: Adult Use Processor\nBusiness name: TWO PUFFS AND PASS LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/c4c335741260.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "cea0e727a2fc",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-MICR-25-000278\nLicense type: Adult-Use Microbusiness License\nBusiness name: Blackrabbit Farms LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/cea0e727a2fc.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "f9fda569ccf5",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-PROC-24-000005\nLicense type: Adult Use Processor\nBusiness name: PECONIC GROWERS LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/f9fda569ccf5.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-44.pdf",
+  "pdf_page": 4
+ },
+ {
+  "item_id": "693d69be8b56",
+  "dataset": "cannabis-decision-trail",
+  "field_label": "Table row",
+  "value_read": "License or application number: OCM-RETL-24-000127\nLicense type: Retail\nBusiness name: High of Brooklyn LLC",
+  "question": "Does the red-boxed row show all three of these, spelled exactly like this?",
+  "image": "img/693d69be8b56.webp",
+  "source_pdf_url": "https://cannabis.ny.gov/system/files/documents/2026/07/ccb-resolution-2026-45_0.pdf",
+  "pdf_page": 4
+ }
+]

@@ -1,0 +1,77 @@
+/* Community review page. Same palette as the rest of SLAM (src/routes/app.css): BetaNYC Blue
+   #2359a8, body text #414141, background blue #eef4ff, border gray #949494, amber focus ring.
+   Mobile first; nothing loads from another site. */
+:root {
+	--blue: #2359a8;
+	--ink: #414141;
+	--line: #949494;
+	--bg-soft: #eef4ff;
+	font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+	color: var(--ink);
+	line-height: 1.5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-size: 1.0625rem; }
+a { color: var(--blue); }
+:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+[hidden] { display: none !important; }
+.wrap { max-width: 46rem; margin: 0 auto; padding: 0 1rem; }
+.skip { position: absolute; left: -9999px; top: 0; background: var(--blue); color: #fff; padding: 0.5rem 1rem; z-index: 10; }
+.skip:focus { left: 0.5rem; }
+header.site { background: var(--blue); color: #fff; padding: 0.75rem 1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+header.site a { color: #fff; }
+header.site .brand { font-weight: 700; font-size: 1.25rem; text-decoration: none; }
+header.site .tag { font-size: 0.875rem; background: #fff; color: var(--blue); padding: 0.1rem 0.5rem; border-radius: 3px; }
+main { padding-top: 0.5rem; padding-bottom: 2rem; }
+h1 { font-size: 1.5rem; margin: 0.5rem 0; }
+h1:focus { outline: none; }
+h1:focus-visible { outline: 3px solid #f59e0b; }
+h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; }
+h3 { font-size: 1rem; margin: 1rem 0 0.25rem; }
+.status:empty { display: none; }
+.status { background: #fff7e0; border-left: 4px solid #b45309; padding: 0.5rem 0.75rem; }
+.note { background: var(--bg-soft); border-left: 4px solid var(--blue); padding: 0.5rem 0.75rem; }
+.muted { color: var(--ink); font-size: 0.95rem; }
+.guide { padding-left: 1.2rem; }
+.guide li { margin: 0.35rem 0; }
+.batch-line { font-weight: 600; }
+.sent p { margin: 0.25rem 0; }
+#sent-text { font-weight: 600; }
+#sent-text:focus { outline: none; }
+#sent-text:focus-visible { outline: 3px solid #f59e0b; }
+
+button { font: inherit; min-height: 2.75rem; padding: 0.5rem 1rem; border: 2px solid var(--blue); border-radius: 4px; background: #fff; color: var(--blue); cursor: pointer; }
+button.primary { background: var(--blue); color: #fff; }
+button:disabled { border-color: var(--line); color: #595959; background: #f2f2f2; cursor: not-allowed; }
+button.link-button { border: 0; background: none; padding: 0.25rem 0; min-height: 2.75rem; text-decoration: underline; }
+
+.progress-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+progress { flex: 1 1 8rem; height: 0.75rem; accent-color: var(--blue); }
+
+.page-image { margin: 0.5rem 0; }
+.image-box { border: 1px solid var(--line); background: #fff; overflow: auto; max-height: 70vh; }
+.image-box img { display: block; width: 100%; height: auto; }
+.image-box.larger img { width: auto; max-width: none; }
+.page-image figcaption { font-size: 0.95rem; }
+
+.read-h { margin-top: 1rem; }
+.value-read { white-space: pre-line; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1rem; background: var(--bg-soft); border: 1px solid var(--line); padding: 0.6rem 0.75rem; overflow-wrap: anywhere; }
+
+fieldset.choices { border: 0; padding: 0; margin: 1rem 0; }
+fieldset.choices legend { font-weight: 700; margin-bottom: 0.5rem; padding: 0; }
+label.choice { display: flex; align-items: center; gap: 0.6rem; min-height: 2.75rem; padding: 0.4rem 0.75rem; margin: 0.35rem 0; border: 2px solid var(--line); border-radius: 4px; cursor: pointer; }
+label.choice:has(input:checked) { border-color: var(--blue); background: var(--bg-soft); font-weight: 600; }
+label.choice:focus-within { outline: 3px solid #f59e0b; outline-offset: 2px; }
+label.choice input { width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--blue); }
+
+.field label { display: block; font-weight: 600; margin-bottom: 0.25rem; }
+.field input[type=text], .field input[type=email], .field textarea { width: 100%; font: inherit; padding: 0.5rem; border: 1px solid #767676; border-radius: 4px; }
+.field.check { display: flex; align-items: flex-start; gap: 0.5rem; }
+.field.check label { font-weight: 400; margin: 0; }
+.field.check input { width: 1.25rem; height: 1.25rem; margin-top: 0.2rem; }
+.nav { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; margin-top: 1rem; }
+
+/* Honeypot: off screen for people and screen readers (aria-hidden, no tab stop). */
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+footer.site { border-top: 1px solid var(--line); font-size: 0.9rem; padding-bottom: 2rem; margin-top: 2rem; }
