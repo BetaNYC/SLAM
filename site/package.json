@@ -5,6 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
+		"whats-changed": "python3 ../scripts/whats_changed.py render ../WHATS-CHANGED.md --format fragment --no-h1 --repo-url https://github.com/BetaNYC/SLAM --out src/lib/whats-changed.html",
+		"prebuild": "npm run whats-changed",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
