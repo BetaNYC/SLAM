@@ -101,11 +101,16 @@ test('whats-changed: filter controls and permalinks are at least 44px tall', asy
 	}
 });
 
-test('whats-changed: no sideways scroll at 320px wide', async ({ page }) => {
+test('whats-changed: no sideways scroll at 320px wide, with default fonts and a wide one', async ({ page }) => {
+	// Linux CI fonts run wider than macOS ones (the header nav overflowed by 5px there, PR #131),
+	// so the check also runs with Verdana/DejaVu Sans, wide fonts on either system.
 	await page.setViewportSize({ width: 320, height: 800 });
 	await page.goto(PATH);
-	const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
-	expect(scroll).toBeLessThanOrEqual(width);
+	for (const wide of [false, true]) {
+		if (wide) await page.addStyleTag({ content: '* { font-family: Verdana, "DejaVu Sans", sans-serif !important; }' });
+		const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
+		expect(scroll, wide ? 'with a wide font' : 'with default fonts').toBeLessThanOrEqual(width);
+	}
 });
 
 for (const p of pages()) {

@@ -41,7 +41,8 @@ footer.site { border-top: 1px solid var(--line); font-size: 0.85rem; color: var(
 footer.site h2 { font-size: 1rem; }
 .sources { padding-left: 1.1rem; }
 .muted { color: var(--muted); }
-header.site .site-nav { margin-left: auto; display: flex; gap: 1rem; }
+/* Wraps at 320px: with wider fonts (Linux CI) the four links run past the screen edge. */
+header.site .site-nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; min-width: 0; }
 header.site .site-nav a { text-decoration: none; font-weight: 600; }
 header.site .site-nav a:hover, header.site .site-nav a:focus, header.site .site-nav a[aria-current='page'] { text-decoration: underline; }
 .note { background: var(--bg-soft); border-left: 4px solid var(--blue); padding: 0.5rem 0.75rem; font-size: 0.9rem; }
