@@ -1,0 +1,284 @@
+import{t as e}from"../chunks/DK3Fl9T5.js";import{D as t,H as n,K as r,W as i,g as a,k as o,m as s,z as c}from"../chunks/Cxg9uTOd.js";var l=e({csr:()=>!1,prerender:()=>!0}),u=`<div class="whats-changed" data-whats-changed>
+<style>
+.whats-changed{color:#414141;font-size:1.0625rem;line-height:1.76;max-width:750px;overflow-wrap:anywhere}
+.whats-changed a{color:#2359a8;text-decoration:underline}
+.whats-changed a:focus-visible,.whats-changed input:focus-visible{outline:3px solid #2359a8;outline-offset:2px}
+.whats-changed fieldset{border:1px solid #949494;border-radius:4px;margin:1.5rem 0 .5rem;padding:.25rem 1rem .5rem}
+.whats-changed legend{font-weight:700;padding:0 .25rem}
+.whats-changed .wc-option{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;margin-right:1.25rem;cursor:pointer}
+.whats-changed .wc-option input{width:1.25rem;height:1.25rem;margin:0;accent-color:#2359a8}
+.whats-changed .wc-status{font-style:italic}
+.whats-changed .wc-entry{border-top:1px solid #949494;padding:1.5rem 0 .5rem}
+.whats-changed .wc-entry[hidden]{display:none}
+.whats-changed .wc-entry h2{font-size:1.5rem;line-height:1.35;margin:0 0 .25rem}
+.whats-changed .wc-meta{margin:0 0 .75rem}
+.whats-changed .wc-tag{display:inline-block;border:1px solid #414141;border-radius:4px;padding:0 .5rem;margin:0 .375rem .25rem 0;line-height:1.6}
+.whats-changed .wc-tag-correction{border:2px solid #2359a8;color:#2359a8;font-weight:700}
+.whats-changed .wc-old-numbers{background:#EEF4FF;border-left:4px solid #2359a8;padding:.75rem 1rem;margin:1rem 0}
+.whats-changed .wc-old-numbers p{margin:0}
+.whats-changed .wc-permalink a{display:inline-block;min-height:44px;line-height:44px}
+.whats-changed .wc-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media (max-width:600px){.whats-changed .wc-entry h2{font-size:1.25rem}}
+</style>
+<div class="wc-intro">
+<p>This page lists the changes to SLAM, the Street License and Activity Map, that a reader would notice: new pages and maps, new data, data fixes, and corrections when we published something wrong. Newest first. Routine data refreshes are not listed. SLAM began in 2018 as the SLA Mapper; entries before November 2026 are about that first SLAM, and they are one entry per release, taken from its change log, commits and issues.</p>
+<ul><li><strong>History begins:</strong> 2018-07-11, the first version in the first SLAM&#x27;s change log. Work on SLAM started on June 29, 2018. Dates before November 2026 are the day the change log or the commit recorded the change. Corrections made before 2026 may be missing.</li><li><strong>Data refresh:</strong> nightly from NYC Open Data and data.ny.gov, since November 6, 2026</li></ul>
+<p>To report a bug in SLAM, or to ask for a new feature, <a href="https://github.com/BetaNYC/SLAM/issues">open an issue on GitHub</a>.</p>
+</div>
+<div class="wc-filters" hidden>
+<fieldset>
+<legend>Show changes to</legend>
+<label class="wc-option"><input type="checkbox" name="wc-tag" value="Site" checked> Site</label>
+<label class="wc-option"><input type="checkbox" name="wc-tag" value="Data" checked> Data</label>
+<label class="wc-option"><input type="checkbox" name="wc-corrections" value="Correction"> Corrections only</label>
+</fieldset>
+</div>
+<p class="wc-status" role="status" aria-live="polite" aria-atomic="true">Showing all 25 changes.</p>
+<article class="wc-entry" id="2026-11-08-three-more-community-districts-brooklyn-1-manhattan-6-and-bronx-2" data-tags="Data" aria-labelledby="2026-11-08-three-more-community-districts-brooklyn-1-manhattan-6-and-bronx-2-title">
+<h2 id="2026-11-08-three-more-community-districts-brooklyn-1-manhattan-6-and-bronx-2-title">Three more community districts: Brooklyn 1, Manhattan 6 and Bronx 2</h2>
+<p class="wc-meta"><time datetime="2026-11-08">November 8, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>SLAM now covers six community districts: Manhattan 1 and 6, Bronx 2, and Brooklyn 1, 4 and 9. Boards are added one at a time when they ask, while SLAM is a prototype.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/127">Brooklyn 1, Manhattan 6 and Bronx 2</a> · <a href="https://github.com/BetaNYC/SLAM/pull/125">Brooklyn 9</a></p>
+<p class="wc-permalink"><a href="#2026-11-08-three-more-community-districts-brooklyn-1-manhattan-6-and-bronx-2">Link to this change<span class="wc-visually-hidden">: Three more community districts: Brooklyn 1, Manhattan 6 and Bronx 2</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-08-addresses-on-a-district-line-are-listed-in-both-districts" data-tags="Data" aria-labelledby="2026-11-08-addresses-on-a-district-line-are-listed-in-both-districts-title">
+<h2 id="2026-11-08-addresses-on-a-district-line-are-listed-in-both-districts-title">Addresses on a district line are listed in both districts</h2>
+<p class="wc-meta"><time datetime="2026-11-08">November 8, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>An address within 100 feet of the line between two districts is now listed in both, and its page says so, for example &quot;On the line between Brooklyn CD 3 and CD 4&quot;. SLAM also knows the 12 Joint Interest Areas, the large parks and airports outside every community district, so each can be listed as its own district later.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/121">The change</a></p>
+<p class="wc-permalink"><a href="#2026-11-08-addresses-on-a-district-line-are-listed-in-both-districts">Link to this change<span class="wc-visually-hidden">: Addresses on a district line are listed in both districts</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-08-every-date-and-id-the-state-publishes-for-a-liquor-license" data-tags="Data Site" aria-labelledby="2026-11-08-every-date-and-id-the-state-publishes-for-a-liquor-license-title">
+<h2 id="2026-11-08-every-date-and-id-the-state-publishes-for-a-liquor-license-title">Every date and ID the State publishes for a liquor license</h2>
+<p class="wc-meta"><time datetime="2026-11-08">November 8, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>Each liquor license on an address page now shows every date and ID the State publishes for it, including when it was first issued and last issued. The State does not publish hours or method of operation, and the page says so.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/120">The change</a> · <a href="https://github.com/BetaNYC/SLAM/issues/63">Issue 63</a></p>
+<p class="wc-permalink"><a href="#2026-11-08-every-date-and-id-the-state-publishes-for-a-liquor-license">Link to this change<span class="wc-visually-hidden">: Every date and ID the State publishes for a liquor license</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-08-easier-to-use-with-a-keyboard-and-on-a-phone" data-tags="Site" aria-labelledby="2026-11-08-easier-to-use-with-a-keyboard-and-on-a-phone-title">
+<h2 id="2026-11-08-easier-to-use-with-a-keyboard-and-on-a-phone-title">Easier to use with a keyboard and on a phone</h2>
+<p class="wc-meta"><time datetime="2026-11-08">November 8, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>Wide tables can be scrolled with the keyboard, and on a phone they scroll sideways instead of squeezing their rows. On a phone the map opens with its Layers box closed, so the map is on the first screen. Every change to the site is now checked for accessibility before it goes live.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/122">The change</a> · <a href="https://github.com/BetaNYC/SLAM/issues/53">Issue 53</a></p>
+<p class="wc-permalink"><a href="#2026-11-08-easier-to-use-with-a-keyboard-and-on-a-phone">Link to this change<span class="wc-visually-hidden">: Easier to use with a keyboard and on a phone</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-07-map-distance-rings-a-reset-button-and-clearer-311-dots" data-tags="Site" aria-labelledby="2026-11-07-map-distance-rings-a-reset-button-and-clearer-311-dots-title">
+<h2 id="2026-11-07-map-distance-rings-a-reset-button-and-clearer-311-dots-title">Map: distance rings, a Reset button and clearer 311 dots</h2>
+<p class="wc-meta"><time datetime="2026-11-07">November 7, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>The map can draw approximate distance rings around schools and houses of worship, grouped by license type: 200 feet for liquor licenses, and 500 or 200 feet for cannabis licenses. A &quot;Reset to default&quot; button puts the layers back the way the map opens. The dots for single 311 complaints are now solid with a dark edge, so they are easier to see. An address page has a &quot;See on map&quot; link that opens the map with the right rings on.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/113">Distance rings</a> · <a href="https://github.com/BetaNYC/SLAM/pull/115">Reset button</a> · <a href="https://github.com/BetaNYC/SLAM/pull/117">311 dots</a> · <a href="https://github.com/BetaNYC/SLAM/pull/119">See on map</a></p>
+<p class="wc-permalink"><a href="#2026-11-07-map-distance-rings-a-reset-button-and-clearer-311-dots">Link to this change<span class="wc-visually-hidden">: Map: distance rings, a Reset button and clearer 311 dots</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-07-cannabis-applications-are-labeled-as-not-yet-issued" data-tags="Data Site" aria-labelledby="2026-11-07-cannabis-applications-are-labeled-as-not-yet-issued-title">
+<h2 id="2026-11-07-cannabis-applications-are-labeled-as-not-yet-issued-title">Cannabis applications are labeled as not yet issued</h2>
+<p class="wc-meta"><time datetime="2026-11-07">November 7, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>Rows the State marks &quot;In-Process&quot; in its cannabis license data are applicants with proximity protection, not issued licenses. They are now labeled &quot;In process (not yet issued)&quot; and listed first, and the Glossary explains the term. Before, they showed the State&#x27;s raw status with a note at the bottom of the tab.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/issues/110">Issue 110</a> · <a href="https://github.com/BetaNYC/SLAM/pull/112">The change</a></p>
+<p class="wc-permalink"><a href="#2026-11-07-cannabis-applications-are-labeled-as-not-yet-issued">Link to this change<span class="wc-visually-hidden">: Cannabis applications are labeled as not yet issued</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-07-slam-is-now-the-street-license-and-activity-map" data-tags="Site" aria-labelledby="2026-11-07-slam-is-now-the-street-license-and-activity-map-title">
+<h2 id="2026-11-07-slam-is-now-the-street-license-and-activity-map-title">SLAM is now the Street License and Activity Map</h2>
+<p class="wc-meta"><time datetime="2026-11-07">November 7, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>SLAM keeps its name and its address, slam.beta.nyc. The letters now stand for Street License and Activity Map instead of SLA Mapper, because SLAM shows much more than liquor licenses.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/109">The change</a></p>
+<p class="wc-permalink"><a href="#2026-11-07-slam-is-now-the-street-license-and-activity-map">Link to this change<span class="wc-visually-hidden">: SLAM is now the Street License and Activity Map</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-05-311-complaints-run-through-the-newest-data-and-the-site-rebuilds-every-night" data-tags="Data" aria-labelledby="2026-11-05-311-complaints-run-through-the-newest-data-and-the-site-rebuilds-every-night-title">
+<h2 id="2026-11-05-311-complaints-run-through-the-newest-data-and-the-site-rebuilds-every-night-title">311 complaints run through the newest data, and the site rebuilds every night</h2>
+<p class="wc-meta"><time datetime="2026-11-05">November 5, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>Each build now takes 311 complaints from January 1, 2022 through the newest the City has published, and the whole site is rebuilt from open data every morning.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/103">Through the newest data</a> · <a href="https://github.com/BetaNYC/SLAM/issues/90">Nightly updates</a></p>
+<p class="wc-permalink"><a href="#2026-11-05-311-complaints-run-through-the-newest-data-and-the-site-rebuilds-every-night">Link to this change<span class="wc-visually-hidden">: 311 complaints run through the newest data, and the site rebuilds every night</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-05-500-foot-counts-on-499-address-pages-were-off-mostly-by-1-to-3" data-tags="Data Correction" aria-labelledby="2026-11-05-500-foot-counts-on-499-address-pages-were-off-mostly-by-1-to-3-title">
+<h2 id="2026-11-05-500-foot-counts-on-499-address-pages-were-off-mostly-by-1-to-3-title">500-foot counts on 499 address pages were off, mostly by 1 to 3</h2>
+<p class="wc-meta"><time datetime="2026-11-05">November 5, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag wc-tag-correction">Correction</span></p>
+<p>From November 4, 2026, when SLAM 2.0 went live, the count of other licensed places within about 500 feet of an address measured from two different kinds of points: the State&#x27;s point for each license and the City&#x27;s point for the building. From November 5, both ends of each distance use the City&#x27;s point for the building, and 499 address pages show a different 500-foot count, mostly by 1 to 3. Boards use this count for the State&#x27;s 500-foot rule.</p>
+<div class="wc-old-numbers"><p><strong>If you used the old numbers:</strong> If you used a count from November 4 or 5, 2026, re-check the address page.</p></div>
+<p><strong>Who it affects:</strong> Anyone who used the 500-foot count on an address page in Manhattan Community District 1 or Brooklyn Community District 4 on those two days.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/98">The fix</a> · <a href="https://github.com/BetaNYC/SLAM/issues/96">Issue 96</a></p>
+<p class="wc-permalink"><a href="#2026-11-05-500-foot-counts-on-499-address-pages-were-off-mostly-by-1-to-3">Link to this change<span class="wc-visually-hidden">: 500-foot counts on 499 address pages were off, mostly by 1 to 3</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-05-one-page-per-address-with-a-link-to-each-license-in-lamp" data-tags="Data Site" aria-labelledby="2026-11-05-one-page-per-address-with-a-link-to-each-license-in-lamp-title">
+<h2 id="2026-11-05-one-page-per-address-with-a-link-to-each-license-in-lamp-title">One page per address, with a link to each license in LAMP</h2>
+<p class="wc-meta"><time datetime="2026-11-05">November 5, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>Each license now opens on its own record in the State Liquor Authority&#x27;s LAMP map. Map dots and LAMP links use the City&#x27;s point for the building. Address pages now load as one page, and old address links still work.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/98">City points</a> · <a href="https://github.com/BetaNYC/SLAM/pull/102">LAMP links</a> · <a href="https://github.com/BetaNYC/SLAM/pull/99">One address page</a></p>
+<p class="wc-permalink"><a href="#2026-11-05-one-page-per-address-with-a-link-to-each-license-in-lamp">Link to this change<span class="wc-visually-hidden">: One page per address, with a link to each license in LAMP</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-05-addresses-are-matched-with-the-citys-own-address-file" data-tags="Data" aria-labelledby="2026-11-05-addresses-are-matched-with-the-citys-own-address-file-title">
+<h2 id="2026-11-05-addresses-are-matched-with-the-citys-own-address-file-title">Addresses are matched with the City&#x27;s own address file</h2>
+<p class="wc-meta"><time datetime="2026-11-05">November 5, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>Every address is matched to a building with the City&#x27;s own address file before any other service is asked. In a citywide test, this matched 97.2% of active liquor licenses.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/94">The change</a></p>
+<p class="wc-permalink"><a href="#2026-11-05-addresses-are-matched-with-the-citys-own-address-file">Link to this change<span class="wc-visually-hidden">: Addresses are matched with the City&#x27;s own address file</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-05-311-complaints-back-to-2022-and-an-about-page-and-glossary" data-tags="Data Site" aria-labelledby="2026-11-05-311-complaints-back-to-2022-and-an-about-page-and-glossary-title">
+<h2 id="2026-11-05-311-complaints-back-to-2022-and-an-about-page-and-glossary-title">311 complaints back to 2022, and an About page and Glossary</h2>
+<p class="wc-meta"><time datetime="2026-11-05">November 5, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>311 complaints now start on January 1, 2022, and include the outdoor dining complaints the first SLAM showed. A new About page lists every source, and a Glossary explains every term. The map keeps its place when you go back, opens details in a side panel, and links each address to BetaNYC&#x27;s Boundaries Map.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/81">311 from 2022</a> · <a href="https://github.com/BetaNYC/SLAM/pull/74">About and Glossary</a> · <a href="https://github.com/BetaNYC/SLAM/pull/76">Map side panel</a> · <a href="https://github.com/BetaNYC/SLAM/pull/78">Layers and Boundaries Map</a></p>
+<p class="wc-permalink"><a href="#2026-11-05-311-complaints-back-to-2022-and-an-about-page-and-glossary">Link to this change<span class="wc-visually-hidden">: 311 complaints back to 2022, and an About page and Glossary</span></a></p>
+</article>
+<article class="wc-entry" id="2026-11-04-slam-20-replaces-the-first-slam" data-tags="Site Data" aria-labelledby="2026-11-04-slam-20-replaces-the-first-slam-title">
+<h2 id="2026-11-04-slam-20-replaces-the-first-slam-title">SLAM 2.0 replaces the first SLAM</h2>
+<p class="wc-meta"><time datetime="2026-11-04">November 4, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Data</span></p>
+<p>By November 3, 2026, the first SLAM showed no data, because the map service it ran on was no longer available. SLAM 2.0 went live at slam.beta.nyc in its place, built from NYC and New York State open data with no hosted database. It started with two districts, Manhattan 1 and Brooklyn 4, and brought back address search, health grades, certificates of occupancy, schools and houses of worship nearby, and the license details boards used in the first SLAM.</p>
+<p><strong>Who it affects:</strong> Anyone who used the first SLAM. Its code is kept on the main branch of the repository.</p>
+<p><strong>More detail:</strong> <a href="https://slam.beta.nyc/about/">About SLAM</a> · <a href="https://github.com/BetaNYC/SLAM/issues/56">The plan</a> · <a href="https://github.com/BetaNYC/SLAM/pull/68">Going live</a> · <a href="https://github.com/BetaNYC/SLAM/blob/HEAD/PROTOTYPE.md">Build notes</a></p>
+<p class="wc-permalink"><a href="#2026-11-04-slam-20-replaces-the-first-slam">Link to this change<span class="wc-visually-hidden">: SLAM 2.0 replaces the first SLAM</span></a></p>
+</article>
+<article class="wc-entry" id="2023-01-07-address-search-moves-to-the-new-geosearch" data-tags="Site" aria-labelledby="2023-01-07-address-search-moves-to-the-new-geosearch-title">
+<h2 id="2023-01-07-address-search-moves-to-the-new-geosearch-title">Address search moves to the new GeoSearch</h2>
+<p class="wc-meta"><time datetime="2023-01-07">January 7, 2023</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>The first SLAM moved to a newer build system and to version 2 of NYC Planning Labs&#x27; GeoSearch, the service behind its address search.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/commits/main/?since=2023-01-06&amp;until=2023-01-08">Commits from January 2023</a></p>
+<p class="wc-permalink"><a href="#2023-01-07-address-search-moves-to-the-new-geosearch">Link to this change<span class="wc-visually-hidden">: Address search moves to the new GeoSearch</span></a></p>
+</article>
+<article class="wc-entry" id="2022-09-21-a-note-about-the-states-license-lookup" data-tags="Site" aria-labelledby="2022-09-21-a-note-about-the-states-license-lookup-title">
+<h2 id="2022-09-21-a-note-about-the-states-license-lookup-title">A note about the State&#x27;s license lookup</h2>
+<p class="wc-meta"><time datetime="2022-09-21">September 21, 2022</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>The State took its public license lookup offline, and each license in SLAM linked to it. SLAM added a note beside that link, pointing to a records request to the State Liquor Authority and to BetaNYC&#x27;s RADAR.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/commit/0b0c4540">The commit</a></p>
+<p class="wc-permalink"><a href="#2022-09-21-a-note-about-the-states-license-lookup">Link to this change<span class="wc-visually-hidden">: A note about the State&#x27;s license lookup</span></a></p>
+</article>
+<article class="wc-entry" id="2022-01-20-fixed-after-state-and-city-data-changes" data-tags="Data" aria-labelledby="2022-01-20-fixed-after-state-and-city-data-changes-title">
+<h2 id="2022-01-20-fixed-after-state-and-city-data-changes-title">Fixed after State and City data changes</h2>
+<p class="wc-meta"><time datetime="2022-01-20">January 20, 2022</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>SLAM was fixed after the State Liquor Authority changed its dataset&#x27;s columns and the City changed its Geoclient service.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/commit/bb6b8a31">The commit</a> · <a href="https://github.com/BetaNYC/SLAM/issues/41">Issue 41</a></p>
+<p class="wc-permalink"><a href="#2022-01-20-fixed-after-state-and-city-data-changes">Link to this change<span class="wc-visually-hidden">: Fixed after State and City data changes</span></a></p>
+</article>
+<article class="wc-entry" id="2021-10-26-links-to-the-states-lamp-map" data-tags="Data Site" aria-labelledby="2021-10-26-links-to-the-states-lamp-map-title">
+<h2 id="2021-10-26-links-to-the-states-lamp-map-title">Links to the State&#x27;s LAMP map</h2>
+<p class="wc-meta"><time datetime="2021-10-26">October 26, 2021</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>Each liquor license linked to the State Liquor Authority&#x27;s LAMP map, and the license window showed its original, effective and expiration dates.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/commit/5efdc56a">The commit</a></p>
+<p class="wc-permalink"><a href="#2021-10-26-links-to-the-states-lamp-map">Link to this change<span class="wc-visually-hidden">: Links to the State&#x27;s LAMP map</span></a></p>
+</article>
+<article class="wc-entry" id="2020-08-10-liquor-licenses-were-in-the-wrong-place-for-about-12-minutes" data-tags="Data Correction" aria-labelledby="2020-08-10-liquor-licenses-were-in-the-wrong-place-for-about-12-minutes-title">
+<h2 id="2020-08-10-liquor-licenses-were-in-the-wrong-place-for-about-12-minutes-title">Liquor licenses were in the wrong place for about 12 minutes</h2>
+<p class="wc-meta"><time datetime="2020-08-10">August 10, 2020</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag wc-tag-correction">Correction</span></p>
+<p>An update to the liquor license data swapped its two map coordinates, so licenses were drawn in the wrong place from about 4:12 to 4:24 pm New York time on August 10, 2020. In the same update the license dates were missing until about 4:44 pm. Both were fixed that afternoon.</p>
+<div class="wc-old-numbers"><p><strong>If you used the old numbers:</strong> Only a license location or date you looked up between about 4:12 and 4:44 pm that day could have been wrong.</p></div>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/commit/c58f76bf">The coordinate fix</a> · <a href="https://github.com/BetaNYC/SLAM/commit/d0974e4d">The date fix</a></p>
+<p class="wc-permalink"><a href="#2020-08-10-liquor-licenses-were-in-the-wrong-place-for-about-12-minutes">Link to this change<span class="wc-visually-hidden">: Liquor licenses were in the wrong place for about 12 minutes</span></a></p>
+</article>
+<article class="wc-entry" id="2020-07-14-open-restaurants-and-its-311-complaints-version-011e" data-tags="Data Site" aria-labelledby="2020-07-14-open-restaurants-and-its-311-complaints-version-011e-title">
+<h2 id="2020-07-14-open-restaurants-and-its-311-complaints-version-011e-title">Open Restaurants and its 311 complaints (version 0.11e)</h2>
+<p class="wc-meta"><time datetime="2020-07-14">July 14, 2020</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>SLAM added the City&#x27;s Open Restaurants applications and a layer of 311 complaints about open restaurants: NYPD social distancing and face covering complaints, sidewalk cafe complaints and DOT outdoor dining complaints. It could also find your own location when you first opened it.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v011e">The change log</a></p>
+<p class="wc-permalink"><a href="#2020-07-14-open-restaurants-and-its-311-complaints-version-011e">Link to this change<span class="wc-visually-hidden">: Open Restaurants and its 311 complaints (version 0.11e)</span></a></p>
+</article>
+<article class="wc-entry" id="2020-02-13-slam-is-rebuilt-with-district-lines-version-010e" data-tags="Site Data" aria-labelledby="2020-02-13-slam-is-rebuilt-with-district-lines-version-010e-title">
+<h2 id="2020-02-13-slam-is-rebuilt-with-district-lines-version-010e-title">SLAM is rebuilt, with district lines (version 0.10e)</h2>
+<p class="wc-meta"><time datetime="2020-02-13">February 13, 2020</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Data</span></p>
+<p>Zhi Keng He rebuilt SLAM in Svelte. It added community district and City Council district lines, a new address search, and days, hours and method of operation in the license window, and kept its keys out of the public code.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/pull/32">The pull request</a> · <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v010e">The change log</a></p>
+<p class="wc-permalink"><a href="#2020-02-13-slam-is-rebuilt-with-district-lines-version-010e">Link to this change<span class="wc-visually-hidden">: SLAM is rebuilt, with district lines (version 0.10e)</span></a></p>
+</article>
+<article class="wc-entry" id="2019-08-09-licenses-show-again-and-searched-addresses-get-a-point-version-09e" data-tags="Data Site" aria-labelledby="2019-08-09-licenses-show-again-and-searched-addresses-get-a-point-version-09e-title">
+<h2 id="2019-08-09-licenses-show-again-and-searched-addresses-get-a-point-version-09e-title">Licenses show again, and searched addresses get a point (version 0.9e)</h2>
+<p class="wc-meta"><time datetime="2019-08-09">August 9, 2019</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Site</span></p>
+<p>By July 18, 2019, SLAM showed no licenses, complaints or health grades, because the State had renamed its dataset&#x27;s columns. It was fixed on August 8, 2019. A searched address also got a point on the map.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/issues/24">Issue 24</a> · <a href="https://github.com/BetaNYC/SLAM/pull/27">The fix</a> · <a href="https://github.com/BetaNYC/SLAM/issues/28">Issue 28</a></p>
+<p class="wc-permalink"><a href="#2019-08-09-licenses-show-again-and-searched-addresses-get-a-point-version-09e">Link to this change<span class="wc-visually-hidden">: Licenses show again, and searched addresses get a point (version 0.9e)</span></a></p>
+</article>
+<article class="wc-entry" id="2018-11-14-schools-and-churches-on-the-map-version-08e" data-tags="Data" aria-labelledby="2018-11-14-schools-and-churches-on-the-map-version-08e-title">
+<h2 id="2018-11-14-schools-and-churches-on-the-map-version-08e-title">Schools and churches on the map (version 0.8e)</h2>
+<p class="wc-meta"><time datetime="2018-11-14">November 14, 2018</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Data</span></p>
+<p>The shapes of schools and churches were added to the map.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/issues/22">Issue 22</a> · <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v08e">The change log</a></p>
+<p class="wc-permalink"><a href="#2018-11-14-schools-and-churches-on-the-map-version-08e">Link to this change<span class="wc-visually-hidden">: Schools and churches on the map (version 0.8e)</span></a></p>
+</article>
+<article class="wc-entry" id="2018-08-13-betanyc-logo-and-a-line-chart-of-complaints-version-07e" data-tags="Site" aria-labelledby="2018-08-13-betanyc-logo-and-a-line-chart-of-complaints-version-07e-title">
+<h2 id="2018-08-13-betanyc-logo-and-a-line-chart-of-complaints-version-07e-title">BetaNYC logo and a line chart of complaints (version 0.7e)</h2>
+<p class="wc-meta"><time datetime="2018-08-13">August 13, 2018</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>SLAM added a BetaNYC logo and header, showed complaints by year as a line chart instead of a bar chart, and made the information boxes scroll on their own.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v07e">The change log</a></p>
+<p class="wc-permalink"><a href="#2018-08-13-betanyc-logo-and-a-line-chart-of-complaints-version-07e">Link to this change<span class="wc-visually-hidden">: BetaNYC logo and a line chart of complaints (version 0.7e)</span></a></p>
+</article>
+<article class="wc-entry" id="2018-08-06-slam-at-slambetanyc-with-certificates-of-occupancy-version-06e" data-tags="Site Data" aria-labelledby="2018-08-06-slam-at-slambetanyc-with-certificates-of-occupancy-version-06e-title">
+<h2 id="2018-08-06-slam-at-slambetanyc-with-certificates-of-occupancy-version-06e-title">SLAM at slam.beta.nyc, with certificates of occupancy (version 0.6e)</h2>
+<p class="wc-meta"><time datetime="2018-08-06">August 6, 2018</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Data</span></p>
+<p>SLAM moved to slam.beta.nyc. Each liquor license linked to the building&#x27;s certificate of occupancy, the main box got instructions, and the layout was adjusted for phones.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/issues/8">Issue 8</a> · <a href="https://github.com/BetaNYC/SLAM/issues/10">Issue 10</a> · <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v06e">The change log</a></p>
+<p class="wc-permalink"><a href="#2018-08-06-slam-at-slambetanyc-with-certificates-of-occupancy-version-06e">Link to this change<span class="wc-visually-hidden">: SLAM at slam.beta.nyc, with certificates of occupancy (version 0.6e)</span></a></p>
+</article>
+<article class="wc-entry" id="2018-07-11-the-first-slam-the-sla-mapper-version-05e" data-tags="Site Data" aria-labelledby="2018-07-11-the-first-slam-the-sla-mapper-version-05e-title">
+<h2 id="2018-07-11-the-first-slam-the-sla-mapper-version-05e-title">The first SLAM, the SLA Mapper (version 0.5e)</h2>
+<p class="wc-meta"><time datetime="2018-07-11">July 11, 2018</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span><span class="wc-visually-hidden">, </span><span class="wc-tag">Data</span></p>
+<p>Lindsay Poirier of BetaNYC built SLAM with and for community boards, to bring together the data a board gathers for a liquor license application: licenses, 311 complaints, health inspections and sidewalk cafes. This first recorded version added a location search bar, a color-coded legend, and the license classes boards review.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/blob/main/README.md#slam-v05e">The change log</a> · <a href="https://github.com/BetaNYC/SLAM/issues/6">Issue 6</a></p>
+<p class="wc-permalink"><a href="#2018-07-11-the-first-slam-the-sla-mapper-version-05e">Link to this change<span class="wc-visually-hidden">: The first SLAM, the SLA Mapper (version 0.5e)</span></a></p>
+</article>
+<script>
+(function () {
+  var roots = document.querySelectorAll("[data-whats-changed]");
+  Array.prototype.forEach.call(roots, function (root) {
+    var box = root.querySelector(".wc-filters");
+    var status = root.querySelector(".wc-status");
+    var entries = root.querySelectorAll(".wc-entry");
+    if (!box || !status || !entries.length) return;
+    var tagBoxes = box.querySelectorAll("input[name='wc-tag']");
+    var corrBox = box.querySelector("input[name='wc-corrections']");
+    var total = entries.length;
+    var noun = total === 1 ? "change" : "changes";
+    function apply() {
+      var on = {};
+      Array.prototype.forEach.call(tagBoxes, function (b) { on[b.value] = b.checked; });
+      var shown = 0;
+      Array.prototype.forEach.call(entries, function (el) {
+        var tags = (el.getAttribute("data-tags") || "").split(" ");
+        var ok = tags.some(function (t) { return on[t]; });
+        if (corrBox && corrBox.checked && tags.indexOf("Correction") < 0) ok = false;
+        el.hidden = !ok;
+        if (ok) shown++;
+      });
+      status.textContent = shown === total
+        ? "Showing all " + total + " " + noun + "."
+        : "Showing " + shown + " of " + total + " " + noun + ".";
+    }
+    function reveal() {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var el = id && document.getElementById(id);
+      if (el && root.contains(el) && el.closest(".wc-entry[hidden]")) {
+        Array.prototype.forEach.call(tagBoxes, function (b) { b.checked = true; });
+        if (corrBox) corrBox.checked = false;
+        apply();
+        el.scrollIntoView();
+      }
+    }
+    box.addEventListener("change", apply);
+    window.addEventListener("hashchange", reveal);
+    box.hidden = false;
+  });
+})();
+<\/script>
+</div>`,d=o(`<h1>What's changed</h1> <!>`,1);function f(e){var o=d();s(`qdqiul`,e=>{c(()=>{n.title=`What's changed — SLAM v2 prototype`})});var l=r(i(o),2);a(l,()=>u),t(e,o)}export{f as component,l as universal};
