@@ -21,6 +21,15 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the What's changed append-only check compares with the base branch
+
+      # BetaNYC What's changed standard: the file parses, entries are only appended, and the
+      # page fragment built from it is current. scripts/whats_changed.py is a copy; never edit it.
+      - name: What's changed
+        run: |
+          python3 scripts/whats_changed.py check WHATS-CHANGED.md --base-ref "origin/${{ github.base_ref || 'v2' }}"
+          python3 scripts/whats_changed.py render WHATS-CHANGED.md --format fragment --no-h1 --repo-url https://github.com/BetaNYC/SLAM --out site/src/lib/whats-changed.html --check
 
       - uses: actions/setup-node@v4
         with:

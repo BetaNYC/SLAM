@@ -4,6 +4,7 @@ SLAM, the Street License and Activity Map, puts the open data a New York City co
 
 - **Live:** https://slam.beta.nyc (a prototype covering Manhattan Community Districts 1 and 6, Bronx Community District 2, and Brooklyn Community Districts 1, 4 and 9)
 - **On the site:** an About page (sources, history, how we used AI tools) and a Glossary of every term and calculation.
+- **What's changed:** [`WHATS-CHANGED.md`](WHATS-CHANGED.md), new data, fixes and corrections since 2018, newest first; on the site at https://slam.beta.nyc/whats-changed/ (built from the file by `npm run whats-changed` in `site/`, and checked in CI).
 - **Detailed build notes:** [`PROTOTYPE.md`](PROTOTYPE.md), section by section, with the numbers from each run.
 - **Plans and work:** [epic #56](https://github.com/BetaNYC/SLAM/issues/56), [what v1 had, #58](https://github.com/BetaNYC/SLAM/issues/58), [citywide, #93](https://github.com/BetaNYC/SLAM/issues/93).
 - **The name:** SLAM began in 2018 as the SLA Mapper, named for the State Liquor Authority. In 2026 it became the Street License and Activity Map, because it now covers more than liquor licenses.

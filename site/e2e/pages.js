@@ -54,6 +54,7 @@ export function pages() {
 		{ name: 'map', path: `/${d}/map/`, map: true },
 		{ name: 'about', path: '/about/' },
 		{ name: 'glossary', path: '/glossary/' },
-		{ name: 'rules', path: '/rules/' }
+		{ name: 'rules', path: '/rules/' },
+		{ name: 'whats-changed', path: '/whats-changed/' }
 	];
 }

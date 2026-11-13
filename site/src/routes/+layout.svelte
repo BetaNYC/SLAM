@@ -9,6 +9,9 @@
 	/** @type {{children: import('svelte').Snippet, data: any}} */
 	let { children, data } = $props();
 	const m = $derived(data.manifest);
+	// The What's changed page ships with no SvelteKit client (csr = false in its +page.js), so the
+	// address search, which needs the client, would be a dead control there. Leave it out.
+	const noClient = $derived(page.route.id === '/whats-changed');
 	/** @param {string} id */
 	const current = (id) => (page.route.id === id ? 'page' : undefined);
 </script>
@@ -29,9 +32,9 @@
 	</nav>
 </header>
 <!-- A named section, so the date line sits in a landmark like the rest of the page (#53, axe "region"). -->
-<section class="subbar no-print" aria-label="Find an address and data date">
+<section class="subbar no-print" aria-label={noClient ? 'Data date' : 'Find an address and data date'}>
 	<div class="wrap">
-		<AddressSearch />
+		{#if !noClient}<AddressSearch />{/if}
 		<p class="updated">
 			Data from <a href="https://data.cityofnewyork.us/">NYC Open Data</a> and
 			<a href="https://data.ny.gov/">data.ny.gov</a>, updated
@@ -56,6 +59,11 @@
 	<p>
 		Facts only, as published by the City and State. This page does not make legal determinations.
 		A <a href="https://beta.nyc/">BetaNYC</a> prototype. Not an official City of New York product.
+	</p>
+	<p>
+		<!-- A full page load: that page runs without the SvelteKit client (whats-changed/+page.js). -->
+		<a href={resolve('/whats-changed', {})} data-sveltekit-reload>What's changed</a>: new data, fixes
+		and corrections, newest first.
 	</p>
 </footer>
 
