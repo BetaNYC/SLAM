@@ -3,10 +3,23 @@
 // checks what axe cannot: the page is plain HTML with no SvelteKit client (csr = false), the
 // filter script inside the {@html} fragment still runs, the filter works by keyboard and is
 // announced, nothing is lost with JavaScript off, and every page links here from its footer.
+import { execFileSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import { test, expect } from '@playwright/test';
 import { pages, ready } from './pages.js';
 
 const PATH = '/whats-changed/';
+
+// Expected counts come from the file's own parse, so adding an entry, an Update line or an
+// Unreleased entry never breaks these tests.
+const parsed = JSON.parse(
+	execFileSync('python3', [resolve('../scripts/whats_changed.py'), 'json', resolve('../WHATS-CHANGED.md')], { encoding: 'utf8' })
+);
+const ENTRIES = parsed.entries.filter((/** @type {any} */ e) => e.valid);
+const CORRECTIONS = ENTRIES.filter((/** @type {any} */ e) => e.tags.includes('Correction')).length;
+// Module 1.2.2 leaves the filter out when fewer than two choices remain.
+const TAGS_IN_USE = new Set(ENTRIES.flatMap((/** @type {any} */ e) => e.tags.filter((/** @type {string} */ t) => t !== 'Correction')));
+const HAS_FILTER = TAGS_IN_USE.size + (CORRECTIONS > 0 ? 1 : 0) >= 2;
 
 test('whats-changed: one h1, landmarks, skip link, dates as <time>', async ({ page }) => {
 	await page.goto(PATH);
@@ -17,23 +30,28 @@ test('whats-changed: one h1, landmarks, skip link, dates as <time>', async ({ pa
 	}
 	await expect(page.locator('a.skip[href="#main"]')).toBeAttached();
 	const entries = page.locator('main article.wc-entry');
-	const n = await entries.count();
-	expect(n).toBeGreaterThan(20);
-	// Every entry has a dated <time> whose text spells the month out.
-	await expect(page.locator('main article.wc-entry time[datetime]')).toHaveCount(n);
-	await expect(entries.first().locator('time')).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/);
+	await expect(entries).toHaveCount(ENTRIES.length);
+	// Every dated entry has a <time> for its date, with the month spelled out. (Update lines may
+	// add more; an Unreleased entry has none.)
+	for (const e of ENTRIES.filter((/** @type {any} */ e) => !e.unreleased)) {
+		const t = page.locator(`[id="${e.anchor}"] time[datetime="${e.date}"]`).first();
+		await expect(t).toHaveText(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/);
+	}
 	// No h2 without an h1 above it, and no skipped level inside an entry.
 	await expect(page.locator('main article.wc-entry h3, main article.wc-entry h4')).toHaveCount(0);
 });
 
 test('whats-changed: ships with no SvelteKit client, and the fragment script runs', async ({ page }) => {
 	await page.goto(PATH);
-	// csr = false: the only script on the page is the fragment's own filter script.
+	// csr = false: no SvelteKit client script on the page.
 	expect(await page.locator('script[src], script[type=module]').count()).toBe(0);
-	await expect(page.locator('script')).toHaveCount(1);
-	// The filter starts hidden; only its script reveals it. Visible means the script ran.
-	await expect(page.getByRole('group', { name: 'Show changes to' })).toBeVisible();
-	await expect(page.getByRole('status')).toHaveText(/^Showing all \d+ changes\.$/);
+	if (HAS_FILTER) {
+		// The only script is the fragment's filter script. The filter starts hidden; only that
+		// script reveals it, so visible means the script ran.
+		await expect(page.locator('script')).toHaveCount(1);
+		await expect(page.getByRole('group', { name: 'Show changes to' })).toBeVisible();
+		await expect(page.getByRole('status')).toHaveText(`Showing all ${ENTRIES.length} changes.`);
+	}
 	// The address search needs the client, so it is left out here rather than shown dead.
 	await expect(page.getByRole('search')).toHaveCount(0);
 });
@@ -41,9 +59,11 @@ test('whats-changed: ships with no SvelteKit client, and the fragment script run
 test('whats-changed: the filter works by keyboard and the live region says what is shown', async ({ page }, info) => {
 	test.skip(info.project.name !== 'desktop', 'desktop keyboard only');
 	await page.goto(PATH);
-	const total = await page.locator('article.wc-entry').count();
-	const corrections = await page.locator('article.wc-entry[data-tags~="Correction"]').count();
-	expect(corrections).toBeGreaterThan(0);
+	test.skip(!HAS_FILTER || CORRECTIONS === 0, 'no filter, or no "Corrections only" box');
+	const total = ENTRIES.length;
+	const corrections = CORRECTIONS;
+	// One box per tag in use, plus "Corrections only" (module 1.2.2).
+	await expect(page.getByRole('group', { name: 'Show changes to' }).getByRole('checkbox')).toHaveCount(TAGS_IN_USE.size + 1);
 	const only = page.getByRole('checkbox', { name: 'Corrections only' });
 	// Tab from the top until the checkbox has focus, then Space toggles it.
 	for (let i = 0; i < 40 && !(await only.evaluate((el) => el === document.activeElement)); i++) {
@@ -69,14 +89,13 @@ test('whats-changed: with JavaScript off, every entry shows and there is no dead
 	const page = await context.newPage();
 	await page.goto(`${baseURL}${PATH}`);
 	await expect(page.getByRole('group', { name: 'Show changes to' })).toBeHidden();
-	const n = await page.locator('article.wc-entry').count();
-	await expect(page.locator('article.wc-entry:visible')).toHaveCount(n);
+	await expect(page.locator('article.wc-entry:visible')).toHaveCount(ENTRIES.length);
 	await context.close();
 });
 
 test('whats-changed: filter controls and permalinks are at least 44px tall', async ({ page }) => {
 	await page.goto(PATH);
-	for (const el of await page.locator('.wc-option, .wc-permalink a').all()) {
+	for (const el of await page.locator('a.skip, .wc-option, .wc-permalink a').all()) {
 		const box = await el.boundingBox();
 		expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
 	}
@@ -99,6 +118,7 @@ for (const p of pages()) {
 }
 
 test('whats-changed: reached from a footer link and by Back, the filter still runs', async ({ page }) => {
+	test.skip(!HAS_FILTER, 'no filter: fewer than two choices');
 	await page.goto('/about/');
 	await page.getByRole('contentinfo').getByRole('link', { name: "What's changed" }).click();
 	await expect(page).toHaveURL(/\/whats-changed\/$/);

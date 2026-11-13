@@ -26,7 +26,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 	outline-offset: 2px;
 }
 .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
-.skip { position: absolute; left: -9999px; top: 0; background: var(--blue); color: #fff; padding: 0.5rem 1rem; z-index: 10; }
+.skip { position: absolute; left: -9999px; top: 0; background: var(--blue); color: #fff; padding: 0.5rem 1rem; z-index: 10; min-height: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
 .skip:focus { left: 0.5rem; }
 /* Header: same rules as BoardStat 2.0's css/style.css. */
 header.site { background: var(--blue); color: #fff; padding: 0.75rem 1.25rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0; }

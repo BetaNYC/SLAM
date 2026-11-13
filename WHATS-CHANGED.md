@@ -55,10 +55,18 @@ To report a bug in SLAM, or to ask for a new feature, [open an issue on GitHub](
 - **What changed:** Each build now takes 311 complaints from January 1, 2022 through the newest the City has published, and the whole site is rebuilt from open data every morning.
 - **More detail:** [Through the newest data](https://github.com/BetaNYC/SLAM/pull/103) · [Nightly updates](https://github.com/BetaNYC/SLAM/issues/90)
 
+## 2026-11-05: 500-foot counts on 499 address pages were off, mostly by 1 to 3
+
+- **Tags:** Data, Correction
+- **What changed:** From November 4, 2026, when SLAM 2.0 went live, the count of other licensed places within about 500 feet of an address measured from two different kinds of points: the State's point for each license and the City's point for the building. From November 5, both ends of each distance use the City's point for the building, and 499 address pages show a different 500-foot count, mostly by 1 to 3. Boards use this count for the State's 500-foot rule.
+- **If you used the old numbers:** If you used a count from November 4 or 5, 2026, re-check the address page.
+- **Who it affects:** Anyone who used the 500-foot count on an address page in Manhattan Community District 1 or Brooklyn Community District 4 on those two days.
+- **More detail:** [The fix](https://github.com/BetaNYC/SLAM/pull/98) · [Issue 96](https://github.com/BetaNYC/SLAM/issues/96)
+
 ## 2026-11-05: One page per address, with a link to each license in LAMP
 
 - **Tags:** Data, Site
-- **What changed:** Each license now opens on its own record in the State Liquor Authority's LAMP map. Map dots, LAMP links and the 500-foot count use the City's point for the building, so 499 address pages show a different 500-foot count, mostly by 1 to 3. Address pages now load as one page, and old address links still work.
+- **What changed:** Each license now opens on its own record in the State Liquor Authority's LAMP map. Map dots and LAMP links use the City's point for the building. Address pages now load as one page, and old address links still work.
 - **More detail:** [City points](https://github.com/BetaNYC/SLAM/pull/98) · [LAMP links](https://github.com/BetaNYC/SLAM/pull/102) · [One address page](https://github.com/BetaNYC/SLAM/pull/99)
 
 ## 2026-11-05: Addresses are matched with the City's own address file
@@ -108,7 +116,7 @@ To report a bug in SLAM, or to ask for a new feature, [open an issue on GitHub](
 
 - **Tags:** Data, Correction
 - **What changed:** An update to the liquor license data swapped its two map coordinates, so licenses were drawn in the wrong place from about 4:12 to 4:24 pm New York time on August 10, 2020. In the same update the license dates were missing until about 4:44 pm. Both were fixed that afternoon.
-- **If you used the old numbers:** Only a license you looked up in that half hour could have been wrong. Nothing saved after 4:44 pm on August 10, 2020 needs to change.
+- **If you used the old numbers:** Only a license location or date you looked up between about 4:12 and 4:44 pm that day could have been wrong.
 - **More detail:** [The coordinate fix](https://github.com/BetaNYC/SLAM/commit/c58f76bf) · [The date fix](https://github.com/BetaNYC/SLAM/commit/d0974e4d)
 
 ## 2020-07-14: Open Restaurants and its 311 complaints (version 0.11e)
