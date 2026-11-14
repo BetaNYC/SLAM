@@ -1,7 +1,7 @@
 district,street,zip,status,geosearch_top_hit,sources,records
 bk-cd1,1 Messerole Ave,11222,low_confidence,"1 DEKALB AVENUE, Brooklyn, NY, USA",cannabis_license,1
 bk-cd1,1 TAVERN ON THE GREEN,10023,low_confidence,"TAVERN ON THE GREEN, New York, NY, USA",liquor_active,3
-bk-cd1,102A 102B Broadway,11249,low_confidence,"102 B'WAY, Brooklyn, NY, USA",liquor_pending,1
+bk-cd1,102A 102B Broadway,11249,low_confidence,"102 B'WAY, Brooklyn, NY, USA",liquor_active;liquor_pending,2
 bk-cd1,113 115 N 3RD AKA 186 BERRY ST,11211,low_confidence,"295 BERRY STREET, Brooklyn, NY, USA",liquor_active,1
 bk-cd1,285 289 KENT AVE AKA 31 S 2ND,11211,low_confidence,"289 KENT AVENUE, Brooklyn, NY, USA",liquor_inactive,1
 bk-cd1,299301 GRAHAM AVENUE,11211,low_confidence,"565 GRAHAM AVENUE, Brooklyn, NY, USA",dining_out,1
