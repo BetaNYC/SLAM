@@ -24,6 +24,7 @@ bx-cd2,663 665 DAWSON AVE,10455,low_confidence,"665 DAWSON STREET, Bronx, NY, US
 bx-cd2,770 HUNTS POINTS AVE,10474,low_confidence,"770 HUNTS POINT AVENUE, Bronx, NY, USA",liquor_inactive,1
 bx-cd2,933-A Avenue St John,10455,low_confidence,"82 REAR A A AVENUE, New York, NY, USA",liquor_active,1
 mn-cd1,110 CHAMBERS S,10007,low_confidence,"110 CHAMBERS STREET, New York, NY, USA",cannabis_retail,1
+mn-cd1,110 JOHN ST A/K/A 3 5 PLAT,10038,low_confidence,"110 JOHN STREET, New York, NY, USA",liquor_inactive,1
 mn-cd1,130 WILLIAMS ST,10038,low_confidence,"130 WILLIAMS PLACE, New York, NY, USA",liquor_inactive,1
 mn-cd1,133 Greenwich LLC,10006,low_confidence,"133 GREENWICH STREET, New York, NY, USA",liquor_active,1
 mn-cd1,16 16 1/2 DOVER STREET,10038,low_confidence,"16 1/2 DOVER STREET, New York, NY, USA",liquor_inactive,1
@@ -37,7 +38,7 @@ mn-cd1,GOVERNEUR LN SOUTH ST PIER 11,10007,low_confidence,"7430 PARK LA SOUTH, W
 mn-cd6,1390 & 1/2 2ND AVE,10017,low_confidence,"1390 1/2 2 AVENUE, New York, NY, USA",liquor_inactive,1
 mn-cd6,25 WATERSIDE PL,10010,low_confidence,"25 WATERSIDE PLAZA, New York, NY, USA",liquor_active,1
 mn-cd6,2610 FDR DR,10010,low_confidence,"339 FDR DRIVE, New York, NY, USA",liquor_active,1
-mn-cd6,307 3RD AVE AKA 201 E 23RD ST,10010,low_confidence,"201 EAST 23 STREET, Brooklyn, NY, USA",liquor_inactive,1
+mn-cd6,613 615 2ND AVENUE,10016,low_confidence,"615 2 AVENUE, New York, NY, USA",liquor_inactive,1
 mn-cd6,645 E 2ND AVENUE,10016,low_confidence,"645 EAST 2 STREET, Brooklyn, NY, USA",liquor_inactive,1
 mn-cd6,719 2ND AVE-,10016,low_confidence,"719 2 AVENUE, New York, NY, USA",liquor_inactive,1
 mn-cd6,JOSEPH ABRAMOV 977 2ND AVE,10022,low_confidence,"977 2 AVENUE, New York, NY, USA",cannabis_retail,1
