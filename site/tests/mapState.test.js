@@ -1,7 +1,7 @@
 // #75: the map keeps its view, layers, 311 style and selection across Back/Forward and visits.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseHash, buildHash, loadPrefs, savePrefs, PREFS_KEY } from '../src/lib/mapState.js';
+import { parseHash, buildHash, loadPrefs, savePrefs, PREFS_KEY, parseTilt, MAX_PITCH } from '../src/lib/mapState.js';
 
 const KNOWN = ['liquor_pending', 'liquor_active', 'liquor_inactive', 'cannabis_retail', 'cannabis_license', 'dining_out', 'c311', 'sw'];
 
@@ -48,4 +48,24 @@ test('boundariesUrl: Boundaries Map reads ?lng=&lat= (#77); no point, no link', 
 	assert.equal(boundariesUrl(0, 0), null);
 	assert.equal(boundariesUrl(null, 40.7), null);
 	assert.equal(boundariesUrl(-200, 40.7), null);
+});
+
+test('tilt and turn (#132): in the hash only when not zero, whole degrees, in range', () => {
+	const view = { z: 16, lat: 40.7185, lon: -73.9565 };
+	// A flat map's link is what it always was.
+	assert.equal(buildHash({ view: { ...view, pitch: 0.3, bearing: -0.4 } }), buildHash({ view }));
+	assert.doesNotMatch(buildHash({ view: { ...view, pitch: 0, bearing: 0 } }), /pitch|bearing/);
+	const h = buildHash({ view: { ...view, pitch: 54.6, bearing: -19.7 }, on: ['c311'], c311: 'stacks' });
+	assert.equal(h, 'v=16.00/40.71850/-73.95650&pitch=55&bearing=-20&on=c311&c311=stacks');
+	assert.deepEqual(parseHash('#' + h, KNOWN).view, { ...view, pitch: 55, bearing: -20 });
+	assert.deepEqual(parseHash('#' + buildHash({ view: { ...view, bearing: 30 } }), KNOWN).view, { ...view, bearing: 30 });
+	// Old links, and links with junk, still open flat and facing north.
+	assert.deepEqual(parseHash('#v=16.00/40.71850/-73.95650', KNOWN).view, view);
+	assert.deepEqual(parseHash('#v=16.00/40.71850/-73.95650&pitch=abc&bearing=', KNOWN).view, view);
+	// No view, no tilt.
+	assert.equal(parseHash('#pitch=40', KNOWN).view, null);
+	assert.deepEqual(parseTilt('90', '190'), { pitch: MAX_PITCH, bearing: -170 });
+	assert.deepEqual(parseTilt('-5', '-190'), { pitch: 0, bearing: 170 });
+	assert.deepEqual(parseTilt('180', '180'), { pitch: MAX_PITCH, bearing: -180 });
+	assert.deepEqual(parseTilt(null, null), { pitch: 0, bearing: 0 });
 });

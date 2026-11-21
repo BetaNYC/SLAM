@@ -8,7 +8,7 @@
 	import MapPanel from '#lib/MapPanel.svelte';
 	import { parseHash, buildHash, loadPrefs, storePrefs, clearPrefs, layerToggles, prefsGate, MAP_DEFAULTS, EXTRA_KEYS, initialLayersOpen, NARROW_QUERY } from '#lib/mapState.js';
 	import { SOURCE_SHORT, SOURCE_COLOR, SOURCE_HOLLOW, SW_COLOR, C311_GROUPS, c311ColorExpr } from '#lib/format.js';
-		import { C311_MODES, STACK_CAP, STACK_STEP_PX, c311DotPaint, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr } from '#lib/c311Display.js';
+	import { C311_MODES, STACK_CAP, STACK_STEP_PX, c311DotPaint, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr, chipView, stackDiscs, columnTop, c311DiscColorExpr, DISC_REBUILD_ZOOM } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import { ringSpecs, groupRingSpecs, ringFeatures, ringLegendText, ringLine, ringSharedNote, LICENSE_GROUPS, RING_COLOR, RING_SHARED_LINE, RING_COLOR_NOTE, RING_LAYER_NAME, RING_NOTE, RING_NO_LIQUOR_500, RING_LIST_NOTE } from '#lib/rings.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
@@ -36,12 +36,21 @@
 	/** Label font for 311 counts; each basemap serves its own fonts. */
 	let labelFont = ['Source Sans Pro Bold'];
 	const STACK_LAYERS = Array.from({ length: STACK_CAP }, (_, i) => `c311-stack-${i}`);
+	/** Stacked chips on a tilted map (#132): one fill-extrusion layer of discs, and the total above a full column. */
+	const DISC_LAYERS = ['c311-discs', 'c311-col-label'];
 	/** @type {Record<string, string[]>} */
 	const MODE_LAYERS = {
 		dots: ['complaints_311'],
-		stacks: [...STACK_LAYERS, 'c311-stack-label'],
+		stacks: [...STACK_LAYERS, 'c311-stack-label', ...DISC_LAYERS],
 		sized: ['c311-sized', 'c311-sized-label']
 	};
+	/** Stacked chips lie flat, or stand up as 3D discs while the map is tilted (#lib/c311Display.js chipView). @type {'flat' | '3d'} */
+	let view311 = 'flat';
+	/** The zoom the discs on the map were built for (-1: none built). */
+	let discZoom = -1;
+	/** @type {any} The district's 311 complaints, kept to rebuild the discs when the zoom moves. */
+	let pts311 = null;
+	const EMPTY = { type: 'FeatureCollection', features: [] };
 	// Schools and houses of worship (#60): ON by default (MAP_DEFAULTS), fetched when the map loads.
 	let showSW = $state(INITIAL.showSW);
 	/** @type {'idle' | 'loading' | 'ready'} */
@@ -81,7 +90,7 @@
 		if (!mapReady || !map) return;
 		const c = map.getCenter();
 		const on = onKeys();
-		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng }, on, c311: mode311, sel: sel?.aid ?? null });
+		const hash = buildHash({ view: { z: map.getZoom(), lat: c.lat, lon: c.lng, pitch: map.getPitch(), bearing: map.getBearing() }, on, c311: mode311, sel: sel?.aid ?? null });
 		if (window.location.hash.slice(1) !== hash) replaceState(`${window.location.pathname}${window.location.search}#${hash}`, {});
 		if (gate.open) storePrefs(window.localStorage, { on, c311: mode311, open: layersOpen });
 	}
@@ -147,7 +156,8 @@
 				center: [-73.98, 40.71],
 				zoom: 13
 			});
-			map.addControl(new NavigationControl({}), 'top-right');
+			// visualizePitch: the compass tilts with the map, and selecting it lays the map flat and faces north again (#132).
+			map.addControl(new NavigationControl({ visualizePitch: true }), 'top-right');
 			// The City can fail after start-up (tiles, sprite, style). On its first error, swap once to
 			// OpenFreeMap, carrying our overlay sources and layers over (MapLibre's setStyle
 			// transformStyle). Layer click handlers are bound by layer id on the map, so they keep working.
@@ -223,7 +233,7 @@
 				if (valid) new Marker({ color: '#b45309' }).setLngLat(at).addTo(map);
 				if (hs.view) {
 					// Back/Forward or a shared link: the exact view the user left (#75).
-					map.jumpTo({ center: [hs.view.lon, hs.view.lat], zoom: hs.view.z });
+					map.jumpTo({ center: [hs.view.lon, hs.view.lat], zoom: hs.view.z, pitch: hs.view.pitch ?? 0, bearing: hs.view.bearing ?? 0 });
 					status = `Map loaded where you left it. Select a point to see its details beside the map. ${note()}`;
 				} else if (valid) {
 					map.jumpTo({ center: at, zoom: 17 });
@@ -238,6 +248,11 @@
 					select({ aid: hs.sel, kind: 'address' }, f?.geometry.coordinates);
 				}
 				map.on('moveend', writeState);
+				// Tilt (#132): pitch fires all through a tilt, so the chips stand up as soon as it passes
+				// TILT_ON; zoomend resizes the discs (tilt311 only rebuilds when the zoom moved enough).
+				view311 = chipView(map.getPitch(), view311);
+				map.on('pitch', tilt311);
+				map.on('zoomend', tilt311);
 				writeState();
 				if (show311) toggle311();
 				if (showSW) toggleSW();
@@ -289,18 +304,61 @@
 	function reapplyVisibility() {
 		for (const k of LAYERS) toggle(k);
 		set311Visibility();
-		for (const id of ['c311-stack-label', 'c311-sized-label']) if (map.getLayer(id)) map.setLayoutProperty(id, 'text-font', labelFont);
+		for (const id of ['c311-stack-label', 'c311-sized-label', 'c311-col-label']) if (map.getLayer(id)) map.setLayoutProperty(id, 'text-font', labelFont);
 		if (map.getLayer('schools_worship')) map.setLayoutProperty('schools_worship', 'visibility', showSW ? 'visible' : 'none');
 		if (map.getLayer('rings-label')) map.setLayoutProperty('rings-label', 'text-font', labelFont);
 		setRingsVisibility();
 	}
 
+	/**
+	 * Is this 311 layer drawn now: its mode is the one chosen, and for stacked chips, flat chips on a
+	 * flat map and 3D discs on a tilted one (#132).
+	 * @param {string} mode @param {string} id
+	 */
+	function shown311(mode, id) {
+		if (!show311 || mode !== mode311) return false;
+		if (mode !== 'stacks') return true;
+		return DISC_LAYERS.includes(id) === (view311 === '3d');
+	}
+
 	/** Show only the current mode's 311 layers, and only while 311 is switched on. */
 	function set311Visibility() {
 		writeState();
+		if (mode311 === 'stacks') drawDiscs();
 		for (const [mode, ids] of Object.entries(MODE_LAYERS))
 			for (const id of ids)
-				if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', show311 && mode === mode311 ? 'visible' : 'none');
+				if (map?.getLayer(id)) map.setLayoutProperty(id, 'visibility', shown311(mode, id) ? 'visible' : 'none');
+	}
+
+	/**
+	 * Build the 3D discs for this zoom when the map is tilted and the chips are shown, or empty them
+	 * when it is flat (#132). Only rebuilt when the zoom moved by DISC_REBUILD_ZOOM since the last build.
+	 */
+	function drawDiscs() {
+		const src = map?.getSource('c311-discs');
+		if (!src || !pts311) return;
+		if (view311 !== '3d' || !show311 || mode311 !== 'stacks') {
+			if (discZoom !== -1) src.setData(EMPTY);
+			discZoom = -1;
+			return;
+		}
+		const zoom = map.getZoom();
+		if (discZoom !== -1 && Math.abs(zoom - discZoom) < DISC_REBUILD_ZOOM) return;
+		src.setData(stackDiscs(pts311, zoom));
+		map.setLayoutProperty('c311-col-label', 'symbol-height-offset', columnTop(zoom));
+		discZoom = zoom;
+	}
+
+	/** The map tilted or zoomed: stand the chips up, lay them down, or resize the discs (#132). */
+	function tilt311() {
+		const v = chipView(map.getPitch(), view311);
+		const changed = v !== view311;
+		view311 = v;
+		if (state311 !== 'ready') return;
+		if (changed) {
+			set311Visibility();
+			if (show311 && mode311 === 'stacks') status = v === '3d' ? 'The map is tilted: 311 complaints stand up as 3D columns, one disc per complaint.' : 'The map is flat again: 311 complaints are stacked chips.';
+		} else drawDiscs();
 	}
 
 	/** A 311 complaint (dot or chip) was selected. @param {any} e */
@@ -311,7 +369,9 @@
 		const f = e.features?.[0];
 		if (!f) return;
 		const aid = f.properties?.aid;
-		select(aid ? { aid, kind: 'c311', props: f.properties } : { kind: 'c311', props: f.properties }, f.geometry.coordinates);
+		// A 3D disc is a polygon; it carries its point as lon/lat (#132).
+		const coords = f.geometry.type === 'Point' ? f.geometry.coordinates : [f.properties.lon, f.properties.lat];
+		select(aid ? { aid, kind: 'c311', props: f.properties } : { kind: 'c311', props: f.properties }, coords);
 	}
 
 	/** A sized circle was selected. @param {any} e */
@@ -350,6 +410,9 @@
 			map.addSource('c311', { type: 'geojson', data: pts });
 			map.addSource('c311-chips', { type: 'geojson', data: chips });
 			map.addSource('c311-points', { type: 'geojson', data: summaries });
+			// Filled by drawDiscs while the map is tilted (#132).
+			map.addSource('c311-discs', { type: 'geojson', data: EMPTY });
+			pts311 = pts;
 			// All drawn under the license layers so their larger dots stay on top and clickable.
 			const below = `${LAYERS[0]}${HALO}`;
 			const vis = (/** @type {string} */ mode) => (show311 && mode === mode311 ? 'visible' : 'none');
@@ -397,6 +460,32 @@
 				},
 				below
 			);
+			// Stacked chips on a tilted map (#132): each chip a disc extruded off the street, its base and
+			// top in meters per feature (stackDiscs). The color is darker than the chip's so the lit top
+			// comes out as the chip's color (discColor). A fill-extrusion has no outline: the gap between
+			// discs, where the street shows through, does what the flat chip's white edge does.
+			map.addLayer(
+				{
+					id: 'c311-discs',
+					type: 'fill-extrusion',
+					source: 'c311-discs',
+					layout: { visibility: 'none' },
+					paint: { 'fill-extrusion-color': c311DiscColorExpr(), 'fill-extrusion-base': ['get', 'b'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-opacity': 1 }
+				},
+				below
+			);
+			// The total, just above a full column: symbol-height-offset (meters) lifts it off the street.
+			map.addLayer(
+				{
+					id: 'c311-col-label',
+					type: 'symbol',
+					source: 'c311-points',
+					filter: ['>', ['get', 'n'], STACK_CAP],
+					layout: { visibility: 'none', 'text-field': ['to-string', ['get', 'n']], 'text-font': labelFont, 'text-size': 11, 'text-allow-overlap': true, 'text-ignore-placement': true, 'symbol-height-offset': columnTop(map.getZoom()) },
+					paint: { 'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 1.5 }
+				},
+				below
+			);
 			map.addLayer(
 				{
 					id: 'c311-sized',
@@ -421,8 +510,10 @@
 			clickable('complaints_311', click311);
 			// One listener for all chip layers: neighboring chips overlap, and a click must fire once (QA #74).
 			clickable(STACK_LAYERS, click311);
+			clickable('c311-discs', click311);
 			clickable('c311-sized', clickPoint311);
 			state311 = 'ready';
+			set311Visibility();
 			const busiest = summaries.features[0]?.properties;
 			status = `311 complaints shown (${pts.features.length} at ${summaries.features.length} points${busiest ? `; the most at one point: ${busiest.n}, ${busiest.s || 'no address'}` : ''}).`;
 		} catch (err) {
@@ -667,7 +758,9 @@
 	Layers box. 311 complaints are colored by type, based on
 	the first SLAM's layers: commercial noise, drinking, outdoor dining, and other. "Stacked chips" piles the
 	complaints at one point into a column, as the first SLAM did, so busy addresses stand out; a stack
-	stops at {STACK_CAP} chips and shows the total above it. "Circles sized by count" draws one circle
+	stops at {STACK_CAP} chips and shows the total above it. Tilt the map (drag with the right mouse button or
+	with Ctrl held, or with two fingers on a phone) and the chips stand up as 3D discs, one per complaint, so each
+	stack becomes a column that turns with the map; the compass button lays the map flat again. "Circles sized by count" draws one circle
 	per point, larger for more complaints, colored by the most common type, with the count inside. Selecting any point shows its details in a
 	panel beside the map (under it on a phone), with a link to its full address page. The map keeps your
 	view, layers and selection in its web address, so Back returns you here; your layer choices are also
