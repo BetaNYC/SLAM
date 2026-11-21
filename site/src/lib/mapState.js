@@ -4,6 +4,8 @@
  * - The view (zoom, center), the layers that are on, the 311 style and the selected address
  *   live in the URL hash, e.g. #v=15.20/40.70412/-73.92131&on=liquor_pending,liquor_active&c311=stacks&sel=3072409
  *   so Back from an address page lands on the same view, and a view can be shared as a link.
+ *   A tilted or turned map adds its tilt and turn in whole degrees, e.g. &pitch=55&bearing=-20
+ *   (#132: 3D chips); only when they are not zero, so a flat map's link is what it always was.
  * - Layer choices (not the view) are also remembered in localStorage for the next visit.
  *
  * Order on load: URL hash, then saved preferences, then MAP_DEFAULTS. Layers that came from the
@@ -22,6 +24,22 @@ export const EXTRA_KEYS = ['c311', 'sw', 'rings_liquor', 'rings_cannabis'];
  */
 export const LEGACY_KEYS = { rings: ['rings_liquor', 'rings_cannabis'] };
 export const C311_MODE_KEYS = ['stacks', 'sized', 'dots'];
+/** MapLibre's default most tilt, in degrees. */
+export const MAX_PITCH = 60;
+
+/**
+ * Tilt and turn from the hash, in whole degrees: pitch 0 to MAX_PITCH, bearing -180 to 179. Zero, missing or
+ * malformed comes back as 0.
+ * @param {string | null} pitch @param {string | null} bearing
+ */
+export function parseTilt(pitch, bearing) {
+	const p = Number(pitch);
+	const b = Number(bearing);
+	return {
+		pitch: Number.isFinite(p) ? Math.round(Math.min(Math.max(p, 0), MAX_PITCH)) : 0,
+		bearing: Number.isFinite(b) ? ((((Math.round(b) + 180) % 360) + 360) % 360) - 180 : 0
+	};
+}
 
 /**
  * How the map first opens (Noel, 2026-11-07, #113), written once and used both for the first load
@@ -94,7 +112,7 @@ export function knownKeys(keys, known) {
 }
 
 /**
- * @typedef {{z: number, lat: number, lon: number}} View
+ * @typedef {{z: number, lat: number, lon: number, pitch?: number, bearing?: number}} View
  * @typedef {{view: View | null, on: string[] | null, c311: string | null, sel: string | null}} MapState
  */
 
@@ -112,7 +130,13 @@ export function parseHash(hash, known) {
 	if (v.length === 3 && v.every(Number.isFinite)) {
 		const [z, lat, lon] = v;
 		// Only views near New York City, at sensible zooms.
-		if (z >= 8 && z <= 22 && Math.abs(lat - 40.7) < 1 && Math.abs(lon + 74) < 1) view = { z, lat, lon };
+		if (z >= 8 && z <= 22 && Math.abs(lat - 40.7) < 1 && Math.abs(lon + 74) < 1) {
+			view = { z, lat, lon };
+			// Tilt and turn ride with the view, and only when not zero (#132).
+			const t = parseTilt(p.get('pitch'), p.get('bearing'));
+			if (t.pitch) view.pitch = t.pitch;
+			if (t.bearing) view.bearing = t.bearing;
+		}
 	}
 	const onRaw = p.get('on');
 	const on = onRaw === null ? null : knownKeys(onRaw.split(','), known);
@@ -135,6 +159,9 @@ export function parseHash(hash, known) {
  */
 export function buildHash(s) {
 	const parts = [`v=${s.view.z.toFixed(2)}/${s.view.lat.toFixed(5)}/${s.view.lon.toFixed(5)}`];
+	const t = parseTilt(String(s.view.pitch ?? 0), String(s.view.bearing ?? 0));
+	if (t.pitch) parts.push(`pitch=${t.pitch}`);
+	if (t.bearing) parts.push(`bearing=${t.bearing}`);
 	if (s.on) parts.push(`on=${s.on.join(',')}`);
 	if (s.c311) parts.push(`c311=${s.c311}`);
 	if (s.sel) parts.push(`sel=${s.sel}`);

@@ -142,3 +142,162 @@ export function groupColorExpr() {
 export function sizedRadiusExpr() {
 	return ['interpolate', ['linear'], ['sqrt', ['get', 'n']], 1, 4, 4, 9, 10, 18, 20, 28, 30, 36];
 }
+
+// ---- 3D chips when the map is tilted (#132), ported from Crash Mapper (BetaNYC/crash-mapper-nyc#77,
+// site/src/lib/parking.js at 418a40c). Looking straight down, the flat chips above stay as they are.
+// Tilted, each chip becomes a short disc standing up off the street (a MapLibre fill-extrusion layer),
+// one on top of the other with a small gap, so a busy point grows a column that leans and turns with
+// the map. Same chips, same order (oldest at the bottom), same colors, same STACK_CAP.
+// Read from the MapLibre style spec and GL JS 6.16.0 (SLAM's version, node_modules, 2026-11-20):
+// fill-extrusion-base, -height and -color are data-driven, base and height in meters, and the layer
+// draws Polygons, so each disc is a small polygon. symbol-height-offset (a layout property, meters)
+// lifts the total above a full column. The map fires pitchstart / pitch / pitchend while it tilts;
+// getPitch() is in degrees, 0 = straight down, 60 at most by default.
+
+/** Tilt (degrees) at or above which chips stand up as 3D discs, and at or below which they lie flat
+ * again. Two numbers, so a map held near the line does not flicker between the two. */
+export const TILT_ON = 10;
+export const TILT_OFF = 5;
+
+/**
+ * '3d' or 'flat' for a pitch, given what is shown now.
+ * @param {number} pitch  degrees @param {'3d' | 'flat'} [now]
+ * @returns {'3d' | 'flat'}
+ */
+export function chipView(pitch, now = 'flat') {
+	if (pitch >= TILT_ON) return '3d';
+	if (pitch <= TILT_OFF) return 'flat';
+	return now;
+}
+
+/** New York's latitude, for meters per pixel. */
+const COS_NYC = Math.cos((40.7 * Math.PI) / 180);
+
+/** Meters per screen pixel at a zoom, in New York: MapLibre's world is 512 px wide at zoom 0. @param {number} zoom */
+export function metersPerPixel(zoom) {
+	return (40075016.686 * COS_NYC) / (512 * 2 ** zoom);
+}
+
+/**
+ * Disc sizes, in screen pixels at the zoom they are built for, turned into meters, so a column looks
+ * about as big as a flat stack at every zoom (a fixed size in meters would be 2 px wide zoomed out
+ * and 70 px zoomed in). Crash Mapper's sizes, chosen in Chrome: a disc 10 px across and 2 px thick
+ * with a 1.5 px gap, so 12 discs make a column 42 px tall, a little taller than the flat stack
+ * (36 px) because a tilted map shortens anything standing up. With 1 px gaps the discs read as one
+ * solid post. The discs are rebuilt when the zoom moves by DISC_REBUILD_ZOOM.
+ */
+export const DISC_RADIUS_PX = 5;
+export const DISC_HEIGHT_PX = 2;
+export const DISC_GAP_PX = 1.5;
+export const DISC_SIDES = 16;
+export const DISC_REBUILD_ZOOM = 0.5;
+
+/** {r, h, gap, step} in meters for discs built at `zoom`. @param {number} zoom */
+export function discSize(zoom) {
+	const m = metersPerPixel(zoom);
+	return { r: DISC_RADIUS_PX * m, h: DISC_HEIGHT_PX * m, gap: DISC_GAP_PX * m, step: (DISC_HEIGHT_PX + DISC_GAP_PX) * m };
+}
+
+/**
+ * A closed ring of `sides` points, `r` meters around [lon, lat].
+ * @param {number} lon @param {number} lat @param {number} r @param {number} [sides]
+ */
+export function discRing(lon, lat, r, sides = DISC_SIDES) {
+	const dLat = r / 111320; // meters in a degree of latitude
+	const dLon = dLat / Math.cos((lat * Math.PI) / 180);
+	const ring = [];
+	for (let j = 0; j < sides; j++) {
+		const a = (2 * Math.PI * j) / sides;
+		ring.push([lon + dLon * Math.cos(a), lat + dLat * Math.sin(a)]);
+	}
+	ring.push(ring[0]);
+	return ring;
+}
+
+/** @param {number} v */
+const round2 = (v) => Math.round(v * 100) / 100;
+
+/**
+ * The 3D stacks: the same chips as stackChips, one disc per complaint, from the street up, up to
+ * the cap. Each disc keeps its complaint's properties (d, t, s, aid) and stack level `i` and the
+ * point's total `n`, as a chip does, plus its base `b` and top `h` in meters and the point itself
+ * (`lon`, `lat`), since a disc is a polygon and the side panel's ring goes on the point.
+ * @param {{features: any[]}} fc @param {number} zoom
+ */
+export function stackDiscs(fc, zoom, cap = STACK_CAP) {
+	const { r, h, step } = discSize(zoom);
+	const features = [];
+	for (const p of groupByPoint(fc)) {
+		const [lon, lat] = p.coords;
+		const ring = discRing(lon, lat, r);
+		for (let i = 0; i < Math.min(p.items.length, cap); i++) {
+			const b = i * step;
+			features.push({
+				type: 'Feature',
+				geometry: { type: 'Polygon', coordinates: [ring] },
+				properties: { ...p.items[i], i, n: p.items.length, b: round2(b), h: round2(b + h), lon, lat }
+			});
+		}
+	}
+	return { type: 'FeatureCollection', features };
+}
+
+/** Height in meters of the total above a full column: just over its top disc. @param {number} zoom */
+export const columnTop = (zoom, cap = STACK_CAP) => round2(cap * discSize(zoom).step + 8 * metersPerPixel(zoom));
+
+/** How squarely the top of a disc meets MapLibre's default light: the light sits at [1.15, 210, 30]
+ * (radius, azimuth, polar angle), so its height is 1.15 x cos 30° = 0.996, whatever the bearing. A
+ * side meets it at 0 (facing away) to 1.15 x sin 30° = 0.575 (facing it). */
+export const TOP_DOT = 1.15 * Math.cos((30 * Math.PI) / 180);
+export const SIDE_DOT_MAX = 1.15 * Math.sin((30 * Math.PI) / 180);
+
+/** @param {string} hex */
+const rgb = (hex) => /** @type {string[]} */ (hex.match(/\w\w/g)).map((x) => parseInt(x, 16) / 255);
+/** @param {number[]} c */
+const toHex = (c) => '#' + c.map((x) => Math.round(Math.min(1, Math.max(0, x)) * 255).toString(16).padStart(2, '0')).join('');
+/** The shader's brightness for a color, before its ambient light is added. @param {number[]} c */
+const lum = (c) => c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722;
+
+/**
+ * The color a disc face is drawn in, as MapLibre GL JS 6.16.0's fill-extrusion vertex shader computes
+ * it (read from node_modules/maplibre-gl/dist/maplibre-gl-dev.mjs, 2026-11-20) with the default
+ * light: intensity 0.5, white, position [1.15, 210, 30]; neither SLAM basemap sets a light. `dot` is
+ * how squarely the face meets the light (TOP_DOT for a top, 0 to SIDE_DOT_MAX for a side). The
+ * shader also darkens sides toward the ground (fill-extrusion-vertical-gradient), which only makes
+ * them darker than this; the tests check the darkest case too.
+ * @param {string} hex @param {number} dot @param {number} [intensity]
+ */
+export function shade(hex, dot, intensity = 0.5) {
+	const c = rgb(hex);
+	const value = lum(c);
+	const lo = 1 - intensity;
+	const hi = Math.max(1 - value + intensity, 1);
+	const d = lo + (hi - lo) * dot;
+	return toHex(c.map((x) => (x + 0.03) * d));
+}
+
+/**
+ * The color to give a disc so that its lit top comes out as `hex` (shade() run backwards). The
+ * light brightens a top by up to about a quarter, more for a darker color, so each 311 group's disc
+ * starts darker than its chip and its top reads as the same color the flat chip has.
+ * @param {string} hex
+ */
+export function discColor(hex) {
+	const t = rgb(hex);
+	let c = t;
+	for (let k = 0; k < 20; k++) {
+		const hi = Math.max(1.5 - lum(c), 1);
+		const d = 0.5 + (hi - 0.5) * TOP_DOT;
+		c = t.map((x) => Math.min(1, Math.max(0, x / d - 0.03)));
+	}
+	return toHex(c);
+}
+
+/** MapLibre expression coloring a disc by its complaint type (property `t`), as c311ColorExpr colors a chip. */
+export function c311DiscColorExpr() {
+	/** @type {any[]} */
+	const e = ['match', ['get', 't']];
+	for (const g of C311_GROUPS) for (const t of g.types) e.push(t, discColor(g.color));
+	e.push(discColor(C311_GROUPS[C311_GROUPS.length - 1].color));
+	return e;
+}

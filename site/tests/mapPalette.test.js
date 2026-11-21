@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { SOURCE_COLOR, SOURCE_HOLLOW, C311_GROUPS, SW_COLOR } from '../src/lib/format.js';
 import { RING_COLOR, RING_COLOR_NOTE, LICENSE_GROUPS } from '../src/lib/rings.js';
 import { ciede2000, deltaE, contrast, simulate, hexToOklch, hexToLab, over, VISIONS, CVD_MATRICES } from './helpers/colorMetrics.js';
-import { C311_DOT, c311DotPaint } from '../src/lib/c311Display.js';
+import { C311_DOT, c311DotPaint, discColor, shade, TOP_DOT, SIDE_DOT_MAX } from '../src/lib/c311Display.js';
 
 const MAP = 'src/routes/[district]/map/+page.svelte';
 const mapSrc = readFileSync(MAP, 'utf8');
@@ -258,4 +258,27 @@ test('311 dots (#116): the regression, and dense blocks stay dots, not a blob', 
 	assert.match(mapSrc, /id: 'complaints_311',[\s\S]{0,160}paint: c311DotPaint\(\)/);
 	assert.doesNotMatch(mapSrc, /'circle-opacity': 0\.7/);
 	assert.doesNotMatch(mapSrc, /\.swatch\.small \{[^}]*opacity/);
+});
+
+test('311 3D discs on a tilted map (#132): every face >= 3:1 on land, as the flat chips; the shaded side carries park and water', (t) => {
+	// What MapLibre draws (shade(), its fill-extrusion lighting): the top, the side facing the light,
+	// and the side facing away. The shader darkens sides further toward the ground, which only adds
+	// contrast on these light surfaces.
+	for (const g of C311_GROUPS) {
+		const disc = discColor(g.color);
+		const faces = { top: shade(disc, TOP_DOT), lit_side: shade(disc, SIDE_DOT_MAX), shaded_side: shade(disc, 0) };
+		const cells = [];
+		for (const [s, bg] of Object.entries(DOT_SURFACES)) {
+			const c = Object.fromEntries(Object.entries(faces).map(([k, hex]) => [k, contrast(hex, bg)]));
+			cells.push(`${s} top ${c.top.toFixed(2)} lit ${c.lit_side.toFixed(2)} shaded ${c.shaded_side.toFixed(2)}`);
+			// On land every face stands out on its own, like a chip's fill (and the top is the chip's color).
+			if (DOT_LAND.includes(s)) for (const [k, v] of Object.entries(c)) assert.ok(v >= 3, `${g.key} ${k} on ${s}: ${v.toFixed(2)}`);
+			// On park and water a flat chip leans on its edge; a column leans on its shaded side. The one
+			// case under 3:1 is noise (orange) on City sports fields, 2.7:1, a field's mid green.
+			else if (!(g.key === 'noise' && s === 'city_sports_field')) assert.ok(c.shaded_side >= 3, `${g.key} shaded side on ${s}: ${c.shaded_side.toFixed(2)}`);
+		}
+		t.diagnostic(`${g.key} disc ${disc}: ${cells.join('; ')}`);
+	}
+	// The map page draws the discs in these colors.
+	assert.match(mapSrc, /type: 'fill-extrusion',[\s\S]{0,160}'fill-extrusion-color': c311DiscColorExpr\(\)/);
 });
