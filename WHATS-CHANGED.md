@@ -11,7 +11,7 @@ To report a bug in SLAM, or to ask for a new feature, [open an issue on GitHub](
 
 - **Tags:** Site
 - **What changed:** Tilt the district map (drag with the right mouse button or with Ctrl held, or with two fingers on a phone) and the stacked 311 chips stand up as 3D discs, one per complaint, so a busy address becomes a column that turns with the map. Looking straight down, the chips are flat, as before. The compass button lays the map flat again, and a link to a tilted map opens tilted.
-- **More detail:** [Issue 132](https://github.com/BetaNYC/SLAM/issues/132)
+- **More detail:** [The change](https://github.com/BetaNYC/SLAM/pull/133) · [Issue 132](https://github.com/BetaNYC/SLAM/issues/132)
 
 ## 2026-11-08: Three more community districts: Brooklyn 1, Manhattan 6 and Bronx 2
 
