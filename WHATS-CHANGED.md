@@ -10,7 +10,7 @@ To report a bug in SLAM, or to ask for a new feature, [open an issue on GitHub](
 ## 2026-11-24: A second map layout for Brooklyn Community District 9, to try out
 
 - **Tags:** Site
-- **What changed:** A test map of Brooklyn Community District 9 at slam.beta.nyc/bk-cd9/map2/, for Board 9 to try. It has the same data as the district map, laid out like BetaNYC's map of Manhattan's privately owned public spaces: a layer panel on the right, where every layer turns on and off by itself, and a bar of totals and a 311 chart by year along the bottom. Both can be hidden for a full-screen map. A "Send feedback" button sends comments to BetaNYC. The district map is unchanged.
+- **What changed:** A test map of Brooklyn Community District 9 at slam.beta.nyc/bk-cd9/map2/, for Board 9 to try. It has the same data as the district map, laid out like BetaNYC's map of Manhattan's privately owned public spaces: a layer panel on the right, where each layer has its own on/off button, and a bar of totals and a 311 chart by year along the bottom. Both can be hidden for a full-screen map. A "Send feedback" button sends comments to BetaNYC. The district map is unchanged.
 - **More detail:** [Issue 134](https://github.com/BetaNYC/SLAM/issues/134)
 
 ## 2026-11-20: Map: 311 complaints stand up in 3D when you tilt the map

@@ -24,7 +24,7 @@
 	/** Panel order (Noel, 2026-11-24): Dining Out, Cannabis, Liquor. */
 	const RECORD_GROUPS = [
 		{ h: 'Dining Out', items: [['dining_out', 'Outdoor dining permits']] },
-		{ h: 'Cannabis', small: 'Office of Cannabis Management', items: [['cannabis_retail', 'Registered retail dealers'], ['cannabis_license', 'Licenses, including in process']] },
+		{ h: 'Cannabis', small: 'Office of Cannabis Management', items: [['cannabis_retail', 'Registered retail dealers'], ['cannabis_license', 'Cannabis licenses (issued or in process)']] },
 		{ h: 'Liquor', small: 'State Liquor Authority', items: [['liquor_active', 'Active licenses'], ['liquor_pending', 'Pending applications'], ['liquor_inactive', 'Past (inactive) licenses']] }
 	];
 	/** Drawn bottom to top: outdoor dining over cannabis over liquor. */
@@ -148,7 +148,6 @@
 			STACK_LAYERS = Array.from({ length: maxPile(c311) }, (_, i) => `c311-stack-${i}`);
 			VIEW_LAYERS.flat = [...STACK_LAYERS, 'c311-stack-label'];
 			for (const k of RECORD_ORDER) counts[k] = points.features.filter((/** @type {any} */ f) => f.properties.source === k).length;
-			for (const k of SW_KINDS) counts[k] = swPts.features.filter((/** @type {any} */ f) => f.properties.k === k).length;
 			const ys = c311.features.map((/** @type {any} */ f) => +String(f.properties.d).slice(0, 4)).filter(Number.isFinite);
 			const lo = Math.min(...ys);
 			const hi = Math.max(...ys);
@@ -407,7 +406,7 @@
 	<header class="head">
 		<a class="brand" href="https://beta.nyc"><img src={logo} alt="BetaNYC" width="89" height="30" /></a>
 		<span class="sep"></span>
-		<h1>{place} · Street Licenses &amp; Activity</h1>
+		<h1>{place} · Street License and Activity Map</h1>
 		<button type="button" class="fb-open" onclick={openFeedback}>{FB.button}</button>
 	</header>
 	<p class="proto">Prototype</p>
@@ -464,7 +463,8 @@
 		<h2>Schools &amp; houses of worship</h2>
 		{#each SW_KINDS as k (k)}
 			<button type="button" class="btn" aria-pressed={sw[k]} onclick={() => flip(sw, k)}>
-				<span class="sw" style="--c:{SW_COLOR[k]}"></span>{SW_LABEL[k]}<span class="n">{counts[k] ?? ''}</span>
+				<!-- No count (Noel, 2026-11-24): the file also holds points just outside the line, for the rings. -->
+				<span class="sw" style="--c:{SW_COLOR[k]}"></span>{SW_LABEL[k]}
 			</button>
 		{/each}
 
@@ -475,9 +475,9 @@
 		<button type="button" class="btn" aria-pressed={rings.cannabis} onclick={() => flip(rings, 'cannabis')}>
 			<span class="sw ring dashed" style="--c:{RING_COLOR.cannabis}"></span>Cannabis: {data.ring_ft.cannabis_school_ft} / {data.ring_ft.cannabis_worship_ft} ft<span class="n">schools / worship</span>
 		</button>
-		<p class="note">Rings show whether or not the school and worship points are on. Other religious property has no ring. {RING_NOTE}</p>
+		<p class="note">Rings stay on the map even when the school and worship points are hidden. Other religious property has no ring. {RING_NOTE}</p>
 
-		<h2>311 complaints <small>(at bars, clubs, restaurants)</small></h2>
+		<h2>{SOURCE_LABEL.complaints_311}</h2>
 		<div class="row2">
 			<div>
 				<label for="y0">From</label>
@@ -501,7 +501,7 @@
 
 		<details class="about">
 			<summary>About this map</summary>
-			<p class="note">A second layout of SLAM's map of {data.district.label}, after BetaNYC's map of Manhattan's privately owned public spaces. Every layer turns on and off by itself. On the map, outdoor dining is drawn over cannabis, and cannabis over liquor. The years apply to 311 complaints only.</p>
+			<p class="note">A second layout of SLAM's map of {data.district.label}, after BetaNYC's map of Manhattan's privately owned public spaces. Each layer has its own on/off button. On the map, outdoor dining is drawn over cannabis, and cannabis over liquor. The years apply to 311 complaints only.</p>
 			<p class="note">Data: SLAM's nightly files for this district, from State Liquor Authority licenses and applications (data.ny.gov f8i8-k2gm, 9s3h-dpkz, 6dg3-2z7i), the Office of Cannabis Management (gttd-5u6y, jskf-tt3q), Dining Out NYC (fpeh-f7ci), 311 Service Requests (erm2-nwe9), the Facilities Database (ji82-xba5) and PLUTO (64uk-42ks). BetaNYC placed and grouped the records, so this is not an official City or State record. Updated {fmtStamp(data.manifest.data_fetched)}. {basemapLine}</p>
 			<p class="note"><a href={resolve('/[district]/map', { district: data.slug })}>The first map of this district</a> · <a href={resolve('/[district]', { district: data.slug })}>List view</a> · <a href={resolve('/about', {})}>About SLAM</a> · <a href={resolve('/whats-changed', {})} data-sveltekit-reload>What's changed</a></p>
 		</details>
@@ -516,7 +516,7 @@
 				<div><b>{data.district.counts.liquor_pending}</b><span>pending applications</span></div>
 				<div><b>{shown311.features.length.toLocaleString('en-US')}</b><span>311 complaints</span></div>
 			</div>
-			<p class="sub">{#if expiring !== null}{expiring} active liquor licenses expire in the next six months.{' '}{/if}311 data through {data.c311?.through ?? '—'}.</p>
+			<p class="sub">{#if expiring !== null}{expiring} active liquor licenses come up for renewal in the next six months.{' '}{/if}311 data through {data.c311?.through ?? '—'}.</p>
 		</div>
 		<div class="chart">
 			<h2 id="chart-h">311 complaints per year (select a year; * = to date)</h2>
@@ -559,7 +559,7 @@
 	.head h1 { font-size: clamp(14px, 1.6vw, 20px); font-weight: 400; color: var(--blue); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 	.sep { width: 1px; height: 26px; background: var(--line); flex: none; }
 	.fb-open { flex: none; min-height: 32px; padding: 0 12px; border: 1px solid var(--blue); border-radius: 16px; background: var(--blue); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-	.proto { position: fixed; top: 64px; left: 52px; z-index: 4; margin: 0; background: #fff4cc; color: #5c4300; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 3px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+	.proto { position: fixed; top: 64px; left: 52px; z-index: 4; margin: 0; font-weight: 600; background: #fff4cc; color: #5c4300; font-size: 12px; padding: 4px 8px; border-radius: 3px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
 	:global(.maplibregl-ctrl-top-left) { top: 64px; }
 	.tilt { position: fixed; top: 172px; left: 10px; z-index: 2; width: 29px; height: 29px; border: 0; border-radius: 4px; background: #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); font-size: 11px; font-weight: 700; color: var(--blue); cursor: pointer; padding: 0; }
 	.tilt[aria-pressed='true'] { background: var(--blue); color: #fff; }
@@ -627,7 +627,7 @@
 
 	/* A phone: the panel opens over the map from the "Layers" button; the bar stacks; no legend. */
 	@media (max-width: 760px) {
-		.app, .app.noside { --side: 0px; --bar: 150px; }
+		.app, .app.noside { --side: 0px; --bar: 280px; }
 		.app.nobar { --bar: 0px; }
 		.side { width: 100%; z-index: 6; }
 		.head { min-height: 40px; gap: 8px; padding: 4px 8px; max-width: calc(100vw - 20px); }
@@ -637,7 +637,10 @@
 		:global(.maplibregl-ctrl-top-left) { top: 84px; }
 		.tilt { top: 192px; }
 		.show-panel { top: auto; right: auto; left: 12px; bottom: calc(var(--bar) + 12px); }
-		.bar { grid-template-columns: 1fr; overflow-y: auto; }
+		/* Stacked: counts, then the chart; each row its own height, so nothing overlaps (QA, 2026-11-24). */
+		.bar { grid-template-columns: 1fr; grid-template-rows: auto; gap: 8px; overflow-y: auto; }
+		.bar > div:first-of-type h2 { margin-right: 90px; }
+		.chart { height: 125px; flex: none; }
 		.legend { display: none; }
 	}
 </style>

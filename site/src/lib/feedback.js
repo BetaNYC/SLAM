@@ -72,6 +72,8 @@ export async function sendFeedback(body, f = globalThis.fetch) {
 // Final wording: people/noel/work/2026-11-24-slam-map2-feedback-copy.md, section 1, in the BetaNYC
 // workspace (2026-11-24). `cancel`, `close` and `sending` are not in that file: the form needs them.
 // A busy endpoint (429) shows the same error message, which already says to try again in a minute.
+// `sent` is QA's wording (2026-11-24): the endpoint answers 201 even when it quietly drops a report
+// (honeypot, spam filter), so the message must not promise that staff read it.
 export const FEEDBACK_COPY = {
 	button: 'Send feedback',
 	title: 'Tell us what you think of this map',
@@ -85,6 +87,6 @@ export const FEEDBACK_COPY = {
 	cancel: 'Cancel',
 	close: 'Close',
 	sending: 'Sending…',
-	sent: 'Thank you. Your feedback reached BetaNYC, and our staff read every message.',
+	sent: 'Thank you. Your feedback has been sent to BetaNYC.',
 	failed: "Your feedback didn't send. Please try again in a minute, or email it to lab@beta.nyc."
 };

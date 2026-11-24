@@ -78,3 +78,36 @@ test('feedback: the form posts a problem report (mocked endpoint)', async ({ pag
 		{ schema: 'betanyc-data-issue/1', tool: 'slam', kind: 'problem-report', page_url: 'https://slam.beta.nyc/bk-cd9/map2/', website: '', credit_ok: false, contact: { name: 'Test' }, record: 'map2-feedback', description: 'Test feedback from the browser test.' }
 	]);
 });
+
+test('schools and houses of worship buttons show no count', async ({ page }) => {
+	await page.goto(/** @type {any} */ (map2).path);
+	await waitForMap(page);
+	const sw = page.locator('aside.side button.btn').filter({ hasText: /Schools \(K-12\)|Houses of worship|Other religious property/ });
+	await expect(sw).toHaveCount(3);
+	for (const b of await sw.all()) {
+		await expect(b.locator('.n')).toHaveCount(0);
+		expect((await b.innerText()).trim()).toMatch(/^(Schools \(K-12\)|Houses of worship|Other religious property)$/);
+	}
+});
+
+test('phone: nothing in the stats bar overlaps', async ({ page }, info) => {
+	test.skip(info.project.name === 'desktop', 'phone sizes only');
+	await page.goto(/** @type {any} */ (map2).path);
+	await waitForMap(page);
+	const sel = ['#hide-stats', '.bar > div:first-of-type h2', '.counts', '.bar .sub', '#chart-h', '.cols'];
+	const boxes = [];
+	for (const s of sel) boxes.push({ s, b: await page.locator(s).boundingBox() });
+	for (let i = 0; i < boxes.length; i++)
+		for (let j = i + 1; j < boxes.length; j++) {
+			const [a, b] = [boxes[i].b, boxes[j].b];
+			if (!a || !b) throw new Error(`missing ${boxes[i].s} or ${boxes[j].s}`);
+			const overlap = a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+			expect(overlap, `${boxes[i].s} overlaps ${boxes[j].s}`).toBe(false);
+		}
+	// and the counts' own labels stay inside their box, above the chart heading
+	const counts = await page.locator('.counts').boundingBox();
+	for (const span of await page.locator('.counts span').all()) {
+		const r = await span.boundingBox();
+		expect((r?.y ?? 0) + (r?.height ?? 0)).toBeLessThanOrEqual((counts?.y ?? 0) + (counts?.height ?? 0) + 0.5);
+	}
+});
