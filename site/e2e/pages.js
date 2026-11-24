@@ -52,6 +52,8 @@ export function pages() {
 		{ name: 'district', path: `/${d}/` },
 		{ name: 'address', path: `/address/?id=${busiestAddress()}`, address: true },
 		{ name: 'map', path: `/${d}/map/`, map: true },
+		// The second district map (#134), Brooklyn CD 9 only.
+		...(districts().includes('bk-cd9') ? [{ name: 'map2', path: '/bk-cd9/map2/', map: true }] : []),
 		{ name: 'about', path: '/about/' },
 		{ name: 'glossary', path: '/glossary/' },
 		{ name: 'rules', path: '/rules/' },
