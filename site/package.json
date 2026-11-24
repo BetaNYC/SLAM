@@ -32,7 +32,9 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"maplibre-gl": "^6.16.0"
+		"@protomaps/basemaps": "5.7.2",
+		"maplibre-gl": "^6.16.0",
+		"pmtiles": "4.5.0"
 	},
 	"engines": {
 		"node": ">=22.17 <27"

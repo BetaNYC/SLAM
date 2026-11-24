@@ -10,7 +10,7 @@
 	import logo from '#lib/assets/betanyc-logo.svg';
 	import { SOURCE_COLOR, SOURCE_HOLLOW, SOURCE_LABEL, SW_COLOR, SW_KIND, C311_GROUPS, c311Group, c311ColorExpr, fmtStamp } from '#lib/format.js';
 	import { STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr, chipView, stackDiscs, columnTop, c311DiscColorExpr, DISC_REBUILD_ZOOM, TILT_ON } from '#lib/c311Display.js';
-	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
+	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL, LABEL_FONT, grayStyle, GRAY_FLAVOR } from '#lib/basemap.js';
 	import { ringSpecs, ringFeatures, RING_COLOR, RING_NOTE } from '#lib/rings.js';
 	import { popupSW } from '#lib/popupSW.js';
 	import { popup311Point } from '#lib/popup311.js';
@@ -44,7 +44,6 @@
 	let STACK_LAYERS = [];
 	/** @type {Record<'circles' | 'flat' | '3d', string[]>} */
 	const VIEW_LAYERS = { circles: ['c311-sized', 'c311-sized-label'], flat: ['c311-stack-label'], '3d': ['c311-discs', 'c311-col-label'] };
-	const LABEL_LAYERS = ['c311-sized-label', 'c311-stack-label', 'c311-col-label'];
 	const EMPTY = { type: 'FeatureCollection', features: [] };
 
 	// What is on. Defaults: what SLAM shows first, minus past licenses and other religious property;
@@ -74,6 +73,12 @@
 	let tilted = $state(false);
 	let loaded = $state(false);
 	let basemapLine = $state('');
+	/** Which street map is showing, and the City style to switch back to (null if it never loaded). @type {'city' | 'fallback' | 'gray'} */
+	let baseKind = $state('city');
+	/** The gray (BoardStat) street map's style, once its libraries and this district's file are in hand. @type {any} */
+	let grayMap = $state.raw(null);
+	/** @type {any} */
+	let cityStyle = $state.raw(null);
 	/** Active liquor licenses expiring from today through six months out (null until loaded). @type {number | null} */
 	let expiring = $state(null);
 
@@ -126,7 +131,7 @@
 		let cancelled = false;
 		if (window.matchMedia?.('(max-width: 760px)').matches) panelShown = false;
 		(async () => {
-			const [{ Map, NavigationControl, setWorkerUrl, Popup: P }, { default: workerUrl }] = await Promise.all([
+			const [{ Map, NavigationControl, setWorkerUrl, addProtocol, Popup: P }, { default: workerUrl }] = await Promise.all([
 				import('maplibre-gl'),
 				import('maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url')
 			]);
@@ -140,7 +145,8 @@
 				get(`${data.slug}/list.json`),
 				get(`${data.slug}/points-311.geojson`),
 				get(`${data.slug}/schools-worship.geojson`),
-				chooseBasemap()
+				chooseBasemap(),
+				loadGray(addProtocol)
 			]);
 			if (cancelled) return;
 			const points = recordPoints(list);
@@ -156,8 +162,15 @@
 			y1 = hi;
 			pts311 = c311;
 			swData = swPts;
-			if (basemap.kind === 'fallback') labelFont = ['Noto Sans Bold'];
-			basemapLine = basemapNote(basemap.kind);
+			if (basemap.kind === 'city') cityStyle = basemap.style;
+			// The gray map opens first (Noel, 2026-11-24); without it, the City map, then OpenFreeMap.
+			/** @type {'city' | 'fallback' | 'gray'} */
+			const startKind = grayMap ? 'gray' : basemap.kind;
+			const startStyle = grayMap ?? basemap.style;
+			baseKind = startKind;
+			labelFont = LABEL_FONT[startKind];
+			baseSources = typeof startStyle === 'object' ? Object.keys(startStyle.sources) : null;
+			basemapLine = basemapNote(startKind);
 			const mine = { ...outline, features: outline.features.filter((/** @type {any} */ f) => f.properties.slug === data.slug) };
 			const b = mine.features[0].geometry.coordinates.flat(2);
 			const xs = b.map((/** @type {number[]} */ c) => c[0]);
@@ -165,24 +178,24 @@
 
 			map = new Map({
 				container,
-				style: basemap.style,
+				style: startStyle,
 				bounds: [[Math.min(...xs), Math.min(...yy)], [Math.max(...xs), Math.max(...yy)]],
 				fitBoundsOptions: { padding: { top: 90, bottom: 20, left: 50, right: 20 } }
 			});
 			map.addControl(new NavigationControl({ visualizePitch: true }), 'top-left');
 			// The City basemap can fail after start-up: swap once to OpenFreeMap, keeping our layers (#lib/basemap.js).
-			const switcher = basemapSwitcher(basemap.kind, () => {
+			const onCityFail = () => {
+				setBase('fallback');
 				status = SWITCH_NOTE;
-				basemapLine = basemapNote('fallback');
-				labelFont = ['Noto Sans Bold'];
-				map.once('style.load', () => LABEL_LAYERS.forEach((id) => map.getLayer(id) && map.setLayoutProperty(id, 'text-font', labelFont)));
-				map.setStyle(FALLBACK_STYLE_URL, { diff: false, transformStyle: carryOverlays(Object.keys(basemap.style.sources)) });
-			});
+			};
+			switcher = basemapSwitcher(startKind === 'city' ? 'city' : 'fallback', onCityFail);
+			armSwitcher = () => (switcher = basemapSwitcher('city', onCityFail));
 			map.on('error', (/** @type {any} */ e) => {
 				console.warn('SLAM map error:', e?.error?.message ?? e);
 				switcher.handle(e);
 			});
 			map.on('load', () => {
+				baseSources ??= Object.keys(map.getStyle().sources);
 				addLayers(mine, points);
 				ready = true;
 				loaded = true;
@@ -190,7 +203,7 @@
 				map.on('zoomend', drawView);
 				map.on('pitch', drawView);
 				map.on('click', clicked);
-				status = `Map loaded. ${basemapNote(basemap.kind)}`;
+				status = `Map loaded. ${basemapNote(startKind)}`;
 			});
 		})().catch((err) => {
 			failed = true;
@@ -201,6 +214,52 @@
 			map?.remove();
 		};
 	});
+
+	/** Source ids of the street map now showing; everything else on the map is ours. @type {string[] | null} */
+	let baseSources = null;
+	/** @type {{ handle: (e: any) => boolean }} */
+	let switcher;
+	let armSwitcher = () => {};
+
+	/**
+	 * Swap the street map underneath, keeping every SLAM layer as it is. Used by the reader's
+	 * City/OpenStreetMap button and by the automatic fallback when the City map fails.
+	 * @param {'city' | 'fallback' | 'gray'} kind
+	 * @param {boolean} [chosen] the reader picked it (changes the status-line wording)
+	 */
+	function setBase(kind, chosen = false) {
+		const style = { city: cityStyle, gray: grayMap, fallback: FALLBACK_STYLE_URL }[kind];
+		if (kind === baseKind || !style) return;
+		const carry = carryOverlays(baseSources ?? [], LABEL_FONT[kind]);
+		map.setStyle(style, {
+			diff: false,
+			transformStyle: (/** @type {any} */ prev, /** @type {any} */ next) => {
+				baseSources = Object.keys(next.sources ?? {});
+				return carry(prev, next);
+			}
+		});
+		labelFont = LABEL_FONT[kind];
+		baseKind = kind;
+		basemapLine = basemapNote(kind, chosen);
+		if (kind === 'city') armSwitcher();
+	}
+
+	/**
+	 * Get the gray street map ready in the background. Its button stays off if this district has
+	 * no .pmtiles file or the libraries fail to load.
+	 * @param {(name: string, fn: any) => void} addProtocol
+	 */
+	async function loadGray(addProtocol) {
+		try {
+			const url = new URL(asset(/** @type {any} */ (`basemap/${data.slug}.pmtiles`)), location.href).href;
+			const [head, { Protocol }, basemaps] = await Promise.all([fetch(url, { headers: { Range: 'bytes=0-6' } }), import('pmtiles'), import('@protomaps/basemaps')]);
+			if (!head.ok) return;
+			addProtocol('pmtiles', new Protocol().tile);
+			grayMap = grayStyle(url, basemaps.layers('protomaps', basemaps.namedFlavor(GRAY_FLAVOR), { lang: 'en' }));
+		} catch (err) {
+			console.warn('SLAM gray street map unavailable:', err);
+		}
+	}
 
 	/** @param {any} mine @param {any} points */
 	function addLayers(mine, points) {
@@ -415,6 +474,11 @@
 		<div class="map" bind:this={container} role="region" aria-label="Map of {data.district.label}"></div>
 		<p class="status" class:shown={failed} role="status">{status}</p>
 		<button type="button" class="tilt" aria-pressed={tilted} onclick={setTilt} disabled={!loaded} title="Tilt the map to see the 311 piles in 3D">3D</button>
+		<div class="basepick" role="group" aria-label="Street map">
+			<button type="button" aria-pressed={baseKind === 'city'} onclick={() => setBase('city')} disabled={!loaded || !cityStyle} title="The City's own street map (NYC OTI, Esri)">City</button>
+			<button type="button" aria-pressed={baseKind === 'gray'} onclick={() => setBase('gray')} disabled={!loaded || !grayMap} title="The gray street map BoardStat uses (Protomaps, OpenStreetMap data)">Gray</button>
+			<button type="button" aria-pressed={baseKind === 'fallback'} onclick={() => setBase('fallback', true)} disabled={!loaded} title="OpenStreetMap, served by OpenFreeMap">OSM</button>
+		</div>
 		{#if !panelShown}<button type="button" class="show show-panel" id="show-panel" aria-controls="panel" onclick={() => collapse('panel')}>« Layers</button>{/if}
 		{#if !statsShown}<button type="button" class="show show-stats" id="show-stats" aria-controls="stats" onclick={() => collapse('stats')}>Show stats</button>{/if}
 
@@ -563,6 +627,10 @@
 	:global(.maplibregl-ctrl-top-left) { top: 64px; }
 	.tilt { position: fixed; top: 172px; left: 10px; z-index: 2; width: 29px; height: 29px; border: 0; border-radius: 4px; background: #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); font-size: 11px; font-weight: 700; color: var(--blue); cursor: pointer; padding: 0; }
 	.tilt[aria-pressed='true'] { background: var(--blue); color: #fff; }
+	.basepick { position: fixed; top: 208px; left: 10px; z-index: 2; display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1); }
+	.basepick button { width: 29px; height: 24px; border: 0; background: #fff; font-size: 9px; font-weight: 700; color: var(--blue); cursor: pointer; padding: 0; }
+	.basepick button + button { border-top: 1px solid #ddd; }
+	.basepick button[aria-pressed='true'] { background: var(--blue); color: #fff; }
 	.status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: -1px; }
 	.status.shown { position: fixed; z-index: 5; top: 110px; left: 50px; right: calc(var(--side) + 20px); width: auto; height: auto; clip: auto; white-space: normal; margin: 0; padding: 8px 12px; background: #fff; border-left: 4px solid #b71a03; }
 	.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -636,6 +704,7 @@
 		.proto { top: 58px; left: 10px; }
 		:global(.maplibregl-ctrl-top-left) { top: 84px; }
 		.tilt { top: 192px; }
+		.basepick { top: 228px; }
 		.show-panel { top: auto; right: auto; left: 12px; bottom: calc(var(--bar) + 12px); }
 		/* Stacked: counts, then the chart; each row its own height, so nothing overlaps (QA, 2026-11-24). */
 		.bar { grid-template-columns: 1fr; grid-template-rows: auto; gap: 8px; overflow-y: auto; }

@@ -223,21 +223,58 @@ export function basemapSwitcher(kind, onSwitch) {
  * worship, and any added later) and the layers drawn from them, in their order and with their
  * current visibility, on top of the new basemap.
  * @param {Iterable<string>} baseSourceIds source ids that belong to the basemap being replaced
+ * @param {string[]} [font] if given, the text-font every carried label switches to
  */
-export function carryOverlays(baseSourceIds) {
+export function carryOverlays(baseSourceIds, font) {
 	const base = new Set(baseSourceIds);
 	/** @param {any} prev @param {any} next */
 	return (prev, next) => {
 		if (!prev) return next;
 		const sources = Object.fromEntries(Object.entries(prev.sources ?? {}).filter(([id]) => !base.has(id)));
-		const layers = (prev.layers ?? []).filter((/** @type {any} */ l) => l.source && l.source in sources);
+		let layers = (prev.layers ?? []).filter((/** @type {any} */ l) => l.source && l.source in sources);
+		// Each basemap serves its own fonts, so carried labels must ask the new one for a font it has.
+		if (font) layers = layers.map((/** @type {any} */ l) => (l.layout?.['text-font'] ? { ...l, layout: { ...l.layout, 'text-font': font } } : l));
 		return { ...next, sources: { ...next.sources, ...sources }, layers: [...next.layers, ...layers] };
 	};
 }
 
-/** One sentence for the map page's status line. @param {'city' | 'fallback'} kind */
-export function basemapNote(kind) {
-	return kind === 'city'
-		? "Street map: the City's own basemap (NYC OTI)."
+/** The bold label font each basemap's glyph server has (Protomaps ships no bold Noto). */
+export const LABEL_FONT = { city: ['Source Sans Pro Bold'], fallback: ['Noto Sans Bold'], gray: ['Noto Sans Medium'] };
+
+// The gray street map BoardStat uses: Protomaps' `grayscale` flavor of OpenStreetMap data
+// (BetaNYC/BoardStat v2/site/js/map.js). BoardStat's own copy on beta.nyc cannot be read from
+// slam.beta.nyc (DreamPress allows no CORS header), so SLAM serves its own extract per district,
+// site/static/basemap/<slug>.pmtiles (README: "Gray street map"). Fonts and icons come from
+// Protomaps' public assets, as https://docs.protomaps.com/basemaps/maplibre shows.
+export const GRAY_ASSETS = 'https://protomaps.github.io/basemaps-assets';
+export const GRAY_FLAVOR = 'grayscale';
+export const GRAY_ATTRIBUTION =
+	'<a href="https://protomaps.com">Protomaps</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+/**
+ * The gray street map's style.
+ * @param {string} pmtilesUrl absolute URL of the district's .pmtiles file
+ * @param {any[]} layers from `@protomaps/basemaps`: layers('protomaps', namedFlavor(GRAY_FLAVOR), { lang: 'en' })
+ */
+export function grayStyle(pmtilesUrl, layers) {
+	return {
+		version: 8,
+		glyphs: `${GRAY_ASSETS}/fonts/{fontstack}/{range}.pbf`,
+		sprite: `${GRAY_ASSETS}/sprites/v4/${GRAY_FLAVOR}`,
+		sources: { protomaps: { type: 'vector', url: `pmtiles://${pmtilesUrl}`, attribution: GRAY_ATTRIBUTION } },
+		layers
+	};
+}
+
+/**
+ * One sentence for the map page's status line.
+ * @param {'city' | 'fallback' | 'gray'} kind
+ * @param {boolean} [chosen] true when the reader picked OpenStreetMap, rather than the City map failing
+ */
+export function basemapNote(kind, chosen = false) {
+	if (kind === 'city') return "Street map: the City's own basemap (NYC OTI).";
+	if (kind === 'gray') return 'Street map: Protomaps (OpenStreetMap data), the gray map BoardStat uses.';
+	return chosen
+		? 'Street map: OpenFreeMap (OpenStreetMap data).'
 		: "The City's basemap did not load, so this map uses OpenFreeMap (OpenStreetMap data) instead.";
 }
