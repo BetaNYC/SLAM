@@ -1,4 +1,4 @@
-import{t as e}from"../chunks/DK3Fl9T5.js";import{D as t,H as n,K as r,W as i,g as a,k as o,m as s,z as c}from"../chunks/Cxg9uTOd.js";var l=e({csr:()=>!1,prerender:()=>!0}),u=`<div class="whats-changed" data-whats-changed>
+import{t as e}from"../chunks/DK3Fl9T5.js";import{A as t,B as n,G as r,O as i,U as a,_ as o,h as s,q as c}from"../chunks/BMpgzjPG.js";var l=e({csr:()=>!1,prerender:()=>!0}),u=`<div class="whats-changed" data-whats-changed>
 <style>
 .whats-changed{color:#414141;font-size:1.0625rem;line-height:1.76;max-width:750px;overflow-wrap:anywhere}
 .whats-changed a{color:#2359a8;text-decoration:underline}
@@ -33,7 +33,15 @@ import{t as e}from"../chunks/DK3Fl9T5.js";import{D as t,H as n,K as r,W as i,g a
 <label class="wc-option"><input type="checkbox" name="wc-corrections" value="Correction"> Corrections only</label>
 </fieldset>
 </div>
-<p class="wc-status" role="status" aria-live="polite" aria-atomic="true">Showing all 26 changes.</p>
+<p class="wc-status" role="status" aria-live="polite" aria-atomic="true">Showing all 27 changes.</p>
+<article class="wc-entry" id="2026-11-24-a-second-map-layout-for-brooklyn-community-district-9-to-try-out" data-tags="Site" aria-labelledby="2026-11-24-a-second-map-layout-for-brooklyn-community-district-9-to-try-out-title">
+<h2 id="2026-11-24-a-second-map-layout-for-brooklyn-community-district-9-to-try-out-title">A second map layout for Brooklyn Community District 9, to try out</h2>
+<p class="wc-meta"><time datetime="2026-11-24">November 24, 2026</time></p>
+<p class="wc-tags"><span class="wc-visually-hidden">Tags: </span><span class="wc-tag">Site</span></p>
+<p>A test map of Brooklyn Community District 9 at slam.beta.nyc/bk-cd9/map2/, for Board 9 to try. It has the same data as the district map, laid out like BetaNYC&#x27;s map of Manhattan&#x27;s privately owned public spaces: a layer panel on the right, where each layer has its own on/off button, and a bar of totals and a 311 chart by year along the bottom. Both can be hidden for a full-screen map. A &quot;Send feedback&quot; button sends comments to BetaNYC. The district map is unchanged.</p>
+<p><strong>More detail:</strong> <a href="https://github.com/BetaNYC/SLAM/issues/134">Issue 134</a></p>
+<p class="wc-permalink"><a href="#2026-11-24-a-second-map-layout-for-brooklyn-community-district-9-to-try-out">Link to this change<span class="wc-visually-hidden">: A second map layout for Brooklyn Community District 9, to try out</span></a></p>
+</article>
 <article class="wc-entry" id="2026-11-20-map-311-complaints-stand-up-in-3d-when-you-tilt-the-map" data-tags="Site" aria-labelledby="2026-11-20-map-311-complaints-stand-up-in-3d-when-you-tilt-the-map-title">
 <h2 id="2026-11-20-map-311-complaints-stand-up-in-3d-when-you-tilt-the-map-title">Map: 311 complaints stand up in 3D when you tilt the map</h2>
 <p class="wc-meta"><time datetime="2026-11-20">November 20, 2026</time></p>
@@ -289,4 +297,4 @@ import{t as e}from"../chunks/DK3Fl9T5.js";import{D as t,H as n,K as r,W as i,g a
   });
 })();
 <\/script>
-</div>`,d=o(`<h1>What's changed</h1> <!>`,1);function f(e){var o=d();s(`qdqiul`,e=>{c(()=>{n.title=`What's changed — SLAM v2 prototype`})});var l=r(i(o),2);a(l,()=>u),t(e,o)}export{f as component,l as universal};
+</div>`,d=t(`<h1>What's changed</h1> <!>`,1);function f(e){var t=d();s(`qdqiul`,e=>{n(()=>{a.title=`What's changed — SLAM v2 prototype`})});var l=c(r(t),2);o(l,()=>u),i(e,t)}export{f as component,l as universal};
