@@ -81,3 +81,53 @@ test('map2 draws only colors from the tested map palette (tests/mapPalette.test.
 	const used = [...script.matchAll(/'(#[0-9a-f]{3,6})'/gi)].map((m) => m[1].toLowerCase());
 	for (const c of used) assert.ok(palette.has(c), `${c} is not in the tested palette`);
 });
+
+// ---- Follow-ups (#134): license dates from list.json, the six-month count, and no pile cap.
+import { existsSync } from 'node:fs';
+import { recordPoints, expiringSoon, addMonths, maxPile, nycToday } from '../src/lib/map2.js';
+import { stackChips, stackDiscs, STACK_CAP } from '../src/lib/c311Display.js';
+
+const DATA = 'static/data/bk-cd9';
+const built = existsSync(`${DATA}/list.json`) && existsSync(`${DATA}/points.geojson`);
+
+test('built data: list.json gives the same dots as points.geojson, plus type and date', { skip: !built && 'no built data' }, () => {
+	const list = JSON.parse(readFileSync(`${DATA}/list.json`, 'utf8'));
+	const pts = JSON.parse(readFileSync(`${DATA}/points.geojson`, 'utf8'));
+	const key = (/** @type {any} */ f) => JSON.stringify([f.properties.source, f.properties.aid, f.properties.name, f.properties.street, f.properties.status, f.geometry.coordinates]);
+	const mine = recordPoints(list).features;
+	assert.deepEqual(mine.map(key).sort(), pts.features.map(key).sort());
+	// Every liquor dot has its date label; an active license always has its expiration date (one
+	// pending application in the 2026-11-24 data has no received date, and its popup leaves the line out).
+	for (const f of mine.filter((x) => x.properties.source.startsWith('liquor_'))) assert.ok(f.properties.date_label, f.properties.rid);
+	for (const f of mine.filter((x) => x.properties.source === 'liquor_active')) assert.ok(f.properties.date_label === 'Expires' && /^\d{4}-\d{2}-\d{2}$/.test(f.properties.date), f.properties.rid);
+});
+
+test('addMonths keeps the day, or the last day of a shorter month', () => {
+	assert.equal(addMonths('2026-11-24', 6), '2027-05-24');
+	assert.equal(addMonths('2026-08-31', 6), '2027-02-28');
+	assert.equal(addMonths('2026-12-31', 2), '2027-02-28');
+});
+
+test('expiringSoon counts active licenses expiring today through six months out', () => {
+	const rows = [
+		{ date_label: 'Expires', date: '2026-11-23' }, // yesterday: no
+		{ date_label: 'Expires', date: '2026-11-24' }, // today: yes
+		{ date_label: 'Expires', date: '2026-12-31' }, // yes
+		{ date_label: 'Expires', date: '2027-05-24' }, // six months: yes
+		{ date_label: 'Expires', date: '2027-05-25' }, // no
+		{ date_label: 'Received', date: '2026-12-01' } // not an expiration: no
+	];
+	assert.equal(expiringSoon(rows, '2026-11-24'), 3);
+	assert.match(nycToday(new Date('2026-11-25T03:00:00Z')), /^2026-11-24$/); // 10 pm in New York
+});
+
+test('no pile cap on map2: every complaint is a chip and a disc', () => {
+	const fc = { type: 'FeatureCollection', features: Array.from({ length: 130 }, (_, i) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [-73.95, 40.66] }, properties: { d: `2024-01-${String((i % 28) + 1).padStart(2, '0')}`, t: 'Noise - Commercial' } })) };
+	assert.equal(maxPile(fc), 130);
+	assert.equal(stackChips(fc, Infinity).features.length, 130);
+	assert.equal(stackDiscs(fc, 17, Infinity).features.length, 130);
+	assert.equal(stackChips(fc).features.length, STACK_CAP); // the first map's cap is unchanged
+	const src = readFileSync('src/routes/[district]/map2/+page.svelte', 'utf8');
+	assert.match(src, /stackChips\(shown311, Infinity\)/);
+	assert.match(src, /stackDiscs\(shown311, z, Infinity\)/);
+});

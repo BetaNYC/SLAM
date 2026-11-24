@@ -69,18 +69,22 @@ export async function sendFeedback(body, f = globalThis.fetch) {
 	}
 }
 
-// PLACEHOLDER COPY (#134): communications is drafting the final wording; swap it in here.
+// Final wording: people/noel/work/2026-11-24-slam-map2-feedback-copy.md, section 1, in the BetaNYC
+// workspace (2026-11-24). `cancel`, `close` and `sending` are not in that file: the form needs them.
+// A busy endpoint (429) shows the same error message, which already says to try again in a minute.
 export const FEEDBACK_COPY = {
 	button: 'Send feedback',
-	title: 'Send feedback about this map',
-	intro: 'Tell BetaNYC what works, what is missing or what looks wrong. Only BetaNYC staff read it.',
-	description: 'Your feedback (required)',
-	name: 'Your name (optional)',
-	email: 'Your email (optional, if you would like a reply)',
+	title: 'Tell us what you think of this map',
+	intro: "This map is a prototype. Tell us what works for you and what doesn't.",
+	description: 'Your feedback',
+	hint: "What was confusing? What's missing? What would you use this map for at the board or in your neighborhood? If something on the map looks wrong, tell us the address.",
+	name: 'Name (optional)',
+	email: 'Email (optional)',
+	privacy: 'Your feedback goes to a private BetaNYC system that only our staff read. Name and email are optional, and we use them only if we need to follow up with you.',
 	send: 'Send',
 	cancel: 'Cancel',
+	close: 'Close',
 	sending: 'Sending…',
-	sent: 'Thank you. Your feedback was sent to BetaNYC.',
-	busy: 'Too many messages were sent just now. Please try again later.',
-	failed: 'Your feedback could not be sent. Please try again later, or email lab@beta.nyc.'
+	sent: 'Thank you. Your feedback reached BetaNYC, and our staff read every message.',
+	failed: "Your feedback didn't send. Please try again in a minute, or email it to lab@beta.nyc."
 };

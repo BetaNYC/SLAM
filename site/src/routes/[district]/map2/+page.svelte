@@ -9,11 +9,12 @@
 	import { resolve, asset } from '$app/paths';
 	import logo from '#lib/assets/betanyc-logo.svg';
 	import { SOURCE_COLOR, SOURCE_HOLLOW, SOURCE_LABEL, SW_COLOR, SW_KIND, C311_GROUPS, c311Group, c311ColorExpr, fmtStamp } from '#lib/format.js';
-	import { STACK_CAP, STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr, chipView, stackDiscs, columnTop, c311DiscColorExpr, DISC_REBUILD_ZOOM, TILT_ON } from '#lib/c311Display.js';
+	import { STACK_STEP_PX, stackChips, pointSummaries, groupColorExpr, sizedRadiusExpr, chipView, stackDiscs, columnTop, c311DiscColorExpr, DISC_REBUILD_ZOOM, TILT_ON } from '#lib/c311Display.js';
 	import { chooseBasemap, basemapNote, basemapSwitcher, carryOverlays, SWITCH_NOTE, FALLBACK_STYLE_URL } from '#lib/basemap.js';
 	import { ringSpecs, ringFeatures, RING_COLOR, RING_NOTE } from '#lib/rings.js';
 	import { popupSW } from '#lib/popupSW.js';
 	import { popup311Point } from '#lib/popup311.js';
+	import { recordPoints, expiringSoon, nycToday, maxPile } from '#lib/map2.js';
 	import { feedbackBody, sendFeedback, FEEDBACK_COPY as FB, LIMITS } from '#lib/feedback.js';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -37,9 +38,12 @@
 	const CHIP_ZOOM = 15.5;
 	/** Piles of this many complaints or more show their total. */
 	const LABEL_MIN = 10;
-	const STACK_LAYERS = Array.from({ length: STACK_CAP }, (_, i) => `c311-stack-${i}`);
+	// No pile cap on this map (Noel, 2026-11-23: "no cap: every record is a chip"): one chip layer per
+	// level, as many as the deepest pile, set once the 311 file is in (the first map keeps its STACK_CAP).
+	/** @type {string[]} */
+	let STACK_LAYERS = [];
 	/** @type {Record<'circles' | 'flat' | '3d', string[]>} */
-	const VIEW_LAYERS = { circles: ['c311-sized', 'c311-sized-label'], flat: [...STACK_LAYERS, 'c311-stack-label'], '3d': ['c311-discs', 'c311-col-label'] };
+	const VIEW_LAYERS = { circles: ['c311-sized', 'c311-sized-label'], flat: ['c311-stack-label'], '3d': ['c311-discs', 'c311-col-label'] };
 	const LABEL_LAYERS = ['c311-sized-label', 'c311-stack-label', 'c311-col-label'];
 	const EMPTY = { type: 'FeatureCollection', features: [] };
 
@@ -70,6 +74,8 @@
 	let tilted = $state(false);
 	let loaded = $state(false);
 	let basemapLine = $state('');
+	/** Active liquor licenses expiring from today through six months out (null until loaded). @type {number | null} */
+	let expiring = $state(null);
 
 	const inRange = (/** @type {any} */ p) => {
 		const y = +String(p.d ?? '').slice(0, 4);
@@ -112,6 +118,8 @@
 	let labelFont = ['Source Sans Pro Bold'];
 	/** @type {Map<string, any>} 311 summaries by point, for popups. */
 	let summaryAt = new Map();
+	/** @type {{type: string, features: any[]}} The 311 point summaries now drawn. */
+	let sums311 = EMPTY;
 	const key = (/** @type {number[]} */ c) => `${c[0].toFixed(6)},${c[1].toFixed(6)}`;
 
 	onMount(() => {
@@ -126,14 +134,19 @@
 			setWorkerUrl(workerUrl);
 			Popup = P;
 			const get = (/** @type {string} */ f) => fetch(asset(/** @type {any} */ (`data/${f}`))).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status} for ${f}`))));
-			const [outline, points, c311, swPts, basemap] = await Promise.all([
+			// list.json, not points.geojson: the license popups show type and expiration date (#134).
+			const [outline, list, c311, swPts, basemap] = await Promise.all([
 				get('districts.geojson'),
-				get(`${data.slug}/points.geojson`),
+				get(`${data.slug}/list.json`),
 				get(`${data.slug}/points-311.geojson`),
 				get(`${data.slug}/schools-worship.geojson`),
 				chooseBasemap()
 			]);
 			if (cancelled) return;
+			const points = recordPoints(list);
+			expiring = expiringSoon(list.liquor_active ?? [], nycToday());
+			STACK_LAYERS = Array.from({ length: maxPile(c311) }, (_, i) => `c311-stack-${i}`);
+			VIEW_LAYERS.flat = [...STACK_LAYERS, 'c311-stack-label'];
 			for (const k of RECORD_ORDER) counts[k] = points.features.filter((/** @type {any} */ f) => f.properties.source === k).length;
 			for (const k of SW_KINDS) counts[k] = swPts.features.filter((/** @type {any} */ f) => f.properties.k === k).length;
 			const ys = c311.features.map((/** @type {any} */ f) => +String(f.properties.d).slice(0, 4)).filter(Number.isFinite);
@@ -209,7 +222,7 @@
 			paint: { 'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 2 }
 		});
 		// 311 complaints, three views (#lib/c311Display.js): circles zoomed out, stacked chips zoomed in, 3D discs tilted.
-		for (const id of ['c311-points', 'c311-chips', 'c311-discs']) map.addSource(id, { type: 'geojson', data: EMPTY });
+		for (const id of ['c311-points', 'c311-chips', 'c311-discs', 'c311-tops']) map.addSource(id, { type: 'geojson', data: EMPTY });
 		const none = { visibility: 'none' };
 		const label = { 'text-field': ['to-string', ['get', 'n']], 'text-font': labelFont, 'text-size': 11, 'text-allow-overlap': true, 'text-ignore-placement': true };
 		const dark = { 'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 1.5 };
@@ -226,9 +239,13 @@
 				paint: { 'circle-radius': 3.5, 'circle-color': c311ColorExpr(), 'circle-stroke-color': '#fff', 'circle-stroke-width': 0.75, 'circle-translate': [0, -i * STACK_STEP_PX], 'circle-translate-anchor': 'viewport' }
 			})
 		);
-		map.addLayer({ id: 'c311-stack-label', type: 'symbol', source: 'c311-points', filter: pile, layout: { ...none, ...label }, paint: { ...dark, 'text-translate': [0, -(STACK_CAP * STACK_STEP_PX + 8)], 'text-translate-anchor': 'viewport' } });
+		// Piles have no cap, so the total sits just under the pile's base, as in the prototype
+		// (text-translate is not data-driven, so it cannot follow each pile's height).
+		map.addLayer({ id: 'c311-stack-label', type: 'symbol', source: 'c311-points', filter: pile, layout: { ...none, ...label, 'text-anchor': 'top', 'text-offset': [0, 0.6] }, paint: dark });
 		map.addLayer({ id: 'c311-discs', type: 'fill-extrusion', source: 'c311-discs', layout: none, paint: { 'fill-extrusion-color': c311DiscColorExpr(), 'fill-extrusion-base': ['get', 'b'], 'fill-extrusion-height': ['get', 'h'], 'fill-extrusion-opacity': 1 } });
-		map.addLayer({ id: 'c311-col-label', type: 'symbol', source: 'c311-points', filter: pile, layout: { ...none, ...label, 'symbol-height-offset': columnTop(map.getZoom()) }, paint: dark });
+		// Tilted, each total floats just above its own column: symbol-height-offset is data-driven
+		// (MapLibre style spec, GL JS 6.6.0+), set per point as `top` by drawView.
+		map.addLayer({ id: 'c311-col-label', type: 'symbol', source: 'c311-tops', filter: pile, layout: { ...none, ...label, 'symbol-height-offset': ['get', 'top'] }, paint: dark });
 		map.addSource('sw', { type: 'geojson', data: swData });
 		map.addLayer({
 			id: 'schools_worship',
@@ -263,10 +280,10 @@
 		for (const k of RECORD_ORDER) for (const id of [k, `${k}${HALO}`]) map.setLayoutProperty(id, 'visibility', rec[k] ? 'visible' : 'none');
 		map.setFilter('schools_worship', ['in', ['get', 'k'], ['literal', SW_KINDS.filter((k) => sw[k])]]);
 		map.getSource('rings').setData(ringFeatures(swData, ringSpecs(data.ring_ft, rings)));
-		const sums = pointSummaries(shown311);
+		const sums = (sums311 = pointSummaries(shown311));
 		summaryAt = new Map(sums.features.map((f) => [key(f.geometry.coordinates), f.properties]));
 		map.getSource('c311-points').setData(sums);
-		map.getSource('c311-chips').setData(stackChips(shown311));
+		map.getSource('c311-chips').setData(stackChips(shown311, Infinity));
 		discZoom = -1;
 		view = null;
 		drawView();
@@ -280,8 +297,8 @@
 		tilted = tiltView === '3d';
 		const v = z < CHIP_ZOOM ? 'circles' : tiltView;
 		if (v === '3d' && (discZoom === -1 || Math.abs(z - discZoom) >= DISC_REBUILD_ZOOM)) {
-			map.getSource('c311-discs').setData(stackDiscs(shown311, z));
-			map.setLayoutProperty('c311-col-label', 'symbol-height-offset', columnTop(z));
+			map.getSource('c311-discs').setData(stackDiscs(shown311, z, Infinity));
+			map.getSource('c311-tops').setData({ ...sums311, features: sums311.features.map((/** @type {any} */ f) => ({ ...f, properties: { ...f.properties, top: columnTop(z, f.properties.n) } })) });
 			discZoom = z;
 		} else if (v !== '3d' && discZoom !== -1) {
 			map.getSource('c311-discs').setData(EMPTY);
@@ -310,10 +327,14 @@
 		new Popup({ maxWidth: '320px' }).setLngLat(e.lngLat).setDOMContent(node).addTo(map);
 	}
 
+	/** "2026-12-31" as "December 31, 2026"; anything else as given. @param {string} d */
+	const longDate = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d ?? '') ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' }) : d);
+
 	/** Popup body for a record dot, built from text nodes so source text cannot inject markup. @param {any} p */
 	function recordPopup(p) {
 		const div = document.createElement('div');
-		for (const [label, v] of [['Name', p.name || '(no name in the source)'], ['What', SOURCE_LABEL[p.source] ?? p.source], ['Address', p.street || '(no address)'], ['Status', p.status]]) {
+		const rows = [['Name', p.name || '(no name in the source)'], ['What', SOURCE_LABEL[p.source] ?? p.source], ['Type', p.type], ['Address', p.street || '(no address)'], ['Status', p.status], [p.date_label, longDate(p.date)], ['License ID', p.rid]];
+		for (const [label, v] of rows) {
 			if (!v) continue;
 			const line = document.createElement('div');
 			const b = document.createElement('strong');
@@ -402,12 +423,13 @@
 			<h2 id="fb-h">{FB.title}</h2>
 			{#if fbState === 'sent'}
 				<p role="status">{FB.sent}</p>
-				<button type="button" onclick={() => dlg.close()}>Close</button>
+				<button type="button" onclick={() => dlg.close()}>{FB.close}</button>
 			{:else}
 				<form onsubmit={submitFeedback}>
 					<p>{FB.intro}</p>
 					<label for="fb-text">{FB.description}</label>
-					<textarea id="fb-text" required maxlength={LIMITS.description} rows="5" bind:value={fb.description}></textarea>
+					<p id="fb-hint" class="fb-hint">{FB.hint}</p>
+					<textarea id="fb-text" aria-describedby="fb-hint" required maxlength={LIMITS.description} rows="5" bind:value={fb.description}></textarea>
 					<label for="fb-name">{FB.name}</label>
 					<input id="fb-name" maxlength={LIMITS.name} autocomplete="name" bind:value={fb.name} />
 					<label for="fb-email">{FB.email}</label>
@@ -417,7 +439,8 @@
 						<label for="fb-website">Website</label>
 						<input id="fb-website" tabindex="-1" autocomplete="off" bind:value={fb.website} />
 					</div>
-					<p role="status" class="fb-msg">{fbState === 'sending' ? FB.sending : fbState === 'busy' ? FB.busy : fbState === 'failed' ? FB.failed : ''}</p>
+					<p class="fb-hint">{FB.privacy}</p>
+					<p role="status" class="fb-msg">{fbState === 'sending' ? FB.sending : fbState === 'busy' || fbState === 'failed' ? FB.failed : ''}</p>
 					<div class="fb-buttons">
 						<button type="submit" disabled={fbState === 'sending'}>{FB.send}</button>
 						<button type="button" class="secondary" onclick={() => dlg.close()}>{FB.cancel}</button>
@@ -493,7 +516,7 @@
 				<div><b>{data.district.counts.liquor_pending}</b><span>pending applications</span></div>
 				<div><b>{shown311.features.length.toLocaleString('en-US')}</b><span>311 complaints</span></div>
 			</div>
-			<p class="sub">311 data through {data.c311?.through ?? '—'}.</p>
+			<p class="sub">{#if expiring !== null}{expiring} active liquor licenses expire in the next six months.{' '}{/if}311 data through {data.c311?.through ?? '—'}.</p>
 		</div>
 		<div class="chart">
 			<h2 id="chart-h">311 complaints per year (select a year; * = to date)</h2>
@@ -570,12 +593,12 @@
 	.show-panel { top: 12px; right: 12px; }
 	.show-stats { bottom: 28px; left: 50%; transform: translateX(-50%); }
 
-	.bar { position: fixed; left: 0; right: var(--side); bottom: 0; height: var(--bar); z-index: 3; background: #fff; border-top: 3px solid var(--blue); display: grid; grid-template-columns: minmax(250px, 2fr) 3fr minmax(340px, 2.2fr); grid-template-rows: minmax(0, 1fr); gap: 0 18px; padding: 8px 14px; }
+	.bar { position: fixed; left: 0; right: var(--side); bottom: 0; height: var(--bar); z-index: 3; background: #fff; border-top: 3px solid var(--blue); display: grid; grid-template-columns: minmax(300px, 2fr) 3fr minmax(340px, 2.2fr); grid-template-rows: minmax(0, 1fr); gap: 0 18px; padding: 8px 14px; }
 	.bar h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 	.counts { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; border-top: 1px solid var(--line); padding-top: 6px; }
-	.counts b { display: block; font-size: 22px; color: var(--blue); }
+	.counts b { display: block; font-size: 20px; color: var(--blue); }
 	.counts span { font-size: 12px; }
-	.sub { font-size: 12px; margin: 6px 0 0; }
+	.sub { font-size: 11px; line-height: 1.3; margin: 4px 0 0; }
 	.chart { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 	.cols { flex: 1; display: flex; gap: 4px; min-height: 0; }
 	.col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; padding: 0 2px; border: 0; border-radius: 3px; background: transparent; color: var(--ink); font: inherit; font-size: 11px; cursor: pointer; }
@@ -599,6 +622,7 @@
 	.fb button.secondary { background: #fff; color: var(--blue); }
 	.fb-buttons { display: flex; gap: 0.5rem; }
 	.fb-msg:empty { display: none; }
+	.fb-hint { font-size: 0.9rem; margin: 0.2rem 0 0.3rem; }
 	.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 
 	/* A phone: the panel opens over the map from the "Layers" button; the bar stacks; no legend. */

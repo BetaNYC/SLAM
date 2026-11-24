@@ -70,8 +70,8 @@ test('feedback: the form posts a problem report (mocked endpoint)', async ({ pag
 	await page.goto(/** @type {any} */ (map2).path);
 	await waitForMap(page);
 	await page.getByRole('button', { name: 'Send feedback' }).click();
-	await page.getByLabel(/Your feedback/).fill('Test feedback from the browser test.');
-	await page.getByLabel(/Your name/).fill('Test');
+	await page.getByLabel('Your feedback').fill('Test feedback from the browser test.');
+	await page.getByLabel('Name (optional)').fill('Test');
 	await page.locator('dialog.fb button[type=submit]').click();
 	await expect(page.locator('dialog.fb [role=status]')).toContainText('Thank you');
 	expect(posts).toEqual([
