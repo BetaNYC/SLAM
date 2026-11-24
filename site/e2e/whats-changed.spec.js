@@ -113,7 +113,8 @@ test('whats-changed: no sideways scroll at 320px wide, with default fonts and a 
 	}
 });
 
-for (const p of pages()) {
+// map2 (#134) fills the window and has no footer; its About section links What's changed.
+for (const p of pages().filter((x) => x.name !== 'map2')) {
 	test(`footer: ${p.name} page links to What's changed`, async ({ page }) => {
 		await page.goto(p.path);
 		await ready(page, p);

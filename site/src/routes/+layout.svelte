@@ -14,12 +14,17 @@
 	const noClient = $derived(page.route.id === '/whats-changed');
 	/** @param {string} id */
 	const current = (id) => (page.route.id === id ? 'page' : undefined);
+	// The second district map (#134) fills the whole window with its own header, panel and stats bar.
+	const bare = $derived(page.route.id === '/[district]/map2');
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+{#if bare}
+	{@render children()}
+{:else}
 <a class="skip" href="#main">Skip to content</a>
 <!-- Same structure and styles as BoardStat 2.0 (beta.nyc/boardstat/v2): brand, tag, nav on the right. -->
 <header class="site">
@@ -66,6 +71,7 @@
 		and corrections, newest first.
 	</p>
 </footer>
+{/if}
 
 <style>
 	.subbar { background: var(--bg-soft); border-bottom: 1px solid var(--line); padding: 0.6rem 0; }
