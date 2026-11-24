@@ -7,10 +7,16 @@ This page lists the changes to SLAM, the Street License and Activity Map, that a
 
 To report a bug in SLAM, or to ask for a new feature, [open an issue on GitHub](https://github.com/BetaNYC/SLAM/issues).
 
+## 2026-11-24: The second map opens on a gray street map, with a choice of three
+
+- **Tags:** Site
+- **What changed:** The test map of Brooklyn Community District 9 (slam.beta.nyc/bk-cd9/map2/) now opens on the gray street map BoardStat uses, built from OpenStreetMap data by Protomaps, so the dots stand out. Buttons on the left switch to the City's own map (NYC OTI) or to OpenStreetMap. The district map is unchanged.
+- **More detail:** [The change](https://github.com/BetaNYC/SLAM/pull/136) · [Issue 134](https://github.com/BetaNYC/SLAM/issues/134)
+
 ## 2026-11-24: A second map layout for Brooklyn Community District 9, to try out
 
 - **Tags:** Site
-- **What changed:** A test map of Brooklyn Community District 9 at slam.beta.nyc/bk-cd9/map2/, for Board 9 to try. It has the same data as the district map, laid out like BetaNYC's map of Manhattan's privately owned public spaces: a layer panel on the right, where each layer has its own on/off button, and a bar of totals and a 311 chart by year along the bottom. Both can be hidden for a full-screen map. A "Send feedback" button sends comments to BetaNYC. It opens on the gray street map BoardStat uses; buttons on the left switch to the City's own map (NYC OTI) or OpenStreetMap. The district map is unchanged.
+- **What changed:** A test map of Brooklyn Community District 9 at slam.beta.nyc/bk-cd9/map2/, for Board 9 to try. It has the same data as the district map, laid out like BetaNYC's map of Manhattan's privately owned public spaces: a layer panel on the right, where each layer has its own on/off button, and a bar of totals and a 311 chart by year along the bottom. Both can be hidden for a full-screen map. A "Send feedback" button sends comments to BetaNYC. The district map is unchanged.
 - **More detail:** [Issue 134](https://github.com/BetaNYC/SLAM/issues/134)
 
 ## 2026-11-20: Map: 311 complaints stand up in 3D when you tilt the map
