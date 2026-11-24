@@ -11,6 +11,8 @@ import {
 	resolveTemplate,
 	chooseBasemap,
 	basemapNote,
+	grayStyle,
+	LABEL_FONT,
 	isUsableStyle,
 	isCityError,
 	basemapSwitcher,
@@ -223,4 +225,40 @@ test('carryOverlays keeps every overlay source and layer, in order, with its vis
 	assert.equal(out.layers.find((/** @type {any} */ l) => l.id === 'schools_worship').layout.visibility, 'none');
 	assert.ok(!out.layers.some((/** @type {any} */ l) => l.source === 'esri'), 'no City layer survives');
 	assert.equal(carryOverlays([])(undefined, next), next);
+});
+
+test('carryOverlays can move carried labels to the new basemap font, and the swap works both ways', () => {
+	const pts = { type: 'FeatureCollection', features: [] };
+	const osm = { version: 8, sources: { openmaptiles: { type: 'vector', url: 'x' } }, layers: [{ id: 'background', type: 'background' }] };
+	const city = quietCityStyle(absolutizeCityStyle(root));
+	const prev = {
+		...osm,
+		sources: { ...osm.sources, c311: { type: 'geojson', data: pts } },
+		layers: [...osm.layers, { id: 'c311-dot', type: 'circle', source: 'c311' }, { id: 'c311-label', type: 'symbol', source: 'c311', layout: { 'text-font': ['Noto Sans Bold'], 'text-size': 11 } }]
+	};
+	const out = carryOverlays(['openmaptiles'], ['Source Sans Pro Bold'])(prev, city);
+	const label = out.layers.find((/** @type {any} */ l) => l.id === 'c311-label');
+	assert.deepEqual(label.layout, { 'text-font': ['Source Sans Pro Bold'], 'text-size': 11 });
+	assert.equal(out.layers.find((/** @type {any} */ l) => l.id === 'c311-dot').layout, undefined, 'non-text layers untouched');
+	assert.equal(out.sources.openmaptiles, undefined);
+	assert.ok(out.sources.esri && out.sources.c311);
+	assert.deepEqual(prev.layers[2].layout['text-font'], ['Noto Sans Bold'], 'input not mutated');
+});
+
+test('basemapNote says when the reader chose OpenStreetMap, not that the City map failed', () => {
+	assert.match(basemapNote('fallback', true), /^Street map: OpenFreeMap/);
+	assert.match(basemapNote('fallback'), /did not load/);
+});
+
+test('grayStyle: BoardStat\'s gray map from a district .pmtiles file, with Protomaps fonts and icons', () => {
+	const layers = [{ id: 'background', type: 'background' }];
+	const st = grayStyle('https://slam.beta.nyc/basemap/bk-cd9.pmtiles', layers);
+	assert.equal(st.version, 8);
+	assert.equal(st.sources.protomaps.url, 'pmtiles://https://slam.beta.nyc/basemap/bk-cd9.pmtiles');
+	assert.match(st.sources.protomaps.attribution, /OpenStreetMap/);
+	assert.equal(st.sprite, 'https://protomaps.github.io/basemaps-assets/sprites/v4/grayscale');
+	assert.match(st.glyphs, /\{fontstack\}\/\{range\}\.pbf$/);
+	assert.equal(st.layers, layers);
+	assert.deepEqual(LABEL_FONT.gray, ['Noto Sans Medium']);
+	assert.match(basemapNote('gray'), /BoardStat/);
 });

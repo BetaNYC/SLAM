@@ -80,6 +80,17 @@ The workflow (`.github/workflows/v2-deploy.yml`) rebuilds and publishes the site
 
 Every pull request to `v2` runs the site tests and the accessibility checks (`.github/workflows/v2-site-a11y.yml`) on the data last published to `gh-pages`. The checks are axe-core against WCAG 2.0, 2.1 and 2.2 A and AA on the home, district, address, map, second map (`/bk-cd9/map2/`, #134), About, Glossary and Rules pages, at desktop size and at 360 x 800 and 390 x 844; keyboard use of the map page; and phone layout. Any serious or critical axe violation fails the run, and the deploy workflow runs the same checks before it publishes.
 
+### Gray street map (second map)
+
+The second map (`/bk-cd9/map2/`) can show the gray street map BoardStat uses: Protomaps' `grayscale` style of OpenStreetMap data. BoardStat's copy lives on beta.nyc, which cannot let another site read it (DreamPress allows no CORS header), so SLAM keeps its own small extract per district in `site/static/basemap/<district>.pmtiles`, built from Protomaps' daily build of 2026-11-23. Fonts and icons load from Protomaps' public assets. Refresh it a few times a year (needs `brew install pmtiles`):
+
+```sh
+pmtiles extract https://build.protomaps.com/YYYYMMDD.pmtiles site/static/basemap/bk-cd9.pmtiles \
+  --bbox=-74.013,40.605,-73.878,40.722 --maxzoom=14   # Brooklyn 9 plus a margin; about 6 MB
+```
+
+A district with no file keeps the Gray button off.
+
 ## Data sources
 
 Every dataset is read from its portal's own API, and its fields are checked against that portal's own column list (`pipeline/slam_pipeline/sources.py`).
